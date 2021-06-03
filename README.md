@@ -15,5 +15,5 @@ Some notable examples
  * OpenSSL - this one uses vcpkg to build the package image.
  * Lua - this one uses a script called pull_and_build_from_git.py (in Scripts/extras) to build the package image.
 
- See the documentation (README.md in the main package scripts repo for a full description of how to author packages.)
+ See the documentation (README.md in 3p-package-scripts repo for a full description of how to author packages.)
  

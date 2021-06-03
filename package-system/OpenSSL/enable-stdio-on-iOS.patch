@@ -1,5 +1,4 @@
 From 994b564a93e21d37b2d470dbc3773855184804e6 Mon Sep 17 00:00:00 2001
-From: Chris Burel <burelc@amazon.com>
 Date: Tue, 20 Apr 2021 18:15:26 -0700
 Subject: [PATCH] Enable stdio on iOS
 
