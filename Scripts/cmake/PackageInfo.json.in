@@ -1,0 +1,6 @@
+{
+    "PackageName" : "@PACKAGE_NAME@-@PACKAGE_VERSION@-@PACKAGE_PLATFORM@",
+    "URL"         : "@PACKAGE_URL@",
+    "License"     : "@PACKAGE_LICENSE@",
+    "LicenseFile" : "@PACKAGE_LICENSE_FILE@"
+}

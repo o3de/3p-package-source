@@ -1,0 +1,24 @@
+From 994b564a93e21d37b2d470dbc3773855184804e6 Mon Sep 17 00:00:00 2001
+Date: Tue, 20 Apr 2021 18:15:26 -0700
+Subject: [PATCH] Enable stdio on iOS
+
+---
+ ports/openssl/unix/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ports/openssl/unix/CMakeLists.txt b/ports/openssl/unix/CMakeLists.txt
+index 14633c9..2c73753 100644
+--- a/ports/openssl/unix/CMakeLists.txt
++++ b/ports/openssl/unix/CMakeLists.txt
+@@ -23,7 +23,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+         message(FATAL_ERROR "Unknown iOS target architecture: ${VCPKG_TARGET_ARCHITECTURE}")
+     endif()
+     # disable that makes linkage error (e.g. require stderr usage)
+-    list(APPEND DISABLES no-stdio no-ui no-asm)
++    list(APPEND DISABLES no-ui no-asm)
+ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+     if(VCPKG_TARGET_ARCHITECTURE MATCHES "arm64")
+         set(PLATFORM darwin64-arm64-cc)
+-- 
+2.30.1
+
