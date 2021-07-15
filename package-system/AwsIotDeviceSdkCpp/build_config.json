@@ -1,0 +1,167 @@
+{
+   "git_url":"https://github.com/aws/aws-iot-device-sdk-cpp-v2.git",
+   "git_tag":"v1.12.2",
+   "package_name":"AwsIotDeviceSdkCpp",
+   "package_version":"1.12.2-rev1",
+   "package_url":"https://github.com/aws/aws-iot-device-sdk-cpp-v2",
+   "package_license":"Apache-2.0",
+   "package_license_file":"LICENSE",
+   "cmake_find_template":"FindAwsIotDeviceSdkCpp.cmake.template",
+   "cmake_find_target":"FindAwsIotDeviceSdkCpp.cmake",
+   "patch_file":"aws-iot-device-sdk-cpp-v2-v1.12.2.patch",
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "cmake_generate_args_debug": [
+               "-G",
+               "\"Visual Studio 16 2019\"",
+               "-A",
+               "x64",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Debug\"",
+               "-DCMAKE_BUILD_TYPE=\"Debug\""
+            ],
+            "cmake_generate_args_release": [
+               "-G",
+               "\"Visual Studio 16 2019\"",
+               "-A",
+               "x64",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
+               "-DCMAKE_BUILD_TYPE=\"Release\""
+            ],
+            "cmake_build_args":[
+               "-j"
+            ],
+            "custom_additional_compile_definitions":[
+               
+            ],
+            "custom_additional_link_options":[
+            ],
+            "custom_additional_libraries": [
+               "Bcrypt",
+               "Secur32",
+               "Shlwapi"
+            ]
+         },
+         "Android":{
+            "custom_cmake_install":true,
+            "cmake_generate_args_debug": [
+               "-G",
+               "Ninja",
+               "-DCMAKE_TOOLCHAIN_FILE=%LY_ANDROID_NDK_ROOT%\\build\\cmake\\android.toolchain.cmake",
+               "-DANDROID_ABI=arm64-v8a",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DBUILD_SHARED_LIBS=ON",
+               "-DBUILD_DEPS=ON",
+               "-DS2N_NO_PQ_ASM=ON",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "cmake_generate_args_release":[
+               "-G",
+               "Ninja",
+               "-DCMAKE_TOOLCHAIN_FILE=%LY_ANDROID_NDK_ROOT%\\build\\cmake\\android.toolchain.cmake",
+               "-DANDROID_ABI=arm64-v8a",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DBUILD_SHARED_LIBS=ON",
+               "-DBUILD_DEPS=ON",
+               "-DS2N_NO_PQ_ASM=ON",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "custom_additional_compile_definitions":[
+            ],
+            "custom_additional_link_options":[
+               
+            ],
+            "custom_additional_libraries":[
+               
+            ]
+         }
+      },
+      "Darwin":{
+         "Mac":{
+            "build_configs":[
+               "Release"
+            ],
+            "cmake_generate_args":[
+               "-G",
+               "Xcode",
+               "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12",
+               "-DCMAKE_OSX_ARCHITECTURES=x86_64",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17"
+            ],
+            "cmake_build_args":[
+               "-j",
+               "8"
+            ],
+            "custom_additional_compile_definitions":[
+               
+            ],
+            "custom_additional_link_options":[
+               
+            ],
+            "custom_additional_libraries":[
+               
+            ]
+         },
+         "iOS":{
+            "custom_cmake_install":true,
+            "cmake_generate_args":[
+               "-G",
+               "Xcode",
+               "-DCMAKE_SYSTEM_NAME=iOS",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_OSX_ARCHITECTURES=arm64",
+               "-DCMAKE_THREAD_LIBS_INIT=-pthread",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\""
+            ],
+            "cmake_build_args":[
+               
+            ],
+            "custom_additional_compile_definitions":[
+            ],
+            "custom_additional_link_options":[
+               
+            ],
+            "custom_additional_libraries":[
+               
+            ]
+         }
+      },
+      "Linux":{
+         "Linux":{
+            "custom_cmake_install":true,
+            "cmake_generate_args_debug":[
+               "-G",
+               "Unix\\ Makefiles",
+               "-DCMAKE_C_COMPILER=clang-6.0",
+               "-DCMAKE_CXX_COMPILER=clang++-6.0",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "cmake_generate_args_release":[
+               "-G",
+               "Unix\\ Makefiles",
+               "-DCMAKE_C_COMPILER=clang-6.0",
+               "-DCMAKE_CXX_COMPILER=clang++-6.0",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "cmake_build_args":[
+               "-j"
+            ],
+            "custom_additional_compile_definitions":[
+            ],
+            "custom_additional_link_options":[
+               
+            ],
+            "custom_additional_libraries":[
+               
+            ]
+         }
+      }
+   }
+}
