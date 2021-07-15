@@ -1,0 +1,16 @@
+diff --git a/Mac/BuildScript/build-installer.py b/Mac/BuildScript/build-installer.py
+index 4fab4882ef..3c10e2dbe1 100755
+--- a/Mac/BuildScript/build-installer.py
++++ b/Mac/BuildScript/build-installer.py
+@@ -1522,6 +1522,11 @@ def buildInstaller():
+     pkgroot = os.path.join(outdir, 'Python.mpkg', 'Contents')
+     pkgcontents = os.path.join(pkgroot, 'Packages')
+     os.makedirs(pkgcontents)
++
++    #o3de modification:  We don't need packages for our purposes, so we return immediately:
++    return
++
++
+     for recipe in pkg_recipes():
+         packageFromRecipe(pkgcontents, recipe)
+ 
