@@ -1,0 +1,80 @@
+#
+# Copyright (c) Contributors to the Open 3D Engine Project.
+# For complete copyright and license terms please see the LICENSE at the root of this distribution.
+# 
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+#
+
+# this file actually ingests the library and defines targets.
+
+# Googletest
+set(GOOGLETEST_INCLUDE_DIR $${CMAKE_CURRENT_LIST_DIR}/googletest/include)
+set(GOOGLETEST_LIBS_DIR $${CMAKE_CURRENT_LIST_DIR}/googletest/lib)
+
+set(GOOGLETEST_COMPILE_DEFINITIONS
+${CUSTOM_ADDITIONAL_COMPILE_DEFINITIONS})
+
+set(GOOGLETEST_LINK_OPTIONS
+${CUSTOM_ADDITIONAL_LINK_OPTIONS})
+
+# GTest
+#################################################################
+set(TARGET_WITH_NAMESPACE "3rdParty::googletest::GTest")
+if (NOT TARGET $${TARGET_WITH_NAMESPACE})
+
+    set(GOOGLETEST_GTEST_LIBRARY $${GOOGLETEST_LIBS_DIR}/$${CMAKE_STATIC_LIBRARY_PREFIX}gtest$${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+    add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+    ly_target_include_system_directories(TARGET $${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_INCLUDE_DIR})
+    target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_GTEST_LIBRARY})
+    target_link_options($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_LINK_OPTIONS})
+    target_compile_definitions($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_COMPILE_DEFINITIONS})
+    set(GOOGLETEST_GTEST_FOUND True)
+endif()
+
+# GTestMain
+#################################################################
+set(TARGET_WITH_NAMESPACE "3rdParty::googletest::GTestMain")
+if (NOT TARGET $${TARGET_WITH_NAMESPACE})
+
+    set(GOOGLETEST_GTESTMAIN_LIBRARY $${GOOGLETEST_LIBS_DIR}/$${CMAKE_STATIC_LIBRARY_PREFIX}gtest_main$${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+    add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+    ly_target_include_system_directories(TARGET $${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_INCLUDE_DIR})
+    target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_GTESTMAIN_LIBRARY})
+    target_link_options($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_LINK_OPTIONS})
+    target_compile_definitions($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_COMPILE_DEFINITIONS})
+    set(GOOGLETEST_GTESTMAIN_FOUND True)
+endif()
+
+# GMock
+#################################################################
+set(TARGET_WITH_NAMESPACE "3rdParty::googletest::GMock")
+if (NOT TARGET $${TARGET_WITH_NAMESPACE})
+
+    set(GOOGLETEST_GMOCK_LIBRARY $${GOOGLETEST_LIBS_DIR}/$${CMAKE_STATIC_LIBRARY_PREFIX}gmock$${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+    add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+    ly_target_include_system_directories(TARGET $${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_INCLUDE_DIR})
+    target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_GMOCK_LIBRARY})
+    target_link_options($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_LINK_OPTIONS})
+    target_compile_definitions($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_COMPILE_DEFINITIONS})
+    set(GOOGLETEST_GMOCK_FOUND True)
+endif()
+
+
+# GMockMain
+#################################################################
+set(TARGET_WITH_NAMESPACE "3rdParty::googletest::GMockMain")
+if (NOT TARGET $${TARGET_WITH_NAMESPACE})
+
+    set(GOOGLETEST_GMOCKMAIN_LIBRARY $${GOOGLETEST_LIBS_DIR}/$${CMAKE_STATIC_LIBRARY_PREFIX}gmock_main$${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+    add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+    ly_target_include_system_directories(TARGET $${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_INCLUDE_DIR})
+    target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_GMOCKMAIN_LIBRARY})
+    target_link_options($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_LINK_OPTIONS})
+    target_compile_definitions($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLETEST_COMPILE_DEFINITIONS})
+    set(GOOGLETEST_GMOCKMAIN_FOUND True)
+endif()
