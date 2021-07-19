@@ -1,0 +1,6 @@
+{
+    "PackageName" : "d3dx12-headers-rev1-windows",
+    "URL"         : "https://github.com/microsoft/DirectX-Headers",
+    "License"     : "MIT License",
+    "LicenseFile" : "d3dx12/license.txt"
+}
