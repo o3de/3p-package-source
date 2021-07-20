@@ -1,0 +1,154 @@
+{
+   "git_url":"https://github.com/google/googletest.git",
+   "git_tag":"release-1.8.1",
+   "package_name":"googletest",
+   "package_version":"1.8.1-rev4",
+   "package_url":"https://github.com/google/googletest",
+   "package_license":"BSD-3-Clause",
+   "package_license_file":"LICENSE",
+   "cmake_find_template":"Findgoogletest.cmake.template",
+   "cmake_find_target":"Findgoogletest.cmake",
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "cmake_generate_args":[
+               "-G",
+               "\"Visual Studio 15 Win64\"",
+               "-DCMAKE_CXX_FLAGS=/Zc:__cplusplus",
+               "-Dgtest_force_shared_crt=ON"
+            ],
+            "cmake_build_args":[
+               "-j"
+            ],
+            "custom_additional_compile_definitions":[
+               
+            ],
+            "custom_additional_link_options":[
+               "$<$<STREQUAL:${PAL_TRAIT_COMPILER_ID},Clang>:-Wl,>/ignore:4099"
+            ],
+            "custom_additional_libraries":[
+               
+            ]
+         },
+         "Android":{
+            "cmake_generate_args_debug":[
+               "-G",
+               "Ninja",
+               "-DCMAKE_TOOLCHAIN_FILE=%LY_ANDROID_NDK_ROOT%\\build\\cmake\\android.toolchain.cmake",
+               "-DANDROID_ABI=arm64-v8a",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "cmake_generate_args_release":[
+               "-G",
+               "Ninja",
+               "-DCMAKE_TOOLCHAIN_FILE=%LY_ANDROID_NDK_ROOT%\\build\\cmake\\android.toolchain.cmake",
+               "-DANDROID_ABI=arm64-v8a",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "custom_additional_compile_definitions":[
+               "GTEST_HAS_TR1_TUPLE=0",
+               "GTEST_OS_SUPPORTS_DEATH_TEST=0"
+            ],
+            "custom_additional_link_options":[
+               
+            ],
+            "custom_additional_libraries":[
+               
+            ]
+         }
+      },
+      "Darwin":{
+         "Mac":{
+            "build_configs":[
+               "Release"
+            ],
+            "cmake_find_template":"FindgoogletestRelOnly.cmake.template",
+            "cmake_generate_args":[
+               "-G",
+               "Xcode",
+               "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12",
+               "-DCMAKE_OSX_ARCHITECTURES=x86_64",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17"
+            ],
+            "cmake_build_args":[
+               "-j",
+               "8"
+            ],
+            "custom_additional_compile_definitions":[
+               
+            ],
+            "custom_additional_link_options":[
+               
+            ],
+            "custom_additional_libraries":[
+               
+            ]
+         },
+         "iOS":{
+            "custom_cmake_install":true,
+            "cmake_generate_args":[
+               "-G",
+               "Xcode",
+               "-DCMAKE_SYSTEM_NAME=iOS",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_OSX_ARCHITECTURES=arm64",
+               "-DCMAKE_THREAD_LIBS_INIT=-pthread",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\""
+            ],
+            "cmake_build_args":[
+               
+            ],
+            "custom_additional_compile_definitions":[
+               "GTEST_HAS_TR1_TUPLE=0",
+               "GTEST_OS_SUPPORTS_DEATH_TEST=0"
+            ],
+            "custom_additional_link_options":[
+               
+            ],
+            "custom_additional_libraries":[
+               
+            ]
+         }
+      },
+      "Linux":{
+         "Linux":{
+            "cmake_generate_args_debug":[
+               "-G",
+               "Unix\\ Makefiles",
+               "-DCMAKE_C_COMPILER=clang-6.0",
+               "-DCMAKE_CXX_COMPILER=clang++-6.0",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "cmake_generate_args_release":[
+               "-G",
+               "Unix\\ Makefiles",
+               "-DCMAKE_C_COMPILER=clang-6.0",
+               "-DCMAKE_CXX_COMPILER=clang++-6.0",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "cmake_build_args":[
+               "-j"
+            ],
+            "custom_additional_compile_definitions":[
+               "GTEST_HAS_TR1_TUPLE=0",
+               "GTEST_OS_SUPPORTS_DEATH_TEST=0"
+            ],
+            "custom_additional_link_options":[
+               
+            ],
+            "custom_additional_libraries":[
+               
+            ]
+         }
+      }
+   }
+}

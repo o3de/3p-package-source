@@ -1,0 +1,29 @@
+diff --git a/ports/poly2tri/CONTROL b/ports/poly2tri/CONTROL
+index 21ed149e3..b295a1fb7 100644
+--- a/ports/poly2tri/CONTROL
++++ b/ports/poly2tri/CONTROL
+@@ -1,5 +1,5 @@
+ Source: poly2tri
+-Version: 2020-07-21
+-Homepage: https://github.com/greenm01/poly2tri
++Version: 2021-05-18
++Homepage: https://github.com/jhasse/poly2tri
+ Description: The Clipper library performs clipping and offsetting for both lines and polygons. All four boolean clipping operations are supported - intersection, union, difference and exclusive-or. Polygons can be of any shape including self-intersecting polygons.
+ Supports: !uwp
+diff --git a/ports/poly2tri/portfile.cmake b/ports/poly2tri/portfile.cmake
+index 278e3d8ee..01210ecee 100644
+--- a/ports/poly2tri/portfile.cmake
++++ b/ports/poly2tri/portfile.cmake
+@@ -4,9 +4,9 @@ vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
+ 
+ vcpkg_from_github(
+     OUT_SOURCE_PATH SOURCE_PATH
+-    REPO greenm01/poly2tri
+-    REF 88de49021b6d9bef6faa1bc94ceb3fbd85c3c204
+-    SHA512 fa256bcf923ad59f42205edf5a7e07cac6cbd9a37cefb9a0961a2e06aea7fa8ffd09d4e26154c0028601c12804483842cb935d9f602385f5f203c9628382c4fb
++    REPO jhasse/poly2tri
++    REF 7f0487a81124647f0a4037c4706ff414ce9fe22b
++    SHA512 1666bca16cef75bd68c8be257f2f1c50155847ab046b3c756da9ea883bbf3139d6292b833f1d6113186accc4bba860270bb261f537744aece35bfee6a611cf5f
+     HEAD_REF master
+ )
+ 

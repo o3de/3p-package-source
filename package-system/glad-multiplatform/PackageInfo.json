@@ -1,0 +1,6 @@
+{
+    "PackageName" : "glad-2.0.0-beta-rev2-multiplatform",
+    "URL"         : "https://github.com/Dav1dde/glad",
+    "License"     : "MIT",
+    "LicenseFile" : "glad/LICENSE"
+}

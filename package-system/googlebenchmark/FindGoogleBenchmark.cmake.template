@@ -1,0 +1,43 @@
+#
+# Copyright (c) Contributors to the Open 3D Engine Project.
+# For complete copyright and license terms please see the LICENSE at the root of this distribution.
+# 
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+#
+
+# this file actually ingests the library and defines targets.
+
+set(TARGET_WITH_NAMESPACE "3rdParty::GoogleBenchmark")
+if (TARGET $${TARGET_WITH_NAMESPACE})
+    return()
+endif()
+
+
+set(GOOGLEBENCHMARK_INCLUDE_DIR $${CMAKE_CURRENT_LIST_DIR}/googlebenchmark/include)
+set(GOOGLEBENCHMARK_LIBS_DIR $${CMAKE_CURRENT_LIST_DIR}/googlebenchmark/lib)
+
+set(GOOGLEBENCHMARK_COMPILE_DEFINITIONS
+    HAVE_BENCHMARK
+${CUSTOM_ADDITIONAL_COMPILE_DEFINITIONS})
+
+
+set(GOOGLEBENCHMARK_LIBS_DEBUG   $${GOOGLEBENCHMARK_LIBS_DIR}/Debug/$${CMAKE_STATIC_LIBRARY_PREFIX}benchmark$${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(GOOGLEBENCHMARK_LIBS_RELEASE $${GOOGLEBENCHMARK_LIBS_DIR}/Release/$${CMAKE_STATIC_LIBRARY_PREFIX}benchmark$${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+set(GOOGLEBENCHMARK_LIBRARY
+    "$$<$$<CONFIG:profile>:$${GOOGLEBENCHMARK_LIBS_RELEASE}>"
+    "$$<$$<CONFIG:Release>:$${GOOGLEBENCHMARK_LIBS_RELEASE}>"
+    "$$<$$<CONFIG:Debug>:$${GOOGLEBENCHMARK_LIBS_DEBUG}>"
+${CUSTOM_ADDITIONAL_LIBRARIES})
+
+add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+
+ly_target_include_system_directories(TARGET $${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLEBENCHMARK_INCLUDE_DIR})
+
+target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLEBENCHMARK_LIBRARY})
+
+target_compile_definitions($${TARGET_WITH_NAMESPACE} INTERFACE $${GOOGLEBENCHMARK_COMPILE_DEFINITIONS})
+
+set(GOOGLETEST_GTEST_FOUND True)
+
