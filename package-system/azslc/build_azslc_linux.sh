@@ -7,28 +7,7 @@
 
 cd temp/src
 
-./prepare_solution_linux.sh
-if [ $? -eq 0 ]
-then
-    echo "Built binaries for Linux successfully"
-else
-    echo "Failed to build binaries for Linux"
-    exit $?
-fi
+# Call the build and test script 
+python3 test.and.py
 
-cd tests
-
-./launch_tests_linux.sh
-
-TEST_RESULT=$?
-
-cd ..
-
-if [ $TEST_RESULT -eq 0 ]
-then
-    echo "Linux Tests Passed"
-else
-    echo "Linux Tests Failed"
-fi
-
-exit $TEST_RESULT
+exit $?
