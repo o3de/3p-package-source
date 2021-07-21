@@ -11,4 +11,3 @@ cd temp/src
 python3 test.and.py
 
 exit $?
-

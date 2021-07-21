@@ -21,5 +21,3 @@ IF %ERRORLEVEL% NEQ 0 (
     cd ..
     exit /b 0
 )
-
-

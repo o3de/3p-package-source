@@ -26,5 +26,3 @@ copy /Y %SRC_PATH%\build\win_x64\Release\azslc.exe %BIN_PATH%\Release\
 copy /Y %SRC_PATH%\build\win_x64\Release\boost_regex-vc142-mt-x64-1_70.dll %BIN_PATH%\Release\
 
 exit /b 0
-
-
