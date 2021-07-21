@@ -7,28 +7,8 @@
 
 cd temp/src
 
-./prepare_solution_darwin.sh
-if [ $? -eq 0 ]
-then
-    echo "Built binaries for Mac successfully"
-else
-    echo "Failed to build binaries for Mac"
-    exit $?
-fi
+# Call the build and test script 
+python3 test.and.py
 
-cd tests
+exit $?
 
-./launch_tests.sh
-
-TEST_RESULT=$?
-
-cd ..
-
-if [ $TEST_RESULT -eq 0 ]
-then
-    echo "Mac Tests Passed"
-else
-    echo "Mac Tests Failed"
-fi
-
-exit $TEST_RESULT
