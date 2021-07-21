@@ -9,5 +9,3 @@ cd temp/src
 
 # Call the build and test script 
 python3 test.and.py
-
-exit $?
