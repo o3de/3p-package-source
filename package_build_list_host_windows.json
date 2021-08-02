@@ -34,7 +34,6 @@
         "poly2tri-7f0487a-rev1-windows": "package-system/poly2tri/build_package_image.py --platform-name windows",
         "v-hacd-2.3-1a49edf-rev1-windows": "package-system/v-hacd/build_package_image.py --platform-name windows",
         "python-3.7.10-rev1-windows" : "package-system/python/build_package_image.py",
-        "amd-ags-5.4.1-rev2-windows" : "package-system/amd-ags-windows/build_package_image.py",
         "mikkelsen-1.0.0.4-windows": "package-system/mikkelsen/build_package_image.py",
         "mikkelsen-1.0.0.4-android": "package-system/mikkelsen/build_package_image.py --platform android"
     },
@@ -67,10 +66,8 @@
     "python-3.7.10-rev1-windows": "package-system/python/win_x64/package",
     "pybind11-2.4.3-rev1-multiplatform": "package-system/pybind11-multiplatform",
     "zlib-1.2.8-rev2-multiplatform": "zlib/zlib-multiplatform",
-    "alembic-1.7.11-rev3-multiplatform": "package-system/alembic-multiplatform",
     "hdf5-1.0.11-rev2-multiplatform": "package-system/hdf5-multiplatform",
     "ilmbase-2.3.0-rev4-multiplatform": "package-system/ilmbase-multiplatform",
-    "amd-ags-5.4.1-rev2-windows": "package-system/amd-ags-windows/package",
     "assimp-5.0.1-rev11-multiplatform": "package-system/assimp-multiplatform",
     "squish-ccr-20150601-rev3-multiplatform": "package-system/squish-ccr-multiplatform",
     "md5-2.0-multiplatform": "package-system/md5-multiplatform",
