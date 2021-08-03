@@ -23,7 +23,8 @@
         "azslc-1.7.23-rev2-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/azslc --platform-name Linux --package-root ../../package-system --clean",
         "tiff-4.2.0.10-linux" : "package-system/tiff/build_package_image.py --platform linux",
         "python-3.7.10-rev2-linux" : "package-system/python/build_package_image.py",
-        "mikkelsen-1.0.0.4-linux": "package-system/mikkelsen/build_package_image.py"
+        "mikkelsen-1.0.0.4-linux": "package-system/mikkelsen/build_package_image.py",
+        "zlib-1.2.11-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux --package-root ../../package-system --clean"
     },
     "build_from_folder" : {
         "AWSGameLiftServerSDK-3.4.1-rev1-linux" : "package-system/AWSGameLiftServerSDK/linux",
@@ -50,6 +51,7 @@
         "unwind-1.2.1-linux": "package-system/unwind-linux",
         "SQLite-3.32.2-rev3-multiplatform" : "package-system/SQLite-multiplatform",
         "xxhash-0.7.4-rev1-multiplatform": "package-system/xxhash-multiplatform",
-        "qt-5.15.2-rev5-linux": "package-system/qt-linux"
+        "qt-5.15.2-rev5-linux": "package-system/qt-linux",
+        "zlib-1.2.11-rev1-linux": "package-system/zlib-linux"
     }
 }

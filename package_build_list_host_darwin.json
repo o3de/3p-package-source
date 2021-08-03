@@ -34,7 +34,9 @@
         "python-3.7.10-rev1-darwin" : "package-system/python/build_package_image.py",
         "mcpp-2.7.2_az.1-rev1-mac": "package-system/mcpp/get_and_build_mcpp.py mcpp-2.7.2_az.1-rev1",
         "mikkelsen-1.0.0.4-mac": "package-system/mikkelsen/build_package_image.py --platform mac",
-        "mikkelsen-1.0.0.4-ios": "package-system/mikkelsen/build_package_image.py --platform ios"  
+        "mikkelsen-1.0.0.4-ios": "package-system/mikkelsen/build_package_image.py --platform ios",
+        "zlib-1.2.11-rev1-mac": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Mac --package-root ../../package-system --clean",
+        "zlib-1.2.11-rev1-ios": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name iOS --package-root ../../package-system --clean"
     },
     "build_from_folder" : { 
         "AWSNativeSDK-1.7.167-rev3-mac" : "package-system/AWSNativeSDK-mac",
@@ -72,6 +74,8 @@
         "azslc-1.7.23-rev2-mac": "package-system/azslc-mac",
         "SQLite-3.32.2-rev3-multiplatform" : "package-system/SQLite-multiplatform",
         "xxhash-0.7.4-rev1-multiplatform":  "package-system/xxhash-multiplatform",
-        "qt-5.15.2-rev5-mac": "package-system/qt-mac"
+        "qt-5.15.2-rev5-mac": "package-system/qt-mac",
+        "zlib-1.2.11-rev1-mac": "package-system/zlib-mac",
+        "zlib-1.2.11-rev1-ios": "package-system/zlib-ios"
     }
 }
