@@ -52,8 +52,8 @@ The following keys can exist at the root level or the target-platform level:
                           to restrict building to a specific configuration rather than building all configurations 
                           (provided by the default value: ['Debug', 'Release'])
 * patch_file            : (optional) Option patch file to apply to the synced source before performing a build
-* local_repo            : (optional) Option to provide a path to the project source rather than getting it from github
-* git_skip              : (optional) Option to skip all git commands, requires local_repo
+* source_path            : (optional) Option to provide a path to the project source rather than getting it from github
+* git_skip              : (optional) Option to skip all git commands, requires source_path
 
 
 The following keys can only exist at the target platform level as they describe the specifics for that platform
@@ -858,11 +858,11 @@ if __name__ == '__main__':
                             action="store_true")
         parser.add_argument('--build-path',
                             help="Path to build the repository in. Defaults to {base_path}/temp.")
-        parser.add_argument('--local-repo',
-                            help='Path to an existing git repo',
+        parser.add_argument('--source-path',
+                            help='Path to a folder. Can be used to specify the git sync folder or provide an existing folder with source for the library.',
                             default=None)
         parser.add_argument('--git-skip',
-                            help='skips all git commands, requires local-repo to be provided',
+                            help='skips all git commands, requires source-path to be provided',
                             default=False)
 
         parsed_args = parser.parse_args(sys.argv[1:])
@@ -886,7 +886,7 @@ if __name__ == '__main__':
                                    toolchain_file=custom_toolchain_file,
                                    build_config_file=parsed_args.build_config_file,
                                    clean=parsed_args.clean,
-                                   src_folder=parsed_args.local_repo,
+                                   src_folder=parsed_args.source_path,
                                    skip_git=parsed_args.git_skip)
 
         # Execute the generation of the 3P folder for packaging
