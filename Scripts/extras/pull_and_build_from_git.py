@@ -52,6 +52,8 @@ The following keys can exist at the root level or the target-platform level:
                           to restrict building to a specific configuration rather than building all configurations 
                           (provided by the default value: ['Debug', 'Release'])
 * patch_file            : (optional) Option patch file to apply to the synced source before performing a build
+* source_path            : (optional) Option to provide a path to the project source rather than getting it from github
+* git_skip              : (optional) Option to skip all git commands, requires source_path
 
 
 The following keys can only exist at the target platform level as they describe the specifics for that platform
@@ -292,7 +294,7 @@ class BuildInfo(object):
     This is the Build management class that will perform the entire build from source and preparing a folder for packaging
     """
 
-    def __init__(self, package_info, platform_config, base_folder, build_folder, package_install_root, custom_toolchain_file, cmake_command, clean_build, cmake_find_template, prebuilt_source, prebuilt_args):
+    def __init__(self, package_info, platform_config, base_folder, build_folder, package_install_root, custom_toolchain_file, cmake_command, clean_build, cmake_find_template, prebuilt_source, prebuilt_args, src_folder, skip_git):
         """
         Initialize the Build management object with information needed
 
@@ -307,6 +309,8 @@ class BuildInfo(object):
         :param cmake_find_template:     The template for the find*.cmake generated file
         :param prebuilt_source:         If provided, the git fetch / build flow will be replaced with a copy from a prebuilt folder
         :param prebuilt_args:           If prebuilt_source is provided, then this argument is required to specify the copy rules to assemble the package from the prebuilt package
+        :param src_folder:              Path to the source code / where to clone the git repo.
+        :param skip_git:                If true skip all git interaction and .
         """
 
         self.package_info = package_info
@@ -315,7 +319,7 @@ class BuildInfo(object):
         self.cmake_command = cmake_command
         self.base_folder = base_folder
         self.base_temp_folder = build_folder
-        self.src_folder = self.base_temp_folder / "src"
+        self.src_folder = src_folder
         self.build_folder = self.base_temp_folder / "build"
         self.package_install_root = package_install_root / f"{package_info.package_name}-{package_info.platform_name.lower()}"
         self.build_install_folder = self.package_install_root / package_info.package_name
@@ -324,6 +328,7 @@ class BuildInfo(object):
         self.build_configs = platform_config.get('build_configs', ['Debug', 'Release'])
         self.prebuilt_source = prebuilt_source
         self.prebuilt_args = prebuilt_args
+        self.skip_git = skip_git
 
     def clone_to_local(self):
         """
@@ -382,6 +387,8 @@ class BuildInfo(object):
         """
         Sync the 3rd party from its git source location (either cloning if its not there or syncing)
         """
+        if self.skip_git:
+            return
 
         # Validate Git is installed
         git_version = validate_git()
@@ -739,7 +746,7 @@ class BuildInfo(object):
 
 
 def prepare_build(platform_name, base_folder, build_folder, package_root_folder, cmake_command, toolchain_file, build_config_file,
-                  clean):
+                  clean, src_folder, skip_git):
     """
     Prepare a Build manager object based on parameters provided (possibly from command line)
 
@@ -751,12 +758,21 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
     :param toolchain_file:      Option toolchain file to use for specific target platforms
     :param build_config_file:   The build config file to open from the base_folder
     :param clean:               Option to clean any existing build folder before proceeding
+    :param src_folder:          Option to manually specify the src folder
+    :param skip_git:            Option to skip all git commands, requires src_folder be supplied
 
     :return:    The Build management object
     """
     base_folder_path = pathlib.Path(base_folder)
     build_folder_path = pathlib.Path(build_folder) if build_folder else base_folder_path / "temp"
     package_install_root = pathlib.Path(package_root_folder)
+    src_folder_path = pathlib.Path(src_folder) if src_folder else build_folder_path / "src"
+
+    if skip_git and src_folder is None:
+        raise BuildError("Specified to skip git interactions but didn't supply a source code path")
+
+    if src_folder is not None and not src_folder_path.is_dir():
+        raise BuildError(f"Invalid path for 'git-path': {src_folder}")
 
     build_config_path = base_folder_path / build_config_file
     if not build_config_path.is_file():
@@ -807,7 +823,9 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
                      clean_build=clean,
                      cmake_find_template=cmake_find_template_path,
                      prebuilt_source=prebuilt_source,
-                     prebuilt_args=prebuilt_args)
+                     prebuilt_args=prebuilt_args,
+                     src_folder=src_folder_path,
+                     skip_git=skip_git)
 
 
 if __name__ == '__main__':
@@ -840,6 +858,12 @@ if __name__ == '__main__':
                             action="store_true")
         parser.add_argument('--build-path',
                             help="Path to build the repository in. Defaults to {base_path}/temp.")
+        parser.add_argument('--source-path',
+                            help='Path to a folder. Can be used to specify the git sync folder or provide an existing folder with source for the library.',
+                            default=None)
+        parser.add_argument('--git-skip',
+                            help='skips all git commands, requires source-path to be provided',
+                            default=False)
 
         parsed_args = parser.parse_args(sys.argv[1:])
 
@@ -861,7 +885,9 @@ if __name__ == '__main__':
                                    cmake_command=cmake_path,
                                    toolchain_file=custom_toolchain_file,
                                    build_config_file=parsed_args.build_config_file,
-                                   clean=parsed_args.clean)
+                                   clean=parsed_args.clean,
+                                   src_folder=parsed_args.source_path,
+                                   skip_git=parsed_args.git_skip)
 
         # Execute the generation of the 3P folder for packaging
         build_info.execute()
