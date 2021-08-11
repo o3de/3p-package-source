@@ -1,0 +1,108 @@
+diff -ru googletest-release-1.8.1-orig/googletest/include/gtest/internal/custom/gtest-port.h googletest-release-1.8.1/googletest/include/gtest/internal/custom/gtest-port.h
+--- googletest-release-1.8.1-orig/googletest/include/gtest/internal/custom/gtest-port.h	2018-08-31 10:21:58.000000000 -0500
++++ googletest-release-1.8.1/googletest/include/gtest/internal/custom/gtest-port.h	2019-08-28 18:10:03.329550600 -0500
+@@ -34,4 +34,32 @@
+ #ifndef GTEST_INCLUDE_GTEST_INTERNAL_CUSTOM_GTEST_PORT_H_
+ #define GTEST_INCLUDE_GTEST_INTERNAL_CUSTOM_GTEST_PORT_H_
+ 
++#if !defined(GTEST_HAS_LOCALTIME_S)
++#define GTEST_HAS_LOCALTIME_S 0
++#endif
++
++#if !defined(GTEST_HAS_IS_ATTY)
++#define GTEST_HAS_IS_ATTY 1
++#endif
++
++#if !defined(GTEST_HAS_CHDIR)
++#define GTEST_HAS_CHDIR 1
++#endif
++
++#if !defined(GTEST_HAS_GETENV)
++#define GTEST_HAS_GETENV 1
++#endif
++
++#if !defined(GTEST_OS_SUPPORTS_DEATH_TEST)
++#define GTEST_OS_SUPPORTS_DEATH_TEST 1
++#endif
++
++#if !defined(GTEST_HAS_GETCWD)
++#define GTEST_HAS_GETCWD 1
++#endif
++
++#if !defined(GTEST_STUB_GETCWD_PATH)
++#define GTEST_STUB_GETCWD_PATH ""
++#endif
++
+ #endif  // GTEST_INCLUDE_GTEST_INTERNAL_CUSTOM_GTEST_PORT_H_
+diff -ru googletest-release-1.8.1-orig/googletest/include/gtest/internal/gtest-port.h googletest-release-1.8.1/googletest/include/gtest/internal/gtest-port.h
+--- googletest-release-1.8.1-orig/googletest/include/gtest/internal/gtest-port.h	2018-08-31 10:21:58.000000000 -0500
++++ googletest-release-1.8.1/googletest/include/gtest/internal/gtest-port.h	2019-08-30 06:27:22.575984300 -0500
+@@ -829,7 +829,7 @@
+      (GTEST_OS_WINDOWS_DESKTOP && _MSC_VER >= 1400) ||          \
+      GTEST_OS_WINDOWS_MINGW || GTEST_OS_AIX || GTEST_OS_HPUX || \
+      GTEST_OS_OPENBSD || GTEST_OS_QNX || GTEST_OS_FREEBSD || \
+-     GTEST_OS_NETBSD || GTEST_OS_FUCHSIA)
++     GTEST_OS_NETBSD || GTEST_OS_FUCHSIA) && (GTEST_OS_SUPPORTS_DEATH_TEST)
+ # define GTEST_HAS_DEATH_TEST 1
+ #endif
+ 
+@@ -2485,7 +2485,11 @@
+ typedef struct stat StatStruct;
+ 
+ inline int FileNo(FILE* file) { return fileno(file); }
++#if !GTEST_HAS_IS_ATTY
++inline int IsATTY(int fd) { return 0; }
++#else
+ inline int IsATTY(int fd) { return isatty(fd); }
++#endif
+ inline int Stat(const char* path, StatStruct* buf) { return stat(path, buf); }
+ inline int StrCaseCmp(const char* s1, const char* s2) {
+   return strcasecmp(s1, s2);
+@@ -2508,7 +2512,7 @@
+ // StrError() aren't needed on Windows CE at this time and thus not
+ // defined there.
+ 
+-#if !GTEST_OS_WINDOWS_MOBILE && !GTEST_OS_WINDOWS_PHONE && !GTEST_OS_WINDOWS_RT
++#if !GTEST_OS_WINDOWS_MOBILE && !GTEST_OS_WINDOWS_PHONE && !GTEST_OS_WINDOWS_RT && GTEST_HAS_CHDIR
+ inline int ChDir(const char* dir) { return chdir(dir); }
+ #endif
+ inline FILE* FOpen(const char* path, const char* mode) {
+@@ -2532,7 +2536,7 @@
+ inline const char* StrError(int errnum) { return strerror(errnum); }
+ #endif
+ inline const char* GetEnv(const char* name) {
+-#if GTEST_OS_WINDOWS_MOBILE || GTEST_OS_WINDOWS_PHONE || GTEST_OS_WINDOWS_RT
++#if GTEST_OS_WINDOWS_MOBILE || GTEST_OS_WINDOWS_PHONE || GTEST_OS_WINDOWS_RT || !GTEST_HAS_GETENV
+   // We are on Windows CE, which has no environment variables.
+   static_cast<void>(name);  // To prevent 'unused argument' warning.
+   return NULL;
+diff -ru googletest-release-1.8.1-orig/googletest/src/gtest.cc googletest-release-1.8.1/googletest/src/gtest.cc
+--- googletest-release-1.8.1-orig/googletest/src/gtest.cc	2018-08-31 10:21:58.000000000 -0500
++++ googletest-release-1.8.1/googletest/src/gtest.cc	2019-08-28 17:12:06.397466300 -0500
+@@ -3628,6 +3628,8 @@
+     return false;
+   *out = *tm_ptr;
+   return true;
++#elif GTEST_HAS_LOCALTIME_S
++  return localtime_s(&seconds, out) != nullptr;
+ #else
+   return localtime_r(&seconds, out) != NULL;
+ #endif
+diff -ru googletest-release-1.8.1-orig/googletest/src/gtest-filepath.cc googletest-release-1.8.1/googletest/src/gtest-filepath.cc
+--- googletest-release-1.8.1-orig/googletest/src/gtest-filepath.cc	2018-08-31 10:21:58.000000000 -0500
++++ googletest-release-1.8.1/googletest/src/gtest-filepath.cc	2021-01-04 14:53:54.173667600 -0600
+@@ -104,7 +104,14 @@
+   return FilePath(_getcwd(cwd, sizeof(cwd)) == NULL ? "" : cwd);
+ #else
+   char cwd[GTEST_PATH_MAX_ + 1] = { '\0' };
++#if GTEST_HAS_GETCWD
+   char* result = getcwd(cwd, sizeof(cwd));
++#else
++  #define GTEST_STRINGIFY_WRAP(name) GTEST_STRINGIFY_(name)
++  const char* result = GTEST_STRINGIFY_WRAP(GTEST_STUB_GETCWD_PATH);
++  #undef GTEST_STRINGIFY_WRAP
++  strncpy(cwd, result, sizeof(cwd) - 1);
++#endif
+ # if GTEST_OS_NACL
+   // getcwd will likely fail in NaCl due to the sandbox, so return something
+   // reasonable. The user may have provided a shim implementation for getcwd,

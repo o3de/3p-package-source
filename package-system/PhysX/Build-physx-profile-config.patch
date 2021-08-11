@@ -1,0 +1,308 @@
+From c635f3a3122141d3641109275486e45b2a2df021 Mon Sep 17 00:00:00 2001
+Date: Fri, 11 Jun 2021 11:06:15 -0700
+Subject: [PATCH] Build physx profile config
+
+---
+ ...d-ios-shared-libraries-as-frameworks.patch | 55 ++++++++++++++++
+ ports/physx/fix-compiler-flag.patch           |  2 +-
+ ports/physx/portfile.cmake                    | 64 +++++++++++++++----
+ ports/vcpkg-cmake/vcpkg_cmake_build.cmake     |  7 +-
+ ports/vcpkg-cmake/vcpkg_cmake_configure.cmake | 18 +++++-
+ 5 files changed, 132 insertions(+), 14 deletions(-)
+ create mode 100644 ports/physx/build-ios-shared-libraries-as-frameworks.patch
+
+diff --git a/ports/physx/build-ios-shared-libraries-as-frameworks.patch b/ports/physx/build-ios-shared-libraries-as-frameworks.patch
+new file mode 100644
+index 00000000..e0dd5ac2
+--- /dev/null
++++ b/ports/physx/build-ios-shared-libraries-as-frameworks.patch
+@@ -0,0 +1,55 @@
++From 3ae88b0cfe11d77430881d674aa14a2e711788e8 Mon Sep 17 00:00:00 2001
++From: ---
++Date: Thu, 10 Jun 2021 16:28:38 -0700
++Subject: [PATCH] Build iOS shared libraries as frameworks
++
++---
++ physx/buildtools/presets/public/ios64.xml     |  3 +-
++ .../source/compiler/cmake/ios/CMakeLists.txt  | 35 +++++++++++++++++--
++ 2 files changed, 35 insertions(+), 3 deletions(-)
++
++diff --git a/physx/source/compiler/cmake/ios/CMakeLists.txt b/physx/source/compiler/cmake/ios/CMakeLists.txt
++index 5605e9af..1ff37a62 100644
++--- a/physx/source/compiler/cmake/ios/CMakeLists.txt
+++++ b/physx/source/compiler/cmake/ios/CMakeLists.txt
++@@ -89,4 +89,35 @@ SET_PROPERTY(TARGET SimulationController PROPERTY FOLDER "PhysX SDK")
++ SET_PROPERTY(TARGET FastXml PROPERTY FOLDER "PhysX SDK")
++ SET_PROPERTY(TARGET PhysXPvdSDK PROPERTY FOLDER "PhysX SDK")
++ SET_PROPERTY(TARGET PhysXTask PROPERTY FOLDER "PhysX SDK")
++-SET_PROPERTY(TARGET PhysXFoundation PROPERTY FOLDER "PhysX SDK")
++\ No newline at end of file
+++SET_PROPERTY(TARGET PhysXFoundation PROPERTY FOLDER "PhysX SDK")
+++
+++IF(PHYSXCOMMON_LIBTYPE STREQUAL "SHARED")
+++    SET(PHYSX_IOS_IDENTIFIER "com.nvidia.lib.physx")
+++    SET(PHYSX_COMMON_IOS_IDENTIFIER "com.nvidia.lib.physxcommon")
+++    SET(PHYSX_COOKING_IOS_IDENTIFIER "com.nvidia.lib.physxcooking")
+++    SET(PHYSX_FOUNDATION_IOS_IDENTIFIER "com.nvidia.lib.physxfoundation")
+++
+++    SET_TARGET_PROPERTIES(PhysX PROPERTIES
+++        FRAMEWORK TRUE
+++        MACOSX_FRAMEWORK_IDENTIFIER ${PHYSX_IOS_IDENTIFIER}
+++        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER ${PHYSX_IOS_IDENTIFIER}
+++    )
+++
+++    SET_TARGET_PROPERTIES(PhysXCommon PROPERTIES
+++        FRAMEWORK TRUE
+++        MACOSX_FRAMEWORK_IDENTIFIER ${PHYSX_COMMON_IOS_IDENTIFIER}
+++        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER ${PHYSX_COMMON_IOS_IDENTIFIER}
+++    )
+++
+++    SET_TARGET_PROPERTIES(PhysXCooking PROPERTIES
+++        FRAMEWORK TRUE
+++        MACOSX_FRAMEWORK_IDENTIFIER ${PHYSX_COOKING_IOS_IDENTIFIER}
+++        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER ${PHYSX_COOKING_IOS_IDENTIFIER}
+++    )
+++
+++    SET_TARGET_PROPERTIES(PhysXFoundation PROPERTIES
+++        FRAMEWORK TRUE
+++        MACOSX_FRAMEWORK_IDENTIFIER ${PHYSX_FOUNDATION_IOS_IDENTIFIER}
+++        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER ${PHYSX_FOUNDATION_IOS_IDENTIFIER}
+++    )
+++ENDIF()
++-- 
++2.30.1
++
+diff --git a/ports/physx/fix-compiler-flag.patch b/ports/physx/fix-compiler-flag.patch
+index cfb253e7..06aeb0c8 100644
+--- a/ports/physx/fix-compiler-flag.patch
++++ b/ports/physx/fix-compiler-flag.patch
+@@ -47,12 +47,12 @@ index a1ab3596..dbd20fb0 100644
+  
+ +if(FALSE)
+  SET(PHYSX_CXX_FLAGS_DEBUG "/Od ${WINCRT_DEBUG} /RTCu /Zi" CACHE INTERNAL "PhysX Debug CXX Flags")
+++endif()
+  # PT: changed /Ox to /O2 because "the /Ox compiler option enables only a subset of the speed optimization options enabled by /O2."
+  # See https://docs.microsoft.com/en-us/cpp/build/reference/ox-full-optimization?view=vs-2019
+  SET(PHYSX_CXX_FLAGS_CHECKED "/O2 ${WINCRT_NDEBUG} /Zi" CACHE INTERNAL "PhysX Checked CXX Flags")
+  SET(PHYSX_CXX_FLAGS_PROFILE "/O2 ${WINCRT_NDEBUG} /Zi" CACHE INTERNAL "PhysX Profile CXX Flags")
+  SET(PHYSX_CXX_FLAGS_RELEASE "/O2 ${WINCRT_NDEBUG} /Zi" CACHE INTERNAL "PhysX Release CXX Flags")
+-+endif()
+  
+  # cache lib type defs
+  IF(PX_GENERATE_STATIC_LIBRARIES)	
+diff --git a/ports/physx/portfile.cmake b/ports/physx/portfile.cmake
+index 3b905cc0..42bd05c2 100644
+--- a/ports/physx/portfile.cmake
++++ b/ports/physx/portfile.cmake
+@@ -3,12 +3,13 @@ vcpkg_fail_port_install(ON_TARGET MINGW)
+ vcpkg_from_github(
+     OUT_SOURCE_PATH SOURCE_PATH
+     REPO NVIDIAGameWorks/PhysX
+-    REF 93c6dd21b545605185f2febc8eeacebe49a99479
+-    SHA512 c9f50255ca9e0f1ebdb9926992315a62b77e2eea3addd4e65217283490714e71e24f2f687717dd8eb155078a1a6b25c9fadc123ce8bc4c5615f7ac66cd6b11aa
++    REF c3d5537bdebd6f5cd82fcaf87474b838fe6fd5fa
++    SHA512 6939c9703a01dab8f2463bf3dfd303be5a2869f35e56c3f6102473d5bedf6cfaf167596dfd98cf09c26cc123476f559f9357f0adcc33e9980f9b4f4cdd77768a
+     HEAD_REF master
+     PATCHES
+         fix-compiler-flag.patch
+         remove-werror.patch
++        build-ios-shared-libraries-as-frameworks.patch
+ )
+ 
+ if(NOT DEFINED RELEASE_CONFIGURATION)
+@@ -31,12 +32,17 @@ set(OPTIONS
+ )
+ 
+ set(OPTIONS_RELEASE
+-    "-DPX_OUTPUT_BIN_DIR=${CURRENT_PACKAGES_DIR}"
+-    "-DPX_OUTPUT_LIB_DIR=${CURRENT_PACKAGES_DIR}"
++    "-DPX_OUTPUT_BIN_DIR=${CURRENT_PACKAGES_DIR}/build_output"
++    "-DPX_OUTPUT_LIB_DIR=${CURRENT_PACKAGES_DIR}/build_output"
++)
++set(OPTIONS_PROFILE
++    "-DPX_OUTPUT_BIN_DIR=${CURRENT_PACKAGES_DIR}/build_output/profile"
++    "-DPX_OUTPUT_LIB_DIR=${CURRENT_PACKAGES_DIR}/build_output/profile"
++    "-DNV_USE_DEBUG_WINCRT=ON"
+ )
+ set(OPTIONS_DEBUG
+-    "-DPX_OUTPUT_BIN_DIR=${CURRENT_PACKAGES_DIR}/debug"
+-    "-DPX_OUTPUT_LIB_DIR=${CURRENT_PACKAGES_DIR}/debug"
++    "-DPX_OUTPUT_BIN_DIR=${CURRENT_PACKAGES_DIR}/build_output/debug"
++    "-DPX_OUTPUT_LIB_DIR=${CURRENT_PACKAGES_DIR}/build_output/debug"
+     "-DNV_USE_DEBUG_WINCRT=ON"
+ )
+ 
+@@ -50,6 +56,11 @@ elseif(VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_FREEBSD)
+     list(APPEND OPTIONS "-DTARGET_BUILD_PLATFORM=linux")
+ elseif(VCPKG_TARGET_IS_ANDROID)
+     list(APPEND OPTIONS "-DTARGET_BUILD_PLATFORM=android")
++elseif(VCPKG_TARGET_IS_IOS)
++    list(APPEND OPTIONS "-DTARGET_BUILD_PLATFORM=ios"
++        "-DIOS_DEPLOYMENT_TARGET=10.0"
++        "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.0"
++    )
+ else()
+     message(FATAL_ERROR "Unhandled or unsupported target platform.")
+ endif()
+@@ -82,6 +92,7 @@ vcpkg_cmake_configure(
+     OPTIONS ${OPTIONS}
+     OPTIONS_DEBUG ${OPTIONS_DEBUG}
+     OPTIONS_RELEASE ${OPTIONS_RELEASE}
++    OPTIONS_PROFILE ${OPTIONS_PROFILE}
+ )
+ vcpkg_cmake_install()
+ 
+@@ -91,12 +103,25 @@ vcpkg_cmake_install()
+ function(fixup_physx_artifacts)
+     macro(_fixup _IN_DIRECTORY _OUT_DIRECTORY)
+         foreach(_SUFFIX IN LISTS _fpa_SUFFIXES)
++            if(_SUFFIX STREQUAL ".framework")
++                set(list_directories TRUE)
++            else()
++                set(list_directories FALSE)
++            endif()
+             file(GLOB_RECURSE _ARTIFACTS
+-                LIST_DIRECTORIES false
+-                "${CURRENT_PACKAGES_DIR}/${_IN_DIRECTORY}/*${_SUFFIX}"
++                LIST_DIRECTORIES "${list_directories}"
++                "${CURRENT_PACKAGES_DIR}/build_output/${_IN_DIRECTORY}/*${_SUFFIX}"
+             )
+-            if(_ARTIFACTS)
++            if(_ARTIFACTS AND NOT _SUFFIX STREQUAL ".framework")
++                # copy all files at once
+                 file(COPY ${_ARTIFACTS} DESTINATION "${CURRENT_PACKAGES_DIR}/${_OUT_DIRECTORY}")
++            else()
++                foreach(_ARTIFACT IN LISTS _ARTIFACTS)
++                    # copy each .framework directory individually
++                    if(_ARTIFACT MATCHES "\.framework$")
++                        file(COPY ${_ARTIFACT} DESTINATION "${CURRENT_PACKAGES_DIR}/${_OUT_DIRECTORY}")
++                    endif()
++                endforeach()
+             endif()
+         endforeach()
+     endmacro()
+@@ -104,6 +129,7 @@ function(fixup_physx_artifacts)
+     cmake_parse_arguments(_fpa "" "DIRECTORY" "SUFFIXES" ${ARGN})
+     _fixup("bin" ${_fpa_DIRECTORY})
+     _fixup("debug/bin" "debug/${_fpa_DIRECTORY}")
++    _fixup("profile/bin" "profile/${_fpa_DIRECTORY}")
+ endfunction()
+ 
+ fixup_physx_artifacts(
+@@ -112,22 +138,25 @@ fixup_physx_artifacts(
+ )
+ fixup_physx_artifacts(
+     DIRECTORY "bin"
+-    SUFFIXES ${VCPKG_TARGET_SHARED_LIBRARY_SUFFIX} ".pdb"
++    SUFFIXES ${VCPKG_TARGET_SHARED_LIBRARY_SUFFIX} ".pdb" ".framework"
+ )
+ 
+ # Remove compiler directory and descendents.
++file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/build_output/")
+ if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
+     file(REMOVE_RECURSE
+         "${CURRENT_PACKAGES_DIR}/bin/"
+         "${CURRENT_PACKAGES_DIR}/debug/bin/"
++        "${CURRENT_PACKAGES_DIR}/profile/bin/"
+     )
+ else()
+     file(GLOB PHYSX_ARTIFACTS LIST_DIRECTORIES true
+         "${CURRENT_PACKAGES_DIR}/bin/*"
+         "${CURRENT_PACKAGES_DIR}/debug/bin/*"
++        "${CURRENT_PACKAGES_DIR}/profile/bin/*"
+     )
+     foreach(_ARTIFACT IN LISTS PHYSX_ARTIFACTS)
+-        if(IS_DIRECTORY ${_ARTIFACT})
++        if(IS_DIRECTORY ${_ARTIFACT} AND NOT _ARTIFACT MATCHES "\.framework$")
+             file(REMOVE_RECURSE ${_ARTIFACT})
+         endif()
+     endforeach()
+@@ -136,6 +165,20 @@ endif()
+ file(REMOVE_RECURSE
+     "${CURRENT_PACKAGES_DIR}/debug/include"
+     "${CURRENT_PACKAGES_DIR}/debug/source"
++    "${CURRENT_PACKAGES_DIR}/profile/include"
++    "${CURRENT_PACKAGES_DIR}/profile/source"
+     "${CURRENT_PACKAGES_DIR}/source"
+ )
+ file(INSTALL ${SOURCE_PATH}/README.md DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
++if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_LIBRARY_LINKAGE STREQUAL "static")
++    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc142.mt/debug/PhysXDevice64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/debug/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc142.mt/profile/PhysXDevice64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/profile/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc142.mt/release/PhysXDevice64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc140.mt/debug/PhysXGpu_64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/debug/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc140.mt/profile/PhysXGpu_64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/profile/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc140.mt/release/PhysXGpu_64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/bin)
++elseif(VCPKG_TARGET_IS_LINUX AND NOT VCPKG_LIBRARY_LINKAGE STREQUAL "static")
++    file(INSTALL ${SOURCE_PATH}/physx/bin/linux.clang/debug/libPhysXGpu_64.so DESTINATION ${CURRENT_PACKAGES_DIR}/debug/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/linux.clang/profile/libPhysXGpu_64.so DESTINATION ${CURRENT_PACKAGES_DIR}/profile/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/linux.clang/release/libPhysXGpu_64.so DESTINATION ${CURRENT_PACKAGES_DIR}/bin)
++endif()
+diff --git a/ports/vcpkg-cmake/vcpkg_cmake_build.cmake b/ports/vcpkg-cmake/vcpkg_cmake_build.cmake
+index ef27a6c9..533343aa 100644
+--- a/ports/vcpkg-cmake/vcpkg_cmake_build.cmake
++++ b/ports/vcpkg-cmake/vcpkg_cmake_build.cmake
+@@ -71,11 +71,14 @@ function(vcpkg_cmake_build)
+         set(target_args "--target" "${arg_TARGET}")
+     endif()
+ 
+-    foreach(buildtype IN ITEMS debug release)
++    foreach(buildtype IN ITEMS debug profile release)
+         if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL buildtype)
+             if(buildtype STREQUAL "debug")
+                 set(short_buildtype "dbg")
+                 set(cmake_config "Debug")
++            elseif(buildtype STREQUAL "profile")
++                set(short_buildtype "profile")
++                set(cmake_config "Profile")
+             else()
+                 set(short_buildtype "rel")
+                 set(cmake_config "Release")
+@@ -87,6 +90,8 @@ function(vcpkg_cmake_build)
+                 set(env_path_backup "$ENV{PATH}")
+                 if(buildtype STREQUAL "debug")
+                     vcpkg_add_to_path(PREPEND "${CURRENT_INSTALLED_DIR}/debug/bin")
++                elseif(buildtype STREQUAL "profile")
++                    vcpkg_add_to_path(PREPEND "${CURRENT_INSTALLED_DIR}/profile/bin")
+                 else()
+                     vcpkg_add_to_path(PREPEND "${CURRENT_INSTALLED_DIR}/bin")
+                 endif()
+diff --git a/ports/vcpkg-cmake/vcpkg_cmake_configure.cmake b/ports/vcpkg-cmake/vcpkg_cmake_configure.cmake
+index 3b7d31ef..8ce2e5da 100644
+--- a/ports/vcpkg-cmake/vcpkg_cmake_configure.cmake
++++ b/ports/vcpkg-cmake/vcpkg_cmake_configure.cmake
+@@ -88,7 +88,7 @@ function(vcpkg_cmake_configure)
+     cmake_parse_arguments(PARSE_ARGV 0 "arg"
+         "PREFER_NINJA;DISABLE_PARALLEL_CONFIGURE;WINDOWS_USE_MSBUILD;NO_CHARSET_FLAG"
+         "SOURCE_PATH;GENERATOR;LOGFILE_BASE"
+-        "OPTIONS;OPTIONS_DEBUG;OPTIONS_RELEASE"
++        "OPTIONS;OPTIONS_DEBUG;OPTIONS_RELEASE;OPTIONS_PROFILE"
+     )
+ 
+     if(DEFINED CACHE{Z_VCPKG_CMAKE_GENERATOR})
+@@ -385,6 +385,22 @@ function(vcpkg_cmake_configure)
+                 LOGNAME "${arg_LOGFILE_BASE}-rel"
+             )
+         endif()
++
++        if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "profile")
++            message(STATUS "Configuring ${TARGET_TRIPLET}-profile")
++            file(MAKE_DIRECTORY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-profile")
++            vcpkg_execute_required_process(
++                COMMAND
++                    "${CMAKE_COMMAND}" "${arg_SOURCE_PATH}"
++                    ${arg_OPTIONS}
++                    ${arg_OPTIONS_PROFILE}
++                    -G "${generator}"
++                    "-DCMAKE_BUILD_TYPE=Profile"
++                    "-DCMAKE_INSTALL_PREFIX=${CURRENT_PACKAGES_DIR}"
++                WORKING_DIRECTORY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-profile"
++                LOGNAME "${arg_LOGFILE_BASE}-profile"
++            )
++        endif()
+     endif()
+ 
+     set(Z_VCPKG_CMAKE_GENERATOR "${generator}" CACHE INTERNAL "The generator which was used to configure CMake.")
+-- 
+2.30.1
+

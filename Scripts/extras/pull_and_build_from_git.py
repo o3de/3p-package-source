@@ -1,5 +1,6 @@
 #
-# Copyright (c) Contributors to the Open 3D Engine Project. For complete copyright and license terms please see the LICENSE at the root of this distribution.
+# Copyright (c) Contributors to the Open 3D Engine Project.
+# For complete copyright and license terms please see the LICENSE at the root of this distribution.
 # 
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
@@ -431,8 +432,8 @@ class BuildInfo(object):
                     raise BuildError(f"Invalid/missing license file '{self.package_info.package_license_file}' specified in the build config.")
 
             license_file_content = package_license_src.read_text("UTF-8", "ignore")
-            if "Copyright" not in license_file_content:
-                raise BuildError(f"Unable to find 'Copyright' in the license file {str(self.package_info.package_license_file)}. Is this a valid license file?")
+            if "Copyright" not in license_file_content and "OPEN 3D ENGINE LICENSING" not in license_file_content:
+                raise BuildError(f"Unable to find 'Copyright' or the O3DE licensing text in the license file {str(self.package_info.package_license_file)}. Is this a valid license file?")
             target_license_copy = self.build_install_folder / os.path.basename(package_license_src)
             if target_license_copy.is_file():
                 target_license_copy.unlink()
@@ -759,7 +760,7 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
 
     build_config_path = base_folder_path / build_config_file
     if not build_config_path.is_file():
-        raise BuildError(f"Invalid build config path ({build_config_path}). ")
+        raise BuildError(f"Invalid build config path ({build_config_path.absolute()}). ")
 
     with build_config_path.open() as build_json_file:
         build_config = json.load(build_json_file)

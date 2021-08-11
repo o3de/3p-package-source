@@ -1,0 +1,45 @@
+{
+   "git_url":"https://github.com/o3de/o3de-azslc.git",
+   "git_tag":"1.7.23",
+   "package_name":"azslc",
+   "package_version":"1.7.23-rev2",
+   "package_url":"https://github.com/o3de/o3de-azslc",
+   "package_license":"CUSTOM",
+   "package_license_file":"LICENSE.txt",
+   "cmake_find_target":"Findazslc.cmake",
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "cmake_find_template":"Findazslc.cmake.Windows",
+            "custom_build_cmd": [
+               "build_azslc_windows.cmd"
+            ],
+            "custom_install_cmd": [
+               "install_azslc_windows.cmd"
+            ]
+         }
+      },
+      "Darwin":{
+         "Mac":{
+            "cmake_find_template":"Findazslc.cmake.Mac",
+            "custom_build_cmd": [
+               "./build_azslc_mac.sh"
+            ],
+            "custom_install_cmd": [
+               "./install_azslc_mac.sh"
+            ]
+         }
+      },
+      "Linux":{
+         "Linux":{
+            "cmake_find_template":"Findazslc.cmake.Linux",
+            "custom_build_cmd": [
+               "./build_azslc_linux.sh"
+            ],
+            "custom_install_cmd": [
+               "./install_azslc_linux.sh"
+            ]
+         }
+      }
+   }
+}

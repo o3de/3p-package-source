@@ -1,0 +1,25 @@
+diff --git a/EtcLib/CMakeLists.txt b/EtcLib/CMakeLists.txt
+index b584b88..b4ad3f6 100644
+--- a/EtcLib/CMakeLists.txt
++++ b/EtcLib/CMakeLists.txt
+@@ -16,9 +16,17 @@ project(EtcLib)
+ include_directories(./Etc)
+ include_directories(./EtcCodec)
+ 
+-file(GLOB SOURCES
++file(GLOB HEADERS
+ 	${PROJECT_SOURCE_DIR}/Etc/*.h
+-	${PROJECT_SOURCE_DIR}/EtcCodec/*.h
++	${PROJECT_SOURCE_DIR}/EtcCodec/*.h)
++file(GLOB SOURCES
+ 	${PROJECT_SOURCE_DIR}/Etc/*.cpp
+ 	${PROJECT_SOURCE_DIR}/EtcCodec/*.cpp)
+-ADD_LIBRARY(EtcLib ${SOURCES})
++ADD_LIBRARY(EtcLib ${HEADERS} ${SOURCES})
++set_target_properties(EtcLib PROPERTIES PUBLIC_HEADER "${HEADERS}")
++
++install(TARGETS EtcLib
++    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
++)
