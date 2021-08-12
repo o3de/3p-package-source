@@ -1,0 +1,62 @@
+{
+   "git_url":"https://github.com/Ethatron/squish-ccr.git",
+   "git_tag":"master",
+   "git_commit":"deb557d2fa647b191b37a2d8682df54ec8a7cfba",
+   "package_name":"squish-ccr",
+   "package_version":"deb557d-rev1",
+   "package_url":"http://sjbrown.co.uk/2006/01/19/dxt-compression-techniques/",
+   "package_license":"MIT",
+   "package_license_file":"LICENSE.txt",
+   "cmake_find_template":"Findsquish-ccr.cmake.template",
+   "cmake_find_target":"Findsquish-ccr.cmake",
+   "patch_file":"squish-ccr-deb557d-rev1.patch",
+   "additional_src_files":[
+      "CMakeLists.txt",
+      "LICENSE.txt"
+   ],
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "cmake_generate_args":[
+               "-G",
+               "\"Visual Studio 16 2019\"", 
+			   "-A",
+               "x64",
+               "-T",
+               "host=x64"
+            ],
+            "cmake_build_args":[
+               "-j"
+            ]
+         }
+      },
+      "Darwin":{
+         "Mac":{
+            "cmake_generate_args":[
+               "-G",
+               "Xcode",
+               "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12",
+               "-DCMAKE_OSX_ARCHITECTURES=x86_64",
+               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\""
+            ],
+            "cmake_build_args":[
+               "-j",
+               "8"
+            ]
+         }
+      },
+      "Linux":{
+         "Linux":{
+            "cmake_generate_args":[
+               "-G",
+               "Unix\\ Makefiles",
+               "-DCMAKE_C_COMPILER=gcc",
+               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\""
+            ],
+            "cmake_build_args":[
+               "-j"
+            ]
+         }
+      }
+   }
+}

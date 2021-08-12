@@ -1,0 +1,40 @@
+diff --git a/simd_sse.h b/simd_sse.h
+index f959e20..4ec348f 100644
+--- a/simd_sse.h
++++ b/simd_sse.h
+@@ -3382,7 +3382,7 @@ Col3 FloatToSHalf( Vec3::Arg v )
+ 	return h;
+ }
+ 
+-Vec3 UHalfToFloat( Col3::Arg v )
++inline Vec3 UHalfToFloat( Col3::Arg v )
+ {
+ 	Vec3 f;
+ 
+@@ -3393,7 +3393,7 @@ Vec3 UHalfToFloat( Col3::Arg v )
+ 	return f;
+ }
+ 
+-Vec3 SHalfToFloat( Col3::Arg v )
++inline Vec3 SHalfToFloat( Col3::Arg v )
+ {
+ 	Vec3 f;
+ 
+@@ -4450,7 +4450,7 @@ Col4 FloatToSHalf( Vec4::Arg v )
+ 	return h;
+ }
+ 
+-Vec4 UHalfToFloat( Col4::Arg v )
++inline Vec4 UHalfToFloat( Col4::Arg v )
+ {
+ 	Vec4 f;
+ 
+@@ -4462,7 +4462,7 @@ Vec4 UHalfToFloat( Col4::Arg v )
+ 	return f;
+ }
+ 
+-Vec4 SHalfToFloat( Col4::Arg v )
++inline Vec4 SHalfToFloat( Col4::Arg v )
+ {
+ 	Vec4 f;
+ 
