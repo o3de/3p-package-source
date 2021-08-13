@@ -16,46 +16,63 @@
    ],
    "Platforms":{
       "Windows":{
-         "Windows":{
-            "cmake_generate_args":[
+         "Windows":{ 
+			"custom_cmake_install":true,
+            "cmake_generate_args_release":[
                "-G",
                "\"Visual Studio 16 2019\"", 
 			   "-A",
                "x64",
                "-T",
-               "host=x64"
+               "host=x64",
+			   "-DCMAKE_CXX_STANDARD=17"
             ],
             "cmake_build_args":[
                "-j"
-            ]
+            ],
+			"build_configs":[
+				"Release"
+			]
          }
       },
       "Darwin":{
          "Mac":{
-            "cmake_generate_args":[
+			"custom_cmake_install":true,
+            "cmake_generate_args_release":[
                "-G",
                "Xcode",
                "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12",
                "-DCMAKE_OSX_ARCHITECTURES=x86_64",
-               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\""
+               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\"",
+			   "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Release"
             ],
             "cmake_build_args":[
                "-j",
                "8"
-            ]
+            ],
+			"build_configs":[
+				"Release"
+			]
          }
       },
       "Linux":{
          "Linux":{
-            "cmake_generate_args":[
+			"custom_cmake_install":true,
+            "cmake_generate_args_release":[
                "-G",
                "Unix\\ Makefiles",
                "-DCMAKE_C_COMPILER=gcc",
-               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\""
+               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\"",
+			   "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Release"
             ],
             "cmake_build_args":[
                "-j"
-            ]
+            ],
+			"build_configs":[
+				"Release"
+			]
          }
       }
    }

@@ -12,8 +12,8 @@ if (TARGET $${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
-set($${MY_NAME}_INCLUDE_DIR $${CMAKE_CURRENT_LIST_DIR})
-set($${MY_NAME}_LIBS_DIR $${CMAKE_CURRENT_LIST_DIR}/squish-ccr/lib/$${PAL_PLATFORM_NAME}/Release)
+set($${MY_NAME}_INCLUDE_DIR $${CMAKE_CURRENT_LIST_DIR}/$${MY_NAME}/include)
+set($${MY_NAME}_LIBS_DIR $${CMAKE_CURRENT_LIST_DIR}/$${MY_NAME}/lib)
 
 if ($${PAL_PLATFORM_NAME} STREQUAL "Windows")
     set($${MY_NAME}_LIBRARY   $${$${MY_NAME}_LIBS_DIR}/squish-ccr.lib)

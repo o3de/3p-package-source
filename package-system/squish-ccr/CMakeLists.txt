@@ -108,3 +108,18 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_definitions(squish-ccr PRIVATE NDEBUG USE_CPP)
     #target_compile_definitions(squish-ccr PRIVATE _ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH _ALLOW_RUNTIME_LIBRARY_MISMATCH)
 endif()
+
+set_target_properties(squish-ccr
+    PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib/release/"
+        PUBLIC_HEADER "${SQUISH_HEADER_FILES}"
+)
+
+include(GNUInstallDirs)
+
+install(TARGETS squish-ccr
+        PUBLIC_HEADER
+            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/squish-ccr"
+        LIBRARY
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
