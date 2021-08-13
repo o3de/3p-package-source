@@ -41,6 +41,20 @@ index 9af55ef..dcc4a5d 100644
    }
  }
  #endif
+diff --git a/config.h b/config.h
+index ef7dbbd..9b1bf89 100644
+--- a/config.h
++++ b/config.h
+@@ -413,7 +413,8 @@ using namespace ::Concurrency;
+ #ifdef __GNUC__
+ #define assume
+ #define doinline
+-#define	passreg		__fastcall
++// clang reports warnings with __fastcall with x86_64 and __fastcall only works for i386 anyway
++#define	passreg
+ #else
+ #define assume		__assume
+ #define doinline	__forceinline
 diff --git a/maths.cpp b/maths.cpp
 index d9c3808..b58c36a 100644
 --- a/maths.cpp

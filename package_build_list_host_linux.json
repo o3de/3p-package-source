@@ -53,7 +53,7 @@
         "SQLite-3.32.2-rev3-multiplatform" : "package-system/SQLite-multiplatform",
         "xxhash-0.7.4-rev1-multiplatform": "package-system/xxhash-multiplatform",
         "qt-5.15.2-rev5-linux": "package-system/qt-linux",
-        "zlib-1.2.11-rev1-linux": "package-system/zlib-linux".
+        "zlib-1.2.11-rev1-linux": "package-system/zlib-linux",
         "squish-ccr-deb557d-rev1-linux" : "package-system/squish-ccr-linux"
     }
 }
