@@ -14,10 +14,6 @@
             "cmake_generate_args_debug":[
                "-G",
                "\"Visual Studio 16 2019\"",
-               "-A",
-               "x64",
-               "-T",
-               "host=x64",
                "-DOPENEXR_BUILD_PYTHON_LIBS=OFF",
                "-DOPENEXR_BUILD_TESTS=OFF",
                "-DOPENEXR_BUILD_UTILS=OFF",
@@ -30,10 +26,6 @@
             "cmake_generate_args_release":[
                "-G",
                "\"Visual Studio 16 2019\"",
-               "-A",
-               "x64",
-               "-T",
-               "host=x64",
                "-DOPENEXR_BUILD_PYTHON_LIBS=OFF",
                "-DOPENEXR_BUILD_TESTS=OFF",
                "-DOPENEXR_BUILD_UTILS=OFF",
@@ -42,9 +34,6 @@
                "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-windows/ilmbase\"",
                "-DCMAKE_BUILD_TYPE=Release",
                "-DZLIB_ROOT=../../../zlib-windows/zlib"
-            ],
-            "cmake_build_args":[
-               "-j"
             ]
          }
       },
@@ -62,7 +51,7 @@
                "-DOPENEXR_BUILD_STATIC=ON",
                "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-mac/ilmbase\"",
                "-DCMAKE_BUILD_TYPE=Debug",
-               "-DZLIB_ROOT=../../../zlib-windows/zlib"
+               "-DZLIB_ROOT=../../../zlib-mac/zlib"
             ],
             "cmake_generate_args_release":[
                "-G",
@@ -75,11 +64,7 @@
                "-DOPENEXR_BUILD_STATIC=ON",
                "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-mac/ilmbase\"",
                "-DCMAKE_BUILD_TYPE=Release",
-               "-DZLIB_ROOT=../../../zlib-windows/zlib"
-            ],
-            "cmake_build_args":[
-               "-j",
-               "8"
+               "-DZLIB_ROOT=../../../zlib-mac/zlib"
             ]
          }
       },
@@ -96,7 +81,7 @@
                "-DOPENEXR_BUILD_STATIC=ON",
                "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-linux/ilmbase\"",
                "-DCMAKE_BUILD_TYPE=Debug",
-               "-DZLIB_ROOT=../../../zlib-windows/zlib"
+               "-DZLIB_ROOT=../../../zlib-linux/zlib"
             ],
             "cmake_generate_args_release":[
                "-G",
@@ -108,10 +93,7 @@
                "-DOPENEXR_BUILD_STATIC=ON",
                "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-linux/ilmbase\"",
                "-DCMAKE_BUILD_TYPE=Release",
-               "-DZLIB_ROOT=../../../zlib-windows/zlib"
-            ],
-            "cmake_build_args":[
-               "-j"
+               "-DZLIB_ROOT=../../../zlib-linux/zlib"
             ]
          }
       }
