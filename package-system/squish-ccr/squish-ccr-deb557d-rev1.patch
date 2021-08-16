@@ -55,6 +55,68 @@ index ef7dbbd..9b1bf89 100644
  #else
  #define assume		__assume
  #define doinline	__forceinline
+diff --git a/inlineables.cpp b/inlineables.cpp
+index f2e0ca1..cdb51bc 100644
+--- a/inlineables.cpp
++++ b/inlineables.cpp
+@@ -162,6 +162,8 @@ static const vQuantizer q8880s1(8, 8, 8, 0, ~0);
+ static const vQuantizer q7770s1(7, 7, 7, 0, ~0);
+ static const vQuantizer q5550s1(5, 5, 5, 0, ~0);
+ 
++static const vQuantizer invalidQuantizer(0, 0, 0, 0, 0);
++
+ #define vGetQuantizer(r, g, b, a)					\
+ 	(((r) == 7) && ((a) == 8)                ? q7778s1 :		\
+ 	(((r) == 5) && ((a) == 6)                ? q5556s1 :		\
+@@ -171,7 +173,7 @@ static const vQuantizer q5550s1(5, 5, 5, 0, ~0);
+ 	(((r) == 8) && ((a) == 1)                ? q8880s1 :		\
+ 	(((r) == 7) && ((a) == 1)                ? q7770s1 :		\
+ 	(((r) == 5) && ((a) == 1)                ? q5550s1 :		\
+-	(vQuantizer&)*(vQuantizer*)nullptr))))))))
++	invalidQuantizer))))))))
+ 
+ #define eGetQuantizer(r, g, b, a, e)					\
+ 	(((r) == 7) && ((a) == 8) && ((e) == ~0) ? q7778s1 :		\
+@@ -182,7 +184,7 @@ static const vQuantizer q5550s1(5, 5, 5, 0, ~0);
+ 	(((r) == 8) && ((a) == 1) && ((e) ==  0) ? q8880s0 :		\
+ 	(((r) == 7) && ((a) == 1) && ((e) ==  0) ? q7770s0 :		\
+ 	(((r) == 5) && ((a) == 1) && ((e) ==  0) ? q5550s0 :		\
+-	(vQuantizer&)*(vQuantizer*)nullptr))))))))
++	invalidQuantizer))))))))
+ 
+ template<const int rb, const int gb, const int bb, const int ab, const int eb, const int sb>
+ static doinline void passreg FloatTo(Vec4 (&colour)[1], Col4 (&field)[1][FIELDN], int bitset) ccr_restricted
+@@ -900,15 +902,16 @@ static doinline void passreg Codebook6or8(s16 (&codes)[8*1], bool bw) ccr_restri
+       cd = (2 * c + 3 * d); codes[4 + i] = (s16)((cd * 0x3334) >> 16) + (cd < 0);
+       cd = (1 * c + 4 * d); codes[5 + i] = (s16)((cd * 0x3334) >> 16) + (cd < 0);
+ 
+-      codes[6 + i] = (s16)-127 << prc;
+-      codes[7 + i] = (s16) 127 << prc;
++      // Negative number doesn't support shift. Need to convert it to unsigned first
++      codes[6 + i] = (s16) (((u16)(-127)) << prc);
++      codes[7 + i] = (s16) (127 << prc);
+ 
+       assert(s16(codes[2]) == (((s16(4) * s16(codes[0])) + (s16(1) * s16(codes[1]))) / 5));
+       assert(s16(codes[3]) == (((s16(3) * s16(codes[0])) + (s16(2) * s16(codes[1]))) / 5));
+       assert(s16(codes[4]) == (((s16(2) * s16(codes[0])) + (s16(3) * s16(codes[1]))) / 5));
+       assert(s16(codes[5]) == (((s16(1) * s16(codes[0])) + (s16(4) * s16(codes[1]))) / 5));
+-      assert(s16(codes[6]) == (-127 << prc));
+-      assert(s16(codes[7]) == ( 127 << prc));
++      assert(s16(codes[6]) == (((u16)(-127)) << prc));
++      assert(s16(codes[7]) == (127 << prc));
+     }
+     else {
+       cd = (6 * c + 1 * d); codes[2 + i] = (s16)((cd * 0x4925) >> 17) + (cd < 0);
+@@ -1063,7 +1066,8 @@ static doinline void passreg Codebook6(Col8 &codes, Col8::Arg start, Col8::Arg e
+   // max   signed: (5 * 127) << 5 = 20320 / 0x4F60 fits   signed short
+   const Col8 smul = Col8(0x05 << pb, 0x00 << pb, 0x04 << pb, 0x03 << pb, 0x02 << pb, 0x01 << pb, 0x00 << pb, 0x00 << pb);
+   const Col8 emul = Col8(0x00 << pb, 0x05 << pb, 0x01 << pb, 0x02 << pb, 0x03 << pb, 0x04 << pb, 0x00 << pb, 0x00 << pb);
+-  const Col8 mask = Col8(0x00 << pb, 0x00 << pb, 0x00 << pb, 0x00 << pb, 0x00 << pb, 0x00 << pb, min  << pb, max  << pb);
++  // Negative number doesn't support shift. Need to convert it to unsigned first
++  const Col8 mask = Col8(0x00 << pb, 0x00 << pb, 0x00 << pb, 0x00 << pb, 0x00 << pb, 0x00 << pb, ((u16)min) << pb, ((u16)min) << pb);
+ 
+   // range [0,2*5*255]
+   Col8 ipol = (smul * start) + (emul * end);
 diff --git a/maths.cpp b/maths.cpp
 index d9c3808..b58c36a 100644
 --- a/maths.cpp
