@@ -35,6 +35,13 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
+REM Run the build for Debug
+call utils\hct\hctbuild.cmd -Debug -x64 -vs2019 -spirv
+IF %ERRORLEVEL% NEQ 0 (
+    ECHO "Building Release with hctbuild.cmd -Debug -x64 -vs2019 Failed"
+    exit /b 1
+)
+
 ECHO Custom Build for DirectXShaderCompiler finished successfully
 exit /b 0
 

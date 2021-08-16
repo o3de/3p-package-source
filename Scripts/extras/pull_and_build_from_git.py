@@ -43,8 +43,11 @@ The following keys can exist at the root level or the target-platform level:
                           'prebuilt_args' below.
 * prebuild_args         : (required if  prebuilt_source is set) A map of target subfolders within the target 3rd party folder against a glob pattern of
                           file(s) to copy to the target subfolders.
-* cmake_find_template   : (required if prebuilt_source is not set) The name of the template file that is used to generate the find*.cmake file
+* cmake_find_source     : The name of the source find*.cmake file that will be used in the target package
                           that is ingested by the lumberyard 3P system.
+* cmake_find_template   : If the find*.cmake in the target package requires template processing, then this is name of the template file that is used to 
+                          generate the contents of the find*.cmake file in the target package. 
+                          * Note that either 'cmake_find_source' or 'cmake_fine_template' must be declared.
 * cmake_find_target     : (required if prebuilt_source is not set) The name of the target find*.cmake file that is generated based on the template file and 
                           additional arguments (described below)
 
@@ -52,7 +55,7 @@ The following keys can exist at the root level or the target-platform level:
                           to restrict building to a specific configuration rather than building all configurations 
                           (provided by the default value: ['Debug', 'Release'])
 * patch_file            : (optional) Option patch file to apply to the synced source before performing a build
-* source_path            : (optional) Option to provide a path to the project source rather than getting it from github
+* source_path           : (optional) Option to provide a path to the project source rather than getting it from github
 * git_skip              : (optional) Option to skip all git commands, requires source_path
 
 
@@ -171,10 +174,17 @@ class PackageInfo(object):
         self.package_version = _get_value("package_version")
         self.patch_file = _get_value("patch_file", required=False)
         self.git_commit = _get_value("git_commit", required=False)
-        self.cmake_find_template = _get_value("cmake_find_template")
+        self.cmake_find_template = _get_value("cmake_find_template", required=False)
+        self.cmake_find_source = _get_value("cmake_find_source", required=False)
         self.cmake_find_target = _get_value("cmake_find_target")
         self.cmake_find_template_custom_indent = _get_value("cmake_find_template_custom_indent", default=1)
         self.additional_src_files = _get_value("additional_src_files", required=False)
+
+        if self.cmake_find_template is not None and self.cmake_find_source is not None:
+            raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_template' cannot both be set in the configuration.")            
+        if self.cmake_find_template is None and self.cmake_find_source is None:
+            raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_template' must be set in the configuration.")
+
 
     def write_package_info(self, install_path):
         """
@@ -294,7 +304,9 @@ class BuildInfo(object):
     This is the Build management class that will perform the entire build from source and preparing a folder for packaging
     """
 
-    def __init__(self, package_info, platform_config, base_folder, build_folder, package_install_root, custom_toolchain_file, cmake_command, clean_build, cmake_find_template, prebuilt_source, prebuilt_args, src_folder, skip_git):
+    def __init__(self, package_info, platform_config, base_folder, build_folder, package_install_root, 
+                 custom_toolchain_file, cmake_command, clean_build, cmake_find_template, 
+                 cmake_find_source, prebuilt_source, prebuilt_args, src_folder, skip_git):
         """
         Initialize the Build management object with information needed
 
@@ -307,6 +319,7 @@ class BuildInfo(object):
         :param cmake_command:           The cmake executable command to use for cmake
         :param clean_build:             Option to clean any existing build folder before proceeding
         :param cmake_find_template:     The template for the find*.cmake generated file
+        :param cmake_find_source:       The source file for the find*.cmake generated file
         :param prebuilt_source:         If provided, the git fetch / build flow will be replaced with a copy from a prebuilt folder
         :param prebuilt_args:           If prebuilt_source is provided, then this argument is required to specify the copy rules to assemble the package from the prebuilt package
         :param src_folder:              Path to the source code / where to clone the git repo.
@@ -325,10 +338,14 @@ class BuildInfo(object):
         self.build_install_folder = self.package_install_root / package_info.package_name
         self.clean_build = clean_build
         self.cmake_find_template = cmake_find_template
+        self.cmake_find_source = cmake_find_source
         self.build_configs = platform_config.get('build_configs', ['Debug', 'Release'])
         self.prebuilt_source = prebuilt_source
         self.prebuilt_args = prebuilt_args
         self.skip_git = skip_git
+
+        if self.cmake_find_template is not None and self.cmake_find_source is not None:
+            raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_template' cannot both be set in the configuration.")            
 
     def clone_to_local(self):
         """
@@ -651,24 +668,36 @@ class BuildInfo(object):
         Generate the find*.cmake file for the library
         """
 
-        template_file_content = self.cmake_find_template.read_text("UTF-8", "ignore")
+        if self.cmake_find_template is not None:
 
-        def _build_list_str(indent, key):
-            list_items = self.platform_config.get(key, [])
-            indented_list_items = []
-            for list_item in list_items:
-                indented_list_items.append(f'{" "*(indent*4)}{list_item}')
-            return '\n'.join(indented_list_items)
+            template_file_content = self.cmake_find_template.read_text("UTF-8", "ignore")
 
-        cmake_find_template_def_ident_level = self.package_info.cmake_find_template_custom_indent
+            def _build_list_str(indent, key):
+                list_items = self.platform_config.get(key, [])
+                indented_list_items = []
+                for list_item in list_items:
+                    indented_list_items.append(f'{" "*(indent*4)}{list_item}')
+                return '\n'.join(indented_list_items)
 
-        template_env = {
-            "CUSTOM_ADDITIONAL_COMPILE_DEFINITIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_compile_definitions'),
-            "CUSTOM_ADDITIONAL_LINK_OPTIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_link_options'),
-            "CUSTOM_ADDITIONAL_LIBRARIES": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_libraries')
-        }
+            cmake_find_template_def_ident_level = self.package_info.cmake_find_template_custom_indent
 
-        find_cmake_content = string.Template(template_file_content).substitute(template_env)
+            template_env = {
+                "CUSTOM_ADDITIONAL_COMPILE_DEFINITIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_compile_definitions'),
+                "CUSTOM_ADDITIONAL_LINK_OPTIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_link_options'),
+                "CUSTOM_ADDITIONAL_LIBRARIES": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_libraries')
+            }
+
+            find_cmake_content = string.Template(template_file_content).substitute(template_env)
+
+        elif self.cmake_find_source is not None:
+
+            find_cmake_content = self.cmake_find_source.read_text("UTF-8", "ignore")
+
+        else:
+            raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_template' must be specified.")            
+
+
+
 
         target_cmake_find_script = self.package_install_root / self.package_info.cmake_find_target
         target_cmake_find_script.write_text(find_cmake_content)
@@ -803,15 +832,31 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
                                target_platform_name=platform_name,
                                target_platform_config=target_platform_config)
 
-    # Validate the cmake find template
-    if not package_info.cmake_find_template:
-        raise BuildError("Missing 'cmake_find_template' entry in build config")
-    if os.path.isabs(package_info.cmake_find_template):
-        cmake_find_template_path = pathlib.Path(package_info.cmake_find_template)
+    cmake_find_template_path = None
+    cmake_find_source_path = None
+
+    if package_info.cmake_find_template is not None:
+
+        # Validate the cmake find template
+        if os.path.isabs(package_info.cmake_find_template):
+            cmake_find_template_path = pathlib.Path(package_info.cmake_find_template)
+        else:
+            cmake_find_template_path = base_folder_path / package_info.cmake_find_template
+        if not cmake_find_template_path.is_file():
+            raise BuildError("Invalid 'cmake_find_template' entry in build config")
+
+    elif package_info.cmake_find_source is not None:
+
+        # Validate the cmake find source
+        if os.path.isabs(package_info.cmake_find_source):
+            cmake_find_source_path = pathlib.Path(package_info.cmake_find_source)
+        else:
+            cmake_find_source_path = base_folder_path / package_info.cmake_find_source
+        if not cmake_find_source_path.is_file():
+            raise BuildError("Invalid 'cmake_find_source' entry in build config")
+
     else:
-        cmake_find_template_path = base_folder_path / package_info.cmake_find_template
-    if not cmake_find_template_path.is_file():
-        raise BuildError("Invalid 'cmake_find_template' entry in build config")
+        raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_template' must be specified.")            
 
     return BuildInfo(package_info=package_info,
                      platform_config=target_platform_config,
@@ -822,6 +867,7 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
                      cmake_command=cmake_command,
                      clean_build=clean,
                      cmake_find_template=cmake_find_template_path,
+                     cmake_find_source=cmake_find_source_path,
                      prebuilt_source=prebuilt_source,
                      prebuilt_args=prebuilt_args,
                      src_folder=src_folder_path,

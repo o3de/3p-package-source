@@ -2,7 +2,7 @@
    "git_url":"https://github.com/o3de/DirectXShaderCompiler.git",
    "git_tag":"release-1.6.2104-o3de",
    "package_name":"DirectXShaderCompilerDxc",
-   "package_version":"1.6.2104-o3de-rev3",
+   "package_version":"1.6.2104-o3de-rev2",
    "package_url":"https://github.com/o3de/DirectXShaderCompiler",
    "package_license":"NCSA",
    "package_license_file":"LICENSE.TXT",
@@ -10,7 +10,7 @@
    "Platforms":{
       "Windows":{
          "Windows":{
-            "cmake_find_template":"FindDirectXShaderCompilerDxc.cmake.Windows",
+            "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Windows",
             "custom_build_cmd": [
                "build_dxc_windows.cmd"
             ],
@@ -22,7 +22,7 @@
       "Darwin":{
          "Mac":{
             "build_configs": ["Release"],
-            "cmake_find_template":"FindDirectXShaderCompilerDxc.cmake.Mac",
+            "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Mac",
             "cmake_generate_args":[
                "-DCMAKE_BUILD_TYPE=Release",
                "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
@@ -62,7 +62,7 @@
       "Linux":{
          "Linux":{
             "build_configs": ["Release"],
-            "cmake_find_template":"FindDirectXShaderCompilerDxc.cmake.Linux",
+            "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Linux",
             "cmake_generate_args":[
                "-GNinja",
                "-DCMAKE_BUILD_TYPE=Release",
