@@ -326,6 +326,9 @@ class BuildInfo(object):
         :param skip_git:                If true skip all git interaction and .
         """
 
+        assert (cmake_find_template is not None and cmake_find_source is None) or \
+                (cmake_find_template is None and cmake_find_source is not None), "Either cmake_find_template or cmake_find_source must be set, but not both"
+
         self.package_info = package_info
         self.platform_config = platform_config
         self.custom_toolchain_file = custom_toolchain_file
@@ -344,8 +347,6 @@ class BuildInfo(object):
         self.prebuilt_args = prebuilt_args
         self.skip_git = skip_git
 
-        if self.cmake_find_template is not None and self.cmake_find_source is not None:
-            raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_template' cannot both be set in the configuration.")            
 
     def clone_to_local(self):
         """
@@ -692,11 +693,6 @@ class BuildInfo(object):
         elif self.cmake_find_source is not None:
 
             find_cmake_content = self.cmake_find_source.read_text("UTF-8", "ignore")
-
-        else:
-            raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_template' must be specified.")            
-
-
 
 
         target_cmake_find_script = self.package_install_root / self.package_info.cmake_find_target
