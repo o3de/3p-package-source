@@ -14,15 +14,27 @@ call::GenerateCommonCMakeArgs CMAKE_COMMON_ARGS
 
 REM Debug Shared
 call:ConfigureAndBuild Debug Shared
+IF %ERRORLEVEL% NEQ 0 (
+    exit /b 1
+)
 
 REM Debug Static
 call:ConfigureAndBuild Debug Static
+IF %ERRORLEVEL% NEQ 0 (
+    exit /b 1
+)
 
 REM Release Shared
 call:ConfigureAndBuild Release Shared
+IF %ERRORLEVEL% NEQ 0 (
+    exit /b 1
+)
 
 REM Release Static
 call:ConfigureAndBuild Release Static
+IF %ERRORLEVEL% NEQ 0 (
+    exit /b 1
+)
 
 ECHO "Custom Build for AWSNativeSDK finished successfully"
 exit /b 0

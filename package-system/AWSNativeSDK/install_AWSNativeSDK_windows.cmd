@@ -36,6 +36,9 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 call:CopyDynamicAndStaticLibs "Debug"
+IF %ERRORLEVEL% NEQ 0 (
+    exit /b 1
+)
 
 REM CMake Install Release and 3rdParty
 ECHO "CMake Install Release Shared to %INST_PATH%"
@@ -52,6 +55,9 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 call:CopyDynamicAndStaticLibs "Release"
+IF %ERRORLEVEL% NEQ 0 (
+    exit /b 1
+)
 
 REM Copy include headers
 ECHO "Copying include headers to %OUT_INCLUDE_PATH%"
