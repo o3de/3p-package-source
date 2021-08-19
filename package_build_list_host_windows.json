@@ -83,6 +83,7 @@
     "mikkelsen-1.0.0.4-android": "package-system/mikkelsen-android",
     "OpenMesh-8.1-rsv1-windows": "package-system/OpenMesh-windows",
     "pyside2-qt-5.15.1-rev2-windows": "package-system/pyside2-windows",
+	"RapidJSON-1.1.0-multiplatform": "package-system/RapidJSON-multiplatform",
     "d3dx12-headers-rev1-windows": "package-system/d3dx12-windows",
     "mcpp-2.7.2_az.1-rev1-windows": "package-system/mcpp-windows",
     "cityhash-1.1-multiplatform": "package-system/cityhash-multiplatform",

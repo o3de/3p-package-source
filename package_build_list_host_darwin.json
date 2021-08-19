@@ -67,6 +67,7 @@
         "mikkelsen-1.0.0.4-mac": "package-system/mikkelsen-mac",
         "mikkelsen-1.0.0.4-ios": "package-system/mikkelsen-ios",
         "poly2tri-7f0487a-rev1-mac": "package-system/poly2tri-mac",
+		"RapidJSON-1.1.0-multiplatform": "package-system/RapidJSON-multiplatform",
         "v-hacd-2.3-1a49edf-rev1-mac": "package-system/v-hacd-mac",
         "mcpp-2.7.2_az.1-rev1-mac": "package-system/mcpp-mac",
         "SPIRVCross-2021.04.29-rev1-mac": "package-system/SPIRVCross-mac",

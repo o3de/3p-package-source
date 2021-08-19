@@ -1,0 +1,6 @@
+{
+    "PackageName" : "RapidJSON-1.1.0-multiplatform",
+    "URL"         : "https://github.com/Tencent/rapidjson",
+    "License"     : "MIT",
+    "LicenseFile" : "RapidJSON/license.txt"
+}
