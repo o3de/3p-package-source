@@ -69,7 +69,6 @@
     "python-3.7.10-rev1-windows": "package-system/python/win_x64/package",
     "pybind11-2.4.3-rev1-multiplatform": "package-system/pybind11-multiplatform",
     "alembic-1.7.11-rev3-multiplatform": "package-system/alembic-multiplatform",
-    "hdf5-1.0.11-rev2-multiplatform": "package-system/hdf5-multiplatform",
     "ilmbase-2.3.0-rev4-windows": "package-system/ilmbase-windows",
     "assimp-5.0.1-rev11-multiplatform": "package-system/assimp-multiplatform",
     "squish-ccr-20150601-rev3-multiplatform": "package-system/squish-ccr-multiplatform",
