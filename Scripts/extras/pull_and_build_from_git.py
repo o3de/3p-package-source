@@ -601,7 +601,7 @@ class BuildInfo(object):
                                          cwd=str(self.base_folder),
                                          env=custom_install_env)
             if call_result.returncode != 0:
-                raise BuildError(f"Error executing custom build command {custom_build_cmd}")
+                raise BuildError(f"Error executing custom install command {custom_install_cmd}")
 
     def check_build_keys(self, keys_to_check):
         """
