@@ -180,10 +180,10 @@ class PackageInfo(object):
         self.cmake_find_template_custom_indent = _get_value("cmake_find_template_custom_indent", default=1)
         self.additional_src_files = _get_value("additional_src_files", required=False)
 
-        if self.cmake_find_template is not None and self.cmake_find_source is not None:
-            raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_template' cannot both be set in the configuration.")            
-        if self.cmake_find_template is None and self.cmake_find_source is None:
-            raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_template' must be set in the configuration.")
+        if self.cmake_find_template and self.cmake_find_source:
+            raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
+        if not self.cmake_find_template and not self.cmake_find_source:
+            raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_source' must be set in the configuration.")
 
 
     def write_package_info(self, install_path):
@@ -835,9 +835,9 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
 
         # Validate the cmake find template
         if os.path.isabs(package_info.cmake_find_template):
-            cmake_find_template_path = pathlib.Path(package_info.cmake_find_template)
-        else:
-            cmake_find_template_path = base_folder_path / package_info.cmake_find_template
+            raise BuildError("Invalid 'cmake_find_template' entry in build config. Absolute paths are not allowed, must be relative to the package base folder.")
+        
+        cmake_find_template_path = base_folder_path / package_info.cmake_find_template
         if not cmake_find_template_path.is_file():
             raise BuildError("Invalid 'cmake_find_template' entry in build config")
 
@@ -845,9 +845,9 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
 
         # Validate the cmake find source
         if os.path.isabs(package_info.cmake_find_source):
-            cmake_find_source_path = pathlib.Path(package_info.cmake_find_source)
-        else:
-            cmake_find_source_path = base_folder_path / package_info.cmake_find_source
+            raise BuildError("Invalid 'cmake_find_source' entry in build config. Absolute paths are not allowed, must be relative to the package base folder.")
+
+        cmake_find_source_path = base_folder_path / package_info.cmake_find_source
         if not cmake_find_source_path.is_file():
             raise BuildError("Invalid 'cmake_find_source' entry in build config")
 
