@@ -10,7 +10,7 @@
    "Platforms":{
       "Windows":{
          "Windows":{
-            "cmake_find_template":"FindDirectXShaderCompilerDxc.cmake.Windows",
+            "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Windows",
             "custom_build_cmd": [
                "build_dxc_windows.cmd"
             ],
@@ -22,7 +22,7 @@
       "Darwin":{
          "Mac":{
             "build_configs": ["Release"],
-            "cmake_find_template":"FindDirectXShaderCompilerDxc.cmake.Mac",
+            "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Mac",
             "cmake_generate_args":[
                "-DCMAKE_BUILD_TYPE=Release",
                "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
@@ -62,7 +62,7 @@
       "Linux":{
          "Linux":{
             "build_configs": ["Release"],
-            "cmake_find_template":"FindDirectXShaderCompilerDxc.cmake.Linux",
+            "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Linux",
             "cmake_generate_args":[
                "-GNinja",
                "-DCMAKE_BUILD_TYPE=Release",
