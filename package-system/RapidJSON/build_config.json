@@ -6,9 +6,6 @@
     "package_version":"1.1.0",
     "package_url":"https://rapidjson.org",
     "package_license":"MIT",
-    "REM additional_src_files":[
-      "LICENSE"
-    ],
     "package_license_file":"license.txt",
     "cmake_find_template":"FindRapidJSON.cmake.template",
     "cmake_find_target":"FindRapidJSON.cmake",
