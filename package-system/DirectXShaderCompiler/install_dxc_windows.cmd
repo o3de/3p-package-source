@@ -25,16 +25,6 @@ IF NOT EXIST %DXIL_PATH% (
     exit /b 1
 )
 
-
-mkdir %BIN_PATH%\Release
-
-echo Copying LICENSE.TXT to %TARGET_INSTALL_ROOT%
-copy /Y %SRC_PATH%\\LICENSE.TXT %TARGET_INSTALL_ROOT%\
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO Unable to copy LICENSE.TXT
-    exit /b 1
-)
-
 mkdir %BIN_PATH%\Release
 
 echo Copying %BLD_PATH%\Release\bin\dxc.exe to %BIN_PATH%\Release\
