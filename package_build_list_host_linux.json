@@ -47,7 +47,6 @@
         "NvCloth-v1.1.6-4-gd243404-pr58-rev1-linux": "package-system/NvCloth-linux",
         "mikkelsen-1.0.0.4-linux": "package-system/mikkelsen-linux",
         "poly2tri-7f0487a-rev1-linux": "package-system/poly2tri-linux",
-		"RapidJSON-1.1.0-multiplatform": "package-system/RapidJSON-multiplatform",
         "v-hacd-2.3-1a49edf-rev1-linux": "package-system/v-hacd-linux",
         "unwind-1.2.1-linux": "package-system/unwind-linux",
         "SQLite-3.32.2-rev3-multiplatform" : "package-system/SQLite-multiplatform",
