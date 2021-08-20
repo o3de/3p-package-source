@@ -9,9 +9,6 @@ REM
 SET SRC_PATH=temp\src
 SET BLD_PATH=temp\build
 
-SET CMAKE_COMMON_ARGS=""
-call::GenerateCommonCMakeArgs CMAKE_COMMON_ARGS
-
 REM Debug Shared
 call:ConfigureAndBuild Debug Shared
 IF %ERRORLEVEL% NEQ 0 (
@@ -46,8 +43,19 @@ SET BUILD_SHARED=OFF
 IF %LIB_TYPE% EQU Shared (
     SET BUILD_SHARED=ON
 )
-ECHO "CMake Configure %BUILD_TYPE% %LIB_TYPE% with %CMAKE_COMMON_ARGS%"
-call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% %CMAKE_COMMON_ARGS% -DBUILD_SHARED_LIBS=%BUILD_SHARED% -DCMAKE_BUILD_TYPE="%BUILD_TYPE%" -DCMAKE_INSTALL_BINDIR="bin/%BUILD_TYPE%" -DCMAKE_INSTALL_LIBDIR="lib/%BUILD_TYPE%"
+ECHO "CMake Configure %BUILD_TYPE% %LIB_TYPE%"
+call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
+           -G "Visual Studio 16 2019" ^
+           -A x64 ^
+           -DCPP_STANDARD=17 ^
+           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" ^
+           -DENABLE_TESTING=OFF ^
+           -DENABLE_RTTI=ON ^
+           -DCUSTOM_MEMORY_MANAGEMENT=ON^
+           -DBUILD_SHARED_LIBS=%BUILD_SHARED% ^
+           -DCMAKE_BUILD_TYPE="%BUILD_TYPE%" ^
+           -DCMAKE_INSTALL_BINDIR="bin/%BUILD_TYPE%" ^
+           -DCMAKE_INSTALL_LIBDIR="lib/%BUILD_TYPE%"
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "CMake Configure %BUILD_TYPE% %LIB_TYPE% failed"
     exit /b 1
@@ -59,8 +67,4 @@ IF %ERRORLEVEL% NEQ 0 (
     ECHO "CMake Build %BUILD_TYPE% %LIB_TYPE% to %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% failed"
     exit /b 1
 )
-GOTO:EOF
-
-:GenerateCommonCMakeArgs
-SET %~1= -G "Visual Studio 16 2019" -A x64 -DCPP_STANDARD=17 -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" -DENABLE_TESTING=OFF -DENABLE_RTTI=ON -DCUSTOM_MEMORY_MANAGEMENT=ON
 GOTO:EOF
