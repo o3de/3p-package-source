@@ -102,11 +102,11 @@ set(SQUISH_PUBLIC_INCLUDE_FILES
     squish.h
     config.h
     coloursinglelookup_ccr.inl
-	coloursinglelookup_ccr_vector.inl
-	degeneracy_ccr.inl
+    coloursinglelookup_ccr_vector.inl
+    degeneracy_ccr.inl
 )
 
-add_library(squish-ccr STATIC ${SQUISH_SOURCE_FILES} ${SQUISH_HEADER_FILES} ${SQUISH_INLINE_FILES})
+add_library(squish-ccr SHARED ${SQUISH_SOURCE_FILES} ${SQUISH_HEADER_FILES} ${SQUISH_INLINE_FILES})
 target_include_directories(squish-ccr PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_compile_definitions(squish-ccr PRIVATE SQUISH_USE_SSE=2 SQUISH_USE_CPP SQUISH_USE_CCR)
 
@@ -119,7 +119,7 @@ endif()
 
 set_target_properties(squish-ccr
     PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib/release/"
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib/"
         PUBLIC_HEADER "${SQUISH_PUBLIC_INCLUDE_FILES}"
 )
 

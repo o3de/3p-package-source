@@ -25,7 +25,9 @@
                 "x64",
                 "-T",
                 "host=x64",
-                "-DCMAKE_CXX_STANDARD=17"
+                "-DCMAKE_CXX_STANDARD=17",
+                "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE",
+                "-DBUILD_SHARED_LIBS=TRUE"
             ],
             "cmake_build_args": [
                 "-j"
