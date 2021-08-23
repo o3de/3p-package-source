@@ -199,7 +199,7 @@ class PackageInfo(object):
             'platform_name': self.platform_name.lower(),
             'package_url': self.package_url,
             'package_license': self.package_license,
-            'package_license_file': self.package_license_file
+            'package_license_file': os.path.basename(self.package_license_file)
         }
         package_info_content = string.Template(PackageInfo.PACKAGE_INFO_TEMPLATE).substitute(package_info_env)
         package_info_target_file.write_text(package_info_content)
