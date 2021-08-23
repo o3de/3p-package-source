@@ -36,7 +36,7 @@
       "Linux":{
          "Linux":{
             "custom_build_cmd": [
-                "build_package_image.py --platform linux"
+                "python3 build_package_image.py --platform linux"
              ]
          }
       }

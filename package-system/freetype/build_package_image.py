@@ -28,7 +28,7 @@ folder_names = {
     #system-name  cmake generation, cmake build
     'mac'       : ([
         '-G', 'Xcode'
-    ], []),
+    ], [], 'debug', 'release'),
     'ios'       : ([
         '-G', 'Xcode',
         f'-DCMAKE_TOOLCHAIN_FILE={cmake_scripts_path}/Platform/iOS/Toolchain_ios.cmake',
@@ -36,16 +36,16 @@ folder_names = {
     ], [
         '--',
         '-destination generic/platform=iOS'
-    ]),
+    ], 'debug', 'release'),
     'linux'     : ([
         '-G', 'Ninja Multi-Config',
         '-DCMAKE_C_COMPILER=clang-6.0', 
         '-DCMAKE_CXX_COMPILER=clang++-6.0'
-    ], []),
+    ], [], 'Debug', 'Release'),
     'windows'   : ([
         '-G', 'Visual Studio 16 2019',
         '-Ax64', '-Thost=x64'
-    ], []),
+    ], [], 'debug', 'release'),
     'android'   : ([
         '-G', 'Ninja Multi-Config',
         f'-DCMAKE_TOOLCHAIN_FILE={cmake_scripts_path}/Platform/Android/Toolchain_android.cmake',
@@ -55,11 +55,11 @@ folder_names = {
         '-DANDROID_NATIVE_API_LEVEL=21',
         f'-DLY_NDK_DIR={ly_3rdparty_path}/android-ndk/r21d',
         '-DPACKAGE_PLATFORM=android'
-    ], []) # Android needs to have ninja in the path
+    ], [], 'debug', 'release') # Android needs to have ninja in the path
 }
 
 # intentionally generate a keyerror if its not a good platform:
-cmake_generation, cmake_build = folder_names[args.platform]
+cmake_generation, cmake_build, debug_build_name, release_build_name = folder_names[args.platform]
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 package_name = os.path.basename(script_dir) 
@@ -75,7 +75,7 @@ if result_value.returncode != 0:
     sys.exit(result_value.returncode)
 
 # build debug
-build_call =['cmake', '--build', build_dir, '--config', 'debug', '--target', 'install']
+build_call =['cmake', '--build', build_dir, '--config', debug_build_name, '--target', 'install']
 if cmake_build:
     build_call += cmake_build
 print(build_call)
@@ -84,7 +84,7 @@ if result_value.returncode != 0:
     sys.exit(result_value.returncode)
 
 # build release
-build_call =['cmake', '--build', build_dir, '--config', 'release', '--target', 'install']
+build_call =['cmake', '--build', build_dir, '--config', release_build_name, '--target', 'install']
 if cmake_build:
     build_call += cmake_build
 result_value = subprocess.run(build_call, shell=False, cwd=script_dir)
