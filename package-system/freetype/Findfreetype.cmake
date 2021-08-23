@@ -17,7 +17,7 @@ endif()
 
 set(freetype_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/freetype/include/freetype2)
 set(freetype_LIBS_DIR ${CMAKE_CURRENT_LIST_DIR}/freetype/lib)
-set(freetype_LIBRARY ${freetype_LIBS_DIR}/$<IF:$<CONFIG:Debug>,debug,release>/${CMAKE_STATIC_LIBRARY_PREFIX}freetype$<IF:$<CONFIG:Debug>,d,>${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(freetype_LIBRARY ${freetype_LIBS_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}freetype$<IF:$<CONFIG:Debug>,d,>${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE} INTERFACE ${freetype_INCLUDE_DIR})

@@ -40,7 +40,8 @@ folder_names = {
     'linux'     : ([
         '-G', 'Ninja Multi-Config',
         '-DCMAKE_C_COMPILER=clang-6.0', 
-        '-DCMAKE_CXX_COMPILER=clang++-6.0'
+        '-DCMAKE_CXX_COMPILER=clang++-6.0',
+        '-DCMAKE_POSITION_INDEPENDENT_CODE=ON'
     ], [], 'Debug', 'Release'),
     'windows'   : ([
         '-G', 'Visual Studio 16 2019',
@@ -54,7 +55,8 @@ folder_names = {
         '-DANDROID_ARM_NEON=FALSE',
         '-DANDROID_NATIVE_API_LEVEL=21',
         f'-DLY_NDK_DIR={ly_3rdparty_path}/android-ndk/r21d',
-        '-DPACKAGE_PLATFORM=android'
+        '-DPACKAGE_PLATFORM=android',
+        '-DCMAKE_POSITION_INDEPENDENT_CODE=ON'
     ], [], 'debug', 'release') # Android needs to have ninja in the path
 }
 
