@@ -72,7 +72,6 @@
     "hdf5-1.0.11-rev2-multiplatform": "package-system/hdf5-multiplatform",
     "ilmbase-2.3.0-rev4-multiplatform": "package-system/ilmbase-multiplatform",
     "assimp-5.0.1-rev11-multiplatform": "package-system/assimp-multiplatform",
-    "squish-ccr-20150601-rev3-multiplatform": "package-system/squish-ccr-multiplatform",
     "md5-2.0-multiplatform": "package-system/md5-multiplatform",
     "RapidJSON-1.1.0-multiplatform": "package-system/RapidJSON-multiplatform",
     "RapidXML-1.13-multiplatform": "package-system/RapidXML-multiplatform",
