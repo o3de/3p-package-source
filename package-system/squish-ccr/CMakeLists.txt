@@ -128,6 +128,12 @@ include(GNUInstallDirs)
 install(TARGETS squish-ccr
         PUBLIC_HEADER
             DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/squish-ccr"
+        ARCHIVE
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
         LIBRARY
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
+        RUNTIME
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
+        FRAMEWORK
             DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
