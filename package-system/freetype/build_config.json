@@ -24,12 +24,12 @@
       "Darwin":{
         "Mac":{
             "custom_build_cmd": [
-                "build_package_image.py --platform mac"
+                "python3 build_package_image.py --platform mac"
             ]
         },
         "iOS":{
             "custom_build_cmd": [
-                "build_package_image.py --platform ios"
+                "python3 build_package_image.py --platform ios"
             ]
         }
       },

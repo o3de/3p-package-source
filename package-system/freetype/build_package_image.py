@@ -27,8 +27,9 @@ ly_3rdparty_path = os.getenv('LY_3RDPARTY_PATH')
 folder_names = { 
     #system-name  cmake generation, cmake build
     'mac'       : ([
-        '-G', 'Xcode'
-    ], [], 'debug', 'release'),
+        '-G', 'Xcode',
+         '-DCMAKE_OSX_ARCHITECTURES=x86_64'
+    ], [], 'Debug', 'Release'),
     'ios'       : ([
         '-G', 'Xcode',
         f'-DCMAKE_TOOLCHAIN_FILE={cmake_scripts_path}/Platform/iOS/Toolchain_ios.cmake',
@@ -36,7 +37,7 @@ folder_names = {
     ], [
         '--',
         '-destination generic/platform=iOS'
-    ], 'debug', 'release'),
+    ], 'Debug', 'Release'),
     'linux'     : ([
         '-G', 'Ninja Multi-Config',
         '-DCMAKE_C_COMPILER=clang-6.0', 
@@ -69,9 +70,19 @@ build_dir = os.path.join(script_dir, 'temp/build', args.platform)
 os.makedirs(build_dir, exist_ok=True)
 
 # generate
-generate_call = ['cmake', '-Stemp/src', f'-B{build_dir}', f'-DCMAKE_INSTALL_PREFIX=../{package_name}-{args.platform}/{package_name}/', '-DBUILD_SHARED_LIBS=false']
+generate_call = ['cmake', 
+                 '-Stemp/src', 
+                 f'-B{build_dir}', 
+                 f'-DCMAKE_INSTALL_PREFIX=../{package_name}-{args.platform}/{package_name}/', 
+                 '-DBUILD_SHARED_LIBS=false',
+                 '-DCMAKE_DISABLE_FIND_PACKAGE_ZLIB=TRUE',
+                 '-DCMAKE_DISABLE_FIND_PACKAGE_BZip2=TRUE',
+                 '-DCMAKE_DISABLE_FIND_PACKAGE_PNG=TRUE',
+                 '-DCMAKE_DISABLE_FIND_PACKAGE_HarfBuzz=TRUE',
+                 '-DCMAKE_DISABLE_FIND_PACKAGE_BrotliDec=TRUE']
 if cmake_generation:
     generate_call += cmake_generation
+print(f"Cmake command '{generate_call}'")
 result_value = subprocess.run(generate_call, shell=False, cwd=script_dir)
 if result_value.returncode != 0:
     sys.exit(result_value.returncode)
