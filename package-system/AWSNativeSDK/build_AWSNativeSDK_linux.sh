@@ -5,14 +5,24 @@
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
-echo "Install required library: zlib1g-dev"
-sudo apt install -y zlib1g-dev || (echo "Install required library: zlib1g-dev failed" ; exit 1)
 
-echo "Install required library: libssl-dev"
-sudo apt install -y libssl-dev || (echo "Install required library: libssl-dev failed" ; exit 1)
+if ! dpkg-query -W -f'${Status}' "zlib1g-dev" 2>/dev/null | grep -q "ok installed"
+then
+    echo "Required package zlib1g-dev is not installed"
+    exit 1 
+fi
 
-echo "Install required library: libcurl4-openssl-dev"
-sudo apt install -y libcurl4-openssl-dev || (echo "Install required library: libcurl4-openssl-dev failed" ; exit 1)
+if ! dpkg-query -W -f'${Status}' "libssl-dev" 2>/dev/null | grep -q "ok installed"
+then
+    echo "Required package libssl-dev is not installed"
+    exit 1
+fi
+
+if ! dpkg-query -W -f'${Status}' "libcurl4-openssl-dev" 2>/dev/null | grep -q "ok installed"
+then
+    echo "Required package libcurl4-openssl-dev is not installed"
+    exit 1
+fi
 
 src_path=temp/src
 bld_path=temp/build
