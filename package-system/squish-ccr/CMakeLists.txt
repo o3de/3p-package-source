@@ -119,7 +119,7 @@ endif()
 
 set_target_properties(squish-ccr
     PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib/"
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin/"
         PUBLIC_HEADER "${SQUISH_PUBLIC_INCLUDE_FILES}"
 )
 
@@ -129,5 +129,5 @@ install(TARGETS squish-ccr
         PUBLIC_HEADER
             DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/squish-ccr"
         LIBRARY
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
