@@ -146,7 +146,7 @@ class IspcTexCompBuilder(object):
         """
         print(f"    > building for macos...")
         os.chdir(self.src_folder)
-        subprocess.call(["xcodebuild build  -scheme ispc_texcomp -project ispc_texcomp.xcodeproj -destination 'platform=macOS'"])
+        os.system("xcodebuild build  -scheme ispc_texcomp -project ispc_texcomp.xcodeproj -destination 'platform=macOS'")
         os.chdir(self.working_dir)
         
 
@@ -155,7 +155,9 @@ class IspcTexCompBuilder(object):
         Use make -f Makefile.linux to build the ISPC Texture Compressor library
         """
         print(f"    > building for linux...")
-        subprocess.call(["make -f Makefile.linux"])
+        os.chdir(self.src_folder)
+        os.system("make -f Makefile.linux")
+        os.chdir(self.working_dir)
                 
     def build(self):
         if platform_name == "windows":
@@ -206,12 +208,12 @@ class IspcTexCompBuilder(object):
             )
         elif platform_name == "linux":
             shutil.copy2(
-                src=self.src_folder /'ispc_texcomp/linux/Release/libispc_texcomp.so',
+                src=self.src_folder /'build/libispc_texcomp.so',
                 dst=bin_folder,
             )
         elif platform_name == "mac":
             shutil.copy2(
-                src=self.src_folder /'ispc_texcomp/macOs/Release/libispc_texcomp.dylib',
+                src=self.src_folder /'build/libispc_texcomp.dylib',
                 dst=bin_folder,
             )
 
