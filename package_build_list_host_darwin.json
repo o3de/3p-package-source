@@ -37,7 +37,7 @@
         "mikkelsen-1.0.0.4-ios": "package-system/mikkelsen/build_package_image.py --platform ios",
         "zlib-1.2.11-rev1-mac": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Mac --package-root ../../package-system --clean",
         "zlib-1.2.11-rev1-ios": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name iOS --package-root ../../package-system --clean",
-        "squish-ccr-deb557d-rev1-mac" : "Scripts/extras/pull_and_build_from_git.py ../../package-system/squish-ccr --platform-name Mac --package-root ../../package-system --clean",
+        "squish-ccr-deb557d-rev1-mac" : "Scripts/extras/pull_and_build_from_git.py ../../package-system/squish-ccr --platform-name Mac --package-root ../../package-system --clean"
     },
     "build_from_folder" : { 
         "AWSNativeSDK-1.7.167-rev3-mac" : "package-system/AWSNativeSDK-mac",
