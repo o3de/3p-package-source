@@ -6,27 +6,27 @@
 #
 #
 set(MY_NAME "DirectXShaderCompilerDxc")
-set(TARGET_WITH_NAMESPACE "3rdParty::$${MY_NAME}")
-if (TARGET $${TARGET_WITH_NAMESPACE})
+set(TARGET_WITH_NAMESPACE "3rdParty::${MY_NAME}")
+if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
 set(output_subfolder "Builders/DirectXShaderCompiler")
-set($${MY_NAME}_BINARY_DIR $${CMAKE_CURRENT_LIST_DIR}/$${MY_NAME}/bin)
-set($${MY_NAME}_LIB_DIR $${CMAKE_CURRENT_LIST_DIR}/$${MY_NAME}/lib)
+set(${MY_NAME}_BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/${MY_NAME}/bin)
+set(${MY_NAME}_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/${MY_NAME}/lib)
 	
-add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 
-set($${MY_NAME}_BIN_RUNTIME_DEPENDENCIES
-        $${$${MY_NAME}_BINARY_DIR}/dxc
-        $${$${MY_NAME}_BINARY_DIR}/dxc-3.7
+set(${MY_NAME}_BIN_RUNTIME_DEPENDENCIES
+        ${${MY_NAME}_BINARY_DIR}/dxc
+        ${${MY_NAME}_BINARY_DIR}/dxc-3.7
         )
-ly_add_target_files(TARGETS $${TARGET_WITH_NAMESPACE} OUTPUT_SUBDIRECTORY "$${output_subfolder}/bin" FILES $${$${MY_NAME}_BIN_RUNTIME_DEPENDENCIES})
+ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} OUTPUT_SUBDIRECTORY "${output_subfolder}/bin" FILES ${${MY_NAME}_BIN_RUNTIME_DEPENDENCIES})
 
-set($${MY_NAME}_LIB_RUNTIME_DEPENDENCIES
-        $${$${MY_NAME}_LIB_DIR}/libdxcompiler.dylib
-        $${$${MY_NAME}_LIB_DIR}/libdxcompiler.3.7.dylib
+set(${MY_NAME}_LIB_RUNTIME_DEPENDENCIES
+        ${${MY_NAME}_LIB_DIR}/libdxcompiler.dylib
+        ${${MY_NAME}_LIB_DIR}/libdxcompiler.3.7.dylib
         )
-ly_add_target_files(TARGETS $${TARGET_WITH_NAMESPACE} OUTPUT_SUBDIRECTORY "$${output_subfolder}/lib" FILES $${$${MY_NAME}_LIB_RUNTIME_DEPENDENCIES})
+ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} OUTPUT_SUBDIRECTORY "${output_subfolder}/lib" FILES ${${MY_NAME}_LIB_RUNTIME_DEPENDENCIES})
 
-set($${MY_NAME}_FOUND True)
+set(${MY_NAME}_FOUND True)

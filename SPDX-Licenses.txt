@@ -54,16 +54,10 @@
     "LicenseFile" : "d3dx12/license.txt"
 },
 {
-    "PackageName" : "DirectXShaderCompilerDxc-2020.08.07-rev1-multiplatform",
+    "PackageName" : "DirectXShaderCompilerDxc-1.6.2104-o3de-rev3-windows",
     "URL"         : "https://github.com/Microsoft/DirectXShaderCompiler",
     "SPDX-License-Identifier": "NCSA",
     "LicenseFile" : "DirectXShaderCompilerDxc/LICENSE.TXT"
-},
-{
-    "PackageName" : "DirectXShaderCompilerDxcAz-5.0.0_az-rev1-multiplatform",
-    "URL"         : "https://github.com/galibzon/dxc-az",
-    "SPDX-License-Identifier": "NCSA",
-    "LicenseFile" : "DirectXShaderCompilerDxcAz/LICENSE.TXT"
 },
 {
     "PackageName" : "etc2comp-9cd0f9cae0-rev1-windows",
