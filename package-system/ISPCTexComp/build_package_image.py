@@ -27,6 +27,7 @@ package_url = "https://github.com/GameTechDev/ISPCTextureCompressor"
 package_license = "MIT"
 package_license_file = "license.txt"
 cmake_find_file = "FindISPCTexComp.cmake"
+source_patch_file="ISPCTexComp_36b80aa.patch"
 
 if platform.system() == 'Linux':
     ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-linux.tar.gz"
@@ -67,7 +68,6 @@ class IspcTexCompBuilder(object):
     def __init__(self, workingDir: pathlib.Path, packageDir: pathlib.Path):
         self.working_dir = workingDir
         self.package_dir = packageDir
-        # change current folder to working folder
         if self.working_dir.exists():
             shutil.rmtree(self.working_dir, onerror=remove_readonly)
         if self.package_dir.exists():
@@ -76,9 +76,7 @@ class IspcTexCompBuilder(object):
         os.mkdir(self.package_dir)
         os.chdir(self.working_dir)
         self.src_folder = self.working_dir/"src"
-        self.build_folder = self.working_dir/"build"
         os.mkdir(self.src_folder)
-        os.mkdir(self.build_folder)
 
     def clone_to_local(self):
         """
@@ -110,6 +108,12 @@ class IspcTexCompBuilder(object):
 
         if checkout_result.returncode != 0:
             raise BuildError(f"Error checking out {self.package_info.git_commit}: {checkout_result.stderr.decode('UTF-8', 'ignore')}")
+
+        # apply patch
+        subprocess.check_output(
+            ['git', 'apply', '--whitespace=fix', str(self.working_dir.parent.joinpath(source_patch_file))],
+            cwd=self.src_folder,
+        )
 
     def install_ispc_compiler(self):
         """
@@ -180,7 +184,7 @@ class IspcTexCompBuilder(object):
 
     def copy_output(self):
         """
-        copy library files and license files to self.build_folder folder
+        copy library files and license files to self.package_dir folder
         """
         library_foloder = self.package_dir/ package_name
         include_folder = library_foloder/'include'
@@ -242,10 +246,6 @@ def main():
     builder.build()
     builder.copy_output()
 
-    # If successful, delete the temp folder
-    # if temp_folder.exists():
-        #shutil.rmtree(str(temp_folder.resolve()), ignore_errors=True)
-        
     print(f"    > Build {package_name} Package complete")
 
     return True
