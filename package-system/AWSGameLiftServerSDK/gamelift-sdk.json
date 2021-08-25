@@ -1,0 +1,46 @@
+{
+    "OutputDir": "build",
+    "StaticLibOutputDir": "lib",
+    "SharedLibOutputDir": "bin",
+
+    "Platforms":
+    {
+        "Windows":
+        {
+            "archs"     : ["intel64"],
+            "toolchains": ["msvc-14.1"],
+            "configs"   : ["Debug", "Release"],
+            "libtypes"  : ["Shared", "Static"]
+        },
+
+        "Linux":
+        {
+            "archs"     : ["intel64"],
+            "toolchains": ["clang-6.0"],
+            "configs"   : ["Debug", "Release"],
+            "libtypes"  : ["Static"]
+        }
+    },
+
+    "NoArchFiles":
+    [
+        "gamelift-server-sdk/include",
+        "NOTICE_C++_AMAZON_GAMELIFT_SDK.TXT",
+        "LICENSE_AMAZON_GAMELIFT_SDK.TXT"
+    ],
+
+    "VariantFiles":
+    [
+        "prefix/lib/libboost_date_time.{0.lib_extension}",
+        "prefix/lib/libboost_random.{0.lib_extension}",
+        "prefix/lib/libboost_system.{0.lib_extension}",
+        "prefix/lib/libprotobuf{0.lib_config_suffix}.{0.lib_extension}",
+        "prefix/lib/{0.lib_prefix}sioclient.{0.lib_extension}",
+        "prefix/lib/{0.lib_prefix}aws-cpp-sdk-gamelift-server.{0.lib_extension}"
+    ], 
+
+    "VariantSharedFiles":
+    [
+        "prefix/bin/{0.lib_prefix}aws-cpp-sdk-gamelift-server.{0.shared_lib_extension}"
+    ]
+}

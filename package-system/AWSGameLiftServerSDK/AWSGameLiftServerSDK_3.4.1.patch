@@ -1,0 +1,20 @@
+diff --git a/cmake/External_boost.cmake b/cmake/External_boost.cmake
+index 6fc990b..4625648 100644
+--- a/cmake/External_boost.cmake
++++ b/cmake/External_boost.cmake
+@@ -66,8 +66,14 @@ if(use_bat)
+     BUILD_COMMAND b2 address-model=${am} ${boost_with_args}
+   )
+ else()
++  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
++    set(_build_variant "debug")
++  else()
++    set(_build_variant  "release")
++  endif()
++
+   list(APPEND boost_with_args
+-    "cxxflags=-fPIC")
++    "cxxflags=-fPIC" "toolset=clang-6.0" "variant=${_build_variant}")
+   set(boost_cmds
+     CONFIGURE_COMMAND ./bootstrap.sh --prefix=<INSTALL_DIR>
+     BUILD_COMMAND ./b2 address-model=${am} ${boost_with_args}

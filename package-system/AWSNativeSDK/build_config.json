@@ -1,0 +1,25 @@
+{
+   "git_url":"https://github.com/aws/aws-sdk-cpp.git",
+   "git_tag":"1.7.167",
+   "package_name":"AWSNativeSDK",
+   "package_version":"1.7.167-rev3",
+   "package_url":"https://github.com/aws/aws-sdk-cpp",
+   "package_license":"Apache-2.0",
+   "package_license_file":"LICENSE",
+   "cmake_find_target":"FindAWSNativeSDK.cmake",
+   "cmake_find_template_custom_indent": 3,
+   "build_configs": ["Debug", "Release"],
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "cmake_find_template":"FindAWSNativeSDK.cmake.Windows.template",
+            "custom_build_cmd": [
+               "build_AWSNativeSDK_windows.cmd"
+            ],
+            "custom_install_cmd": [
+               "install_AWSNativeSDK_windows.cmd"
+            ]
+         }
+      }
+   }
+}
