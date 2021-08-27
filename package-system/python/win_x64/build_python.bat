@@ -83,7 +83,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo creating the installation image...
 rem We'll actually use the real python dist builder to do this:
 cd /d %python_src%
-.\PCBuild\amd64\python.exe .\PC\layout\main.py --copy %outputdir%\python -v -d --include-stable --include-pip --include-distutils --include-tcltk --include-idle --include-tools --include-venv --include-dev --include-launchers
+.\PCBuild\amd64\python.exe .\PC\layout\main.py --copy %outputdir%\python -v -d --include-stable --include-pip --include-distutils --include-tcltk --include-idle --include-tools --include-venv --include-dev --include-launchers 
 if %ERRORLEVEL% NEQ 0 (
   echo "Failed to call python's layout script (debug)"
   exit /B 1
@@ -99,6 +99,7 @@ echo copying package metadata and cmake files...
 rem But we do add our own few things...
 set ROBOCOPY_OPTIONS=/NJH /NJS /NP /NDL
 robocopy %ScriptDir% %outputdir% *.cmake PackageInfo.json %ROBOCOPY_OPTIONS%
+robocopy %python_src%\PCbuild\amd64 %outputdir%\python Python*.pdb %ROBOCOPY_OPTIONS%
 
 cd /d %ScriptDir%
 

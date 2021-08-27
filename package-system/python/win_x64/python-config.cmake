@@ -40,8 +40,10 @@ if (${PAL_PLATFORM_NAME} STREQUAL "Windows" )
     set(${MY}_LIBRARY_DEBUG   ${CMAKE_CURRENT_LIST_DIR}/python/libs/python37_d.lib)
     set(${MY}_LIBRARY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/python/libs/python37.lib)
     set(${MY}_INCLUDE_DIR     ${CMAKE_CURRENT_LIST_DIR}/python/include)
-    set(${MY}_DYLIBS_DEBUG    ${CMAKE_CURRENT_LIST_DIR}/python/python37_d.dll ${CMAKE_CURRENT_LIST_DIR}/python/python3_d.dll)
-    set(${MY}_DYLIBS_RELEASE  ${CMAKE_CURRENT_LIST_DIR}/python/python37.dll ${CMAKE_CURRENT_LIST_DIR}/python/python3.dll)
+    set(${MY}_DYLIBS_DEBUG    ${CMAKE_CURRENT_LIST_DIR}/python/python37_d.dll ${CMAKE_CURRENT_LIST_DIR}/python/python3_d.dll
+                              ${CMAKE_CURRENT_LIST_DIR}/python/python37_d.pdb ${CMAKE_CURRENT_LIST_DIR}/python/python3_d.pdb)
+    set(${MY}_DYLIBS_RELEASE  ${CMAKE_CURRENT_LIST_DIR}/python/python37.dll ${CMAKE_CURRENT_LIST_DIR}/python/python3.dll
+                              ${CMAKE_CURRENT_LIST_DIR}/python/python37.pdb ${CMAKE_CURRENT_LIST_DIR}/python/python3.pdb)
 
     set(${MY}_COMPILE_DEFINITIONS DEFAULT_LY_PYTHONHOME="${CMAKE_CURRENT_LIST_DIR}/python")
 

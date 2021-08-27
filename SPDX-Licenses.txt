@@ -186,6 +186,18 @@
     "LicenseFile" : "PVRTexTool/LICENSE_POWERVR_TOOLS.txt"
 },
 {
+    "PackageName" : "python-3.7.10-rev1-multiplatform",
+    "URL"         : "https://python.org",
+    "SPDX-License-Identifier": "PSF-2.0",
+    "LicenseFile" : "python/LICENSE.txt"
+},
+{
+    "PackageName" : "python-3.7.10-rev2-multiplatform",
+    "URL"         : "https://python.org",
+    "SPDX-License-Identifier": "PSF-2.0",
+    "LicenseFile" : "python/LICENSE.txt"
+},
+{
     "PackageName" : "pybind11-2.4.3-rev2-multiplatform",
     "URL"         : "https://github.com/pybind/pybind11",
     "SPDX-License-Identifier": "BSD-3-Clause",
