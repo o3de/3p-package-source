@@ -1,16 +1,19 @@
 #!/bin/bash
-
+#
 # Copyright (c) Contributors to the Open 3D Engine Project.
 # For complete copyright and license terms please see the LICENSE at the root of this distribution.
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
+#
 
 src_path=temp/src
 bld_path=temp/build
 inst_path=temp/install
+
 out_bin_path=$TARGET_INSTALL_ROOT/bin
 mkdir -p $out_bin_path/Debug
 mkdir -p $out_bin_path/Release
+
 out_include_path=$TARGET_INSTALL_ROOT/include
 mkdir -p $out_include_path
 
