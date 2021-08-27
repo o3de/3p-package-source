@@ -88,7 +88,6 @@ class BlastBuilder(object):
             staticIgnores = [
                 'PhysXCommon_64.dll',
                 'PhysXCooking_64.dll',
-                'PhysXFoundation_64.dll',
                 'PhysXGpu_64.dll',
                 'PhysX_64.dll',
                 'ApexImporter_x64.exe',
@@ -187,7 +186,7 @@ def main():
         builder.writePackageInfoFile(
             packageRoot,
             settings={
-                'PackageName': f'Blast-v1.1.7_rc2-9-geb169fe-rev1-{args.platformName}',
+                'PackageName': f'Blast-v1.1.7_rc2-9-geb169fe-rev2-{args.platformName}',
                 'URL': 'https://github.com/NVIDIAGameWorks/Blast',
                 'License': 'custom',
                 'LicenseFile': 'Blast/license.txt',
