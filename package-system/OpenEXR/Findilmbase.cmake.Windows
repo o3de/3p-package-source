@@ -1,0 +1,46 @@
+#
+# Copyright (c) Contributors to the Open 3D Engine Project.
+# For complete copyright and license terms please see the LICENSE at the root of this distribution.
+# 
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+#
+# this file actually ingests the library and defines targets.
+set(TARGET_WITH_NAMESPACE "3rdParty::ilmbase")
+if (TARGET $${TARGET_WITH_NAMESPACE})
+    return()
+endif()
+
+set(MY_NAME "ilmbase")
+
+set($${MY_NAME}_INCLUDE_DIR $${CMAKE_CURRENT_LIST_DIR}/ilmbase/include 
+                           $${CMAKE_CURRENT_LIST_DIR}/ilmbase/include/OpenEXR)
+
+set(_LIBS_DIR $${CMAKE_CURRENT_LIST_DIR}/ilmbase/lib)
+set($${MY_NAME}_LIBRARY_DEBUG   $${_LIBS_DIR}/IlmImfUtil-2_3_s_d.lib
+                                $${_LIBS_DIR}/IlmImf-2_3_s_d.lib
+                                $${_LIBS_DIR}/Half-2_3_s_d.lib
+                                $${_LIBS_DIR}/Iex-2_3_s_d.lib
+                                $${_LIBS_DIR}/IexMath-2_3_s_d.lib
+                                $${_LIBS_DIR}/IlmThread-2_3_s_d.lib
+                                $${_LIBS_DIR}/Imath-2_3_s_d.lib)
+set($${MY_NAME}_LIBRARY_RELEASE $${_LIBS_DIR}/IlmImfUtil-2_3_s.lib
+                                $${_LIBS_DIR}/IlmImf-2_3_s.lib
+                                $${_LIBS_DIR}/Half-2_3_s.lib
+                                $${_LIBS_DIR}/Iex-2_3_s.lib
+                                $${_LIBS_DIR}/IexMath-2_3_s.lib
+                                $${_LIBS_DIR}/IlmThread-2_3_s.lib
+                                $${_LIBS_DIR}/Imath-2_3_s.lib)
+endif()
+
+# we set it to a generator expression for multi-config situations:
+set($${MY_NAME}_LIBRARY  
+    "$$<$$<CONFIG:profile>:$${$${MY_NAME}_LIBRARY_RELEASE}>"
+    "$$<$$<CONFIG:Release>:$${$${MY_NAME}_LIBRARY_RELEASE}>"
+    "$$<$$<CONFIG:Debug>:$${$${MY_NAME}_LIBRARY_DEBUG}>")
+
+add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+ly_target_include_system_directories(TARGET $${TARGET_WITH_NAMESPACE} INTERFACE $${$${MY_NAME}_INCLUDE_DIR})
+target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE $${$${MY_NAME}_LIBRARY})
+
+set($${MY_NAME}_FOUND True)
