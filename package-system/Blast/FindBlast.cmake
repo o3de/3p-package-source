@@ -58,6 +58,15 @@ if(${PAL_PLATFORM_NAME} STREQUAL "Windows")
         ${_DLLS_DIR}/vc15win64-cmake/$<LOWER_CASE:$<CONFIG>>/NvBlastGlobals_x64.dll
         ${_DLLS_DIR}/vc15win64-cmake/$<LOWER_CASE:$<CONFIG>>/NvBlastTk_x64.dll
     )
+    
+    # When building O3DE monolithicaly the library PhysXFoundation_64.dll won't be present since
+    # PhysX SDK uses a static version of it. Because of this Blast will provide the dll in this case, which
+    # is needed by its extended tools libraries NvBlastExtPhysX_x64.dll and NvBlastExtPxSerialization_x64.dll.
+    if(LY_MONOLITHIC_GAME)
+        list(APPEND ${MY_NAME}_RUNTIME_DEPENDENCIES
+            ${_DLLS_DIR}/vc15win64-cmake/$<LOWER_CASE:$<CONFIG>>/PhysXFoundation_64.dll
+        )
+    endif()
 endif()
 
 add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
