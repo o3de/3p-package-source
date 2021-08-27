@@ -16,7 +16,7 @@ cp -f $SRC_PATH/LICENSE $OUT_PATH/
 mkdir -p $OUT_PATH/lib
 mkdir -p $OUT_PATH/include
 
-cp $BLD_PATH/Release-iphoneos/libz.a $OUT_PATH/lib/libz.a
+cp $BLD_PATH/libz.a $OUT_PATH/lib/libz.a
 cp $BLD_PATH/zconf.h $OUT_PATH/include/zconf.h
 cp $SRC_PATH/zlib.h $OUT_PATH/include/zlib.h
 cp FindZLIB_compat_unixlike.cmake $OUT_PATH/FindZLIB.cmake
