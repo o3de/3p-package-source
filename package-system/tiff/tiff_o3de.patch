@@ -1,0 +1,88 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index efe857df..43c1bb76 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -42,6 +42,11 @@ if (POLICY CMP0054)
+   cmake_policy(SET CMP0054 NEW)
+ endif(POLICY CMP0054)
+ 
++# o3de - use package hints
++if (POLICY CMP0074)
++  cmake_policy(SET CMP0074 NEW)
++endif()
++
+ # Read version information from configure.ac.
+ FILE(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/configure.ac" configure REGEX "^LIBTIFF_.*=")
+ foreach(line ${configure})
+@@ -62,6 +67,7 @@ message(STATUS "Building tiff version ${LIBTIFF_MAJOR_VERSION}.${LIBTIFF_MINOR_V
+ message(STATUS "libtiff library version ${SO_MAJOR}.${SO_MINOR}.${SO_REVISION}")
+ 
+ set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
++set(BUILD_TOOLS ON CACHE BOOL "Build tools")
+ 
+ # Project version
+ project(tiff C)
+@@ -739,8 +745,13 @@ endif()
+ # Process subdirectories
+ add_subdirectory(port)
+ add_subdirectory(libtiff)
+-add_subdirectory(tools)
+-add_subdirectory(test)
++
++# do not try to make additional executables if building for iOS
++if (BUILD_TOOLS)
++  add_subdirectory(tools)
++  add_subdirectory(test)  # tests rely on tools
++endif()
++
+ add_subdirectory(contrib)
+ add_subdirectory(build)
+ add_subdirectory(man)
+diff --git a/contrib/addtiffo/CMakeLists.txt b/contrib/addtiffo/CMakeLists.txt
+index 45e733cd..b864490f 100644
+--- a/contrib/addtiffo/CMakeLists.txt
++++ b/contrib/addtiffo/CMakeLists.txt
+@@ -22,6 +22,11 @@
+ # LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+ # OF THIS SOFTWARE.
+ 
++# do not try to make additional executables if tool building is disabled
++if (NOT BUILD_TOOLS)
++  return()
++endif()
++
+ extra_dist(
+   README
+   Makefile.vc)
+diff --git a/contrib/dbs/CMakeLists.txt b/contrib/dbs/CMakeLists.txt
+index ff3ce20c..b72b91a4 100644
+--- a/contrib/dbs/CMakeLists.txt
++++ b/contrib/dbs/CMakeLists.txt
+@@ -22,6 +22,11 @@
+ # LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+ # OF THIS SOFTWARE.
+ 
++# do not try to make additional executables if building for iOS
++if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
++  return()
++endif()
++
+ include_directories(${PROJECT_SOURCE_DIR}/libtiff
+                     ${PROJECT_BINARY_DIR}/libtiff
+                     ${CMAKE_CURRENT_BINARY_DIR})
+diff --git a/contrib/iptcutil/CMakeLists.txt b/contrib/iptcutil/CMakeLists.txt
+index 35cc2612..1f36367f 100644
+--- a/contrib/iptcutil/CMakeLists.txt
++++ b/contrib/iptcutil/CMakeLists.txt
+@@ -22,6 +22,11 @@
+ # LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+ # OF THIS SOFTWARE.
+ 
++# o3de change: do not try to make additional executables if tool building is disabled
++if (NOT BUILD_TOOLS)
++  return()
++endif()
++
+ extra_dist(
+   README
+   test.iptc
