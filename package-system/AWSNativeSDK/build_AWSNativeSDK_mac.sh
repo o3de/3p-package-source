@@ -1,9 +1,10 @@
 #!/bin/bash
-
+#
 # Copyright (c) Contributors to the Open 3D Engine Project.
 # For complete copyright and license terms please see the LICENSE at the root of this distribution.
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
+#
 
 src_path=temp/src
 bld_path=temp/build
@@ -20,6 +21,7 @@ configure_and_build() {
     echo "CMake Configure $build_type $lib_type"
     CXXFLAGS=-Wno-deprecated-declarations cmake -S "$src_path" -B "$bld_path/${build_type}_${lib_type}" \
           -G "Xcode" \
+          -DTARGET_ARCH=APPLE \
           -DCMAKE_OSX_ARCHITECTURES="x86_64" \
           -DCMAKE_CXX_STANDARD=17 \
           -DENABLE_TESTING=OFF \
