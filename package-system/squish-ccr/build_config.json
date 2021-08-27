@@ -1,0 +1,78 @@
+{
+   "git_url":"https://github.com/Ethatron/squish-ccr.git",
+   "git_tag":"master",
+   "git_commit":"deb557d2fa647b191b37a2d8682df54ec8a7cfba",
+   "package_name":"squish-ccr",
+   "package_version":"deb557d-rev1",
+   "package_url":"http://sjbrown.co.uk/2006/01/19/dxt-compression-techniques/",
+   "package_license":"MIT",
+   "package_license_file":"LICENSE.txt",
+   "cmake_find_template":"Findsquish-ccr.cmake.template",
+   "cmake_find_target":"Findsquish-ccr.cmake",
+   "patch_file":"squish-ccr-deb557d-rev1.patch",
+   "additional_src_files":[
+      "CMakeLists.txt",
+      "LICENSE.txt"
+   ],
+   "Platforms":{
+      "Windows":{
+        "Windows": {
+            "custom_cmake_install": true,
+            "cmake_generate_args_release": [
+                "-G",
+                "\"Visual Studio 16 2019\"",
+                "-DCMAKE_CXX_STANDARD=17",
+                "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE",
+                "-DBUILD_SHARED_LIBS=TRUE"
+            ],
+            "cmake_build_args": [
+                "-j"
+            ],
+            "build_configs": [
+                "Release"
+            ]
+        }
+      },
+      "Darwin":{
+        "Mac": {
+            "custom_cmake_install": true,
+            "cmake_generate_args_release": [
+                "-G",
+                "Xcode",
+                "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12",
+                "-DCMAKE_OSX_ARCHITECTURES=x86_64",
+                "-DCMAKE_CXX_FLAGS=\"-fPIC -O2\"",
+                "-DCMAKE_CXX_STANDARD=17",
+                "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "cmake_build_args": [
+                "-j",
+                "8"
+            ],
+            "build_configs": [
+                "Release"
+            ]
+        }
+      },
+      "Linux":{
+         "Linux":{
+            "custom_cmake_install":true,
+            "cmake_generate_args_release": [
+                "-G",
+                "Unix\\ Makefiles",
+                "-DCMAKE_C_COMPILER=clang-6.0",
+                "-DCMAKE_CXX_COMPILER=clang++-6.0",
+                "-DCMAKE_CXX_FLAGS=\"-fPIC -O2\"",
+                "-DCMAKE_CXX_STANDARD=17",
+                "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "cmake_build_args":[
+               "-j"
+            ],
+            "build_configs":[
+                "Release"
+            ]
+         }
+      }
+   }
+}
