@@ -102,7 +102,6 @@
         "glad-2.0.0-beta-rev2-multiplatform": "package-system/glad-multiplatform",
         "xxhash-0.7.4-rev1-multiplatform": "package-system/xxhash-multiplatform",
         "PVRTexTool-4.24.0-rev4-multiplatform": "package-system/PVRTexTool-multiplatform",
-        "ISPCTexComp-2021.3-rev1-windows": "package-system/ISPCTexComp-windows",
         "qt-5.15.2-rev4-windows": "package-system/qt-windows",
         "Wwise-2021.1.0.7575-rev1-multiplatform": "package-system/Wwise-multiplatform",
         "zlib-1.2.11-rev1-android": "package-system/zlib-android",
