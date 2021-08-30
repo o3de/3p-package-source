@@ -10,14 +10,16 @@ OUT_PATH=$TARGET_INSTALL_ROOT
 SRC_PATH=temp/src
 BLD_PATH=temp/build
 
+# these can fail if they are already there and we're working incrementally, this is okay
+# if they fail completely, the below checks will error anyway
 mkdir -p $OUT_PATH
-
-cp -f $SRC_PATH/LICENSE $OUT_PATH/
 mkdir -p $OUT_PATH/lib
 mkdir -p $OUT_PATH/include
 
-cp $BLD_PATH/libz.a $OUT_PATH/lib/libz.a
-cp $BLD_PATH/zconf.h $OUT_PATH/include/zconf.h
-cp $SRC_PATH/zlib.h $OUT_PATH/include/zlib.h
-cp FindZLIB_compat_unixlike.cmake $OUT_PATH/FindZLIB.cmake
+cp -f $SRC_PATH/LICENSE $OUT_PATH/ || exit 1
+cp $BLD_PATH/libz.a $OUT_PATH/lib/libz.a || exit 1
+cp $BLD_PATH/zconf.h $OUT_PATH/include/zconf.h || exit 1
+cp $SRC_PATH/zlib.h $OUT_PATH/include/zlib.h || exit 1
+cp FindZLIB_compat_unixlike.cmake $OUT_PATH/FindZLIB.cmake || exit 1
+
 exit 0
