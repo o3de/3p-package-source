@@ -47,6 +47,7 @@ ECHO "CMake Configure %BUILD_TYPE% %LIB_TYPE%"
 call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
            -G "Visual Studio 16 2019" ^
            -A x64 ^
+           -DTARGET_ARCH=WINDOWS ^
            -DCPP_STANDARD=17 ^
            -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" ^
            -DENABLE_TESTING=OFF ^

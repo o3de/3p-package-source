@@ -12,12 +12,25 @@
    "Platforms":{
       "Windows":{
          "Windows":{
-            "cmake_find_template":"FindAWSNativeSDK.cmake.Windows.template",
+            "package_version":"1.7.167-rev4",
+            "cmake_find_source":"FindAWSNativeSDK.cmake.Windows",
             "custom_build_cmd": [
                "build_AWSNativeSDK_windows.cmd"
             ],
             "custom_install_cmd": [
                "install_AWSNativeSDK_windows.cmd"
+            ]
+         }
+      },
+      "Linux":{
+         "Linux":{
+            "package_version":"1.7.167-rev6",
+            "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
+            "custom_build_cmd": [
+               "./build_AWSNativeSDK_linux.sh"
+            ],
+            "custom_install_cmd": [
+               "./install_AWSNativeSDK_linux.sh"
             ]
          }
       }
