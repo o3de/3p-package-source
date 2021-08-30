@@ -3,83 +3,61 @@
     "git_tag":"v1.2.11",
     "git_commit":"cacf7f1d4e3d44d871b605da3b647f07d718623f",
     "package_name":"zlib",
-    "package_version":"1.2.11-rev1",
+    "package_version":"1.2.11-rev2",
     "package_url":"https://zlib.net",
     "package_license":"Zlib",
     "additional_src_files":[
       "LICENSE"
     ],
     "package_license_file":"LICENSE",
-    "cmake_find_template":"Findzlib.cmake.template",
+    "cmake_find_source":"Findzlib.cmake",
     "cmake_find_target":"Findzlib.cmake",
     "cmake_build_args" : [ "-j", "8"],
     "Platforms":{
         "Windows":{
             "Windows":{
-                "custom_cmake_install":true,
-                "cmake_generate_args_debug":[
-                    "-DCMAKE_CXX_STANDARD=17",
-                    "-DCMAKE_DEBUG_POSTFIX=d",
-                    "-DSKIP_INSTALL_FILES=YES"
+                "custom_build_cmd" : [
+                    "build_zlib_windows.cmd"
                 ],
-                "cmake_generate_args_release":[
-                    "-DCMAKE_CXX_STANDARD=17",
-                    "-DSKIP_INSTALL_FILES=YES"
+                "custom_install_cmd": [
+                    "install_zlib_windows.cmd"
                 ]
             },
             "Android":{
-                "custom_cmake_install":true,
-                "build_configs":[
-                    "Release"
+                "custom_build_cmd" : [
+                    "build_zlib_android.cmd"
                 ],
-                "cmake_generate_args_release":[
-                   "-G",
-                   "Ninja",
-                   "-DCMAKE_TOOLCHAIN_FILE=%LY_ANDROID_NDK_ROOT%\\build\\cmake\\android.toolchain.cmake",
-                   "-DANDROID_ABI=arm64-v8a",
-                   "-DCMAKE_CXX_FLAGS=\"-fPIC\"",
-                   "-DCMAKE_CXX_STANDARD=17",
-                   "-DCMAKE_BUILD_TYPE=Release"
+                "custom_install_cmd": [
+                    "install_zlib_android.cmd"
                 ]
             }
         },
         
         "Darwin":{
             "Mac":{
-                "custom_cmake_install":true,
-                "cmake_generate_args_release":[
-                    "-DCMAKE_CXX_STANDARD=17",
-                    "-DCMAKE_BUILD_TYPE=Release",
-                    "-DSKIP_INSTALL_FILES=YES"
-                ],
-                "build_configs":[
-                    "Release"
-                ]
+                "custom_build_cmd": [
+                    "./build_zlib_mac.sh"
+                 ],
+                 "custom_install_cmd": [
+                    "./install_zlib_mac.sh"
+                 ]
             },
             "iOS":{
-                "custom_cmake_install":true,
                 "custom_build_cmd": [
                     "./build_zlib_ios.sh"
                  ],
                  "custom_install_cmd": [
                     "./install_zlib_ios.sh"
-                 ],
-                "build_configs":[
-                    "Release"
-                ]
+                 ]
              }
         },
         "Linux":{
             "Linux":{
-                "custom_cmake_install":true,
-                "cmake_generate_args_release":[
-                    "-DCMAKE_CXX_STANDARD=17",
-                    "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
-                    "-DCMAKE_BUILD_TYPE=Release",
-                    "-DSKIP_INSTALL_FILES=YES"
+                "custom_build_cmd": [
+                    "./build_zlib_linux.sh"
                 ],
-                "build_configs":[
-                    "Release"
+                "custom_install_cmd": [
+                    "./install_zlib_linux.sh"
                 ]
             }
         }
