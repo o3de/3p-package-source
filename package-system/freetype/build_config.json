@@ -8,6 +8,7 @@
    "package_license_file":"docs/FTL.TXT",
    "cmake_find_source":"Findfreetype.cmake",
    "cmake_find_target":"Findfreetype.cmake",
+   "patch_file":"freetype.patch",
    "Platforms":{
       "Windows":{
          "Windows":{

@@ -23,6 +23,7 @@ this_dir = os.path.dirname(os.path.realpath(__file__))
 cmake_scripts_path = os.path.abspath(os.path.join(this_dir, '../../Scripts/cmake'))
 
 ly_3rdparty_path = os.getenv('LY_3RDPARTY_PATH')
+ly_android_sdk_path = os.getenv('LY_ANDROID_SDK_PATH');
 
 folder_names = { 
     #system-name  cmake generation, cmake build
@@ -47,7 +48,7 @@ folder_names = {
     'windows'   : ([
         '-G', 'Visual Studio 16 2019',
         '-Ax64', '-Thost=x64'
-    ], [], 'debug', 'release'),
+    ], [], 'Debug', 'Release'),
     'android'   : ([
         '-G', 'Ninja Multi-Config',
         f'-DCMAKE_TOOLCHAIN_FILE={cmake_scripts_path}/Platform/Android/Toolchain_android.cmake',
@@ -55,7 +56,7 @@ folder_names = {
         '-DANDROID_ARM_MODE=arm',
         '-DANDROID_ARM_NEON=FALSE',
         '-DANDROID_NATIVE_API_LEVEL=21',
-        f'-DLY_NDK_DIR={ly_3rdparty_path}/android-ndk/r21d',
+        f'-DLY_NDK_DIR={ly_android_sdk_path}/ndk/22.0.7026061',
         '-DPACKAGE_PLATFORM=android',
         '-DCMAKE_POSITION_INDEPENDENT_CODE=ON'
     ], [], 'debug', 'release') # Android needs to have ninja in the path
@@ -74,7 +75,7 @@ generate_call = ['cmake',
                  '-Stemp/src', 
                  f'-B{build_dir}', 
                  f'-DCMAKE_INSTALL_PREFIX=../{package_name}-{args.platform}/{package_name}/', 
-                 '-DBUILD_SHARED_LIBS=false',
+                 '-DBUILD_SHARED_LIBS=FALSE',
                  '-DCMAKE_DISABLE_FIND_PACKAGE_ZLIB=TRUE',
                  '-DCMAKE_DISABLE_FIND_PACKAGE_BZip2=TRUE',
                  '-DCMAKE_DISABLE_FIND_PACKAGE_PNG=TRUE',
