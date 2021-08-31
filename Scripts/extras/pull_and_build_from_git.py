@@ -156,8 +156,6 @@ class PackageInfo(object):
 
         self.platform_name = target_platform_name
         try:
-            self.git_url = build_config["git_url"]
-            self.git_tag = build_config["git_tag"]
             self.package_name = build_config["package_name"]
             self.package_url = build_config["package_url"]
             self.package_license = build_config["package_license"]
@@ -171,6 +169,8 @@ class PackageInfo(object):
                 raise BuildError(f"Required key '{value_key}' not found in build config")
             return result
 
+        self.git_url = _get_value("git_url")
+        self.git_tag = _get_value("git_tag")
         self.package_version = _get_value("package_version")
         self.patch_file = _get_value("patch_file", required=False)
         self.git_commit = _get_value("git_commit", required=False)
