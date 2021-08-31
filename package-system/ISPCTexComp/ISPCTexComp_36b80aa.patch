@@ -1,0 +1,22 @@
+diff --git a/ispc_texcomp.xcodeproj/project.pbxproj b/ispc_texcomp.xcodeproj/project.pbxproj
+index 311f89e..f702dd6 100644
+--- a/ispc_texcomp.xcodeproj/project.pbxproj
++++ b/ispc_texcomp.xcodeproj/project.pbxproj
+@@ -253,7 +253,7 @@
+ 				DYLIB_INSTALL_NAME_BASE = "";
+ 				EXECUTABLE_PREFIX = lib;
+ 				INSTALL_PATH = "";
+-				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(EXECUTABLE_PATH)";
++				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
+ 				OTHER_LDFLAGS = (
+ 					"$(OBJROOT)/kernel.o",
+ 					"$(OBJROOT)/kernel_sse2.o",
+@@ -273,7 +273,7 @@
+ 				DYLIB_INSTALL_NAME_BASE = "";
+ 				EXECUTABLE_PREFIX = lib;
+ 				INSTALL_PATH = "";
+-				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(EXECUTABLE_PATH)";
++				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
+ 				OTHER_LDFLAGS = (
+ 					"$(OBJROOT)/kernel.o",
+ 					"$(OBJROOT)/kernel_sse2.o",

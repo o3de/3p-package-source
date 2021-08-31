@@ -1,0 +1,352 @@
+#
+# Copyright (c) Contributors to the Open 3D Engine Project.
+# For complete copyright and license terms please see the LICENSE at the root of this distribution.
+#
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+
+include(CMakeParseArguments)
+
+set(AWSNATIVESDK_PACKAGE_NAME AWSNativeSDK)
+
+set(AWS_BASE_PATH ${CMAKE_CURRENT_LIST_DIR}/${AWSNATIVESDK_PACKAGE_NAME})
+
+# Include Path
+set(AWSNATIVESDK_INCLUDE_PATH ${AWS_BASE_PATH}/include)
+
+# Determine the lib path
+if(LY_MONOLITHIC_GAME)
+    set(AWSNATIVE_SDK_LIB_PATH ${AWS_BASE_PATH}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>)
+else()
+    set(AWSNATIVE_SDK_LIB_PATH ${AWS_BASE_PATH}/bin/$<IF:$<CONFIG:Debug>,Debug,Release>)
+endif()
+
+# AWS Compile Definitions
+set(AWSNATIVESDK_COMPILE_DEFINITIONS AWS_CUSTOM_MEMORY_MANAGEMENT PLATFORM_SUPPORTS_AWS_NATIVE_SDK)
+
+set(AWSNATIVESDK_BUILD_DEPENDENCIES
+    curl # The one bundled with the aws sdk in 3rdParty doesn't use the right openssl
+)
+
+# Helper function to define individual AWSNativeSDK Libraries
+function(ly_declare_aws_library)
+
+    set(options)
+    set(oneValueArgs NAME LIB_FILE)
+    set(multiValueArgs BUILD_DEPENDENCIES)
+    
+    cmake_parse_arguments(ly_declare_aws_library "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    set(TARGET_WITH_NAMESPACE "3rdParty::${AWSNATIVESDK_PACKAGE_NAME}::${ly_declare_aws_library_NAME}")
+    if (NOT TARGET ${TARGET_WITH_NAMESPACE})
+
+        add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+
+        ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE} INTERFACE ${AWSNATIVESDK_INCLUDE_PATH})
+
+        if (ly_declare_aws_library_LIB_FILE)
+        
+            if (LY_MONOLITHIC_GAME)
+                target_link_libraries(${TARGET_WITH_NAMESPACE} 
+                    INTERFACE
+                        ${AWSNATIVE_SDK_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}${ly_declare_aws_library_LIB_FILE}${CMAKE_STATIC_LIBRARY_SUFFIX}
+                        ${AWSNATIVESDK_BUILD_DEPENDENCIES}
+                        ${ly_declare_aws_library_BUILD_DEPENDENCIES}
+                )
+            else()
+                target_link_libraries(${TARGET_WITH_NAMESPACE} 
+                    INTERFACE
+                        ${AWSNATIVE_SDK_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}${ly_declare_aws_library_LIB_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}
+                        ${AWSNATIVESDK_BUILD_DEPENDENCIES}
+                        ${ly_declare_aws_library_BUILD_DEPENDENCIES}
+                )
+                ly_add_dependencies(${TARGET_WITH_NAMESPACE} ${AWSNATIVE_SDK_LIB_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}${ly_declare_aws_library_LIB_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}
+                ${ly_declare_aws_library_BUILD_DEPENDENCIES})
+            endif()
+                    
+        elseif (ly_declare_aws_library_BUILD_DEPENDENCIES)
+            target_link_libraries(${TARGET_WITH_NAMESPACE} 
+                INTERFACE
+                    ${ly_declare_aws_library_BUILD_DEPENDENCIES}
+            )
+        endif()
+        
+        target_link_options(${TARGET_WITH_NAMESPACE} INTERFACE ${AWSNATIVESDK_LINK_OPTIONS})
+
+        target_compile_definitions(${TARGET_WITH_NAMESPACE} INTERFACE ${AWSNATIVESDK_COMPILE_DEFINITIONS})
+
+    endif()
+    
+endfunction()
+
+
+#### Common ####
+if(LY_MONOLITHIC_GAME)
+    ly_declare_aws_library(
+        NAME 
+            Common
+        LIB_FILE 
+            aws-c-common
+    )       
+else()
+    ly_declare_aws_library(
+        NAME 
+            Common
+        LIB_FILE 
+            aws-c-common
+        BUILD_DEPENDENCIES
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-common.so.0unstable
+    )       
+endif()
+
+#### Checksums ####
+ly_declare_aws_library(
+    NAME 
+        Checksums
+    LIB_FILE 
+        aws-checksums
+)
+
+#### EventStream ####
+if(LY_MONOLITHIC_GAME)
+    ly_declare_aws_library(
+        NAME 
+            EventStream
+        LIB_FILE 
+            aws-c-event-stream
+        BUILD_DEPENDENCIES
+            3rdParty::AWSNativeSDK::Checksums
+    )
+else()
+    ly_declare_aws_library(
+        NAME 
+            EventStream
+        LIB_FILE 
+            aws-c-event-stream
+        BUILD_DEPENDENCIES
+            3rdParty::AWSNativeSDK::Checksums
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream.so.0unstable
+
+    )
+endif()
+
+#### Core ####
+ly_declare_aws_library(
+    NAME 
+        Core
+    LIB_FILE 
+        aws-cpp-sdk-core
+    BUILD_DEPENDENCIES 
+        3rdParty::AWSNativeSDK::EventStream
+        3rdParty::AWSNativeSDK::Checksums
+        3rdParty::AWSNativeSDK::Common
+)
+
+#### AccessManagement ####
+ly_declare_aws_library(
+    NAME 
+        AccessManagement
+    LIB_FILE 
+        aws-cpp-sdk-access-management
+)
+
+#### CognitoIdentity ####
+ly_declare_aws_library(
+    NAME 
+        CognitoIdentity
+    LIB_FILE 
+        aws-cpp-sdk-cognito-identity
+)
+
+#### CognitoIdp ####
+ly_declare_aws_library(
+    NAME 
+        CognitoIdp
+    LIB_FILE 
+        aws-cpp-sdk-cognito-idp
+)
+
+#### DeviceFarm ####
+ly_declare_aws_library(
+    NAME 
+        DeviceFarm
+    LIB_FILE 
+        aws-cpp-sdk-devicefarm
+)
+
+#### DynamoDB ####
+ly_declare_aws_library(
+    NAME 
+        DynamoDB
+    LIB_FILE 
+        aws-cpp-sdk-dynamodb
+)
+
+#### GameLift ####
+ly_declare_aws_library(
+    NAME 
+        GameLift
+    LIB_FILE 
+        aws-cpp-sdk-gamelift
+)
+
+#### IdentityManagement ####
+ly_declare_aws_library(
+    NAME 
+        IdentityManagement
+    LIB_FILE 
+        aws-cpp-sdk-identity-management
+)
+
+#### Kinesis ####
+ly_declare_aws_library(
+    NAME 
+        Kinesis
+    LIB_FILE 
+        aws-cpp-sdk-kinesis
+)
+
+#### Lambda ####
+ly_declare_aws_library(
+    NAME 
+        Lambda
+    LIB_FILE 
+        aws-cpp-sdk-lambda
+)
+
+#### MobileAnalytics ####
+ly_declare_aws_library(
+    NAME 
+        MobileAnalytics
+    LIB_FILE 
+        aws-cpp-sdk-mobileanalytics
+)
+
+#### Queues ####
+ly_declare_aws_library(
+    NAME 
+        Queues
+    LIB_FILE 
+        aws-cpp-sdk-queues
+)
+
+#### S3 ####
+ly_declare_aws_library(
+    NAME 
+        S3
+    LIB_FILE 
+        aws-cpp-sdk-s3
+)
+
+#### SNS ####
+ly_declare_aws_library(
+    NAME 
+        SNS
+    LIB_FILE 
+        aws-cpp-sdk-sns
+)
+
+#### SQS ####
+ly_declare_aws_library(
+    NAME 
+        SQS
+    LIB_FILE 
+        aws-cpp-sdk-sqs
+)
+
+#### STS ####
+ly_declare_aws_library(
+    NAME 
+        STS
+    LIB_FILE 
+        aws-cpp-sdk-sts
+)
+
+#### Transfer ####
+ly_declare_aws_library(
+    NAME 
+        Transfer
+    LIB_FILE 
+        aws-cpp-sdk-transfer
+)
+
+
+#########
+######### Grouping Definitions #########
+#########
+
+
+#### Dependencies ####
+ly_declare_aws_library(
+    NAME 
+        Dependencies
+    BUILD_DEPENDENCIES 
+        3rdParty::AWSNativeSDK::EventStream
+        3rdParty::AWSNativeSDK::Checksums
+        3rdParty::AWSNativeSDK::Common
+)
+
+#### IdentityMetrics ####
+ly_declare_aws_library(
+    NAME 
+        IdentityMetrics
+    BUILD_DEPENDENCIES 
+        3rdParty::AWSNativeSDK::CognitoIdentity
+        3rdParty::AWSNativeSDK::CognitoIdp
+        3rdParty::AWSNativeSDK::IdentityManagement
+        3rdParty::AWSNativeSDK::MobileAnalytics
+        3rdParty::AWSNativeSDK::STS
+        3rdParty::AWSNativeSDK::Core
+        3rdParty::AWSNativeSDK::Dependencies
+)
+
+#### IdentityLambda ####
+ly_declare_aws_library(
+    NAME 
+        IdentityLambda
+    BUILD_DEPENDENCIES 
+        3rdParty::AWSNativeSDK::CognitoIdentity
+        3rdParty::AWSNativeSDK::CognitoIdp
+        3rdParty::AWSNativeSDK::IdentityManagement
+        3rdParty::AWSNativeSDK::Lambda
+        3rdParty::AWSNativeSDK::STS
+        3rdParty::AWSNativeSDK::Core
+        3rdParty::AWSNativeSDK::Dependencies
+)
+
+#### GameLiftClient ####
+ly_declare_aws_library(
+    NAME 
+        GameLiftClient
+    BUILD_DEPENDENCIES 
+        3rdParty::AWSNativeSDK::GameLift
+        3rdParty::AWSNativeSDK::Core
+        3rdParty::AWSNativeSDK::Dependencies
+)
+
+#### AWSClientAuth ####
+ly_declare_aws_library(
+    NAME 
+        AWSClientAuth
+    BUILD_DEPENDENCIES 
+        3rdParty::AWSNativeSDK::CognitoIdentity
+        3rdParty::AWSNativeSDK::CognitoIdp
+        3rdParty::AWSNativeSDK::IdentityManagement
+        3rdParty::AWSNativeSDK::STS
+        3rdParty::AWSNativeSDK::Dependencies
+)
+
+
+#### AWSCore ####
+ly_declare_aws_library(
+    NAME 
+        AWSCore
+    BUILD_DEPENDENCIES 
+        3rdParty::AWSNativeSDK::DynamoDB
+        3rdParty::AWSNativeSDK::Lambda
+        3rdParty::AWSNativeSDK::S3
+        3rdParty::AWSNativeSDK::Core
+        3rdParty::AWSNativeSDK::Dependencies
+)
+
+

@@ -31,6 +31,8 @@ OpenSSL-1.1.1b-rev2-windows,https://github.com/openssl/openssl,OpenSSL,OpenSSL/L
 PhysX-4.1.0.25992954-rev1-windows,https://github.com/NVIDIAGameWorks/PhysX,LicenseRef-custom,license.txt
 poly2tri-0.3.3-rev2-multiplatform,https://github.com/jhasse/poly2tri,BSD-3-Clause,poly2tri/LICENSE
 PVRTexTool-4.24.0-rev4-multiplatform,https://www.imaginationtech.com/developers/powervr-sdk-tools/pvrtextool/,LicenseRef-custom,PVRTexTool/LICENSE_POWERVR_TOOLS.txt
+python-3.7.10-rev1-multiplatform,https://python.org,PSF-2.0,python/LICENSE.txt
+python-3.7.10-rev2-multiplatform,https://python.org,PSF-2.0,python/LICENSE.txt
 pybind11-2.4.3-rev2-multiplatform,https://github.com/pybind/pybind11,BSD-3-Clause,pybind11/LICENSE
 pyside2-qt-5.15.1-rev2-windows,https://download.qt.io/official_releases/QtForPython/pyside2,LicenseRef-custom,pyside2/LICENSES.txt
 qt-5.15.2-rev2-windows,https://code.qt.io/cgit/qt/qt5.git/,LGPL-3.0-only,qt/LICENSE
