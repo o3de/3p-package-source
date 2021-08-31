@@ -6,9 +6,9 @@
 #
 #
 
-set(MY_NAME "RapidJSON")
+set(MY_NAME "libpng")
 set(TARGET_WITH_NAMESPACE "3rdParty::$${MY_NAME}")
-set($${MY_NAME}_INCLUDE_DIR $${CMAKE_CURRENT_LIST_DIR}/RapidJSON/include)
+set($${MY_NAME}_INCLUDE_DIR $${CMAKE_CURRENT_LIST_DIR}/libpng/include)
 
 add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 
