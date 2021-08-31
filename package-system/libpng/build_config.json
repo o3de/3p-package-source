@@ -1,0 +1,49 @@
+{
+    "git_url": "https://git.code.sf.net/p/libpng/code",
+    "git_tag": "v1.6.37",
+    "package_name": "libpng",
+    "package_version": "1.6.37",
+    "package_url": "http://www.libpng.org/",
+    "package_license": "libpng-2.0",
+    "package_license_file": "LICENSE",
+    "cmake_find_template": "Findlibpng.cmake.template",
+    "cmake_find_target": "Findlibpng.cmake",
+    "Platforms": {
+        "Windows": {
+            "Windows": {
+                "cmake_generate_args": [
+                    "-DZLIB_ROOT=../../zlib-windows/zlib",
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                ]
+            },
+            "Android": {
+                "cmake_generate_args": [
+                    "-DZLIB_ROOT=../../zlib-android/zlib",
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                ]
+            }
+        },
+        "Darwin": {
+            "Mac": {
+                "cmake_generate_args": [
+                    "-DZLIB_ROOT=../../zlib-mac/zlib",
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                ]
+            },
+            "iOS": {
+                "cmake_generate_args": [
+                    "-DZLIB_ROOT=../../zlib-ios/zlib",
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                ]
+            }
+        },
+        "Linux": {
+            "Linux": {
+                "cmake_generate_args": [
+                    "-DZLIB_ROOT=../../zlib-linux/zlib",
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                ]
+            }
+        }
+    }
+}

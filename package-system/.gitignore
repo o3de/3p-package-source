@@ -6,11 +6,13 @@ Crashpad-*
 etc2comp-*
 googlebenchmark-*
 googletest-*
+libpng-*
 libsamplerate-*
 mcpp-*
 NvCloth-*
 PhysX-*
 poly2tri-*
+RapidJSON-*
 SPIRVCross-*
 DirectXShaderCompilerDxc-*
 v-hacd-*
