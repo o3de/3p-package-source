@@ -99,6 +99,7 @@ echo copying package metadata and cmake files...
 rem But we do add our own few things...
 set ROBOCOPY_OPTIONS=/NJH /NJS /NP /NDL
 robocopy %ScriptDir% %outputdir% *.cmake PackageInfo.json %ROBOCOPY_OPTIONS%
+robocopy %python_src%\PCbuild\amd64 %outputdir%\python Python*.pdb %ROBOCOPY_OPTIONS%
 
 cd /d %ScriptDir%
 
