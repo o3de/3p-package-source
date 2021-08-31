@@ -2,7 +2,7 @@
    "git_url":"https://gitlab.freedesktop.org/freetype/freetype.git",
    "git_tag":"VER-2-10-4",
    "package_name":"freetype",
-   "package_version":"2.10.4.15",
+   "package_version":"2.10.4.16",
    "package_url":"https://www.freetype.org/",
    "package_license":"FTL",
    "package_license_file":"docs/FTL.TXT",
