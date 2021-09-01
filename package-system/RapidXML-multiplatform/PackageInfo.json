@@ -1,0 +1,6 @@
+{
+    "PackageName" : "RapidXML-1.13-rev1-multiplatform",
+    "URL"         : "http://rapidxml.sourceforge.net/",
+    "License"     : "MIT",
+    "LicenseFile" : "RapidXML/include/rapidxml/license.txt"
+}

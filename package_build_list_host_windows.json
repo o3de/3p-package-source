@@ -76,7 +76,7 @@
     "assimp-5.0.1-rev11-multiplatform": "package-system/assimp-multiplatform",
     "md5-2.0-multiplatform": "package-system/md5-multiplatform",
     "RapidJSON-1.1.0-rev1-multiplatform": "package-system/RapidJSON-multiplatform",
-    "RapidXML-1.13-multiplatform": "package-system/RapidXML-multiplatform",
+    "RapidXML-1.13-rev1-multiplatform": "package-system/RapidXML-multiplatform",
     "PhysX-4.1.2.29882248-rev3-windows" : "package-system/PhysX-windows",
     "PhysX-4.1.2.29882248-rev3-android" : "package-system/PhysX-android",
     "NvCloth-v1.1.6-4-gd243404-pr58-rev1-windows": "package-system/NvCloth-windows",
