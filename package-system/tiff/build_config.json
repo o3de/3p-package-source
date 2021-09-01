@@ -1,0 +1,61 @@
+{
+    "git_url":"https://gitlab.com/libtiff/libtiff.git",
+    "git_tag":"v4.2.0",
+    "package_name":"tiff",
+    "package_version":"4.2.0.15-rev2",
+    "package_url":"http://www.simplesystems.org/libtiff/misc.html",
+    "package_license":"libtiff",
+    "package_license_file":"COPYRIGHT",
+    "cmake_find_source":"Findtiff.cmake",
+    "cmake_find_target":"Findtiff.cmake",
+    "cmake_build_args" : [ "-j", "8"],
+    "Platforms":{
+        "Windows":{
+            "Windows":{
+                "custom_build_cmd" : [
+                    "build_tiff_windows.cmd"
+                ],
+                "custom_install_cmd": [
+                    "install_tiff_windows.cmd"
+                ]
+            },
+            "Android":{
+                "custom_build_cmd" : [
+                    "build_tiff_android.cmd"
+                ],
+                "custom_install_cmd": [
+                    "install_tiff_android.cmd"
+                ]
+            }
+        },
+        
+        "Darwin":{
+            "Mac":{
+                "custom_build_cmd": [
+                    "./build_tiff_mac.sh"
+                 ],
+                 "custom_install_cmd": [
+                    "./install_tiff_mac.sh"
+                 ]
+            },
+            "iOS":{
+                "custom_build_cmd": [
+                    "./build_tiff_ios.sh"
+                 ],
+                 "custom_install_cmd": [
+                    "./install_tiff_ios.sh"
+                 ]
+             }
+        },
+        "Linux":{
+            "Linux":{
+                "custom_build_cmd": [
+                    "./build_tiff_linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_tiff_linux.sh"
+                ]
+            }
+        }
+    }
+}
