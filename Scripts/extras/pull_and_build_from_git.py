@@ -26,8 +26,6 @@ The build configuration (build_config.json) accepts keys that are root level onl
 either global or target platform specific. Root level only keys are keys that define the project and cannot
 be different by platform, and all are required. The keys are:
 
-* git_url               : The git clone url for the source to pull for building
-* git_tag               : The git tag to identify the branch to pull from for building
 * package_name          : The base name of the package, used for constructing the filename and folder structures
 * package_url           : The package url that will be placed in the PackageInfo.json
 * package_license       : The type of license that will be described in the PackageInfo.json
@@ -35,7 +33,8 @@ be different by platform, and all are required. The keys are:
 
 The following keys can exist at the root level or the target-platform level:
 
-
+* git_url               : The git clone url for the source to pull for building
+* git_tag               : The git tag to identify the branch to pull from for building
 * package_version       : (required) The string to describe the package version. This string is used to build the full package name. 
                           This can be uniform for all platforms or can be set for a specific platform
 * prebuilt_source       : (optional) If the 3rd party library files are prebuilt and accessible, then setting this key to the relative location of 
@@ -156,8 +155,6 @@ class PackageInfo(object):
 
         self.platform_name = target_platform_name
         try:
-            self.git_url = build_config["git_url"]
-            self.git_tag = build_config["git_tag"]
             self.package_name = build_config["package_name"]
             self.package_url = build_config["package_url"]
             self.package_license = build_config["package_license"]
@@ -171,6 +168,8 @@ class PackageInfo(object):
                 raise BuildError(f"Required key '{value_key}' not found in build config")
             return result
 
+        self.git_url = _get_value("git_url")
+        self.git_tag = _get_value("git_tag")
         self.package_version = _get_value("package_version")
         self.patch_file = _get_value("patch_file", required=False)
         self.git_commit = _get_value("git_commit", required=False)
