@@ -63,7 +63,7 @@ def main():
         builder.writePackageInfoFile(
             outputDir,
             settings={
-                'PackageName': f'lz4-1.9.3-vcpkg-rev3-{args.platformName}',
+                'PackageName': f'lz4-1.9.3-vcpkg-rev4-{args.platformName}',
                 'URL': 'https://github.com/lz4/lz4',
                 'License': 'BSD-2-Clause',
                 'LicenseFile': 'lz4/LICENSE'

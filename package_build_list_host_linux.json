@@ -28,7 +28,7 @@
         "python-3.7.10-rev2-linux": "package-system/python/build_package_image.py",
         "mikkelsen-1.0.0.4-linux": "package-system/mikkelsen/build_package_image.py",
         "zlib-1.2.11-rev2-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux --package-root ../../package-system --clean",
-        "lz4-1.9.3-vcpkg-rev3-linux": "package-system/lz4/build_package_image.py --platform-name linux"
+        "lz4-1.9.3-vcpkg-rev4-linux": "package-system/lz4/build_package_image.py --platform-name linux"
     },
     "build_from_folder" : {
         "AWSGameLiftServerSDK-3.4.1-rev1-linux": "package-system/AWSGameLiftServerSDK/linux",
@@ -60,6 +60,6 @@
         "xxhash-0.7.4-rev1-multiplatform": "package-system/xxhash-multiplatform",
         "qt-5.15.2-rev5-linux": "package-system/qt-linux",
         "zlib-1.2.11-rev2-linux": "package-system/zlib-linux",
-        "lz4-1.9.3-vcpkg-rev3-linux": "package-system/lz4-linux"
+        "lz4-1.9.3-vcpkg-rev4-linux": "package-system/lz4-linux"
     }
 }
