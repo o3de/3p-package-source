@@ -6,7 +6,7 @@
     "package_url": "http://www.libpng.org/",
     "package_license": "libpng-2.0",
     "package_license_file": "LICENSE",
-    "cmake_find_template": "Findlibpng.cmake.template",
+    "cmake_find_source": "Findlibpng.cmake",
     "cmake_find_target": "Findlibpng.cmake",
     "Platforms": {
         "Windows": {
