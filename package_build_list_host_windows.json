@@ -42,8 +42,8 @@
         "mikkelsen-1.0.0.4-android": "package-system/mikkelsen/build_package_image.py --platform android",
         "zlib-1.2.11-rev2-windows": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Windows --package-root ../../package-system --clean",
         "zlib-1.2.11-rev2-android": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Android --package-root ../../package-system --clean",
-        "lz4-1.9.3-vcpkg-rev1-windows": "package-system/lz4/build_package_image.py --platform-name windows",
-        "lz4-1.9.3-vcpkg-rev1-android": "package-system/lz4/build_package_image.py --platform-name android"
+        "lz4-1.9.3-vcpkg-rev4-windows": "package-system/lz4/build_package_image.py --platform-name windows",
+        "lz4-1.9.3-vcpkg-rev4-android": "package-system/lz4/build_package_image.py --platform-name android"
       },
   "build_from_folder": {
     "AWSGameLiftServerSDK-3.4.1-rev1-windows" : "package-system/AWSGameLiftServerSDK/windows",
@@ -91,7 +91,6 @@
     "mcpp-2.7.2_az.1-rev1-windows": "package-system/mcpp-windows",
     "cityhash-1.1-multiplatform": "package-system/cityhash-multiplatform",
     "civetweb-1.8-rev1-windows": "package-system/civetweb-windows",
-    "lz4-r128-multiplatform": "package-system/lz4-multiplatform",
     "expat-2.1.0-multiplatform": "package-system/expat-multiplatform",
     "poly2tri-7f0487a-rev1-windows": "package-system/poly2tri-windows",
     "openimageio-2.1.16.0-rev2-windows": "package-system/openimageio-windows",
@@ -110,7 +109,7 @@
     "Wwise-2021.1.0.7575-rev1-multiplatform": "package-system/Wwise-multiplatform",
     "zlib-1.2.11-rev2-android": "package-system/zlib-android",
     "zlib-1.2.11-rev2-windows": "package-system/zlib-windows",
-    "lz4-1.9.3-vcpkg-rev1-windows": "package-system/lz4-windows",
-    "lz4-1.9.3-vcpkg-rev1-android": "package-system/lz4-android"
+    "lz4-1.9.3-vcpkg-rev4-windows": "package-system/lz4-windows",
+    "lz4-1.9.3-vcpkg-rev4-android": "package-system/lz4-android"
   }
 }

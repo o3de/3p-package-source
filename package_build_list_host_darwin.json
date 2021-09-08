@@ -40,8 +40,8 @@
         "mikkelsen-1.0.0.4-ios": "package-system/mikkelsen/build_package_image.py --platform ios",
         "zlib-1.2.11-rev2-mac": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Mac --package-root ../../package-system --clean",
         "zlib-1.2.11-rev2-ios": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name iOS --package-root ../../package-system --clean",
-        "lz4-1.9.3-vcpkg-rev1-mac": "package-system/lz4/build_package_image.py --platform-name mac",
-        "lz4-1.9.3-vcpkg-rev1-ios": "package-system/lz4/build_package_image.py --platform-name ios"
+        "lz4-1.9.3-vcpkg-rev4-mac": "package-system/lz4/build_package_image.py --platform-name mac",
+        "lz4-1.9.3-vcpkg-rev4-ios": "package-system/lz4/build_package_image.py --platform-name ios"
     },
     "build_from_folder": {
         "AWSNativeSDK-1.7.167-rev5-mac": "package-system/AWSNativeSDK-mac",
@@ -85,7 +85,7 @@
         "qt-5.15.2-rev5-mac": "package-system/qt-mac",
         "zlib-1.2.11-rev2-mac": "package-system/zlib-mac",
         "zlib-1.2.11-rev2-ios": "package-system/zlib-ios",
-        "lz4-1.9.3-vcpkg-rev1-mac": "package-system/lz4-mac",
-        "lz4-1.9.3-vcpkg-rev1-ios": "package-system/lz4-ios"
+        "lz4-1.9.3-vcpkg-rev4-mac": "package-system/lz4-mac",
+        "lz4-1.9.3-vcpkg-rev4-ios": "package-system/lz4-ios"
     }
 }

@@ -46,7 +46,7 @@ def main():
             static=True
         )
         
-        builder.cloneVcpkg('751fc199af8d33eb300af5edbd9e3b77c48f0bca')
+        builder.cloneVcpkg('09019cbc9abcb728217c4c99625932defe1b781c')
         builder.bootstrap()
         builder.build()
         
@@ -63,7 +63,7 @@ def main():
         builder.writePackageInfoFile(
             outputDir,
             settings={
-                'PackageName': f'lz4-1.9.3-vcpkg-rev1-{args.platformName}',
+                'PackageName': f'lz4-1.9.3-vcpkg-rev4-{args.platformName}',
                 'URL': 'https://github.com/lz4/lz4',
                 'License': 'BSD-2-Clause',
                 'LicenseFile': 'lz4/LICENSE'
