@@ -11,6 +11,7 @@ cmake -S temp/src -B temp/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=
                                 -DCMAKE_C_FLAGS="-fPIC" \
                                 -DBUILD_SHARED_LIBS=OFF \
                                 -Djpeg=OFF -Dold-jpeg=OFF -Dpixarlog=OFF \
+                                -Dlzma=OFF \
                                 -Dzlib=ON -DZLIB_ROOT=../zlib-linux/zlib
                                 
 if [ $? -ne 0 ]; then

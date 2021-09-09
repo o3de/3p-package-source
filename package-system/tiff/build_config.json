@@ -9,6 +9,7 @@
     "cmake_find_source":"Findtiff.cmake",
     "cmake_find_target":"Findtiff.cmake",
     "cmake_build_args" : [ "-j", "8"],
+    "patch_file" : "o3de_patch.patch",
     "Platforms":{
         "Windows":{
             "Windows":{

@@ -11,6 +11,7 @@ cmake -S temp/src -B temp/build -G Xcode -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_
                                          -DCMAKE_C_FLAGS="-fPIC" \
                                          -DBUILD_SHARED_LIBS=OFF \
                                          -Djpeg=OFF -Dold-jpeg=OFF -Dpixarlog=OFF \
+                                         -Dlzma=OFF \
                                          -Dzlib=ON -DZLIB_ROOT=../zlib-mac/zlib
 
 if [ $? -ne 0 ]; then

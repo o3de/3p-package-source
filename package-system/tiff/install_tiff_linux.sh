@@ -17,7 +17,7 @@ mkdir -p $OUT_PATH/lib
 mkdir -p $OUT_PATH/include
 
 cp -f $SRC_PATH/COPYRIGHT $OUT_PATH/ || exit 1
-cp $BLD_PATH/libtiff/Release/libtiff.a $OUT_PATH/lib/libtiff.a || exit 1
+cp $BLD_PATH/libtiff/libtiff.a $OUT_PATH/lib/libtiff.a || exit 1
 cp $BLD_PATH/libtiff/tiffconf.h $OUT_PATH/include/tiffconf.h || exit 1
 cp $SRC_PATH/libtiff/tiff.h $OUT_PATH/include/tiff.h || exit 1
 cp $SRC_PATH/libtiff/tiffvers.h $OUT_PATH/include/tiffvers.h || exit 1

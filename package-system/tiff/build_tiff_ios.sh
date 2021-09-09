@@ -13,6 +13,7 @@ cmake -S temp/src -B temp/build -G Xcode -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_
                                          -DBUILD_SHARED_LIBS=OFF \
                                          -Djpeg=OFF -Dold-jpeg=OFF -Dpixarlog=OFF \
                                          -Dzlib=ON -DZLIB_ROOT=../zlib-ios/zlib \
+                                         -Dlzma=OFF \
                                          -DCMAKE_MACOSX_BUNDLE=OFF
 if [ $? -ne 0 ]; then
     echo "Error generating build"
