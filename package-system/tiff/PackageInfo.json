@@ -1,0 +1,6 @@
+{
+    "PackageName" : "tiff-4.2.0.15",
+    "URL"         : "http://www.simplesystems.org/libtiff/misc.html",
+    "License"     : "libtiff",
+    "LicenseFile" : "COPYRIGHT"
+}
