@@ -1,0 +1,45 @@
+{
+   "git_url":"https://gitlab.freedesktop.org/freetype/freetype.git",
+   "git_tag":"VER-2-10-4",
+   "package_name":"freetype",
+   "package_version":"2.10.4.16",
+   "package_url":"https://www.freetype.org/",
+   "package_license":"FTL",
+   "package_license_file":"docs/FTL.TXT",
+   "cmake_find_source":"Findfreetype.cmake",
+   "cmake_find_target":"Findfreetype.cmake",
+   "patch_file":"freetype.patch",
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "custom_build_cmd": [
+               "build_package_image.py --platform windows"
+            ]
+         },
+         "Android":{
+            "custom_build_cmd": [
+               "build_package_image.py --platform android"
+            ]
+         }
+      },
+      "Darwin":{
+        "Mac":{
+            "custom_build_cmd": [
+                "python3 build_package_image.py --platform mac"
+            ]
+        },
+        "iOS":{
+            "custom_build_cmd": [
+                "python3 build_package_image.py --platform ios"
+            ]
+        }
+      },
+      "Linux":{
+         "Linux":{
+            "custom_build_cmd": [
+                "python3 build_package_image.py --platform linux"
+             ]
+         }
+      }
+   }
+}
