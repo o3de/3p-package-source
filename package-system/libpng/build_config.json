@@ -13,13 +13,19 @@
             "Windows": {
                 "cmake_generate_args": [
                     "-DZLIB_ROOT=../../zlib-windows/zlib",
-                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
+                    "-DPNG_SHARED=OFF",
+                    "-DPNG_TESTS=OFF",
+                    "-DPNG_DEBUG=OFF"
                 ]
             },
             "Android": {
                 "cmake_generate_args": [
                     "-DZLIB_ROOT=../../zlib-android/zlib",
-                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
+                    "-DPNG_SHARED=OFF",
+                    "-DPNG_TESTS=OFF",
+                    "-DPNG_DEBUG=OFF"
                 ]
             }
         },
@@ -27,13 +33,22 @@
             "Mac": {
                 "cmake_generate_args": [
                     "-DZLIB_ROOT=../../zlib-mac/zlib",
-                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
+                    "-DPNG_SHARED=OFF",
+                    "-DPNG_TESTS=OFF",
+                    "-DPNG_DEBUG=OFF"
                 ]
             },
             "iOS": {
                 "cmake_generate_args": [
                     "-DZLIB_ROOT=../../zlib-ios/zlib",
-                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
+                    "-DPNG_SHARED=OFF",
+                    "-DPNG_TESTS=OFF",
+                    "-DPNG_DEBUG=OFF",
+                    "-DCMAKE_SYSTEM_NAME=iOS",
+                    "-DCMAKE_OSX_DEPLOYMENT_TARGET=13.0",
+                    "-DCMAKE_OSX_ARCHITECTURES=arm64"
                 ]
             }
         },
@@ -41,7 +56,10 @@
             "Linux": {
                 "cmake_generate_args": [
                     "-DZLIB_ROOT=../../zlib-linux/zlib",
-                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW"
+                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
+                    "-DPNG_SHARED=OFF",
+                    "-DPNG_TESTS=OFF",
+                    "-DPNG_DEBUG=OFF"
                 ]
             }
         }
