@@ -1,0 +1,17 @@
+diff --git a/Source/cmake_core.cmake b/Source/cmake_core.cmake
+index 5ceb521..18cd4d3 100644
+--- a/Source/cmake_core.cmake
++++ b/Source/cmake_core.cmake
+@@ -141,10 +141,10 @@ macro(astcenc_set_properties NAME)
+             PROPERTY
+                 INTERPROCEDURAL_OPTIMIZATION_RELEASE True)
+ 
+-        # Use a static runtime on MSVC builds (ignored on non-MSVC compilers)
++        # Use a dynamic runtime on MSVC builds (ignored on non-MSVC compilers)
+         set_property(TARGET ${NAME}
+             PROPERTY
+-                MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
++                MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+     endif()
+ 
+     # Set up configuration for SIMD ISA builds
