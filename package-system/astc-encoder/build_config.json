@@ -19,26 +19,26 @@
                     "install_windows.cmd"
                 ]
             }
-        }
-    },
-    "Darwin": {
-        "Mac": {
-            "custom_build_cmd": [
-                "build_mac.sh"
-            ],
-            "custom_install_cmd": [
-                "install.sh"
-            ]
-        }
-    },
-    "Linux": {
+        },
+        "Darwin": {
+            "Mac": {
+                "custom_build_cmd": [
+                    "./build_mac.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_mac.sh"
+                ]
+            }
+        },
         "Linux": {
-            "custom_build_cmd": [
-                "build_linux.sh"
-            ],
-            "custom_install_cmd": [
-                "install.sh"
-            ]
+            "Linux": {
+                "custom_build_cmd": [
+                    "./build_linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_linux.sh"
+                ]
+            }
         }
     }
 }

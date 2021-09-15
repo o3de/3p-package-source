@@ -17,9 +17,9 @@ if ($${PAL_PLATFORM_NAME} STREQUAL "Windows")
     set($${LIB_NAME}_LIBRARY_DIR_WINDOWS $${$${LIB_NAME}_LIBRARY_DIR}/$$<IF:$$<CONFIG:Debug>,Debug,Release>)
     set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR_WINDOWS}/astcenc-sse2-static.lib)
 elseif ($${PAL_PLATFORM_NAME} STREQUAL "Linux")
-    set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR}/astcenc-sse2-static.a)
+    set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR}/libastcenc-sse2-static.a)
 else()
-    set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR}/astcenc-neon-static.a)
+    set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR}/libastcenc-neon-static.a)
 endif()
 
 # declare the target so that others can 'depend on it'
