@@ -20,6 +20,17 @@
             "custom_install_cmd": [
                "install_AWSNativeSDK_windows.cmd"
             ]
+         },
+         "Android":{
+            "git_tag":"1.9.50",
+            "package_version":"1.9.50-rev1",
+            "cmake_find_source":"FindAWSNativeSDK.cmake.Android",
+            "custom_build_cmd": [
+               "build_AWSNativeSDK_android.cmd"
+            ],
+            "custom_install_cmd": [
+               "install_AWSNativeSDK_android.cmd"
+            ]
          }
       },
       "Darwin":{
