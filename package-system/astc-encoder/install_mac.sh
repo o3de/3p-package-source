@@ -18,7 +18,7 @@ cp -f temp/src/Source/astcenc.h $INCLUDE_PATH/
 BUILD_PATH=temp/build/Source
 
 # copy static lib and executable
-cp -f $BUILD_PATH/astcenc-neon $BIN_PATH/
-cp -f $BUILD_PATH/libastcenc-neon-static.a $BIN_PATH/
+cp -f $BUILD_PATH/astcenc-native $BIN_PATH/
+cp -f $BUILD_PATH/libastcenc-native-static.a $BIN_PATH/
 
 exit 0

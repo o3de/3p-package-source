@@ -19,7 +19,7 @@ if ($${PAL_PLATFORM_NAME} STREQUAL "Windows")
 elseif ($${PAL_PLATFORM_NAME} STREQUAL "Linux")
     set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR}/libastcenc-sse2-static.a)
 else()
-    set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR}/libastcenc-neon-static.a)
+    set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR}/libastcenc-native-static.a)
 endif()
 
 # declare the target so that others can 'depend on it'

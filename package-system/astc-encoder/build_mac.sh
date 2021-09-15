@@ -5,7 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
-cmake -S temp/src -B temp/build -G Xcode -DCMAKE_BUILD_TYPE=Release -DSKIP_INSTALL_FILES=YES -DISA_NEON=ON
+export CXX=clang++
+
+# using -DISA_AVX2=ON enables build for x86_64
+# using -DISA_NEON=ON enables build for arm64 
+# to build arm64 requires xcode 12.3 and macos 11 which is not supported on my Mac
+# we have to disable cpu specific options for an universal build
+
+cmake -S temp/src -B temp/build -G "Unix Makefiles" 
 
 if [ $? -ne 0 ]; then
     echo "Error generating build"
