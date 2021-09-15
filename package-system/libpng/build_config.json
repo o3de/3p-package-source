@@ -2,7 +2,7 @@
     "git_url": "https://git.code.sf.net/p/libpng/code",
     "git_tag": "v1.6.37",
     "package_name": "libpng",
-    "package_version": "1.6.37",
+    "package_version": "1.6.37-rev1",
     "package_url": "http://www.libpng.org/",
     "package_license": "libpng-2.0",
     "package_license_file": "LICENSE",
