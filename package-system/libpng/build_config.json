@@ -56,6 +56,7 @@
                 "cmake_generate_args": [
                     "-DZLIB_ROOT=../../zlib-linux/zlib",
                     "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
+                    "-DCMAKE_POSITION_INDEPENDENT_CODE=1",
                     "-DPNG_SHARED=OFF",
                     "-DPNG_TESTS=OFF",
                     "-DPNG_DEBUG=OFF"
