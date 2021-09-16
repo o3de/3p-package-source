@@ -1,0 +1,44 @@
+{
+    "git_url": "https://github.com/ARM-software/astc-encoder.git",
+    "git_tag": "3.2",
+    "package_name": "astc-encoder",
+    "package_version": "3.2-rev1",
+    "package_url": "https://github.com/ARM-software/astc-encoder",
+    "package_license": "Apache-2.0",
+    "package_license_file": "LICENSE.txt",
+    "cmake_find_template": "Findastc-encoder.cmake.template",
+    "cmake_find_target": "Findastc-encoder.cmake",
+    "patch_file": "astc-encoder-3.2-rev1.patch",
+    "Platforms": {
+        "Windows": {
+            "Windows": {
+                "custom_build_cmd": [
+                    "build_windows.cmd"
+                ],
+                "custom_install_cmd": [
+                    "install_windows.cmd"
+                ]
+            }
+        },
+        "Darwin": {
+            "Mac": {
+                "custom_build_cmd": [
+                    "./build_mac.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_mac.sh"
+                ]
+            }
+        },
+        "Linux": {
+            "Linux": {
+                "custom_build_cmd": [
+                    "./build_linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_linux.sh"
+                ]
+            }
+        }
+    }
+}

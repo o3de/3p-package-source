@@ -1,0 +1,55 @@
+diff --git a/Source/CMakeLists.txt b/Source/CMakeLists.txt
+index a90fa27..e5ecf8e 100644
+--- a/Source/CMakeLists.txt
++++ b/Source/CMakeLists.txt
+@@ -15,10 +15,11 @@
+ #  under the License.
+ #  ----------------------------------------------------------------------------
+ 
++# O3DE change: use "-flto -ffat-lto-objects" instead of "-flto -fno-fat-lto-objects" for linux since it may remove some functions for static library which leads to undefined symbols
+ # Overwrite the LTO flags to force fat LTO; worth 3-4% performance
+ # See https://gitlab.kitware.com/cmake/cmake/-/issues/16808
+ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND ${CLI})
+-    set(CMAKE_CXX_COMPILE_OPTIONS_IPO "-flto")
++    set(CMAKE_CXX_COMPILE_OPTIONS_IPO "-ffat-lto-objects")
+ endif()
+ 
+ if(${DECOMPRESSOR})
+diff --git a/Source/cmake_core.cmake b/Source/cmake_core.cmake
+index 5ceb521..f6d2426 100644
+--- a/Source/cmake_core.cmake
++++ b/Source/cmake_core.cmake
+@@ -104,6 +104,9 @@ macro(astcenc_set_properties NAME)
+             $<$<CXX_COMPILER_ID:MSVC>:/EHsc>
+             $<$<CXX_COMPILER_ID:MSVC>:/fp:strict>
+ 
++            # O3DE change: remove /GL for MSVC build to resolve linking issue            
++            $<$<CXX_COMPILER_ID:MSVC>:/GL->
++
+             # G++ and Clang++ compiler defines
+             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>
+             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wextra>
+@@ -112,6 +115,9 @@ macro(astcenc_set_properties NAME)
+             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wshadow>
+             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wdouble-promotion>
+ 
++            # O3DE change: add PIC to address linking static library issue
++            $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fPIC>
++
+             # Hide noise thrown up by Clang 10 and clang-cl
+             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unknown-warning-option>
+             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat-pedantic>
+@@ -141,10 +147,11 @@ macro(astcenc_set_properties NAME)
+             PROPERTY
+                 INTERPROCEDURAL_OPTIMIZATION_RELEASE True)
+ 
+-        # Use a static runtime on MSVC builds (ignored on non-MSVC compilers)
++        # O3DE change: changed from using static runtime to dynamic runtime since O3DE libraries uses dynamic runtime 
++        # Use a dynamic runtime on MSVC builds (ignored on non-MSVC compilers)
+         set_property(TARGET ${NAME}
+             PROPERTY
+-                MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
++                MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+     endif()
+ 
+     # Set up configuration for SIMD ISA builds
