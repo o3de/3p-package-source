@@ -13,13 +13,15 @@ set(TARGET_WITH_NAMESPACE "3rdParty::$${LIB_NAME}")
 set($${LIB_NAME}_INCLUDE_DIR $${CMAKE_CURRENT_LIST_DIR}/$${LIB_NAME}/include)
 set($${LIB_NAME}_LIBRARY_DIR $${CMAKE_CURRENT_LIST_DIR}/$${LIB_NAME}/bin)
 
-if ($${PAL_PLATFORM_NAME} STREQUAL "Windows")
-    set($${LIB_NAME}_LIBRARY_DIR_WINDOWS $${$${LIB_NAME}_LIBRARY_DIR}/$$<IF:$$<CONFIG:Debug>,Debug,Release>)
-    set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR_WINDOWS}/astcenc-sse2-static.lib)
+if ($${PAL_PLATFORM_NAME} STREQUAL "Windows")	
+    set($${LIB_NAME}_LIBRARY_RELEASE $${$${LIB_NAME}_LIBRARY_DIR}/Release/astcenc-sse2-static.lib)
+    set($${LIB_NAME}_LIBRARY_DEBUG $${$${LIB_NAME}_LIBRARY_DIR}/Debug/astcenc-sse2-static.lib
 elseif ($${PAL_PLATFORM_NAME} STREQUAL "Linux")
-    set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR}/libastcenc-sse2-static.a)
+    set($${LIB_NAME}_LIBRARY_RELEASE $${$${LIB_NAME}_LIBRARY_DIR}/libastcenc-sse2-static.a)
+    set($${LIB_NAME}_LIBRARY_DEBUG $${$${LIB_NAME}_LIBRARY_RELEASE})
 else()
-    set($${LIB_NAME}_LIBRARY   $${$${LIB_NAME}_LIBRARY_DIR}/libastcenc-native-static.a)
+    set($${LIB_NAME}_LIBRARY_RELEASE $${$${LIB_NAME}_LIBRARY_DIR}/libastcenc-native-static.a)
+    set($${LIB_NAME}_LIBRARY_DEBUG $${$${LIB_NAME}_LIBRARY_RELEASE})
 endif()
 
 # declare the target so that others can 'depend on it'
@@ -28,7 +30,11 @@ add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 # add include directory
 ly_target_include_system_directories(TARGET $${TARGET_WITH_NAMESPACE} INTERFACE $${$${LIB_NAME}_INCLUDE_DIR})
 
-# add static library for linking
-target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE $${$${LIB_NAME}_LIBRARY})
+# add static library as "output" IMPORTED_LOCATION for the target
+set_target_properties($${TARGET_WITH_NAMESPACE}
+    PROPERTIES
+        IMPORTED_LOCATION_DEBUG $${$${LIB_NAME}_LIBRARY_DEBUG}
+        IMPORTED_LOCATION $${$${LIB_NAME}_LIBRARY_RELEASE}
+)
 
 set($${LIB_NAME}_FOUND True)
