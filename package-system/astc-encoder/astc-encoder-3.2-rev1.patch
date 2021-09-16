@@ -16,10 +16,20 @@ index a90fa27..e5ecf8e 100644
  
  if(${DECOMPRESSOR})
 diff --git a/Source/cmake_core.cmake b/Source/cmake_core.cmake
-index 5ceb521..ca47535 100644
+index 5ceb521..f6d2426 100644
 --- a/Source/cmake_core.cmake
 +++ b/Source/cmake_core.cmake
-@@ -112,6 +112,9 @@ macro(astcenc_set_properties NAME)
+@@ -104,6 +104,9 @@ macro(astcenc_set_properties NAME)
+             $<$<CXX_COMPILER_ID:MSVC>:/EHsc>
+             $<$<CXX_COMPILER_ID:MSVC>:/fp:strict>
+ 
++            # O3DE change: remove /GL for MSVC build to resolve linking issue            
++            $<$<CXX_COMPILER_ID:MSVC>:/GL->
++
+             # G++ and Clang++ compiler defines
+             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall>
+             $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wextra>
+@@ -112,6 +115,9 @@ macro(astcenc_set_properties NAME)
              $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wshadow>
              $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wdouble-promotion>
  
@@ -29,7 +39,7 @@ index 5ceb521..ca47535 100644
              # Hide noise thrown up by Clang 10 and clang-cl
              $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-unknown-warning-option>
              $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-c++98-compat-pedantic>
-@@ -141,10 +144,11 @@ macro(astcenc_set_properties NAME)
+@@ -141,10 +147,11 @@ macro(astcenc_set_properties NAME)
              PROPERTY
                  INTERPROCEDURAL_OPTIMIZATION_RELEASE True)
  

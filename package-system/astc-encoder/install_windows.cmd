@@ -20,14 +20,23 @@ mkdir %BIN_PATH%\Release
 mkdir %BIN_PATH%\Debug
 
 copy /Y temp\src\LICENSE.TXT %TARGET_INSTALL_ROOT%\
+@if %errorlevel% NEQ 0 ( exit /b 1 )
+
 copy /Y temp\src\Source\astcenc.h %INCLUDE_PATH%
+@if %errorlevel% NEQ 0 ( exit /b 1 )
 
 SET BUILD_PATH=temp\build\Source
 
 copy /Y %BUILD_PATH%\Release\*.exe %BIN_PATH%\Release\
+@if %errorlevel% NEQ 0 ( exit /b 1 )
+
 copy /Y %BUILD_PATH%\Release\*.lib %BIN_PATH%\Release\
+@if %errorlevel% NEQ 0 ( exit /b 1 )
 
 copy /Y %BUILD_PATH%\Debug\*.exe %BIN_PATH%\Debug\
+@if %errorlevel% NEQ 0 ( exit /b 1 )
+
 copy /Y %BUILD_PATH%\Debug\*.lib %BIN_PATH%\Debug\
+@if %errorlevel% NEQ 0 ( exit /b 1 )
 
 exit /b 0
