@@ -25,7 +25,7 @@ else()
 endif()
 
 # declare the target so that others can 'depend on it'
-add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+add_library($${TARGET_WITH_NAMESPACE} STATIC IMPORTED GLOBAL)
 
 # add include directory
 ly_target_include_system_directories(TARGET $${TARGET_WITH_NAMESPACE} INTERFACE $${$${LIB_NAME}_INCLUDE_DIR})
