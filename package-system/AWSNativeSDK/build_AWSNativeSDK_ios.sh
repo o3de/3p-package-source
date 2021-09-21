@@ -54,34 +54,6 @@ make_configure_and_build_curl() {
   EXISTING_CFLAGS=
 }
 
-# TODO: curl cmake is poorly maintained by community, switch to cmake when it is ready
-cmake_configure_and_build_curl() {
-  rm -rf "temp/curl"*
-
-  echo "Cloning Curl 7.65.3"
-  git clone --single-branch --recursive --branch curl-7_65_3 https://github.com/curl/curl.git temp/curl_src
-
-  echo "CMake Configure Curl Debug Static"
-  cmake -S temp/curl_src -B temp/curl_build/Debug_Static \
-        -DTARGET_ARCH=APPLE \
-        -DCMAKE_SYSTEM_NAME=Darwin \
-        -DCMAKE_OSX_ARCHITECTURES="arm64" \
-        -DCMAKE_OSX_SYSROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk" \
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
-        -DCMAKE_USE_SECTRANSP=ON \
-        -DCMAKE_CXX_STANDARD=17 \
-        -DCMAKE_BUILD_TYPE=Debug\
-        -DBUILD_CURL_EXE=OFF \
-        -DBUILD_TESTING=OFF \
-        -DBUILD_SHARED_LIBS=OFF 
-
-  echo "CMake Build Curl Debug Static to temp/curl_build/Debug_Static"
-  cmake --build temp/curl_build/Debug_Static --config Debug -j 12
-
-  echo "CMake Install Curl Debug Static to temp/curl_install/Debug_Static"
-  cmake --install temp/curl_build/Debug_Static --prefix temp/curl_install/Debug_Static --config Debug
-}
-
 # Curl Static
 make_configure_and_build_curl || exit 1
 
