@@ -6,14 +6,11 @@
 #
 #
 
-cmake -S temp/src -B temp/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DCMAKE_C_FLAGS=-fPIC -DSKIP_INSTALL_FILES=YES
-if [ $? -ne 0 ]; then
-    echo "Error generating build"
-    exit 1
-fi
+cmake -S temp/src -B temp/build \
+     -DCMAKE_BUILD_TYPE=Release \
+     -DCMAKE_CXX_STANDARD=17 \
+     -DCMAKE_C_FLAGS=-fPIC \
+     -DSKIP_INSTALL_FILES=YES || exit 1
 
-cmake --build temp/build --target zlibstatic -j 8
-if [ $? -ne 0 ]; then
-    echo "Error building"
-    exit 1
-fi
+cmake --build temp/build --target zlibstatic --parallel || exit 1
+

@@ -37,6 +37,8 @@ if(NOT ANDROID_NATIVE_API_LEVEL)
     set(ANDROID_NATIVE_API_LEVEL 21)
 endif()
 
+set(CMAKE_C_FLAGS "-fPIC")
+set(CMAKE_CXX_FLAGS "-fPIC")
 
 # Make a backup of the CMAKE_FIND_ROOT_PATH since it will be altered by the NDK toolchain file and needs to be restored after the input
 set(BACKUP_CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH})
