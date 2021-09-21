@@ -1,5 +1,5 @@
 {
-    "PackageName" : "zlib-1.2.11-rev2-multiplatform",
+    "PackageName" : "zlib-1.2.11-rev3-multiplatform",
     "URL"         : "https://zlib.net",
     "License"     : "zlib",
     "LicenseFile" : "zlib/LICENSE"

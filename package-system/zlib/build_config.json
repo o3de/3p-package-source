@@ -3,7 +3,7 @@
     "git_tag":"v1.2.11",
     "git_commit":"cacf7f1d4e3d44d871b605da3b647f07d718623f",
     "package_name":"zlib",
-    "package_version":"1.2.11-rev2",
+    "package_version":"1.2.11-rev3",
     "package_url":"https://zlib.net",
     "package_license":"Zlib",
     "additional_src_files":[
@@ -12,7 +12,6 @@
     "package_license_file":"LICENSE",
     "cmake_find_source":"Findzlib.cmake",
     "cmake_find_target":"Findzlib.cmake",
-    "cmake_build_args" : [ "-j", "8"],
     "Platforms":{
         "Windows":{
             "Windows":{

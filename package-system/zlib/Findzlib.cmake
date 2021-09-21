@@ -15,30 +15,21 @@ endif()
 set(zlib_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/zlib/include)
 set(zlib_LIBS_DIR ${CMAKE_CURRENT_LIST_DIR}/zlib/lib)
 
-if (${PAL_PLATFORM_NAME} STREQUAL "Linux")
-    set(zlib_LIBRARY_DEBUG   ${zlib_LIBS_DIR}/libz.a)
-    set(zlib_LIBRARY_RELEASE ${zlib_LIBS_DIR}/libz.a)
-elseif(${PAL_PLATFORM_NAME} STREQUAL "Android")
-    set(zlib_LIBRARY_DEBUG   ${zlib_LIBS_DIR}/libz.a)
-    set(zlib_LIBRARY_RELEASE ${zlib_LIBS_DIR}/libz.a)
-elseif(${PAL_PLATFORM_NAME} STREQUAL "Windows")
+if(${PAL_PLATFORM_NAME} STREQUAL "Windows")
     set(zlib_LIBRARY_DEBUG   ${zlib_LIBS_DIR}/zlibstaticd.lib)
     set(zlib_LIBRARY_RELEASE ${zlib_LIBS_DIR}/zlibstatic.lib)
-elseif(${PAL_PLATFORM_NAME} STREQUAL "Mac")
-    set(zlib_LIBRARY_DEBUG   ${zlib_LIBS_DIR}/libz.a)
-    set(zlib_LIBRARY_RELEASE ${zlib_LIBS_DIR}/libz.a)
-elseif(${PAL_PLATFORM_NAME} STREQUAL "iOS")
+else()
     set(zlib_LIBRARY_DEBUG   ${zlib_LIBS_DIR}/libz.a)
     set(zlib_LIBRARY_RELEASE ${zlib_LIBS_DIR}/libz.a)
 endif()
 
-# we set it to a generator expression for multi-config situations:
-set(zlib_LIBRARY                  "$<$<CONFIG:profile>:${zlib_LIBRARY_RELEASE}>")
-set(zlib_LIBRARY ${zlib_LIBRARY} "$<$<CONFIG:Release>:${zlib_LIBRARY_RELEASE}>")
-set(zlib_LIBRARY ${zlib_LIBRARY} "$<$<CONFIG:Debug>:${zlib_LIBRARY_DEBUG}>")
-
-add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+add_library(${TARGET_WITH_NAMESPACE} STATIC IMPORTED GLOBAL)
 ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE} INTERFACE ${zlib_INCLUDE_DIR})
-target_link_libraries(${TARGET_WITH_NAMESPACE} INTERFACE ${zlib_LIBRARY})
+
+set_target_properties(${TARGET_WITH_NAMESPACE}  
+    PROPERTIES
+        IMPORTED_LOCATION       "${zlib_LIBRARY_RELEASE}"
+        IMPORTED_LOCATION_DEBUG "${zlib_LIBRARY_DEBUG}")
 
 set(zlib_FOUND True)
+
