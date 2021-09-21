@@ -19,6 +19,8 @@ import string
 import subprocess
 import sys
 
+from package_downloader import PackageDownloader
+
 SCHEMA_DESCRIPTION = """
 Build Config Description:
 
@@ -72,6 +74,14 @@ The following keys can only exist at the target platform level as they describe 
                                             libraries when all you want in the package is just the binary executables). If omitted, then the entire
                                             install tree will be copied to the target package
 
+Note that for custom_build_cmd and custom_install_cmd the following env vars will be set in your script
+         TARGET_INSTALL_ROOT = final output package image folder where files should be copied to during install
+         TEMP_FOLDER = the temp folder.  This folder usually has subfolder 'build' and 'src'
+         DOWNLOADED_PACKAGE_FOLDERS = semicolon seperated list of abs paths to each downloaded package Find folder.
+            - usually used to set CMAKE_MODULE_PATH so it can find the packages.
+            - unset if there are no dependencies declared
+    Also note that the working directory for the custom build command will the folder containing the build_config.json file.
+
 * custom_build_cmd                        : A list of custom scripts to run to build from the source that was pulled from git. This option is 
                                             mutually exclusive from the cmake_generate_args and cmake_build_args options.
                                             
@@ -89,6 +99,20 @@ The following keys can only exist at the target platform level as they describe 
                                             
 * custom_cmake_install                    : Custom flag for certain platforms (ie iOS) that needs the installation arguments applied during the 
                                             cmake generation, and not to apply the cmake install process
+
+* depends_on_packages                     : list of name of 3-TUPLES of [package name, package hash, subfolder] that 'find' files live in] 
+                                            [  ["zlib-1.5.3-rev5",    "some hash", ""],
+                                               ["some other package", "some other hash", "subfoldername"], 
+                                               ...
+                                            ] 
+                                            that we need to download and use).
+    - note that we don't check recursively - you must name your recursive deps!
+    - The packages must be on a public CDN or locally tested with FILE:// - it uses env var 
+      "LY_PACKAGE_SERVER_URLS" which can be a semicolon seperated list of places to try.
+    - The packages unzip path + subfolder is added to CMAKE_MODULE_PATH if you use cmake commands.
+    - Otherwise you can use DOWNLOADED_PACKAGE_FOLDERS env var in your custom script and set
+    - CMAKE_MODULE_PATH to be that value, yourself.
+    - The subfolder can be empty, in which case the root of the package will be used.
 
 The general layout of the build_config.json file is as follows:
 
@@ -178,6 +202,7 @@ class PackageInfo(object):
         self.cmake_find_target = _get_value("cmake_find_target")
         self.cmake_find_template_custom_indent = _get_value("cmake_find_template_custom_indent", default=1)
         self.additional_src_files = _get_value("additional_src_files", required=False)
+        self.depends_on_packages = _get_value("depends_on_packages", required=False)
 
         if self.cmake_find_template and self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
@@ -479,6 +504,13 @@ class BuildInfo(object):
                                           cwd=str(self.src_folder.absolute()))
             if patch_result.returncode != 0:
                 raise BuildError(f"Error Applying patch {str(patch_file_path.absolute())}: {patch_result.stderr.decode('UTF-8', 'ignore')}")
+        # Check if there are any package dependencies.
+        if self.package_info.depends_on_packages:
+            for package_name, package_hash, _ in self.package_info.depends_on_packages:
+                temp_packages_folder = self.base_temp_folder
+                if not PackageDownloader.DownloadAndUnpackPackage(package_name, package_hash, str(temp_packages_folder)):
+                    raise BuildError(f"Failed to download a required dependency: {package_name}")
+
 
     def build_and_install_cmake(self):
         """
@@ -524,7 +556,21 @@ class BuildInfo(object):
                 if self.custom_toolchain_file:
                     cmake_generator_args.append( f'-DCMAKE_TOOLCHAIN_FILE="{self.custom_toolchain_file}"')
 
+                cmake_module_path = ""
+                if self.package_info.depends_on_packages:
+                    for package_name, package_hash, subfolder_name in self.package_info.depends_on_packages:
+                        package_download_location = self.base_temp_folder / package_name / subfolder_name
+                        if cmake_module_path:
+                            cmake_module_path += ";"
+                        cmake_module_path += str(package_download_location.resolve())
+
+                if cmake_module_path:
+                    # cmake expects forward slashes
+                    cmake_module_path = cmake_module_path.replace('\\', '/')
+                    cmake_generate_cmd.extend([f"-DCMAKE_MODULE_PATH={cmake_module_path}"])
+
                 cmake_generate_cmd.extend(cmake_generator_args)
+                
                 if custom_cmake_install:
                     cmake_generate_cmd.extend([f"-DCMAKE_INSTALL_PREFIX={str(self.build_install_folder.resolve())}"])
 
@@ -597,6 +643,24 @@ class BuildInfo(object):
         """
         Build and install from source using custom commands defined by 'custom_build_cmd' and 'custom_install_cmd'
         """
+        # we add TARGET_INSTALL_ROOT, TEMP_FOLDER and DOWNLOADED_PACKAGE_FOLDERS to the environ for both
+        # build and install, as they are useful to refer to from scripts.
+        custom_env = os.environ.copy()
+        custom_env['TARGET_INSTALL_ROOT'] = str(self.build_install_folder.resolve())
+        custom_env['TEMP_FOLDER'] = str(self.base_temp_folder.resolve())
+        
+       
+        if self.package_info.depends_on_packages:
+            package_folder_list = ""
+            for package_name, _, subfoldername in self.package_info.depends_on_packages:
+                if package_folder_list:
+                    package_folder_list += ";"
+                # note that it must be an abs path for cmake to accept it:
+                # The package declaration may specify a subfolder name but the path library will
+                # behave correctly if you slash operator with an empty (by ignoring it)
+                package_folder_list += str( (self.base_temp_folder / package_name / subfoldername).resolve().absolute())
+            package_folder_list = package_folder_list.replace('\\', '/')
+            custom_env['DOWNLOADED_PACKAGE_FOLDERS'] = package_folder_list
 
         custom_build_cmds = self.platform_config.get('custom_build_cmd', [])
         for custom_build_cmd in custom_build_cmds:
@@ -604,19 +668,19 @@ class BuildInfo(object):
             call_result = subprocess.run(custom_build_cmd,
                                          shell=True,
                                          capture_output=False,
-                                         cwd=str(self.base_folder))
+                                         cwd=str(self.base_folder),
+                                         env=custom_env)
             if call_result.returncode != 0:
                 raise BuildError(f"Error executing custom build command {custom_build_cmd}")
 
         custom_install_cmds = self.platform_config.get('custom_install_cmd', [])
-        custom_install_env = os.environ.copy()
-        custom_install_env['TARGET_INSTALL_ROOT'] = str(self.build_install_folder.resolve())
+       
         for custom_install_cmd in custom_install_cmds:
             call_result = subprocess.run(custom_install_cmd,
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
-                                         env=custom_install_env)
+                                         env=custom_env)
             if call_result.returncode != 0:
                 raise BuildError(f"Error executing custom install command {custom_install_cmd}")
 
