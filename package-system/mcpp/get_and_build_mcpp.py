@@ -23,6 +23,7 @@ import time
 
 SCRIPT_PATH = pathlib.Path(__file__).parent
 PATCH_FILE = SCRIPT_PATH / "mcpp-2.7.2-az.2.patch"
+PYTHON_PATCHER = SCRIPT_PATH / ".." / ".." / "Scripts" / "extras" / "patch.py"
 SOURCE_NAME = "mcpp-2.7.2"
 SOURCE_TAR_FILE = f"{SOURCE_NAME}.tar.gz"
 SOURCEFORGE_URL = "https://sourceforge.net/projects/mcpp/files/mcpp/V.2.7.2"
@@ -52,6 +53,16 @@ elif platform.system() == 'Windows':
             print("This script must be run from a visual studio command prompt, or the visual studio command line"
                   " environments must be set")
             exit(1)
+    # Check it's running under x64 build environment.
+    vs_target_arch = os.environ.get('VSCMD_ARG_TGT_ARCH')
+    if vs_target_arch is None:
+        print("Couldn't read the environment variable 'VSCMD_ARG_TGT_ARCH'. This script must be run from a x64 visual studio command prompt, or the visual studio command line"
+              " environments must be set")
+        exit(1)
+    if vs_target_arch != 'x64':
+        print("This script must be run from a x64 visual studio command prompt, or the visual studio command line"
+              " environments must be set")
+        exit(1)
 else:
     assert False, "Invalid platform"
 
@@ -129,7 +140,7 @@ def apply_patch(temp_folder, patch_file):
     # Git apply for some reason fails on windows, but works on other platforms. We will first try 'git', and if that
     # fails, we will try 'patch'
     apply_patch_cmds = [
-        ('git', ['apply', str(patch_file.resolve())]),
+        ('python', [str(PYTHON_PATCHER.resolve()), str(patch_file.resolve())]),
         ('patch', ['--strip=1', f'--input={str(patch_file.resolve())}'])
     ]
 
