@@ -11,10 +11,17 @@ if(LY_TOOLCHAIN_NDK_API_LEVEL)
 endif()
 
 # Verify that the NDK environment is set and points to the support NDK
+if(NOT LY_NDK_DIR) # prefer CMAKE VARIABLE over ENV VAR but fall back to env var
+    set(LY_NDK_DIR "$ENV{LY_NDK_DIR}")
+endif()
+
+if(NOT LY_NDK_DIR) #if neither cmake variable or env var set, try a commonly set one
+    set(LY_NDK_DIR "$ENV{ANDROID_NDK_ROOT}")
+endif()
 
 file(TO_CMAKE_PATH "${LY_NDK_DIR}" LY_NDK_DIR)
 if(NOT LY_NDK_DIR)
-    message(FATAL_ERROR "Environment var for NDK is empty. Could not find the NDK installation folder")
+    message(FATAL_ERROR "Environment var LY_NDK_DIR is not set.  Could not find the NDK installation folder")
 endif()
 
 set(LY_ANDROID_NDK_TOOLCHAIN ${LY_NDK_DIR}/build/cmake/android.toolchain.cmake)
