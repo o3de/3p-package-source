@@ -24,38 +24,32 @@ mkdir -p $out_lib_path/Release
 copy_shared_and_static_libs() {
     local bld_type=$1
     echo "Copying shared .dylib to $out_bin_path/$bld_type"
-    cp -f "$inst_path/lib/$bld_type/"*".dylib" $out_bin_path/$bld_type/ || (echo "Copying shared .dylib to $out_bin_path/$bld_type failed" ; exit 1)
-
-    echo "Copying 3rdParty shared .dylib to $out_bin_path/$bld_type"
-    cp -f "$bld_path/${bld_type}_Shared/.deps/install/lib/"*".dylib" $out_bin_path/$bld_type/ || (echo "Copying 3rdParty shared .dylib to $out_bin_path/$bld_type failed" ; exit 1)
+    cp -f "$inst_path/${bld_type}_Shared/lib/"*".dylib" $out_bin_path/$bld_type/ || (echo "Copying shared .dylib to $out_bin_path/$bld_type failed" ; exit 1)
 
     echo "Copying static .a to $out_lib_path/$bld_type"
-    cp -f "$inst_path/lib/$bld_type/"*".a" $out_lib_path/$bld_type/ || (echo "Copying static .a to $out_lib_path/$bld_type failed" ; exit 1)
-
-    echo "Copying 3rdParty static .a to $out_lib_path/$bld_type"
-    cp -f "$bld_path/${bld_type}_Static/.deps/install/lib/"*".a" $out_lib_path/$bld_type/ || (echo "Copying 3rdParty static .a to $out_lib_path/$bld_type failed" ; exit 1)
+    cp -f "$inst_path/${bld_type}_Static/lib/"*".a" $out_lib_path/$bld_type/ || (echo "Copying static .a to $out_lib_path/$bld_type failed" ; exit 1)
 }
 
 # Debug
 echo "CMake Install Debug Shared to $inst_path"
-cmake --install $bld_path/Debug_Shared --prefix $inst_path --config Debug || (echo "CMake Install Debug Shared to $inst_path failed" ; exit 1)
+cmake --install $bld_path/Debug_Shared --prefix $inst_path/Debug_Shared --config Debug || (echo "CMake Install Debug Shared to $inst_path failed" ; exit 1)
 
 echo "CMake Install Debug Static to $inst_path"
-cmake --install $bld_path/Debug_Static --prefix $inst_path --config Debug || (echo "CMake Install Debug Static to $inst_path failed" ; exit 1)
+cmake --install $bld_path/Debug_Static --prefix $inst_path/Debug_Static --config Debug || (echo "CMake Install Debug Static to $inst_path failed" ; exit 1)
 
 copy_shared_and_static_libs Debug || exit 1
 
 # Release
 echo "CMake Install Release Shared to $inst_path"
-cmake --install $bld_path/Release_Shared --prefix $inst_path --config Release || (echo "CMake Install Release Shared to $inst_path failed" ; exit 1)
+cmake --install $bld_path/Release_Shared --prefix $inst_path/Release_Shared --config Release || (echo "CMake Install Release Shared to $inst_path failed" ; exit 1)
 
 echo "CMake Install Release Static to $inst_path"
-cmake --install $bld_path/Release_Static --prefix $inst_path --config Release || (echo "CMake Install Release Static to $inst_path failed" ; exit 1)
+cmake --install $bld_path/Release_Static --prefix $inst_path/Release_Static --config Release || (echo "CMake Install Release Static to $inst_path failed" ; exit 1)
 
 copy_shared_and_static_libs Release || exit 1
 
 echo "Copying include headers to $out_include_path"
-cp -f -R "$inst_path/include/"* $out_include_path/ || (echo "Copying include headers to $out_include_path failed" ; exit 1)
+cp -f -R "$inst_path/Release_Static/include/"* $out_include_path/ || (echo "Copying include headers to $out_include_path failed" ; exit 1)
 
 echo "Copying LICENSE.txt to $TARGET_INSTALL_ROOT"
 cp -f $src_path/LICENSE.txt $TARGET_INSTALL_ROOT/ || (echo "Copying LICENSE.txt to $TARGET_INSTALL_ROOT failed" ; exit 1)
