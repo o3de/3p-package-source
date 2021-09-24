@@ -12,6 +12,8 @@
    "Platforms":{
       "Windows":{
          "Windows":{
+            "git_tag":"1.9.50",
+            "package_version":"1.9.50-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Windows",
             "custom_build_cmd": [
                "build_AWSNativeSDK_windows.cmd"
