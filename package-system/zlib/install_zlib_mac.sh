@@ -20,6 +20,5 @@ cp -f $SRC_PATH/LICENSE $OUT_PATH/ || exit 1
 cp $BLD_PATH/Release/libz.a $OUT_PATH/lib/libz.a || exit 1
 cp $BLD_PATH/zconf.h $OUT_PATH/include/zconf.h || exit 1
 cp $SRC_PATH/zlib.h $OUT_PATH/include/zlib.h || exit 1
-cp FindZLIB_compat_unixlike.cmake $OUT_PATH/FindZLIB.cmake || exit 1
 
 exit 0

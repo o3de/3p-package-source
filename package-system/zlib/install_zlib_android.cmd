@@ -22,7 +22,5 @@ copy %SRC_PATH%\LICENSE %OUT_PATH%\LICENSE
 @if %errorlevel% NEQ 0 ( exit /b 1 )
 copy %BLD_PATH%\libz.a %OUT_PATH%\lib\libz.a
 @if %errorlevel% NEQ 0 ( exit /b 1 )
-copy FindZLIB_compat_unixlike.cmake %OUT_PATH%\FindZLIB.cmake
-@if %errorlevel% NEQ 0 ( exit /b 1 )
 
 exit /b 0

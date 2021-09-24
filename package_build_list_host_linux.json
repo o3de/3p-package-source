@@ -29,7 +29,7 @@
         "tiff-4.2.0.15-rev2-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name Linux --package-root ../../package-system --clean",
         "python-3.7.10-rev2-linux": "package-system/python/build_package_image.py",
         "mikkelsen-1.0.0.4-linux": "package-system/mikkelsen/build_package_image.py",
-        "zlib-1.2.11-rev3-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux --package-root ../../package-system --clean",
+        "zlib-1.2.11-rev4-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux --package-root ../../package-system --clean",
         "lz4-1.9.3-vcpkg-rev4-linux": "package-system/lz4/build_package_image.py --platform-name linux"
     },
     "build_from_folder": {
@@ -63,7 +63,7 @@
         "SQLite-3.32.2-rev3-multiplatform": "package-system/SQLite-multiplatform",
         "xxhash-0.7.4-rev1-multiplatform": "package-system/xxhash-multiplatform",
         "qt-5.15.2-rev5-linux": "package-system/qt-linux",
-        "zlib-1.2.11-rev3-linux": "package-system/zlib-linux",
+        "zlib-1.2.11-rev4-linux": "package-system/zlib-linux",
         "lz4-1.9.3-vcpkg-rev4-linux": "package-system/lz4-linux"
     }
 }
