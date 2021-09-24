@@ -22,7 +22,7 @@ import time
 
 
 SCRIPT_PATH = pathlib.Path(__file__).parent
-PATCH_FILE = SCRIPT_PATH / "mcpp-2.7.2-az.2.patch"
+PATCH_FILE = SCRIPT_PATH / "mcpp_2.7.2-az.3.patch"
 SOURCE_NAME = "mcpp-2.7.2"
 SOURCE_TAR_FILE = f"{SOURCE_NAME}.tar.gz"
 SOURCEFORGE_URL = "https://sourceforge.net/projects/mcpp/files/mcpp/V.2.7.2"

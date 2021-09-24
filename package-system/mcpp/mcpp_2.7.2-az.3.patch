@@ -1,0 +1,897 @@
+diff --git a/config/config.guess b/config/config.guess
+index 396482d..e3ef63f 100644
+--- a/config/config.guess
++++ b/config/config.guess
+@@ -1,10 +1,9 @@
+ #! /bin/sh
+ # Attempt to guess a canonical system name.
+ #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
+-#   2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation,
+-#   Inc.
++#   2000, 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+ 
+-timestamp='2006-07-02'
++timestamp='2005-12-13'
+ 
+ # This file is free software; you can redistribute it and/or modify it
+ # under the terms of the GNU General Public License as published by
+@@ -107,7 +106,7 @@ set_cc_for_build='
+ trap "exitcode=\$?; (rm -f \$tmpfiles 2>/dev/null; rmdir \$tmp 2>/dev/null) && exit \$exitcode" 0 ;
+ trap "rm -f \$tmpfiles 2>/dev/null; rmdir \$tmp 2>/dev/null; exit 1" 1 2 13 15 ;
+ : ${TMPDIR=/tmp} ;
+- { tmp=`(umask 077 && mktemp -d "$TMPDIR/cgXXXXXX") 2>/dev/null` && test -n "$tmp" && test -d "$tmp" ; } ||
++ { tmp=`(umask 077 && mktemp -d -q "$TMPDIR/cgXXXXXX") 2>/dev/null` && test -n "$tmp" && test -d "$tmp" ; } ||
+  { test -n "$RANDOM" && tmp=$TMPDIR/cg$$-$RANDOM && (umask 077 && mkdir $tmp) ; } ||
+  { tmp=$TMPDIR/cg-$$ && (umask 077 && mkdir $tmp) && echo "Warning: creating insecure temp directory" >&2 ; } ||
+  { echo "$me: cannot create a temporary directory in $TMPDIR" >&2 ; exit 1 ; } ;
+@@ -207,11 +206,8 @@ case "${UNAME_MACHINE}:${UNAME_SYSTEM}:${UNAME_RELEASE}:${UNAME_VERSION}" in
+     *:ekkoBSD:*:*)
+ 	echo ${UNAME_MACHINE}-unknown-ekkobsd${UNAME_RELEASE}
+ 	exit ;;
+-    *:SolidBSD:*:*)
+-	echo ${UNAME_MACHINE}-unknown-solidbsd${UNAME_RELEASE}
+-	exit ;;
+     macppc:MirBSD:*:*)
+-	echo powerpc-unknown-mirbsd${UNAME_RELEASE}
++	echo powerppc-unknown-mirbsd${UNAME_RELEASE}
+ 	exit ;;
+     *:MirBSD:*:*)
+ 	echo ${UNAME_MACHINE}-unknown-mirbsd${UNAME_RELEASE}
+@@ -768,14 +764,7 @@ EOF
+ 	echo ${UNAME_MACHINE}-unknown-bsdi${UNAME_RELEASE}
+ 	exit ;;
+     *:FreeBSD:*:*)
+-	case ${UNAME_MACHINE} in
+-	    pc98)
+-		echo i386-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
+-	    amd64)
+-		echo x86_64-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
+-	    *)
+-		echo ${UNAME_MACHINE}-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
+-	esac
++	echo ${UNAME_MACHINE}-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`
+ 	exit ;;
+     i*:CYGWIN*:*)
+ 	echo ${UNAME_MACHINE}-pc-cygwin
+@@ -790,11 +779,8 @@ EOF
+     i*:PW*:*)
+ 	echo ${UNAME_MACHINE}-pc-pw32
+ 	exit ;;
+-    x86:Interix*:[3456]*)
+-	echo i586-pc-interix${UNAME_RELEASE}
+-	exit ;;
+-    EM64T:Interix*:[3456]*)
+-	echo x86_64-unknown-interix${UNAME_RELEASE}
++    x86:Interix*:[345]*)
++	echo i586-pc-interix${UNAME_RELEASE}|sed -e 's/\..*//'
+ 	exit ;;
+     [345]86:Windows_95:* | [345]86:Windows_98:* | [345]86:Windows_NT:*)
+ 	echo i${UNAME_MACHINE}-pc-mks
+@@ -831,9 +817,6 @@ EOF
+     arm*:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
+-    avr32*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-unknown-linux-gnu
+-	exit ;;
+     cris:Linux:*:*)
+ 	echo cris-axis-linux-gnu
+ 	exit ;;
+@@ -868,11 +851,7 @@ EOF
+ 	#endif
+ 	#endif
+ EOF
+-	eval "`$CC_FOR_BUILD -E $dummy.c 2>/dev/null | sed -n '
+-	    /^CPU/{
+-		s: ::g
+-		p
+-	    }'`"
++	eval "`$CC_FOR_BUILD -E $dummy.c 2>/dev/null | sed -n '/^CPU/{s: ::g;p;}'`"
+ 	test x"${CPU}" != x && { echo "${CPU}-unknown-linux-gnu"; exit; }
+ 	;;
+     mips64:Linux:*:*)
+@@ -891,11 +870,7 @@ EOF
+ 	#endif
+ 	#endif
+ EOF
+-	eval "`$CC_FOR_BUILD -E $dummy.c 2>/dev/null | sed -n '
+-	    /^CPU/{
+-		s: ::g
+-		p
+-	    }'`"
++	eval "`$CC_FOR_BUILD -E $dummy.c 2>/dev/null | sed -n '/^CPU/{s: ::g;p;}'`"
+ 	test x"${CPU}" != x && { echo "${CPU}-unknown-linux-gnu"; exit; }
+ 	;;
+     or32:Linux:*:*)
+@@ -992,7 +967,7 @@ EOF
+ 	LIBC=gnulibc1
+ 	# endif
+ 	#else
+-	#if defined(__INTEL_COMPILER) || defined(__PGI) || defined(__SUNPRO_C) || defined(__SUNPRO_CC)
++	#if defined(__INTEL_COMPILER) || defined(__PGI)
+ 	LIBC=gnu
+ 	#else
+ 	LIBC=gnuaout
+@@ -1002,11 +977,7 @@ EOF
+ 	LIBC=dietlibc
+ 	#endif
+ EOF
+-	eval "`$CC_FOR_BUILD -E $dummy.c 2>/dev/null | sed -n '
+-	    /^LIBC/{
+-		s: ::g
+-		p
+-	    }'`"
++	eval "`$CC_FOR_BUILD -E $dummy.c 2>/dev/null | sed -n '/^LIBC/{s: ::g;p;}'`"
+ 	test x"${LIBC}" != x && {
+ 		echo "${UNAME_MACHINE}-pc-linux-${LIBC}"
+ 		exit
+diff --git a/config/config.sub b/config/config.sub
+index 387c18d..2851647 100644
+--- a/config/config.sub
++++ b/config/config.sub
+@@ -1,10 +1,9 @@
+ #! /bin/sh
+ # Configuration validation subroutine script.
+ #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
+-#   2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation,
+-#   Inc.
++#   2000, 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+ 
+-timestamp='2006-07-02'
++timestamp='2005-12-11'
+ 
+ # This file is (in principle) common to ALL GNU software.
+ # The presence of a machine in this file suggests that SOME GNU software
+@@ -241,7 +240,7 @@ case $basic_machine in
+ 	| alpha | alphaev[4-8] | alphaev56 | alphaev6[78] | alphapca5[67] \
+ 	| alpha64 | alpha64ev[4-8] | alpha64ev56 | alpha64ev6[78] | alpha64pca5[67] \
+ 	| am33_2.0 \
+-	| arc | arm | arm[bl]e | arme[lb] | armv[2345] | armv[345][lb] | avr | avr32 \
++	| arc | arm | arm[bl]e | arme[lb] | armv[2345] | armv[345][lb] | avr \
+ 	| bfin \
+ 	| c4x | clipper \
+ 	| d10v | d30v | dlx | dsp16xx \
+@@ -249,8 +248,7 @@ case $basic_machine in
+ 	| h8300 | h8500 | hppa | hppa1.[01] | hppa2.0 | hppa2.0[nw] | hppa64 \
+ 	| i370 | i860 | i960 | ia64 \
+ 	| ip2k | iq2000 \
+-	| m32c | m32r | m32rle | m68000 | m68k | m88k \
+-	| maxq | mb | microblaze | mcore \
++	| m32r | m32rle | m68000 | m68k | m88k | maxq | mcore \
+ 	| mips | mipsbe | mipseb | mipsel | mipsle \
+ 	| mips16 \
+ 	| mips64 | mips64el \
+@@ -270,17 +268,16 @@ case $basic_machine in
+ 	| mn10200 | mn10300 \
+ 	| mt \
+ 	| msp430 \
+-	| nios | nios2 \
+ 	| ns16k | ns32k \
+ 	| or32 \
+ 	| pdp10 | pdp11 | pj | pjl \
+ 	| powerpc | powerpc64 | powerpc64le | powerpcle | ppcbe \
+ 	| pyramid \
+-	| sh | sh[1234] | sh[24]a | sh[23]e | sh[34]eb | sheb | shbe | shle | sh[1234]le | sh3ele \
++	| sh | sh[1234] | sh[24]a | sh[23]e | sh[34]eb | shbe | shle | sh[1234]le | sh3ele \
+ 	| sh64 | sh64le \
+-	| sparc | sparc64 | sparc64b | sparc64v | sparc86x | sparclet | sparclite \
+-	| sparcv8 | sparcv9 | sparcv9b | sparcv9v \
+-	| spu | strongarm \
++	| sparc | sparc64 | sparc64b | sparc86x | sparclet | sparclite \
++	| sparcv8 | sparcv9 | sparcv9b \
++	| strongarm \
+ 	| tahoe | thumb | tic4x | tic80 | tron \
+ 	| v850 | v850e \
+ 	| we32k \
+@@ -288,6 +285,9 @@ case $basic_machine in
+ 	| z8k)
+ 		basic_machine=$basic_machine-unknown
+ 		;;
++	m32c)
++		basic_machine=$basic_machine-unknown
++		;;
+ 	m6811 | m68hc11 | m6812 | m68hc12)
+ 		# Motorola 68HC11/12.
+ 		basic_machine=$basic_machine-unknown
+@@ -317,7 +317,7 @@ case $basic_machine in
+ 	| alpha64-* | alpha64ev[4-8]-* | alpha64ev56-* | alpha64ev6[78]-* \
+ 	| alphapca5[67]-* | alpha64pca5[67]-* | arc-* \
+ 	| arm-*  | armbe-* | armle-* | armeb-* | armv*-* \
+-	| avr-* | avr32-* \
++	| avr-* \
+ 	| bfin-* | bs2000-* \
+ 	| c[123]* | c30-* | [cjt]90-* | c4x-* | c54x-* | c55x-* | c6x-* \
+ 	| clipper-* | craynv-* | cydra-* \
+@@ -328,7 +328,7 @@ case $basic_machine in
+ 	| hppa-* | hppa1.[01]-* | hppa2.0-* | hppa2.0[nw]-* | hppa64-* \
+ 	| i*86-* | i860-* | i960-* | ia64-* \
+ 	| ip2k-* | iq2000-* \
+-	| m32c-* | m32r-* | m32rle-* \
++	| m32r-* | m32rle-* \
+ 	| m68000-* | m680[012346]0-* | m68360-* | m683?2-* | m68k-* \
+ 	| m88110-* | m88k-* | maxq-* | mcore-* \
+ 	| mips-* | mipsbe-* | mipseb-* | mipsel-* | mipsle-* \
+@@ -350,18 +350,17 @@ case $basic_machine in
+ 	| mmix-* \
+ 	| mt-* \
+ 	| msp430-* \
+-	| nios-* | nios2-* \
+ 	| none-* | np1-* | ns16k-* | ns32k-* \
+ 	| orion-* \
+ 	| pdp10-* | pdp11-* | pj-* | pjl-* | pn-* | power-* \
+ 	| powerpc-* | powerpc64-* | powerpc64le-* | powerpcle-* | ppcbe-* \
+ 	| pyramid-* \
+ 	| romp-* | rs6000-* \
+-	| sh-* | sh[1234]-* | sh[24]a-* | sh[23]e-* | sh[34]eb-* | sheb-* | shbe-* \
++	| sh-* | sh[1234]-* | sh[24]a-* | sh[23]e-* | sh[34]eb-* | shbe-* \
+ 	| shle-* | sh[1234]le-* | sh3ele-* | sh64-* | sh64le-* \
+-	| sparc-* | sparc64-* | sparc64b-* | sparc64v-* | sparc86x-* | sparclet-* \
++	| sparc-* | sparc64-* | sparc64b-* | sparc86x-* | sparclet-* \
+ 	| sparclite-* \
+-	| sparcv8-* | sparcv9-* | sparcv9b-* | sparcv9v-* | strongarm-* | sv1-* | sx?-* \
++	| sparcv8-* | sparcv9-* | sparcv9b-* | strongarm-* | sv1-* | sx?-* \
+ 	| tahoe-* | thumb-* \
+ 	| tic30-* | tic4x-* | tic54x-* | tic55x-* | tic6x-* | tic80-* \
+ 	| tron-* \
+@@ -372,6 +371,8 @@ case $basic_machine in
+ 	| ymp-* \
+ 	| z8k-*)
+ 		;;
++	m32c-*)
++		;;
+ 	# Recognize the various machine names and aliases which stand
+ 	# for a CPU type and a company and sometimes even an OS.
+ 	386bsd)
+@@ -817,12 +818,6 @@ case $basic_machine in
+ 	pc532 | pc532-*)
+ 		basic_machine=ns32k-pc532
+ 		;;
+-	pc98)
+-		basic_machine=i386-pc
+-		;;
+-	pc98-*)
+-		basic_machine=i386-`echo $basic_machine | sed 's/^[^-]*-//'`
+-		;;
+ 	pentium | p5 | k5 | k6 | nexgen | viac3)
+ 		basic_machine=i586-pc
+ 		;;
+@@ -1125,7 +1120,7 @@ case $basic_machine in
+ 	sh[1234] | sh[24]a | sh[34]eb | sh[1234]le | sh[23]ele)
+ 		basic_machine=sh-unknown
+ 		;;
+-	sparc | sparcv8 | sparcv9 | sparcv9b | sparcv9v)
++	sparc | sparcv8 | sparcv9 | sparcv9b)
+ 		basic_machine=sparc-sun
+ 		;;
+ 	cydra)
+@@ -1198,8 +1193,7 @@ case $os in
+ 	      | -aos* \
+ 	      | -nindy* | -vxsim* | -vxworks* | -ebmon* | -hms* | -mvs* \
+ 	      | -clix* | -riscos* | -uniplus* | -iris* | -rtu* | -xenix* \
+-	      | -hiux* | -386bsd* | -knetbsd* | -mirbsd* | -netbsd* \
+-	      | -openbsd* | -solidbsd* \
++	      | -hiux* | -386bsd* | -knetbsd* | -mirbsd* | -netbsd* | -openbsd* \
+ 	      | -ekkobsd* | -kfreebsd* | -freebsd* | -riscix* | -lynxos* \
+ 	      | -bosx* | -nextstep* | -cxux* | -aout* | -elf* | -oabi* \
+ 	      | -ptx* | -coff* | -ecoff* | -winnt* | -domain* | -vsta* \
+@@ -1214,7 +1208,7 @@ case $os in
+ 	      | -os2* | -vos* | -palmos* | -uclinux* | -nucleus* \
+ 	      | -morphos* | -superux* | -rtmk* | -rtmk-nova* | -windiss* \
+ 	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
+-	      | -skyos* | -haiku* | -rdos* | -toppers*)
++	      | -skyos* | -haiku* | -rdos*)
+ 	# Remember, each alternative MUST END IN *, to match a version number.
+ 		;;
+ 	-qnx*)
+@@ -1366,9 +1360,6 @@ else
+ # system, and we'll never get to this point.
+ 
+ case $basic_machine in
+-        spu-*)
+-		os=-elf
+-		;;
+ 	*-acorn)
+ 		os=-riscix1.2
+ 		;;
+@@ -1378,9 +1369,9 @@ case $basic_machine in
+ 	arm*-semi)
+ 		os=-aout
+ 		;;
+-        c4x-* | tic4x-*)
+-        	os=-coff
+-		;;
++    c4x-* | tic4x-*)
++        os=-coff
++        ;;
+ 	# This must come before the *-dec entry.
+ 	pdp10-*)
+ 		os=-tops20
+diff --git a/config/ltmain.sh b/config/ltmain.sh
+index c715b59..06823e0 100644
+--- a/config/ltmain.sh
++++ b/config/ltmain.sh
+@@ -43,7 +43,7 @@ EXIT_FAILURE=1
+ 
+ PROGRAM=ltmain.sh
+ PACKAGE=libtool
+-VERSION="1.5.22 Debian 1.5.22-4"
++VERSION=1.5.22
+ TIMESTAMP=" (1.1220.2.365 2005/12/18 22:14:06)"
+ 
+ # See if we are running on zsh, and set the options which allow our
+@@ -2082,10 +2082,7 @@ EOF
+ 	case $pass in
+ 	dlopen) libs="$dlfiles" ;;
+ 	dlpreopen) libs="$dlprefiles" ;;
+-	link)
+-	  libs="$deplibs %DEPLIBS%"
+-	  test "X$link_all_deplibs" != Xno && libs="$libs $dependency_libs"
+-	  ;;
++	link) libs="$deplibs %DEPLIBS% $dependency_libs" ;;
+ 	esac
+       fi
+       if test "$pass" = dlopen; then
+@@ -3204,11 +3201,6 @@ EOF
+ 	    age="$number_minor"
+ 	    revision="$number_minor"
+ 	    ;;
+-	  *)
+-	    $echo "$modename: unknown library version type \`$version_type'" 1>&2
+-	    $echo "Fatal configuration error.  See the $PACKAGE docs for more information." 1>&2
+-	    exit $EXIT_FAILURE
+-	    ;;
+ 	  esac
+ 	  ;;
+ 	no)
+diff --git a/src/configed.H b/src/configed.H
+index b4d1ebf..436bd54 100644
+--- a/src/configed.H
++++ b/src/configed.H
+@@ -17,10 +17,10 @@
+ 
+ #include    "config.h"
+ 
+-#ifndef COMPILER            /* No target compiler specified */
+-#define COMPILER            COMPILER_UNKNOWN
++#ifndef COMPILER
++#define COMPILER            MSC
+ #endif
+-#ifndef HOST_COMPILER       /* No host compiler specified   */
++#ifndef HOST_COMPILER
+ #define HOST_COMPILER       COMPILER
+ #endif
+ 
+diff --git a/src/internal.H b/src/internal.H
+index 5e1c19f..94b5a5a 100644
+--- a/src/internal.H
++++ b/src/internal.H
+@@ -96,7 +96,7 @@
+ #define OP_LPA          2           /* (    */
+ /* The following are unary.     */
+ #define FIRST_UNOP      OP_PLU      /* First unary operator         */
+-#define OP_PLU          3           /* +    */ 
++#define OP_PLU          3           /* +    */
+ #define OP_NEG          4           /* -    */
+ #define OP_COM          5           /* ~    */
+ #define OP_NOT          6           /* !    */
+@@ -324,7 +324,7 @@ extern struct std_limits_ {
+         int     inc_nest;           /* Least maximum of include nest*/
+         long    n_macro;            /* Least maximum of num of macro*/
+         long    line_num;           /* Maximum source line number   */
+-} std_limits;    
++} std_limits;
+ /* The boolean flags specified by the execution options.    */
+ extern struct option_flags_ {
+         int     c;                  /* -C option (keep comments)    */
+@@ -503,6 +503,8 @@ extern int      (* mcpp_fputc)( int c, OUTDEST od),
+                 (* mcpp_fputs)( const char * s, OUTDEST od),
+                 (* mcpp_fprintf)( OUTDEST od, const char * format, ...);
+ 
++extern void     (*g_report_include)(FILE *, const char *, const char *, const char *);
++
+ /* system.c */
+ extern void     do_options( int argc, char ** argv, char ** in_pp
+         , char ** out_pp);
+diff --git a/src/main.c b/src/main.c
+index a438894..b892f81 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -334,7 +334,7 @@ int     main
+ #endif
+ (
+     int argc,
+-    char ** argv
++    const char ** argv
+ )
+ {
+     char *  in_file = NULL;
+diff --git a/src/main_libmcpp.c b/src/main_libmcpp.c
+index 7163925..d266c92 100644
+--- a/src/main_libmcpp.c
++++ b/src/main_libmcpp.c
+@@ -3,7 +3,7 @@
+ #include "mcpp_lib.h"
+ 
+ int
+-main (int argc, char *argv[])
++main (int argc, const char *argv[])
+ {
+     return mcpp_lib_main (argc, argv);
+ }
+diff --git a/src/mcpp_lib.def b/src/mcpp_lib.def
+index c95f440..b3c10e9 100644
+--- a/src/mcpp_lib.def
++++ b/src/mcpp_lib.def
+@@ -5,3 +5,4 @@ EXPORTS
+ 	mcpp_set_out_func
+ 	mcpp_use_mem_buffers
+ 	mcpp_get_mem_buffer
++	mcpp_set_report_include_callback
+diff --git a/src/mcpp_lib.h b/src/mcpp_lib.h
+index 4827f0a..64b23ae 100644
+--- a/src/mcpp_lib.h
++++ b/src/mcpp_lib.h
+@@ -1,3 +1,4 @@
++// # Modifications Copyright (c) Contributors to the Open 3D Engine Project, SPDX-License-Identifier: Apache-2.0 OR MIT
+ /* mcpp_lib.h: declarations of libmcpp exported (visible) functions */
+ #ifndef _MCPP_LIB_H
+ #define _MCPP_LIB_H
+@@ -10,7 +11,7 @@
+             || __MINGW64__
+ #if     DLL_EXPORT || (__CYGWIN__ && PIC)
+ #define DLL_DECL    __declspec( dllexport)
+-#elif   DLL_IMPORT
++#elif   MCPP_DLL_IMPORT
+ #define DLL_DECL    __declspec( dllimport)
+ #else
+ #define DLL_DECL
+@@ -19,13 +20,31 @@
+ #define DLL_DECL
+ #endif
+ 
+-extern DLL_DECL int     mcpp_lib_main( int argc, char ** argv);
+-extern DLL_DECL void    mcpp_reset_def_out_func( void);
+-extern DLL_DECL void    mcpp_set_out_func(
+-                    int (* func_fputc)  ( int c, OUTDEST od),
+-                    int (* func_fputs)  ( const char * s, OUTDEST od),
+-                    int (* func_fprintf)( OUTDEST od, const char * format, ...)
+-                    );
+-extern DLL_DECL void    mcpp_use_mem_buffers( int tf);
+-extern DLL_DECL char *  mcpp_get_mem_buffer( OUTDEST od);
++#include <stdio.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++    extern DLL_DECL int     mcpp_lib_main(int argc, const char ** argv);
++    extern DLL_DECL void    mcpp_reset_def_out_func(void);
++    extern DLL_DECL void    mcpp_set_out_func(
++                        int (* func_fputc)  ( int c, MCPP_OUTDEST od),
++                        int (* func_fputs)  ( const char * s, MCPP_OUTDEST od),
++                        int (* func_fprintf)(MCPP_OUTDEST od, const char * format, ...)
++                        );
++    extern DLL_DECL void    mcpp_use_mem_buffers( int tf);
++    extern DLL_DECL char *  mcpp_get_mem_buffer(MCPP_OUTDEST od);
++
++    extern DLL_DECL void    mcpp_set_report_include_callback(
++                        void(*report_include)(FILE * fp,               /* Open file pointer    */
++                                              const char *  src_dir,   /* Directory of source  */
++                                              const char *  filename,  /* Name of the file     */
++                                              const char *  fullname)  /* Full path            */
++    );
++
++#ifdef __cplusplus
++}
++#endif
++
+ #endif  /* _MCPP_LIB_H  */
+diff --git a/src/mcpp_out.h b/src/mcpp_out.h
+index 02ba2aa..bf0b82e 100644
+--- a/src/mcpp_out.h
++++ b/src/mcpp_out.h
+@@ -1,13 +1,23 @@
+ /* mcpp_out.h: declarations of OUTDEST data types for MCPP  */
++// # Modifications Copyright (c) Contributors to the Open 3D Engine Project, SPDX-License-Identifier: Apache-2.0 OR MIT
+ #ifndef _MCPP_OUT_H
+ #define _MCPP_OUT_H
+ 
+ /* Choices for output destination */
+ typedef enum {
+-    OUT,                        /* ~= fp_out    */
+-    ERR,                        /* ~= fp_err    */
+-    DBG,                        /* ~= fp_debug  */
+-    NUM_OUTDEST
+-} OUTDEST;
++    MCPP_OUT,                        /* ~= fp_out    */
++    MCPP_ERR,                        /* ~= fp_err    */
++    MCPP_DBG,                        /* ~= fp_debug  */
++    MCPP_NUM_OUTDEST
++} MCPP_OUTDEST;
++
++// O3DE: keep build compatibility with MCPP
++#ifndef MCPP_DONT_USE_SHORT_NAMES
++ #define OUT MCPP_OUT
++ #define ERR MCPP_ERR
++ #define DBG MCPP_DBG
++ #define NUM_OUTDEST MCPP_NUM_OUTDEST
++ #define OUTDEST MCPP_OUTDEST
++#endif
+ 
+ #endif  /* _MCPP_OUT_H  */
+diff --git a/src/noconfig.H b/src/noconfig.H
+index 6b634fe..6482967 100644
+--- a/src/noconfig.H
++++ b/src/noconfig.H
+@@ -15,18 +15,18 @@
+  */
+ 
+ /* Define target operating-system.  */
+-#define SYSTEM              SYS_FREEBSD
++#define SYSTEM              SYS_WIN
+ 
+ /* Define target compiler.          */
+ #ifndef COMPILER
+-#define COMPILER            INDEPENDENT /* compiler-independent-build   */
++#define COMPILER            MSC /* compiler-independent-build   */
+ #endif
+ 
+ /* Define host operating-system.    */
+ #define HOST_SYSTEM         SYSTEM
+ 
+ /* Define host compiler.            */
+-#define HOST_COMPILER       GNUC
++#define HOST_COMPILER       COMPILER
+ 
+ /* Version message.                 */
+ /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
+diff --git a/src/support.c b/src/support.c
+index c57eaef..5f0e7d7 100644
+--- a/src/support.c
++++ b/src/support.c
+@@ -364,6 +364,19 @@ void    mcpp_set_out_func(
+ }
+ #endif
+ 
++void (*g_report_include)(FILE *, const char *, const char *, const char *);
++
++void mcpp_set_report_include_callback(
++    void(*report_include)(
++        FILE * fp,               /* Open file pointer    */
++        const char *  src_dir,   /* Directory of source  */
++        const char *  filename,  /* Name of the file     */
++        const char *  fullname)  /* Full path            */
++)
++{
++    g_report_include = report_include;
++}
++
+ int     get_unexpandable(
+     int     c,                              /* First char of token  */
+     int     diag                            /* Flag of diagnosis    */
+@@ -636,7 +649,7 @@ static void scan_id(
+         if (mcpp_mode == STD && c == '\\' && stdc2) {
+             int     cnt;
+             char *  tp = bp;
+-            
++
+             if ((c = get_ch()) == 'u') {
+                 cnt = 4;
+             } else if (c == 'U') {
+@@ -1384,7 +1397,7 @@ static char *   scan_op(
+             } else {                                    /* .        */
+                 openum = OP_1;
+             }
+-        } else {    
++        } else {
+             openum = OP_1;
+         }
+         break;
+@@ -1654,6 +1667,28 @@ static char *   parse_line( void)
+     size_t      com_size;
+     int         c;
+ 
++    // By O3DE:
++    // ---- The Goal:
++    // Match the number of lines between the source AZSL files, before preprocessing,
++    // and the AZSL files after preprocessing. Line number matching is important because it helps
++    // providing accurate line numbers when reporting errors either by AZSLc or DXC.
++    // 
++    // ---- The Problem:
++    // MCPP adds a new line after each comment line that starts with '//'
++    // 
++    // ---- Solution:
++    // Do not add the extra line ending character '\n'.
++    // 
++    // ---- How:
++    // We count here the amount of leading spaces before the first
++    // non space character is detected.
++    // This is used to decide whether comments are going to be printed out or
++    // skipped altogether.
++    // If the current line only contains comments, preceded ONLY by whitespaces then
++    // will print the comment in the output WITHOUT line ending character. Otherwise
++    // the comment won't make it into the output.
++    int         NumLeadingSpaces = 0;
++
+     if ((sp = get_line( FALSE)) == NULL)    /* Next logical line    */
+         return  NULL;                       /* End of a file        */
+     if (in_asm) {                           /* In #asm block        */
+@@ -1668,9 +1703,12 @@ static char *   parse_line( void)
+ 
+     while (char_type[ c = *sp++ & UCHARMAX] & HSP) {
+         if (mcpp_mode != POST_STD)
++        {
+             /* Preserve line top horizontal white spaces    */
+             /*      as they are for human-readability       */
+             *tp++ = c;
++            ++NumLeadingSpaces;
++        }
+         /* Else skip the line top spaces    */
+     }
+     sp--;
+@@ -1719,9 +1757,15 @@ com_start:
+                     cwarn( "Parsed \"//\" as comment"       /* _W2_ */
+                             , NULL, 0L, NULL);
+                 if (keep_comments) {
+-                    sp -= 2;
+-                    while (*sp != '\n')     /* Until end of line    */
+-                        mcpp_fputc( *sp++, OUT);
++                    const int numCharactersBeforeComment = (tp - temp);
++                    if (numCharactersBeforeComment == NumLeadingSpaces)
++                    {
++                        // It is safe to print the comments
++                        sp -= 2;
++                        while (*sp != '\n')     /* Until end of line    */
++                            mcpp_fputc( *sp++, OUT);
++                        // mcpp_fputc('\n', OUT); // Removed by O3DE. This prevents that each comment line from presenting additional empty lines.
++                    }
+                 }
+                 goto  end_line;
+             default:                        /* Not a comment        */
+@@ -1821,7 +1865,7 @@ static char *   read_a_comment(
+     if (keep_spaces) {
+         saved_sp = sp - 2;          /* '-2' for beginning / and *   */
+         *sizp = 0;
+-    }        
++    }
+     if (keep_comments)                      /* If writing comments  */
+         mcpp_fputs( "/*", OUT);             /* Write the initializer*/
+     c = *sp++;
+@@ -1911,7 +1955,7 @@ static char *   get_line(
+ /*
+  * ANSI (ISO) C: translation phase 1, 2.
+  * Get the next logical line from source file.
+- * Convert [CR+LF] to [LF]. 
++ * Convert [CR+LF] to [LF].
+  */
+ {
+ #if COMPILER == INDEPENDENT
+diff --git a/src/system.c b/src/system.c
+index 4759469..5bccf62 100644
+--- a/src/system.c
++++ b/src/system.c
+@@ -303,7 +303,7 @@ static char *   mkdep_mt;               /* Argument of -MT option   */
+ /* sharp_filename is filename for #line line, used only in cur_file()   */
+ static char *   sharp_filename = NULL;
+ static char *   argv0;      /* argv[ 0] for usage() and version()   */
+-static int      ansi;           /* __STRICT_ANSI__ flag for GNUC    */ 
++static int      ansi;           /* __STRICT_ANSI__ flag for GNUC    */
+ static int      compat_mode;
+                 /* "Compatible" mode of recursive macro expansion   */
+ #define MAX_ARCH_LEN    16
+@@ -530,7 +530,7 @@ plus:
+                 compat_mode = TRUE;     /* 'compatible' mode        */
+                 mcpp_mode = STD;
+             }
+-            else 
++            else
+                 usage( opt);
+             standard = (mcpp_mode == STD || mcpp_mode == POST_STD);
+             if (old_mode != STD && old_mode != mcpp_mode)
+@@ -837,7 +837,7 @@ plus:
+             /* Fall through */
+         case 'k':
+             option_flags.k = TRUE;
+-            /* Keep white spaces of input lines as they are */ 
++            /* Keep white spaces of input lines as they are */
+             break;
+ 
+ #if COMPILER == GNUC
+@@ -1739,7 +1739,7 @@ static void def_a_macro(
+     skip_nl();                      /* Clear the appended <newline> */
+ }
+ 
+-static void     chk_opts( 
++static void     chk_opts(
+     int     sflag,      /* Flag of Standard or post-Standard mode   */
+     int     trad                    /* -traditional (GCC only)      */
+ )
+@@ -2239,7 +2239,7 @@ static void set_sys_dirs(
+     set_a_dir( "/usr/local/include");
+ #endif
+ 
+-#ifdef  C_INCLUDE_DIR1 
++#ifdef  C_INCLUDE_DIR1
+     set_a_dir( C_INCLUDE_DIR1);
+ #endif
+ #ifdef  C_INCLUDE_DIR2
+@@ -2301,7 +2301,7 @@ static void set_a_dir(
+ #if SYSTEM == SYS_MAC
+         to_search_framework = &incdir[ framework_pos];
+ #endif
+-        max_inc *= 2;                   
++        max_inc *= 2;
+     }
+ 
+     if (dirname == NULL)
+@@ -2392,7 +2392,7 @@ static char *   norm_dir(
+         if (! norm_name && option_flags.v)
+             mcpp_fprintf( ERR, "Invalid header map file \"%s\" is ignored\n"
+                     , dirname);
+-    } else 
++    } else
+ #endif
+     {
+         norm_name = norm_path( dirname, NULL, FALSE, FALSE);
+@@ -2642,7 +2642,7 @@ static char *   norm_path(
+             } else {                                /* Impossible   */
+                 break;
+             }
+-        } else {                                    /* Impossible   */ 
++        } else {                                    /* Impossible   */
+             break;
+         }
+     }
+@@ -2769,7 +2769,7 @@ static void init_gcc_macro( void)
+                 && scan_token( skip_ws(), (tp = work_buf, &tp), work_end)
+                         == NAM
+                     && str_eq( work_buf, "define")) {
+-                defp = do_define( TRUE, nargs);     /* Ignore re-definition */ 
++                defp = do_define( TRUE, nargs);     /* Ignore re-definition */
+             }
+             skip_nl();
+         }
+@@ -2981,7 +2981,7 @@ void    put_depend(
+ }
+ 
+ static char *   md_init(
+-    const char *    filename,   /* The source file name             */ 
++    const char *    filename,   /* The source file name             */
+     char *  output              /* Output to dependency file        */
+ )
+ /*
+@@ -3288,7 +3288,7 @@ static int  has_directory(
+ )
+ /*
+  * If a directory is found in the 'source' filename string (i.e. "includer"),
+- * the directory part of the string is copied to 'directory' and 
++ * the directory part of the string is copied to 'directory' and
+  * has_directory() returns TRUE.
+  * Else, nothing is copied and it returns FALSE.
+  */
+@@ -3320,7 +3320,7 @@ static int  is_full_path(
+ #if SYS_FAMILY == SYS_UNIX
+     if (path[0] == PATH_DELIM)
+ #elif   SYS_FAMILY == SYS_WIN
+-    if ((path[1] == ':' && path[2] == PATH_DELIM)   /* "C:/path"    */
++    if ((path[1] == ':' && (path[2] == PATH_DELIM || path[2] == '\\'))   /* "C:/path"    */
+             || path[0] == PATH_DELIM)       /* Root dir of current drive    */
+ #elif   1
+ /* For other systems you should write code here.    */
+@@ -3432,7 +3432,7 @@ search:
+         return  FALSE;
+     if (standard && included( fullname))        /* Once included    */
+         goto  true;
+-        
++
+     if ((max_open != 0 && max_open <= include_nest)
+                             /* Exceed the known limit of open files */
+             || ((fp = fopen( fullname, "r")) == NULL && errno == EMFILE)) {
+@@ -3462,7 +3462,7 @@ search:
+         }
+         if (max_open == 0)      /* Remember the limit of the system */
+             max_open = include_nest;
+-    } else if (fp == NULL)                  /* No read permission   */ 
++    } else if (fp == NULL)                  /* No read permission   */
+         goto  false;
+     /* Truncate buffer of the includer to save memory   */
+     len = (int) (file->bptr - file->buffer);
+@@ -3480,6 +3480,8 @@ search:
+      * Note: inc_dirp is restored to the parent includer's directory
+      *   by get_ch() when the current includer is finished.
+      */
++    if (g_report_include)
++        g_report_include(fp, src_dir, filename, fullname);
+     infile->dirp = inc_dirp = dirp;
+ #if 0   /* This part is only for debugging  */
+     chk_dirp( dirp);
+@@ -3762,7 +3764,7 @@ static int      search_framework(
+             return  TRUE;
+     }
+ 
+-    *cp2 = PATH_DELIM;      /* Restore original include file format */ 
++    *cp2 = PATH_DELIM;      /* Restore original include file format */
+ 
+     return  FALSE;
+ }
+@@ -3858,6 +3860,28 @@ static int  chk_dirp(
+ }
+ #endif
+ 
++char* mincs_ifnotnull(char* p1, char* p2)
++{
++    if (!p1) return p2;
++    if (!p2) return p1;
++    return p1 < p2 ? p1 : p2;
++}
++
++/* extract directory part of a file path */
++static char g_space[1024];
++char * dir_of(const char* path)
++{
++    const char * lastsep = mincs_ifnotnull(strrchr(path, PATH_DELIM),
++                                           strrchr(path, '\\'));
++    if (!lastsep) return NULL;
++    if (lastsep - path >= 1024)
++        cfatal("path too long encountered. %s", path, 0L, NULL);
++
++    strncpy(g_space, path, lastsep - path + 1);
++    g_space[lastsep - path + 1] = 0;
++    return g_space;
++}
++
+ void    sharp(
+     FILEINFO *  sharp_file,
+     int         flag        /* Flag to append to the line for GCC   */
+@@ -3910,17 +3934,34 @@ static void cur_file(
+ 
+     if (mcpp_debug & MACRO_CALL) {  /* In macro notification mode   */
+         if (sharp_file)                         /* Main input file  */
+-            name = file->filename;
++            name = file->full_fname;
+         else                /* Output full-path-list, normalized    */
+             name = cur_fullname;
+     } else {                /* Usually, the path not "normalized"   */
+         if (sharp_file) {                       /* Main input file  */
+             name = file->filename;
+         } else if (str_eq( file->filename, file->real_fname)) {
+-            sprintf( work_buf, "%s%s", *(file->dirp), cur_fname);
+-            name = work_buf;
++            name = file->full_fname; // O3DE: absolute paths required
+         } else {            /* Changed by '#line fname' directive   */
+-            name = file->filename;
++            if (!is_full_path(file->filename)) {     // O3DE: this block does the best it can to get real full paths.
++                name = dir_of(cur_fullname);  // extract first part of path
++                if (!name)  // no directory found in cur_fullname (weird case)
++                    name = file->filename;
++                else {
++                    sprintf( work_buf, "%s%s", name, file->filename);
++                    FILE* reachable = fopen(work_buf, "r");
++                    if (reachable) {
++                        name = norm_path(null, work_buf, FALSE, FALSE);
++                        fclose(reachable);
++                    } else {  // non reachable file encountered
++                        name = file->filename;  // input verbatim
++                    }
++                }
++                if (strlen(name) == 0)
++                    name = file->filename;  // as is
++            } else {  // absolute path already
++                name = file->filename;
++            }
+         }
+     }
+     if (sharp_filename == NULL || ! str_eq( name, sharp_filename)) {
+diff --git a/src/testmain.c b/src/testmain.c
+index 33e47b3..ce3e00d 100644
+--- a/src/testmain.c
++++ b/src/testmain.c
+@@ -13,7 +13,7 @@
+ 
+ #include "mcpp_lib.h"
+ 
+-int main(int argc, char *argv[])
++int main(int argc, const char *argv[])
+ {
+     int     i, j;
+     char ** tmp_argv;
