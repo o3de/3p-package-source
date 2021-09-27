@@ -201,7 +201,7 @@ index 6b634fe..6482967 100644
  /* Version message.                 */
  /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
 diff --git a/src/support.c b/src/support.c
-index c57eaef..909be89 100644
+index c57eaef..ba7c422 100644
 --- a/src/support.c
 +++ b/src/support.c
 @@ -364,6 +364,19 @@ void    mcpp_set_out_func(
@@ -242,15 +242,68 @@ index c57eaef..909be89 100644
              openum = OP_1;
          }
          break;
-@@ -1722,6 +1735,7 @@ com_start:
-                     sp -= 2;
-                     while (*sp != '\n')     /* Until end of line    */
-                         mcpp_fputc( *sp++, OUT);
-+                    mcpp_fputc('\n', OUT);
+@@ -1654,6 +1667,28 @@ static char *   parse_line( void)
+     size_t      com_size;
+     int         c;
+ 
++    // By O3DE:
++    // ---- The Goal:
++    // Match the number of lines between the source AZSL files, before preprocessing,
++    // and the AZSL files after preprocessing. Line number matching is important because it helps
++    // providing accurate line numbers when reporting errors either by AZSLc or DXC.
++    // 
++    // ---- The Problem:
++    // MCPP adds a new line after each comment line that starts with '//'
++    // 
++    // ---- Solution:
++    // Do not add the extra line ending character '\n'.
++    // 
++    // ---- How:
++    // We count here the amount of leading spaces before the first
++    // non space character is detected.
++    // This is used to decide whether comments are going to be printed out or
++    // skipped altogether.
++    // If the current line only contains comments, preceded ONLY by whitespaces then
++    // will print the comment in the output WITHOUT line ending character. Otherwise
++    // the comment won't make it into the output.
++    int         NumLeadingSpaces = 0;
++
+     if ((sp = get_line( FALSE)) == NULL)    /* Next logical line    */
+         return  NULL;                       /* End of a file        */
+     if (in_asm) {                           /* In #asm block        */
+@@ -1668,9 +1703,12 @@ static char *   parse_line( void)
+ 
+     while (char_type[ c = *sp++ & UCHARMAX] & HSP) {
+         if (mcpp_mode != POST_STD)
++        { // O3DE
+             /* Preserve line top horizontal white spaces    */
+             /*      as they are for human-readability       */
+             *tp++ = c;
++            ++NumLeadingSpaces; //O3DE
++        } // O3DE
+         /* Else skip the line top spaces    */
+     }
+     sp--;
+@@ -1719,9 +1757,15 @@ com_start:
+                     cwarn( "Parsed \"//\" as comment"       /* _W2_ */
+                             , NULL, 0L, NULL);
+                 if (keep_comments) {
+-                    sp -= 2;
+-                    while (*sp != '\n')     /* Until end of line    */
+-                        mcpp_fputc( *sp++, OUT);
++                    const int numCharactersBeforeComment = (tp - temp);
++                    if (numCharactersBeforeComment == NumLeadingSpaces)
++                    {
++                        // O3DE: It is safe to print the comments
++                        sp -= 2;
++                        while (*sp != '\n')     /* Until end of line    */
++                            mcpp_fputc( *sp++, OUT);
++                        // mcpp_fputc('\n', OUT); // Removed by O3DE. This prevents that each comment line from presenting additional empty lines.
++                    }
                  }
                  goto  end_line;
              default:                        /* Not a comment        */
-@@ -1821,7 +1835,7 @@ static char *   read_a_comment(
+@@ -1821,7 +1865,7 @@ static char *   read_a_comment(
      if (keep_spaces) {
          saved_sp = sp - 2;          /* '-2' for beginning / and *   */
          *sizp = 0;
@@ -259,7 +312,7 @@ index c57eaef..909be89 100644
      if (keep_comments)                      /* If writing comments  */
          mcpp_fputs( "/*", OUT);             /* Write the initializer*/
      c = *sp++;
-@@ -1911,7 +1925,7 @@ static char *   get_line(
+@@ -1911,7 +1955,7 @@ static char *   get_line(
  /*
   * ANSI (ISO) C: translation phase 1, 2.
   * Get the next logical line from source file.
