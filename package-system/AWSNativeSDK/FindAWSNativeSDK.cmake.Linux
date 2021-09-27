@@ -80,67 +80,46 @@ function(ly_declare_aws_library)
 endfunction()
 
 
-#### Common ####
+#### CRT ####
 if(LY_MONOLITHIC_GAME)
     ly_declare_aws_library(
         NAME 
-            Common
+            AWSCrt
         LIB_FILE 
-            aws-c-common
-    )       
-else()
-    ly_declare_aws_library(
-        NAME 
-            Common
-        LIB_FILE 
-            aws-c-common
+            aws-crt-cpp
         BUILD_DEPENDENCIES
-            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-common.so.0unstable
-    )       
-endif()
-
-#### Checksums ####
-ly_declare_aws_library(
-    NAME 
-        Checksums
-    LIB_FILE 
-        aws-checksums
-)
-
-#### EventStream ####
-if(LY_MONOLITHIC_GAME)
-    ly_declare_aws_library(
-        NAME 
-            EventStream
-        LIB_FILE 
-            aws-c-event-stream
-        BUILD_DEPENDENCIES
-            3rdParty::AWSNativeSDK::Checksums
-    )
-else()
-    ly_declare_aws_library(
-        NAME 
-            EventStream
-        LIB_FILE 
-            aws-c-event-stream
-        BUILD_DEPENDENCIES
-            3rdParty::AWSNativeSDK::Checksums
-            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream.so.0unstable
-
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-s3.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-auth.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-http.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-io.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-mqtt.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-checksums.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-common.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-compression.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-cal.a
+            ${AWSNATIVE_SDK_LIB_PATH}/libs2n.a
     )
 endif()
 
 #### Core ####
-ly_declare_aws_library(
-    NAME 
-        Core
-    LIB_FILE 
-        aws-cpp-sdk-core
-    BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::EventStream
-        3rdParty::AWSNativeSDK::Checksums
-        3rdParty::AWSNativeSDK::Common
-)
+if(LY_MONOLITHIC_GAME)
+    ly_declare_aws_library(
+        NAME 
+            Core
+        LIB_FILE 
+            aws-cpp-sdk-core
+        BUILD_DEPENDENCIES 
+            3rdParty::AWSNativeSDK::AWSCrt
+    )
+else()
+    ly_declare_aws_library(
+        NAME 
+            Core
+        LIB_FILE 
+            aws-cpp-sdk-core
+    )
+endif()
 
 #### AccessManagement ####
 ly_declare_aws_library(
@@ -274,45 +253,20 @@ ly_declare_aws_library(
 #########
 ######### Grouping Definitions #########
 #########
-
-
 #### Dependencies ####
-ly_declare_aws_library(
-    NAME 
-        Dependencies
-    BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::EventStream
-        3rdParty::AWSNativeSDK::Checksums
-        3rdParty::AWSNativeSDK::Common
-)
-
-#### IdentityMetrics ####
-ly_declare_aws_library(
-    NAME 
-        IdentityMetrics
-    BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::CognitoIdentity
-        3rdParty::AWSNativeSDK::CognitoIdp
-        3rdParty::AWSNativeSDK::IdentityManagement
-        3rdParty::AWSNativeSDK::MobileAnalytics
-        3rdParty::AWSNativeSDK::STS
-        3rdParty::AWSNativeSDK::Core
-        3rdParty::AWSNativeSDK::Dependencies
-)
-
-#### IdentityLambda ####
-ly_declare_aws_library(
-    NAME 
-        IdentityLambda
-    BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::CognitoIdentity
-        3rdParty::AWSNativeSDK::CognitoIdp
-        3rdParty::AWSNativeSDK::IdentityManagement
-        3rdParty::AWSNativeSDK::Lambda
-        3rdParty::AWSNativeSDK::STS
-        3rdParty::AWSNativeSDK::Core
-        3rdParty::AWSNativeSDK::Dependencies
-)
+if(LY_MONOLITHIC_GAME)
+    ly_declare_aws_library(
+        NAME 
+            Dependencies
+        BUILD_DEPENDENCIES 
+            3rdParty::AWSNativeSDK::AWSCrt
+    )
+else()
+    ly_declare_aws_library(
+        NAME 
+            Dependencies
+    )
+endif()
 
 #### GameLiftClient ####
 ly_declare_aws_library(
