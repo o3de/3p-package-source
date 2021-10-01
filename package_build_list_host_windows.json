@@ -43,8 +43,8 @@
         "python-3.7.10-rev2-windows": "package-system/python/build_package_image.py",
         "mikkelsen-1.0.0.4-windows": "package-system/mikkelsen/build_package_image.py",
         "mikkelsen-1.0.0.4-android": "package-system/mikkelsen/build_package_image.py --platform android",
-        "zlib-1.2.11-rev4-windows": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Windows --package-root ../../package-system --clean",
-        "zlib-1.2.11-rev4-android": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Android --package-root ../../package-system --clean",
+        "zlib-1.2.11-rev5-windows": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Windows --package-root ../../package-system --clean",
+        "zlib-1.2.11-rev5-android": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Android --package-root ../../package-system --clean",
         "lz4-1.9.3-vcpkg-rev4-windows": "package-system/lz4/build_package_image.py --platform-name windows",
         "lz4-1.9.3-vcpkg-rev4-android": "package-system/lz4/build_package_image.py --platform-name android",
         "tiff-4.2.0.15-rev2-windows": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name Windows --package-root ../../package-system --clean",
@@ -113,8 +113,8 @@
         "ISPCTexComp-36b80aa-rev1-windows": "package-system/ISPCTexComp-windows",
         "qt-5.15.2-rev4-windows": "package-system/qt-windows",
         "Wwise-2021.1.0.7575-rev1-multiplatform": "package-system/Wwise-multiplatform",
-        "zlib-1.2.11-rev4-android": "package-system/zlib-android",
-        "zlib-1.2.11-rev4-windows": "package-system/zlib-windows",
+        "zlib-1.2.11-rev5-android": "package-system/zlib-android",
+        "zlib-1.2.11-rev5-windows": "package-system/zlib-windows",
         "lz4-1.9.3-vcpkg-rev4-windows": "package-system/lz4-windows",
         "lz4-1.9.3-vcpkg-rev4-android": "package-system/lz4-android"
     }
