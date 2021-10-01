@@ -7,7 +7,7 @@
 #
 
 # the following is like an include guard
-set(TARGET_WITH_NAMESPACE "3rdParty::zlib")
+set(TARGET_WITH_NAMESPACE "3rdParty::ZLIB")
 if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
 endif()
