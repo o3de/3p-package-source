@@ -8,7 +8,6 @@
 
 # note that toolchain path is relative to the source path (-S) not to the folder this script lives in.
 cmake -S temp/src -B temp/build -G Xcode \
-    -DCMAKE_CXX_STANDARD=17 \
     -DSKIP_INSTALL_FILES=YES \
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake || exit 1
 

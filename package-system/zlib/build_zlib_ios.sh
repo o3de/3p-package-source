@@ -8,8 +8,6 @@
 
 # note that toolchain path is relative to the source path (-S) not to the folder this script lives in.
 cmake -S temp/src -B temp/build -G Xcode \
-    -DCMAKE_CXX_STANDARD=17 \
-    -DCMAKE_C_FLAGS=-fPIC \
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake \
     -DSKIP_INSTALL_FILES=YES || exit 1
 
