@@ -22,7 +22,7 @@ import time
 
 
 SCRIPT_PATH = pathlib.Path(__file__).parent
-PATCH_FILE = SCRIPT_PATH / "mcpp-2.7.2-az.2.patch"
+PATCH_FILE = SCRIPT_PATH / "mcpp_2.7.2_az.patch"
 SOURCE_NAME = "mcpp-2.7.2"
 SOURCE_TAR_FILE = f"{SOURCE_NAME}.tar.gz"
 SOURCEFORGE_URL = "https://sourceforge.net/projects/mcpp/files/mcpp/V.2.7.2"
@@ -52,6 +52,16 @@ elif platform.system() == 'Windows':
             print("This script must be run from a visual studio command prompt, or the visual studio command line"
                   " environments must be set")
             exit(1)
+    # Check it's running under x64 build environment.
+    vs_target_arch = os.environ.get('VSCMD_ARG_TGT_ARCH')
+    if vs_target_arch is None:
+        print("Couldn't read the environment variable 'VSCMD_ARG_TGT_ARCH'. This script must be run from a x64 visual studio command prompt, or the visual studio command line"
+              " environments must be set")
+        exit(1)
+    if vs_target_arch != 'x64':
+        print("This script must be run from a x64 visual studio command prompt, or the visual studio command line"
+              " environments must be set")
+        exit(1)
 else:
     assert False, "Invalid platform"
 
@@ -119,6 +129,43 @@ def extract_tarfile(temp_folder):
         return True
     except Exception as e:
         logging.fatal(f'[FATAL] extracting tar file {target_file} : {e}')
+        return False
+
+
+def init_git_repo(temp_folder):
+    """
+    Runs 'git init' on temp_folder.
+    This is useful to 'git apply' won't fail silently when executing apply_patch(...)
+    REMARK:
+    1- It is very important to set the local git project
+    to not autoconvert LF to CRLF because it causes the patching
+    to fail as 'git apply' is very picky about that.
+    2- You may notice that there's a .gitattributes file that makes sure
+    the patch file remains with LF when fetched from the repo.
+    3- It was also found that 'git apply' also failed if the patch had CRLF
+    AND the local git repo also had CRLF.
+    """
+    pristine_source_path = str((temp_folder / SOURCE_NAME).resolve())
+    git_cmds = [
+        ['git', 'init'],
+        ['git', 'config', '--local', 'core.eol', 'lf'],
+        ['git', 'config', '--local', 'core.autocrlf', 'false'],
+        ['git', 'add', '.'],
+        ['git', 'commit', '--no-verify', '-m', 'Temporary Message'],
+    ]
+    try:
+        # Check for git --version to make sure it's installed.
+        result = execute_cmd(['git', '--version'], shell=True, suppress_std_err=True)
+        if result != 0:
+            raise Exception("'git' command was not found")
+        for git_cmd in git_cmds:
+            result = execute_cmd(git_cmd, shell=True, cwd=pristine_source_path)
+            if result != 0:
+                cmd_string = " ".join(git_cmd)
+                raise Exception(f"The command '{cmd_string}' failed to execute")
+        return True
+    except Exception as e:
+        logging.fatal(f'[FATAL] Error initializing git repo : {e}')
         return False
 
 
@@ -350,6 +397,10 @@ def main():
 
     logging.info("Extracting source tarball")
     if not extract_tarfile(temp_folder):
+        return False
+
+    logging.info("Initializing temporary git repo")
+    if not init_git_repo(temp_folder):
         return False
 
     logging.info("Apply Patch File")

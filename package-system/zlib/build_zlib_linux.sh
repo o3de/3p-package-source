@@ -8,7 +8,6 @@
 
 cmake -S temp/src -B temp/build \
      -DCMAKE_BUILD_TYPE=Release \
-     -DCMAKE_CXX_STANDARD=17 \
      -DCMAKE_C_FLAGS=-fPIC \
      -DSKIP_INSTALL_FILES=YES || exit 1
 

@@ -22,11 +22,5 @@ copy %SRC_PATH%\LICENSE %OUT_PATH%\LICENSE
 @if %errorlevel% NEQ 0 ( exit /b 1 )
 copy %BLD_PATH%\Release\zlibstatic.lib %OUT_PATH%\lib\zlibstatic.lib
 @if %errorlevel% NEQ 0 ( exit /b 1 )
-copy %BLD_PATH%\Debug\zlibstaticd.lib %OUT_PATH%\lib\zlibstaticd.lib
-@if %errorlevel% NEQ 0 ( exit /b 1 )
-copy %BLD_PATH%\Debug\zlibstaticd.pdb %OUT_PATH%\lib\zlibstaticd.pdb
-@if %errorlevel% NEQ 0 ( exit /b 1 )
-copy FindZLIB_compat_windows.cmake %OUT_PATH%\FindZLIB.cmake
-@if %errorlevel% NEQ 0 ( exit /b 1 )
 
 exit /b 0
