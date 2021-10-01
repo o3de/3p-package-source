@@ -3,7 +3,7 @@
     "git_tag":"v1.2.11",
     "git_commit":"cacf7f1d4e3d44d871b605da3b647f07d718623f",
     "package_name":"zlib",
-    "package_version":"1.2.11-rev4",
+    "package_version":"1.2.11-rev5",
     "package_url":"https://zlib.net",
     "package_license":"Zlib",
     "additional_src_files":[
