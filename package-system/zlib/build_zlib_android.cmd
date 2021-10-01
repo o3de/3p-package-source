@@ -15,7 +15,7 @@ cmake -S temp/src -B temp/build -G Ninja ^
     -DSKIP_INSTALL_FILES=YES
 @if %errorlevel% NEQ 0 ( exit /b 1 )
 
-cmake --build temp/build --target zlibstatic -j 8
+cmake --build temp/build --target zlibstatic --parallel
 @if %errorlevel% NEQ 0 ( exit /b 1 )
 
 exit /b 0

@@ -11,6 +11,6 @@ cmake -S temp/src -B temp/build -G Xcode \
     -DSKIP_INSTALL_FILES=YES \
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake || exit 1
 
-cmake --build temp/build --target zlibstatic --parallel --config Release -j 8 || exit 1
+cmake --build temp/build --target zlibstatic --parallel --config Release || exit 1
 
 
