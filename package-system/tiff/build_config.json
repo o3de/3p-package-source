@@ -6,8 +6,8 @@
     "package_url":"http://www.simplesystems.org/libtiff/misc.html",
     "package_license":"libtiff",
     "package_license_file":"COPYRIGHT",
-    "cmake_find_source":"Findtiff.cmake",
-    "cmake_find_target":"Findtiff.cmake",
+    "cmake_find_source":"FindTIFF.cmake",
+    "cmake_find_target":"FindTIFF.cmake",
     "cmake_build_args" : [ "-j", "8"],
     "patch_file" : "o3de_patch.patch",
     "Platforms":{
@@ -46,7 +46,10 @@
                  ],
                  "custom_install_cmd": [
                     "./install_tiff_mac.sh"
-                 ]
+                 ],
+                 "custom_test_cmd" : [
+                    "./test_tiff_mac.sh"
+                ]
             },
             "iOS":{
                 "depends_on_packages" :[ 

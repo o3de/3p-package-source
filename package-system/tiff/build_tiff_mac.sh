@@ -10,7 +10,6 @@
 # except the ones we want.  This prevents the cmake build system from automatically finding things
 # if they happen to be installed locally, which we don't want.
 cmake -S temp/src -B temp/build -G Xcode \
-    -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_STANDARD=17 \
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake \
     -DCMAKE_C_FLAGS="-fPIC" \
@@ -26,6 +25,6 @@ cmake -S temp/src -B temp/build -G Xcode \
     -Dzlib=ON \
     -Dlibdeflate=OFF \
     -Dcxx=OFF \
-    -DCMAKE_MODULE_PATH=$DOWNLOADED_PACKAGE_FOLDERS || exit 1
+    -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS" || exit 1
 
 cmake --build temp/build --target tiff --config Release --parallel || exit 1

@@ -10,7 +10,6 @@
 # except the ones we want.  This prevents the cmake build system from automatically finding things
 # if they happen to be installed locally, which we don't want.
 cmake -S temp/src -B temp/build -G Xcode \
-    -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_STANDARD=17 \
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake \
     -DCMAKE_MACOSX_BUNDLE=OFF \
