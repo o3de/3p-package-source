@@ -21,6 +21,9 @@
                 ],
                 "custom_install_cmd": [
                     "install_tiff_windows.cmd"
+                ],
+                "custom_test_cmd" : [
+                    "test_tiff_windows.cmd"
                 ]
             },
             "Android":{
@@ -32,6 +35,9 @@
                 ],
                 "custom_install_cmd": [
                     "install_tiff_android.cmd"
+                ],
+                "custom_test_cmd": [
+                    "test_tiff_android.cmd"
                 ]
             }
         },

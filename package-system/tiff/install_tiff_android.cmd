@@ -16,11 +16,11 @@ mkdir %OUT_PATH%\lib
 
 copy %BLD_PATH%\libtiff\tiffconf.h %OUT_PATH%\include\tiffconf.h
 @if %errorlevel% NEQ 0 ( exit /b 1 )
-copy %BLD_PATH%\libtiff\tif_config.h %OUT_PATH%\include\tif_config.h
-@if %errorlevel% NEQ 0 ( exit /b 1 )
-copy %SRC_PATH%\libtiff\tiffio.h %OUT_PATH%\include\tiffio.h
+copy %SRC_PATH%\libtiff\tiff.h %OUT_PATH%\include\tiff.h
 @if %errorlevel% NEQ 0 ( exit /b 1 )
 copy %SRC_PATH%\libtiff\tiffvers.h %OUT_PATH%\include\tiffvers.h
+@if %errorlevel% NEQ 0 ( exit /b 1 )
+copy %SRC_PATH%\libtiff\tiffio.h %OUT_PATH%\include\tiffio.h
 @if %errorlevel% NEQ 0 ( exit /b 1 )
 copy %SRC_PATH%\COPYRIGHT %OUT_PATH%\COPYRIGHT
 @if %errorlevel% NEQ 0 ( exit /b 1 )
