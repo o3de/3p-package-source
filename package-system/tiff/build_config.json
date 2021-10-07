@@ -27,6 +27,7 @@
                 ]
             },
             "Android":{
+                "package_version":"4.2.0.15-rev4",
                 "depends_on_packages" :[ 
                     ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""]
                 ],
