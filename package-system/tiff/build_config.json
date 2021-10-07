@@ -82,7 +82,10 @@
                 ],
                 "custom_install_cmd": [
                     "./install_tiff_linux.sh"
-                ]
+                ],
+                "custom_test_cmd" : [
+                   "./test_tiff_linux.sh"
+               ]
             }
         }
     }
