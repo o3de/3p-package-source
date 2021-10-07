@@ -60,7 +60,10 @@
                  ],
                  "custom_install_cmd": [
                     "./install_tiff_ios.sh"
-                 ]
+                 ],
+                 "custom_test_cmd" : [
+                    "./test_tiff_ios.sh"
+                ]
              }
         },
         "Linux":{
