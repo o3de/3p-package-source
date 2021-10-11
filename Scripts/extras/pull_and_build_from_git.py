@@ -660,8 +660,7 @@ class BuildInfo(object):
         if self.package_info.depends_on_packages:
             package_folder_list = []
             for package_name, _, subfoldername in self.package_info.depends_on_packages:
-                if package_folder_list:
-                    package_folder_list.append(str( (self.base_temp_folder / package_name / subfoldername).resolve().absolute()))
+                package_folder_list.append(str( (self.base_temp_folder / package_name / subfoldername).resolve().absolute()))
             custom_env['DOWNLOADED_PACKAGE_FOLDERS'] = ';'.join(package_folder_list)
         return custom_env
 
