@@ -16,19 +16,38 @@ import pathlib
 import tarfile
 import sys
 
+
+# used if LY_PACKAGE_SERVER_URLS is not set.
+DEFAULT_LY_PACKAGE_SERVER_URLS = "https://d2c171ws20a1rv.cloudfront.net"
+
+# its not necessarily the case that you ever actually have to use boto3
+# if all the servers you specify in yoru server list (Default above) are 
+# not s3 buckets.  So it is not a failure to be missing boto3 unless you actually
+# try to use it later.
+_aws_s3_available = False
+try:
+    import boto3
+    _aws_s3_available = True
+except:
+    pass
+
 class PackageDownloader(): 
     @staticmethod
     def DownloadAndUnpackPackage(package_name, package_hash, folder_target):
-        ''' given a public server URL list (semicolon-seperated), 
-            finds the package, if possible, and downloads and unpacks it to a given folder.
-            Note that this essentially mimics the server urls protocol used by cmake on the client
-            side and thus will also check buckets if s3:// urls are given
-            and will stop at the first one it finds.
-
-            Assumes that LY_PACKAGE_SERVER_URLS is set in the environment
-            Assumes that, if necessary, LY_AWS_PROFILE is set in the environment (if using s3 buckets)
-
-            returns True if it succeeded, False otherwise.
+        '''Given a package name, hash, and folder to unzip it into, 
+            attempts to find the package. If found, downloads and unpacks to the target_folder location.
+            Only the first found package is downloaded, and then the search stops. If the checksum of
+            the downloaded file doesn't match the checksum in the O3DE dependency list, the package
+            isn't unpacked on the filesystem and the download is deleted.
+        
+            This method supports all URI types handled by the O3DE package system, including S3 URIs.
+            
+            PRECONDITIONS:
+            * LY_PACKAGE_SERVER_URLS must be set in the environment to override the defaultg
+            * If using S3 URIs, LY_AWS_PROFILE must be set in the environment and the 'aws' command
+              must be on the PATH
+            
+            Returns True if successful, False otherwise.
          '''
 
         def ComputeHashOfFile(file_path):
@@ -49,8 +68,8 @@ class PackageDownloader():
 
         if not server_urls:
             print(f"Server url list is empty - please set LY_PACKAGE_SERVER_URLS env var to semicolon-seperated list of urls to check")
-            print(f"Using default URL for convenience: https://d2c171ws20a1rv.cloudfront.net")
-            server_urls = "https://d2c171ws20a1rv.cloudfront.net"
+            print(f"Using default URL for convenience: {DEFAULT_LY_PACKAGE_SERVER_URLS}")
+            server_urls = DEFAULT_LY_PACKAGE_SERVER_URLS
 
         download_location = pathlib.Path(folder_target)
         package_file_name = package_name + ".tar.xz"
@@ -74,39 +93,63 @@ class PackageDownloader():
             print(f"    - attempting '{full_package_url}' ...")
 
             try:
-                if package_server.startswith("s3://"):
-                    # we don't want to use temp buckets for package dependencies
-                    # you should depend on production (CDN) resources that have been verified!
-                    print(f"        - Note:  Ignoring {package_server} - S3 buckets should not be used for package dependencies.")
-                    continue
-                tls_context = ssl.create_default_context(cafile=certifi.where())
-                with urllib.request.urlopen(url=full_package_url, context = tls_context) as server_response:
-                    print("    - Downloading package...")
-                    file_data = server_response.read()
-                    with open(package_download_name, "wb") as save_package:
-                        save_package.write(file_data)
-            except urllib.error.URLError as e:
-                print(f"        - Server returned error: {e}")
+                if full_package_url.startswith("s3://"):
+                    if not _aws_s3_available:
+                        print(f"S3 URL given, but boto3 could not be located. Please ensure that you have installed")
+                        print(f"installed requirements: {sys.executable} -m pip install --upgrade boto3 certifi six")
+                        continue
+                    # it may be legitimate not have a blank AWS profile, so we can't supply a default here
+                    aws_profile_name = os.environ.get("LY_AWS_PROFILE", default = "")
+                    # if it is blank, its still worth noting in the log:
+                    if not aws_profile_name:
+                        print("    - LY_AWS_PROFILE env var is not set - using blank AWS profile by default")
+                    session = boto3.session.Session(profile_name=aws_profile_name)
+                    bucket_name = full_package_url[len("s3://"):]
+                    slash_pos = bucket_name.find('/')
+                    if slash_pos != -1:
+                        bucket_name = bucket_name[:slash_pos]
+                    print(f"    - using aws to download {package_file_name} from bucket {bucket_name}...")
+                    session.client('s3').download_file(bucket_name, package_file_name, str(package_download_name))
+                else:
+                    tls_context = ssl.create_default_context(cafile=certifi.where())
+                    with urllib.request.urlopen(url=full_package_url, context = tls_context) as server_response:
+                        print("    - Downloading package...")
+                        file_data = server_response.read()
+                        with open(package_download_name, "wb") as save_package:
+                            save_package.write(file_data)
+            except Exception as e:
+                # note that anything that causes this to fail should result in trying the next one.
+                print(f"        - Unable to get package from this server: {e}")
                 continue # try the next URL, if any...
 
-            # validate that the package matches its hash
-            print("    - Checking hash ... ")
-            hash_result = ComputeHashOfFile(str(package_download_name))
-            if hash_result != package_hash:
-                print("    - Warning: Hash of package does not match - will not use it")
-                os.remove(package_download_name)
-                continue
+            try:
+                # validate that the package matches its hash
+                print("    - Checking hash ... ")
+                hash_result = ComputeHashOfFile(str(package_download_name))
+                if hash_result != package_hash:
+                    print("    - Warning: Hash of package does not match - will not use it")
+                    continue
 
-            # hash matched.  Unpack and return!
-            if not os.path.exists(str(package_unpack_folder)):
-                os.makedirs(str(package_unpack_folder))
-            with tarfile.open(package_download_name) as archive_file:
-                print("    - unpacking package...")
-                archive_file.extractall(package_unpack_folder)
-                print(f"Downloaded successfuly to {os.path.realpath(package_unpack_folder)}")
-            os.remove(package_download_name)
-            return True
-              
+                # hash matched.  Unpack and return!
+                if not os.path.exists(str(package_unpack_folder)):
+                    os.makedirs(str(package_unpack_folder))
+                with tarfile.open(package_download_name) as archive_file:
+                    print("    - unpacking package...")
+                    archive_file.extractall(package_unpack_folder)
+                    print(f"Downloaded successfuly to {os.path.realpath(package_unpack_folder)}")
+                return True
+            except Exception as e:
+                # note that anything that causes this to fail should result in trying the next one.
+                print(f"    - unable to unpack or verify the package: {e}")
+                continue # try the next server, if you have any
+            finally:
+                # clean up
+                if os.path.exists(package_download_name):
+                    try:
+                        os.remove(package_download_name)
+                    except:
+                        pass
+        print("FAILED - unable to find the package on any servers.")
         return False
 
 # you can also use this module from a bash script to get a package

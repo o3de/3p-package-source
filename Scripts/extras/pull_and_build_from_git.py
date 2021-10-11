@@ -115,12 +115,16 @@ The following keys can only exist at the target platform level as they describe 
 
 Note about environment variables:
 When custom commands are issued (build, install, and test), the following environment variables will be set
+for the process:
          PACKAGE_ROOT = root of the package being made (where PackageInfo.json is generated/copied)
          TARGET_INSTALL_ROOT = $PACKAGE_ROOT/$PACKAGE_NAME - usually where you target cmake install to
          TEMP_FOLDER = the temp folder.  This folder usually has subfolder 'build' and 'src'
          DOWNLOADED_PACKAGE_FOLDERS = semicolon seperated list of abs paths to each downloaded package Find folder.
             - usually used to set CMAKE_MODULE_PATH so it can find the packages.
             - unset if there are no dependencies declared
+    Note that any of the above environment variables that contain paths will use system native slashes for script
+    compatibility, and may need to be converted to forward slash in your script on windows 
+    if you feed it to cmake.
     Also note that the working directory for all custom commands will the folder containing the build_config.json file.
 
 
@@ -567,16 +571,15 @@ class BuildInfo(object):
                     cmake_generator_args.append( f'-DCMAKE_TOOLCHAIN_FILE="{self.custom_toolchain_file}"')
 
                 cmake_module_path = ""
+                paths_to_join = []
                 if self.package_info.depends_on_packages:
+                    paths_to_join = []
                     for package_name, package_hash, subfolder_name in self.package_info.depends_on_packages:
                         package_download_location = self.base_temp_folder / package_name / subfolder_name
-                        if cmake_module_path:
-                            cmake_module_path += ";"
-                        cmake_module_path += str(package_download_location.resolve())
+                        paths_to_join.append(str(package_download_location.resolve()))
+                    cmake_module_path = ';'.join(paths_to_join).replace('\\', '/')
 
                 if cmake_module_path:
-                    # cmake expects forward slashes
-                    cmake_module_path = cmake_module_path.replace('\\', '/')
                     cmake_generate_cmd.extend([f"-DCMAKE_MODULE_PATH={cmake_module_path}"])
 
                 cmake_generate_cmd.extend(cmake_generator_args)
@@ -655,16 +658,11 @@ class BuildInfo(object):
         custom_env['PACKAGE_ROOT'] = str(self.package_install_root.resolve())
         custom_env['TEMP_FOLDER'] = str(self.base_temp_folder.resolve())
         if self.package_info.depends_on_packages:
-            package_folder_list = ""
+            package_folder_list = []
             for package_name, _, subfoldername in self.package_info.depends_on_packages:
                 if package_folder_list:
-                    package_folder_list += ";"
-                # note that it must be an abs path for cmake to accept it:
-                # The package declaration may specify a subfolder name but the path library will
-                # behave correctly if you slash operator with an empty (by ignoring it)
-                package_folder_list += str( (self.base_temp_folder / package_name / subfoldername).resolve().absolute())
-            package_folder_list = package_folder_list.replace('\\', '/')
-            custom_env['DOWNLOADED_PACKAGE_FOLDERS'] = package_folder_list
+                    package_folder_list.append(str( (self.base_temp_folder / package_name / subfoldername).resolve().absolute()))
+            custom_env['DOWNLOADED_PACKAGE_FOLDERS'] = ';'.join(package_folder_list)
         return custom_env
 
     def build_and_install_custom(self):
@@ -674,7 +672,7 @@ class BuildInfo(object):
         # we add TARGET_INSTALL_ROOT, TEMP_FOLDER and DOWNLOADED_PACKAGE_FOLDERS to the environ for both
         # build and install, as they are useful to refer to from scripts.
         
-
+        env_to_use = self.create_custom_env()
         custom_build_cmds = self.platform_config.get('custom_build_cmd', [])
         for custom_build_cmd in custom_build_cmds:
 
@@ -682,7 +680,7 @@ class BuildInfo(object):
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
-                                         env=self.create_custom_env())
+                                         env=env_to_use)
             if call_result.returncode != 0:
                 raise BuildError(f"Error executing custom build command {custom_build_cmd}")
 
@@ -693,7 +691,7 @@ class BuildInfo(object):
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
-                                         env=self.create_custom_env())
+                                         env=env_to_use)
             if call_result.returncode != 0:
                 raise BuildError(f"Error executing custom install command {custom_install_cmd}")
 

@@ -8,6 +8,10 @@
 @rem # note that we explicitly turn off the compilation of all features that rely on 3rd Party Libraries
 @rem # except the ones we want.  This prevents the cmake build system from automatically finding things
 @rem # if they happen to be installed locally, which we don't want.
+
+@rem # cmake expects fowardslashes:
+set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
+
 cmake -S temp/src -B temp/build ^
     -DCMAKE_CXX_STANDARD=17 ^
     -DCMAKE_POLICY_DEFAULT_CMP0074=NEW ^

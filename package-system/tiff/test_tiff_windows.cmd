@@ -11,6 +11,7 @@ mkdir temp\build_test
 
 @rem CMAKE demands forward slashes but PACKAGE_ROOT is in native path:
 set "PACKAGE_ROOT=%PACKAGE_ROOT:\=/%"
+set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 
 cmake -S test -B temp/build_test ^
     -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%;%PACKAGE_ROOT%" || exit /b 1
