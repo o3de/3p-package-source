@@ -15,7 +15,6 @@ set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 cmake -S temp/src -B temp/build -G Ninja ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake ^
-    -DCMAKE_CXX_STANDARD=17 ^
     -DCMAKE_POLICY_DEFAULT_CMP0074=NEW ^
     -DBUILD_SHARED_LIBS=OFF ^
     -Djpeg=OFF ^

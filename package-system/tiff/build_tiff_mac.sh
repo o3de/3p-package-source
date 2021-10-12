@@ -10,7 +10,6 @@
 # except the ones we want.  This prevents the cmake build system from automatically finding things
 # if they happen to be installed locally, which we don't want.
 cmake -S temp/src -B temp/build -G Xcode \
-    -DCMAKE_CXX_STANDARD=17 \
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake \
     -DCMAKE_C_FLAGS="-fPIC" \
     -DBUILD_SHARED_LIBS=OFF \

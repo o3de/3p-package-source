@@ -9,6 +9,7 @@
 import os
 import urllib
 import urllib.request
+from urllib.error import URLError
 import ssl
 import certifi
 import hashlib
@@ -21,12 +22,14 @@ import sys
 DEFAULT_LY_PACKAGE_SERVER_URLS = "https://d2c171ws20a1rv.cloudfront.net"
 
 # its not necessarily the case that you ever actually have to use boto3
-# if all the servers you specify in yoru server list (Default above) are 
+# if all the servers you specify in your server list (Default above) are 
 # not s3 buckets.  So it is not a failure to be missing boto3 unless you actually
 # try to use it later.
 _aws_s3_available = False
 try:
     import boto3
+    from botocore.exceptions import BotoCoreError
+    from botocore.exceptions import ClientError
     _aws_s3_available = True
 except:
     pass
@@ -78,11 +81,8 @@ class PackageDownloader():
         
         server_list = server_urls.split(';')
 
-        if os.path.exists(str(package_download_name)):
-            os.path.os.remove(str(package_download_name))
-      
-        if not os.path.exists(str(download_location)):
-            os.makedirs(str(download_location))
+        package_download_name.unlink(missing_ok=True)
+        download_location.mkdir(parents=True, exist_ok=True)
 
         print(f"Downloading package {package_name}...")
 
@@ -117,8 +117,7 @@ class PackageDownloader():
                         file_data = server_response.read()
                         with open(package_download_name, "wb") as save_package:
                             save_package.write(file_data)
-            except Exception as e:
-                # note that anything that causes this to fail should result in trying the next one.
+            except (ClientError, BotoCoreError, ssl.SSLError, URLError, OSError) as e:
                 print(f"        - Unable to get package from this server: {e}")
                 continue # try the next URL, if any...
 
@@ -131,14 +130,13 @@ class PackageDownloader():
                     continue
 
                 # hash matched.  Unpack and return!
-                if not os.path.exists(str(package_unpack_folder)):
-                    os.makedirs(str(package_unpack_folder))
+                package_unpack_folder.mkdir(parents=True, exist_ok=True)
                 with tarfile.open(package_download_name) as archive_file:
                     print("    - unpacking package...")
                     archive_file.extractall(package_unpack_folder)
                     print(f"Downloaded successfuly to {os.path.realpath(package_unpack_folder)}")
                 return True
-            except Exception as e:
+            except (OSError, tarfile.TarError) as e:
                 # note that anything that causes this to fail should result in trying the next one.
                 print(f"    - unable to unpack or verify the package: {e}")
                 continue # try the next server, if you have any

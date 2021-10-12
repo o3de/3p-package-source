@@ -10,7 +10,7 @@
 # except the ones we want.  This prevents the cmake build system from automatically finding things
 # if they happen to be installed locally, which we don't want.
 cmake -S temp/src -B temp/build \
-    -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 \
+    -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POLICY_DEFAULT_CMP0074=NEW \
     -DCMAKE_C_FLAGS="-fPIC" \
     -DBUILD_SHARED_LIBS=OFF \
