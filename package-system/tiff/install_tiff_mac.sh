@@ -22,6 +22,6 @@ cp $BLD_PATH/libtiff/tiffconf.h $OUT_PATH/include/tiffconf.h || exit 1
 cp $SRC_PATH/libtiff/tiff.h $OUT_PATH/include/tiff.h || exit 1
 cp $SRC_PATH/libtiff/tiffvers.h $OUT_PATH/include/tiffvers.h || exit 1
 cp $SRC_PATH/libtiff/tiffio.h $OUT_PATH/include/tiffio.h || exit 1
-cp FindTIFF_compat.cmake $OUT_PATH/FindTIFF.cmake || exit 1
+
 
 exit 0

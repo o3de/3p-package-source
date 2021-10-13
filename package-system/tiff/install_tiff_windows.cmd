@@ -26,7 +26,5 @@ copy %SRC_PATH%\COPYRIGHT %OUT_PATH%\COPYRIGHT
 @if %errorlevel% NEQ 0 ( exit /b 1 )
 copy %BLD_PATH%\libtiff\Release\tiff.lib %OUT_PATH%\lib\tiff.lib
 @if %errorlevel% NEQ 0 ( exit /b 1 )
-copy FindTIFF_compat.cmake %OUT_PATH%\FindTIFF.cmake
-@if %errorlevel% NEQ 0 ( exit /b 1 )
 
 exit /b 0
