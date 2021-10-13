@@ -1,0 +1,21 @@
+{
+    "git_url":"https://github.com/pybind/pybind11",
+    "git_tag":"v2.4.3",
+    "git_commit":"80d452484c5409444b0ec19383faa84bb7a4d351",
+    "package_name":"pybind11",
+    "package_version":"2.4.3-rev2",
+    "package_url":"https://github.com/pybind/pybind11",
+    "package_license":"BSD-3-Clause",
+    "package_license_file":"pybind11/LICENSE",
+    "cmake_find_source":"Findpybind11.cmake",
+    "cmake_find_target":"Findpybind11.cmake",
+    "Platforms":{
+        "Windows": {
+            "multiplatform":{
+                "cmake_generate_args": [
+                    "-DPYBIND11_TEST=0"
+                ]
+            }
+        }
+    }
+}
