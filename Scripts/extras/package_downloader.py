@@ -81,7 +81,10 @@ class PackageDownloader():
         
         server_list = server_urls.split(';')
 
-        package_download_name.unlink(missing_ok=True)
+        try:
+            package_download_name.unlink()
+        except FileNotFoundError:
+            pass
         download_location.mkdir(parents=True, exist_ok=True)
 
         print(f"Downloading package {package_name}...")
