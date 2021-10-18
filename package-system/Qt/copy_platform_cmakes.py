@@ -22,7 +22,7 @@ platform_to_pal = {
     "darwin": "Mac"
 }
 
-if not platform_system in platform_to_pal:
+if platform_system not in platform_to_pal:
     print(f"Unknown platform: {platform_system}") 
     sys.exit(1)
 
