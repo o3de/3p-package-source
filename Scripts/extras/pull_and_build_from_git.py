@@ -674,8 +674,9 @@ class BuildInfo(object):
         env_to_use = self.create_custom_env()
         custom_build_cmds = self.platform_config.get('custom_build_cmd', [])
         for custom_build_cmd in custom_build_cmds:
-
-            call_result = subprocess.run(custom_build_cmd,
+            # Support the user specifying {python} in the custom_build_cmd to invoke
+            # the Python executable that launched this build script
+            call_result = subprocess.run(custom_build_cmd.format(python=sys.executable),
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
