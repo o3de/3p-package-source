@@ -657,6 +657,7 @@ class BuildInfo(object):
         custom_env['TARGET_INSTALL_ROOT'] = str(self.build_install_folder.resolve())
         custom_env['PACKAGE_ROOT'] = str(self.package_install_root.resolve())
         custom_env['TEMP_FOLDER'] = str(self.base_temp_folder.resolve())
+        custom_env['PYTHON_EXECUTABLE'] = sys.executable
         if self.package_info.depends_on_packages:
             package_folder_list = []
             for package_name, _, subfoldername in self.package_info.depends_on_packages:
@@ -687,7 +688,9 @@ class BuildInfo(object):
         custom_install_cmds = self.platform_config.get('custom_install_cmd', [])
        
         for custom_install_cmd in custom_install_cmds:
-            call_result = subprocess.run(custom_install_cmd,
+            # Support the user specifying {python} in the custom_install_cmd to invoke
+            # the Python executable that launched this build script
+            call_result = subprocess.run(custom_install_cmd.format(python=sys.executable),
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
