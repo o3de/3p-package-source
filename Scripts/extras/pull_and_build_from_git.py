@@ -119,6 +119,9 @@ for the process:
          PACKAGE_ROOT = root of the package being made (where PackageInfo.json is generated/copied)
          TARGET_INSTALL_ROOT = $PACKAGE_ROOT/$PACKAGE_NAME - usually where you target cmake install to
          TEMP_FOLDER = the temp folder.  This folder usually has subfolder 'build' and 'src'
+         PYTHON_BINARY = the path to the python binary that launched the build script. This can be useful if
+                         one of the custom build/install scripts (e.g. my_script.sh/.cmd) want to invoke
+                         a python script using the same python executable that launched the build.
          DOWNLOADED_PACKAGE_FOLDERS = semicolon seperated list of abs paths to each downloaded package Find folder.
             - usually used to set CMAKE_MODULE_PATH so it can find the packages.
             - unset if there are no dependencies declared
@@ -657,6 +660,7 @@ class BuildInfo(object):
         custom_env['TARGET_INSTALL_ROOT'] = str(self.build_install_folder.resolve())
         custom_env['PACKAGE_ROOT'] = str(self.package_install_root.resolve())
         custom_env['TEMP_FOLDER'] = str(self.base_temp_folder.resolve())
+        custom_env['PYTHON_BINARY'] = sys.executable
         if self.package_info.depends_on_packages:
             package_folder_list = []
             for package_name, _, subfoldername in self.package_info.depends_on_packages:
@@ -674,8 +678,9 @@ class BuildInfo(object):
         env_to_use = self.create_custom_env()
         custom_build_cmds = self.platform_config.get('custom_build_cmd', [])
         for custom_build_cmd in custom_build_cmds:
-
-            call_result = subprocess.run(custom_build_cmd,
+            # Support the user specifying {python} in the custom_build_cmd to invoke
+            # the Python executable that launched this build script
+            call_result = subprocess.run(custom_build_cmd.format(python=sys.executable),
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
@@ -686,7 +691,9 @@ class BuildInfo(object):
         custom_install_cmds = self.platform_config.get('custom_install_cmd', [])
        
         for custom_install_cmd in custom_install_cmds:
-            call_result = subprocess.run(custom_install_cmd,
+            # Support the user specifying {python} in the custom_install_cmd to invoke
+            # the Python executable that launched this build script
+            call_result = subprocess.run(custom_install_cmd.format(python=sys.executable),
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
