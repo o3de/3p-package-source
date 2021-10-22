@@ -25,7 +25,10 @@ endif()
 set(AWSNATIVESDK_COMPILE_DEFINITIONS AWS_CUSTOM_MEMORY_MANAGEMENT PLATFORM_SUPPORTS_AWS_NATIVE_SDK)
 
 find_library(SECURITY_FRAMEWORK Security)
-set(AWSNATIVESDK_BUILD_DEPENDENCIES ${SECURITY_FRAMEWORK} curl)
+set(AWSNATIVESDK_BUILD_DEPENDENCIES 
+    ${SECURITY_FRAMEWORK} 
+    curl # The one bundled with the aws sdk in 3rdParty doesn't use the right openssl
+)
 
 # Helper function to define individual AWSNativeSDK Libraries
 function(ly_declare_aws_library)

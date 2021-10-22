@@ -27,6 +27,7 @@ configure_and_build() {
           -G "Xcode" \
           -DTARGET_ARCH=APPLE \
           -DCMAKE_OSX_ARCHITECTURES="x86_64" \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET="11.0" \
           -DCMAKE_CXX_STANDARD=17 \
           -DCPP_STANDARD=17 \
           -DENABLE_TESTING=OFF \
