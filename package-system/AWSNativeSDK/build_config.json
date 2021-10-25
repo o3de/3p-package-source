@@ -48,6 +48,9 @@
             ]
          },
          "iOS":{
+            "git_tag":"1.9.50",
+            "package_version":"1.9.50-rev1",
+            "patch_file":"AWSNativeSDK-1.9.50-ios.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.iOS",
             "custom_build_cmd": [
                "./build_AWSNativeSDK_ios.sh"
