@@ -1,8 +1,8 @@
 {
    "git_url":"https://github.com/o3de/o3de-azslc.git",
-   "git_tag":"1.7.23",
+   "git_tag":"1.7.34",
    "package_name":"azslc",
-   "package_version":"1.7.23-rev2",
+   "package_version":"1.7.34-rev1",
    "package_url":"https://github.com/o3de/o3de-azslc",
    "package_license":"CUSTOM",
    "package_license_file":"LICENSE.txt",
