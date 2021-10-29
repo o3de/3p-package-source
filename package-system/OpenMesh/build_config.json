@@ -1,0 +1,24 @@
+{
+   "git_url":"https://gitlab.vci.rwth-aachen.de:9000/OpenMesh/OpenMesh.git",
+   "git_tag":"OpenMesh-8.1",
+   "patch_file":"openmesh-o3de.patch",
+   "package_name":"OpenMesh",
+   "package_version":"8.1-rev2",
+   "package_url":"https://www.graphics.rwth-aachen.de/software/openmesh/",
+   "package_license":"BSD-3-Clause",
+   "package_license_file":"LICENSE",
+   "cmake_find_target": "FindOpenMesh.cmake",
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "cmake_find_template":"FindOpenMesh.cmake.Windows",
+            "custom_build_cmd": [
+               "build_openmesh_windows.cmd"
+            ],
+            "custom_install_cmd": [
+               "install_openmesh_windows.cmd"
+            ]
+         }
+      }
+   }
+}
