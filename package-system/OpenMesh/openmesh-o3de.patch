@@ -1,3 +1,26 @@
+diff --git a/src/OpenMesh/Core/IO/exporter/ExporterT.hh b/src/OpenMesh/Core/IO/exporter/ExporterT.hh
+index 8f9dde90..c5a50ac4 100644
+--- a/src/OpenMesh/Core/IO/exporter/ExporterT.hh
++++ b/src/OpenMesh/Core/IO/exporter/ExporterT.hh
+@@ -102,12 +102,16 @@ public:
+ 
+   bool is_point_double() const override
+   {
+-    return OMFormat::is_double(typename Mesh::Point()[0]);
++// o3de change begin
++    return OMFormat::is_double(typename Mesh::Point().GetX());
++// o3de change end
+   }
+ 
+   bool is_normal_double() const override
+   {
+-    return OMFormat::is_double(typename Mesh::Normal()[0]);
++// o3de change begin
++    return OMFormat::is_double(typename Mesh::Normal().GetX());
++// o3de change end
+   }
+ 
+   Vec3f  normal(VertexHandle _vh)   const override
 diff --git a/src/OpenMesh/Core/IO/reader/OMReader.cc b/src/OpenMesh/Core/IO/reader/OMReader.cc
 index 66d4e819..c57ba5c3 100644
 --- a/src/OpenMesh/Core/IO/reader/OMReader.cc
