@@ -19,6 +19,42 @@
                "install_openmesh_windows.cmd"
             ]
          }
+      },
+      "Linux":{
+         "Linux":{
+            "cmake_find_template":"FindOpenMesh.cmake.Linux",
+            "cmake_generate_args_debug":[
+               "-G",
+               "Unix\\ Makefiles",
+               "-DDISABLE_QMAKE_BUILD=ON",
+               "-DBUILD_APPS=OFF",
+               "-DOPENMESH_DOCS=OFF",
+               "-DOPENMESH_BUILD_SHARED=OFF",
+               "-DOPENMESH_BUILD_UNIT_TESTS=OFF",
+               "-DCMAKE_C_COMPILER=clang-12",
+               "-DCMAKE_CXX_COMPILER=clang++-12",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "cmake_generate_args_release":[
+               "-G",
+               "Unix\\ Makefiles",
+               "-DDISABLE_QMAKE_BUILD=ON",
+               "-DBUILD_APPS=OFF",
+               "-DOPENMESH_DOCS=OFF",
+               "-DOPENMESH_BUILD_SHARED=OFF",
+               "-DOPENMESH_BUILD_UNIT_TESTS=OFF",
+               "-DCMAKE_C_COMPILER=clang-12",
+               "-DCMAKE_CXX_COMPILER=clang++-12",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "cmake_build_args":[
+               "-j"
+            ]
+         }
       }
    }
 }
