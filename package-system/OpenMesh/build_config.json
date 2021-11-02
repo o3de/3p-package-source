@@ -25,12 +25,9 @@
             "build_configs": ["Release"],
             "cmake_find_source":"FindOpenMesh.cmake.NonWindows",
             "cmake_generate_args":[
-               "-G", 
-               "Xcode",
                "-DDISABLE_QMAKE_BUILD=ON",
                "-DBUILD_APPS=OFF",
                "-DOPENMESH_DOCS=OFF",
-               "-DOPENMESH_BUILD_SHARED=OFF",
                "-DOPENMESH_BUILD_UNIT_TESTS=OFF",
                "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake",
                "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
