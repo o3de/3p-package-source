@@ -6,36 +6,32 @@ REM
 REM SPDX-License-Identifier: Apache-2.0 OR MIT
 REM
 
+
+REM Use a custom install script which does the same as using the normal cmake install parameters
+REM but also add the pdb file for OpenMeshCored.lib into the installed lib folder as well
+
 SET BLD_PATH=temp\build
 SET SRC_PATH=temp\src
-SET INCLUDE_PATH=%TARGET_INSTALL_ROOT%\include
 SET LIB_PATH=%TARGET_INSTALL_ROOT%\lib
 
-REM Prepare and Copy the include files for Core
-mkdir %INCLUDE_PATH%
-mkdir %INCLUDE_PATH%\OpenMesh
-mkdir %INCLUDE_PATH%\OpenMesh\Core
-
-xcopy %SRC_PATH%\src\OpenMesh\Core\*.hh %INCLUDE_PATH%\OpenMesh\Core /S /I /F /Y
-
-REM Prepare and copy the debug and pdb files for Core
-mkdir %LIB_PATH%
-mkdir %LIB_PATH%\debug
-copy /Y %BLD_PATH%\Build\lib\OpenMeshCored.lib %LIB_PATH%\debug
+echo cmake --install %BLD_PATH% --prefix %TARGET_INSTALL_ROOT% --config Debug
+cmake --install %BLD_PATH% --prefix %TARGET_INSTALL_ROOT% --config Debug
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO Unable to copy OpenMeshCored.lib
+    ECHO Unable to cmake install OpenMesh for Debug
     exit /b 1
 )
-copy /Y %BLD_PATH%\src\OpenMesh\Core\Debug\OpenMeshCored.pdb %LIB_PATH%\debug
+
+echo cmake --install %BLD_PATH% --prefix %TARGET_INSTALL_ROOT% --config Release
+cmake --install %BLD_PATH% --prefix %TARGET_INSTALL_ROOT% --config Release
+IF %ERRORLEVEL% NEQ 0 (
+    ECHO Unable to cmake install OpenMesh for Release
+    exit /b 1
+)
+
+REM Prepare and copy the pdb files for Core
+copy /Y %BLD_PATH%\src\OpenMesh\Core\Debug\OpenMeshCored.pdb %LIB_PATH%\OpenMeshCored.pdb
 IF %ERRORLEVEL% NEQ 0 (
     ECHO Unable to copy OpenMeshCored.pdb
-    exit /b 1
-)
-
-mkdir %LIB_PATH%\release
-copy /Y %BLD_PATH%\Build\lib\OpenMeshCore.lib %LIB_PATH%\release
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO Unable to copy OpenMeshCore.lib
     exit /b 1
 )
 
