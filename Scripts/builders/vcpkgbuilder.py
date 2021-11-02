@@ -137,12 +137,12 @@ class VcpkgBuilder(object):
     def bootstrap(self):
         if platform.system() == 'Windows':
             subprocess.check_call(
-                ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', 'scripts/bootstrap.ps1',],
+                ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', 'scripts/bootstrap.ps1', '-disableMetrics'],
                 cwd=self.vcpkgDir,
             )
         else:
             subprocess.check_call(
-                [self.vcpkgDir / 'bootstrap-vcpkg.sh'],
+                [self.vcpkgDir / 'bootstrap-vcpkg.sh', '-disableMetrics'],
                 cwd=self.vcpkgDir,
             )
 

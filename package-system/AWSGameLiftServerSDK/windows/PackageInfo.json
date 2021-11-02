@@ -1,0 +1,6 @@
+{
+    "PackageName" : "AWSGameLiftServerSDK-3.4.1-rev1-windows",
+    "URL"         : "https://aws.amazon.com/documentation/gamelift/",
+    "License"     : "Apache-2.0",
+    "LicenseFile" : "AWSGameLiftServerSDK/LICENSE_AMAZON_GAMELIFT_SDK.TXT"
+}

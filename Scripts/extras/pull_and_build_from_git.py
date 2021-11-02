@@ -19,6 +19,8 @@ import string
 import subprocess
 import sys
 
+from package_downloader import PackageDownloader
+
 SCHEMA_DESCRIPTION = """
 Build Config Description:
 
@@ -26,8 +28,6 @@ The build configuration (build_config.json) accepts keys that are root level onl
 either global or target platform specific. Root level only keys are keys that define the project and cannot
 be different by platform, and all are required. The keys are:
 
-* git_url               : The git clone url for the source to pull for building
-* git_tag               : The git tag to identify the branch to pull from for building
 * package_name          : The base name of the package, used for constructing the filename and folder structures
 * package_url           : The package url that will be placed in the PackageInfo.json
 * package_license       : The type of license that will be described in the PackageInfo.json
@@ -35,7 +35,8 @@ be different by platform, and all are required. The keys are:
 
 The following keys can exist at the root level or the target-platform level:
 
-
+* git_url               : The git clone url for the source to pull for building
+* git_tag               : The git tag to identify the branch to pull from for building
 * package_version       : (required) The string to describe the package version. This string is used to build the full package name. 
                           This can be uniform for all platforms or can be set for a specific platform
 * prebuilt_source       : (optional) If the 3rd party library files are prebuilt and accessible, then setting this key to the relative location of 
@@ -43,8 +44,11 @@ The following keys can exist at the root level or the target-platform level:
                           'prebuilt_args' below.
 * prebuild_args         : (required if  prebuilt_source is set) A map of target subfolders within the target 3rd party folder against a glob pattern of
                           file(s) to copy to the target subfolders.
-* cmake_find_template   : (required if prebuilt_source is not set) The name of the template file that is used to generate the find*.cmake file
+* cmake_find_source     : The name of the source find*.cmake file that will be used in the target package
                           that is ingested by the lumberyard 3P system.
+* cmake_find_template   : If the find*.cmake in the target package requires template processing, then this is name of the template file that is used to 
+                          generate the contents of the find*.cmake file in the target package. 
+                          * Note that either 'cmake_find_source' or 'cmake_fine_template' must be declared.
 * cmake_find_target     : (required if prebuilt_source is not set) The name of the target find*.cmake file that is generated based on the template file and 
                           additional arguments (described below)
 
@@ -52,9 +56,11 @@ The following keys can exist at the root level or the target-platform level:
                           to restrict building to a specific configuration rather than building all configurations 
                           (provided by the default value: ['Debug', 'Release'])
 * patch_file            : (optional) Option patch file to apply to the synced source before performing a build
+* source_path           : (optional) Option to provide a path to the project source rather than getting it from github
+* git_skip              : (optional) Option to skip all git commands, requires source_path
 
 
-The following keys can only exist at the target platform level as they describe the specifics for that platform
+The following keys can only exist at the target platform level as they describe the specifics for that platform.
 
 * cmake_generate_args                     : The cmake generation arguments (minus the build folder target or any configuration) for generating 
                                             the project for the platform (for all configurations). To perform specific generation commands (i.e.
@@ -70,10 +76,17 @@ The following keys can only exist at the target platform level as they describe 
 
 * custom_build_cmd                        : A list of custom scripts to run to build from the source that was pulled from git. This option is 
                                             mutually exclusive from the cmake_generate_args and cmake_build_args options.
-                                            
+                                            see the note about environment variables below.
+
 * custom_install_cmd                      : A list of custom scripts to run (after the custom_build_cmd) to copy and assemble the built binaries
                                             into the target package folder.
-                                            
+                                            this argument is optional.  You could do the install in your custom build command instead.
+                                            see the note about environment variables below.
+
+* custom_test_cmd                         : after making the package, it will run this and expect exit code 0
+                                            this argument is optional.
+                                            see the note about environment variables below.
+
 * custom_additional_compile_definitions   : Any additional compile definitions to apply in the find*.cmake file for the library that will applied
                                             to targets that consume this 3P library
                                             
@@ -85,6 +98,38 @@ The following keys can only exist at the target platform level as they describe 
                                             
 * custom_cmake_install                    : Custom flag for certain platforms (ie iOS) that needs the installation arguments applied during the 
                                             cmake generation, and not to apply the cmake install process
+
+* depends_on_packages                     : list of name of 3-TUPLES of [package name, package hash, subfolder] that 'find' files live in] 
+                                            [  ["zlib-1.5.3-rev5",    "some hash", ""],
+                                               ["some other package", "some other hash", "subfoldername"], 
+                                               ...
+                                            ] 
+                                            that we need to download and use).
+    - note that we don't check recursively - you must name your recursive deps!
+    - The packages must be on a public CDN or locally tested with FILE:// - it uses env var 
+      "LY_PACKAGE_SERVER_URLS" which can be a semicolon seperated list of places to try.
+    - The packages unzip path + subfolder is added to CMAKE_MODULE_PATH if you use cmake commands.
+    - Otherwise you can use DOWNLOADED_PACKAGE_FOLDERS env var in your custom script and set
+    - CMAKE_MODULE_PATH to be that value, yourself.
+    - The subfolder can be empty, in which case the root of the package will be used.
+
+Note about environment variables:
+When custom commands are issued (build, install, and test), the following environment variables will be set
+for the process:
+         PACKAGE_ROOT = root of the package being made (where PackageInfo.json is generated/copied)
+         TARGET_INSTALL_ROOT = $PACKAGE_ROOT/$PACKAGE_NAME - usually where you target cmake install to
+         TEMP_FOLDER = the temp folder.  This folder usually has subfolder 'build' and 'src'
+         PYTHON_BINARY = the path to the python binary that launched the build script. This can be useful if
+                         one of the custom build/install scripts (e.g. my_script.sh/.cmd) want to invoke
+                         a python script using the same python executable that launched the build.
+         DOWNLOADED_PACKAGE_FOLDERS = semicolon seperated list of abs paths to each downloaded package Find folder.
+            - usually used to set CMAKE_MODULE_PATH so it can find the packages.
+            - unset if there are no dependencies declared
+    Note that any of the above environment variables that contain paths will use system native slashes for script
+    compatibility, and may need to be converted to forward slash in your script on windows 
+    if you feed it to cmake.
+    Also note that the working directory for all custom commands will the folder containing the build_config.json file.
+
 
 The general layout of the build_config.json file is as follows:
 
@@ -151,8 +196,6 @@ class PackageInfo(object):
 
         self.platform_name = target_platform_name
         try:
-            self.git_url = build_config["git_url"]
-            self.git_tag = build_config["git_tag"]
             self.package_name = build_config["package_name"]
             self.package_url = build_config["package_url"]
             self.package_license = build_config["package_license"]
@@ -166,13 +209,23 @@ class PackageInfo(object):
                 raise BuildError(f"Required key '{value_key}' not found in build config")
             return result
 
+        self.git_url = _get_value("git_url")
+        self.git_tag = _get_value("git_tag")
         self.package_version = _get_value("package_version")
         self.patch_file = _get_value("patch_file", required=False)
         self.git_commit = _get_value("git_commit", required=False)
-        self.cmake_find_template = _get_value("cmake_find_template")
+        self.cmake_find_template = _get_value("cmake_find_template", required=False)
+        self.cmake_find_source = _get_value("cmake_find_source", required=False)
         self.cmake_find_target = _get_value("cmake_find_target")
         self.cmake_find_template_custom_indent = _get_value("cmake_find_template_custom_indent", default=1)
         self.additional_src_files = _get_value("additional_src_files", required=False)
+        self.depends_on_packages = _get_value("depends_on_packages", required=False)
+
+        if self.cmake_find_template and self.cmake_find_source:
+            raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
+        if not self.cmake_find_template and not self.cmake_find_source:
+            raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_source' must be set in the configuration.")
+
 
     def write_package_info(self, install_path):
         """
@@ -188,7 +241,7 @@ class PackageInfo(object):
             'platform_name': self.platform_name.lower(),
             'package_url': self.package_url,
             'package_license': self.package_license,
-            'package_license_file': self.package_license_file
+            'package_license_file': os.path.basename(self.package_license_file)
         }
         package_info_content = string.Template(PackageInfo.PACKAGE_INFO_TEMPLATE).substitute(package_info_env)
         package_info_target_file.write_text(package_info_content)
@@ -292,7 +345,9 @@ class BuildInfo(object):
     This is the Build management class that will perform the entire build from source and preparing a folder for packaging
     """
 
-    def __init__(self, package_info, platform_config, base_folder, build_folder, package_install_root, custom_toolchain_file, cmake_command, clean_build, cmake_find_template, prebuilt_source, prebuilt_args):
+    def __init__(self, package_info, platform_config, base_folder, build_folder, package_install_root, 
+                 custom_toolchain_file, cmake_command, clean_build, cmake_find_template, 
+                 cmake_find_source, prebuilt_source, prebuilt_args, src_folder, skip_git):
         """
         Initialize the Build management object with information needed
 
@@ -305,9 +360,15 @@ class BuildInfo(object):
         :param cmake_command:           The cmake executable command to use for cmake
         :param clean_build:             Option to clean any existing build folder before proceeding
         :param cmake_find_template:     The template for the find*.cmake generated file
+        :param cmake_find_source:       The source file for the find*.cmake generated file
         :param prebuilt_source:         If provided, the git fetch / build flow will be replaced with a copy from a prebuilt folder
         :param prebuilt_args:           If prebuilt_source is provided, then this argument is required to specify the copy rules to assemble the package from the prebuilt package
+        :param src_folder:              Path to the source code / where to clone the git repo.
+        :param skip_git:                If true skip all git interaction and .
         """
+
+        assert (cmake_find_template is not None and cmake_find_source is None) or \
+                (cmake_find_template is None and cmake_find_source is not None), "Either cmake_find_template or cmake_find_source must be set, but not both"
 
         self.package_info = package_info
         self.platform_config = platform_config
@@ -315,15 +376,18 @@ class BuildInfo(object):
         self.cmake_command = cmake_command
         self.base_folder = base_folder
         self.base_temp_folder = build_folder
-        self.src_folder = self.base_temp_folder / "src"
+        self.src_folder = src_folder
         self.build_folder = self.base_temp_folder / "build"
         self.package_install_root = package_install_root / f"{package_info.package_name}-{package_info.platform_name.lower()}"
         self.build_install_folder = self.package_install_root / package_info.package_name
         self.clean_build = clean_build
         self.cmake_find_template = cmake_find_template
+        self.cmake_find_source = cmake_find_source
         self.build_configs = platform_config.get('build_configs', ['Debug', 'Release'])
         self.prebuilt_source = prebuilt_source
         self.prebuilt_args = prebuilt_args
+        self.skip_git = skip_git
+
 
     def clone_to_local(self):
         """
@@ -382,6 +446,8 @@ class BuildInfo(object):
         """
         Sync the 3rd party from its git source location (either cloning if its not there or syncing)
         """
+        if self.skip_git:
+            return
 
         # Validate Git is installed
         git_version = validate_git()
@@ -455,6 +521,13 @@ class BuildInfo(object):
                                           cwd=str(self.src_folder.absolute()))
             if patch_result.returncode != 0:
                 raise BuildError(f"Error Applying patch {str(patch_file_path.absolute())}: {patch_result.stderr.decode('UTF-8', 'ignore')}")
+        # Check if there are any package dependencies.
+        if self.package_info.depends_on_packages:
+            for package_name, package_hash, _ in self.package_info.depends_on_packages:
+                temp_packages_folder = self.base_temp_folder
+                if not PackageDownloader.DownloadAndUnpackPackage(package_name, package_hash, str(temp_packages_folder)):
+                    raise BuildError(f"Failed to download a required dependency: {package_name}")
+
 
     def build_and_install_cmake(self):
         """
@@ -500,7 +573,20 @@ class BuildInfo(object):
                 if self.custom_toolchain_file:
                     cmake_generator_args.append( f'-DCMAKE_TOOLCHAIN_FILE="{self.custom_toolchain_file}"')
 
+                cmake_module_path = ""
+                paths_to_join = []
+                if self.package_info.depends_on_packages:
+                    paths_to_join = []
+                    for package_name, package_hash, subfolder_name in self.package_info.depends_on_packages:
+                        package_download_location = self.base_temp_folder / package_name / subfolder_name
+                        paths_to_join.append(str(package_download_location.resolve()))
+                    cmake_module_path = ';'.join(paths_to_join).replace('\\', '/')
+
+                if cmake_module_path:
+                    cmake_generate_cmd.extend([f"-DCMAKE_MODULE_PATH={cmake_module_path}"])
+
                 cmake_generate_cmd.extend(cmake_generator_args)
+                
                 if custom_cmake_install:
                     cmake_generate_cmd.extend([f"-DCMAKE_INSTALL_PREFIX={str(self.build_install_folder.resolve())}"])
 
@@ -569,32 +655,51 @@ class BuildInfo(object):
                         target_folder_path.mkdir(parents=True)
                     shutil.copy2(glob_result, str(target_folder_path.resolve()), follow_symlinks=False)
 
+    def create_custom_env(self):
+        custom_env = os.environ.copy()
+        custom_env['TARGET_INSTALL_ROOT'] = str(self.build_install_folder.resolve())
+        custom_env['PACKAGE_ROOT'] = str(self.package_install_root.resolve())
+        custom_env['TEMP_FOLDER'] = str(self.base_temp_folder.resolve())
+        custom_env['PYTHON_BINARY'] = sys.executable
+        if self.package_info.depends_on_packages:
+            package_folder_list = []
+            for package_name, _, subfoldername in self.package_info.depends_on_packages:
+                package_folder_list.append(str( (self.base_temp_folder / package_name / subfoldername).resolve().absolute()))
+            custom_env['DOWNLOADED_PACKAGE_FOLDERS'] = ';'.join(package_folder_list)
+        return custom_env
+
     def build_and_install_custom(self):
         """
         Build and install from source using custom commands defined by 'custom_build_cmd' and 'custom_install_cmd'
         """
-
+        # we add TARGET_INSTALL_ROOT, TEMP_FOLDER and DOWNLOADED_PACKAGE_FOLDERS to the environ for both
+        # build and install, as they are useful to refer to from scripts.
+        
+        env_to_use = self.create_custom_env()
         custom_build_cmds = self.platform_config.get('custom_build_cmd', [])
         for custom_build_cmd in custom_build_cmds:
-
-            call_result = subprocess.run(custom_build_cmd,
+            # Support the user specifying {python} in the custom_build_cmd to invoke
+            # the Python executable that launched this build script
+            call_result = subprocess.run(custom_build_cmd.format(python=sys.executable),
                                          shell=True,
                                          capture_output=False,
-                                         cwd=str(self.base_folder))
+                                         cwd=str(self.base_folder),
+                                         env=env_to_use)
             if call_result.returncode != 0:
                 raise BuildError(f"Error executing custom build command {custom_build_cmd}")
 
         custom_install_cmds = self.platform_config.get('custom_install_cmd', [])
-        custom_install_env = os.environ.copy()
-        custom_install_env['TARGET_INSTALL_ROOT'] = str(self.build_install_folder.resolve())
+       
         for custom_install_cmd in custom_install_cmds:
-            call_result = subprocess.run(custom_install_cmd,
+            # Support the user specifying {python} in the custom_install_cmd to invoke
+            # the Python executable that launched this build script
+            call_result = subprocess.run(custom_install_cmd.format(python=sys.executable),
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
-                                         env=custom_install_env)
+                                         env=env_to_use)
             if call_result.returncode != 0:
-                raise BuildError(f"Error executing custom build command {custom_build_cmd}")
+                raise BuildError(f"Error executing custom install command {custom_install_cmd}")
 
     def check_build_keys(self, keys_to_check):
         """
@@ -644,24 +749,29 @@ class BuildInfo(object):
         Generate the find*.cmake file for the library
         """
 
-        template_file_content = self.cmake_find_template.read_text("UTF-8", "ignore")
+        if self.cmake_find_template is not None:
 
-        def _build_list_str(indent, key):
-            list_items = self.platform_config.get(key, [])
-            indented_list_items = []
-            for list_item in list_items:
-                indented_list_items.append(f'{" "*(indent*4)}{list_item}')
-            return '\n'.join(indented_list_items)
+            template_file_content = self.cmake_find_template.read_text("UTF-8", "ignore")
 
-        cmake_find_template_def_ident_level = self.package_info.cmake_find_template_custom_indent
+            def _build_list_str(indent, key):
+                list_items = self.platform_config.get(key, [])
+                indented_list_items = []
+                for list_item in list_items:
+                    indented_list_items.append(f'{" "*(indent*4)}{list_item}')
+                return '\n'.join(indented_list_items)
 
-        template_env = {
-            "CUSTOM_ADDITIONAL_COMPILE_DEFINITIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_compile_definitions'),
-            "CUSTOM_ADDITIONAL_LINK_OPTIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_link_options'),
-            "CUSTOM_ADDITIONAL_LIBRARIES": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_libraries')
-        }
+            cmake_find_template_def_ident_level = self.package_info.cmake_find_template_custom_indent
 
-        find_cmake_content = string.Template(template_file_content).substitute(template_env)
+            template_env = {
+                "CUSTOM_ADDITIONAL_COMPILE_DEFINITIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_compile_definitions'),
+                "CUSTOM_ADDITIONAL_LINK_OPTIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_link_options'),
+                "CUSTOM_ADDITIONAL_LIBRARIES": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_libraries')
+            }
+
+            find_cmake_content = string.Template(template_file_content).substitute(template_env)
+
+        elif self.cmake_find_source is not None:
+            find_cmake_content = self.cmake_find_source.read_text("UTF-8", "ignore")
 
         target_cmake_find_script = self.package_install_root / self.package_info.cmake_find_target
         target_cmake_find_script.write_text(find_cmake_content)
@@ -714,6 +824,22 @@ class BuildInfo(object):
 
         pass
 
+    def test_package(self):
+        has_test_commands = self.check_build_keys(['custom_test_cmd'])
+        if not has_test_commands:
+            return
+
+        custom_test_cmds= self.platform_config.get('custom_test_cmd', [])
+        for custom_test_cmd in custom_test_cmds:
+
+            call_result = subprocess.run(custom_test_cmd,
+                                        shell=True,
+                                        capture_output=False,
+                                        cwd=str(self.base_folder),
+                                        env=self.create_custom_env())
+            if call_result.returncode != 0:
+                raise BuildError(f"Error executing custom test command {custom_test_cmd}")
+
     def execute(self):
         """
         Perform all the steps to build a folder for the 3rd party library for packaging
@@ -734,12 +860,14 @@ class BuildInfo(object):
         # Generate the Find*.cmake file
         self.generate_cmake()
 
+        self.test_package()
+
         # Generate the package info file
         self.generate_package_info()
 
 
 def prepare_build(platform_name, base_folder, build_folder, package_root_folder, cmake_command, toolchain_file, build_config_file,
-                  clean):
+                  clean, src_folder, skip_git):
     """
     Prepare a Build manager object based on parameters provided (possibly from command line)
 
@@ -751,12 +879,21 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
     :param toolchain_file:      Option toolchain file to use for specific target platforms
     :param build_config_file:   The build config file to open from the base_folder
     :param clean:               Option to clean any existing build folder before proceeding
+    :param src_folder:          Option to manually specify the src folder
+    :param skip_git:            Option to skip all git commands, requires src_folder be supplied
 
     :return:    The Build management object
     """
     base_folder_path = pathlib.Path(base_folder)
     build_folder_path = pathlib.Path(build_folder) if build_folder else base_folder_path / "temp"
     package_install_root = pathlib.Path(package_root_folder)
+    src_folder_path = pathlib.Path(src_folder) if src_folder else build_folder_path / "src"
+
+    if skip_git and src_folder is None:
+        raise BuildError("Specified to skip git interactions but didn't supply a source code path")
+
+    if src_folder is not None and not src_folder_path.is_dir():
+        raise BuildError(f"Invalid path for 'git-path': {src_folder}")
 
     build_config_path = base_folder_path / build_config_file
     if not build_config_path.is_file():
@@ -787,15 +924,31 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
                                target_platform_name=platform_name,
                                target_platform_config=target_platform_config)
 
-    # Validate the cmake find template
-    if not package_info.cmake_find_template:
-        raise BuildError("Missing 'cmake_find_template' entry in build config")
-    if os.path.isabs(package_info.cmake_find_template):
-        cmake_find_template_path = pathlib.Path(package_info.cmake_find_template)
-    else:
+    cmake_find_template_path = None
+    cmake_find_source_path = None
+
+    if package_info.cmake_find_template is not None:
+
+        # Validate the cmake find template
+        if os.path.isabs(package_info.cmake_find_template):
+            raise BuildError("Invalid 'cmake_find_template' entry in build config. Absolute paths are not allowed, must be relative to the package base folder.")
+        
         cmake_find_template_path = base_folder_path / package_info.cmake_find_template
-    if not cmake_find_template_path.is_file():
-        raise BuildError("Invalid 'cmake_find_template' entry in build config")
+        if not cmake_find_template_path.is_file():
+            raise BuildError("Invalid 'cmake_find_template' entry in build config")
+
+    elif package_info.cmake_find_source is not None:
+
+        # Validate the cmake find source
+        if os.path.isabs(package_info.cmake_find_source):
+            raise BuildError("Invalid 'cmake_find_source' entry in build config. Absolute paths are not allowed, must be relative to the package base folder.")
+
+        cmake_find_source_path = base_folder_path / package_info.cmake_find_source
+        if not cmake_find_source_path.is_file():
+            raise BuildError("Invalid 'cmake_find_source' entry in build config")
+
+    else:
+        raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_template' must be specified.")            
 
     return BuildInfo(package_info=package_info,
                      platform_config=target_platform_config,
@@ -806,8 +959,11 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
                      cmake_command=cmake_command,
                      clean_build=clean,
                      cmake_find_template=cmake_find_template_path,
+                     cmake_find_source=cmake_find_source_path,
                      prebuilt_source=prebuilt_source,
-                     prebuilt_args=prebuilt_args)
+                     prebuilt_args=prebuilt_args,
+                     src_folder=src_folder_path,
+                     skip_git=skip_git)
 
 
 if __name__ == '__main__':
@@ -840,6 +996,12 @@ if __name__ == '__main__':
                             action="store_true")
         parser.add_argument('--build-path',
                             help="Path to build the repository in. Defaults to {base_path}/temp.")
+        parser.add_argument('--source-path',
+                            help='Path to a folder. Can be used to specify the git sync folder or provide an existing folder with source for the library.',
+                            default=None)
+        parser.add_argument('--git-skip',
+                            help='skips all git commands, requires source-path to be provided',
+                            default=False)
 
         parsed_args = parser.parse_args(sys.argv[1:])
 
@@ -861,7 +1023,9 @@ if __name__ == '__main__':
                                    cmake_command=cmake_path,
                                    toolchain_file=custom_toolchain_file,
                                    build_config_file=parsed_args.build_config_file,
-                                   clean=parsed_args.clean)
+                                   clean=parsed_args.clean,
+                                   src_folder=parsed_args.source_path,
+                                   skip_git=parsed_args.git_skip)
 
         # Execute the generation of the 3P folder for packaging
         build_info.execute()

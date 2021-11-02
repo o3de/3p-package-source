@@ -1,0 +1,69 @@
+{
+   "git_url":"https://github.com/aws/aws-sdk-cpp.git",
+   "git_tag":"1.7.167",
+   "package_name":"AWSNativeSDK",
+   "package_version":"1.7.167-rev4",
+   "package_url":"https://github.com/aws/aws-sdk-cpp",
+   "package_license":"Apache-2.0",
+   "package_license_file":"LICENSE",
+   "cmake_find_target":"FindAWSNativeSDK.cmake",
+   "cmake_find_template_custom_indent": 3,
+   "build_configs": ["Debug", "Release"],
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "cmake_find_source":"FindAWSNativeSDK.cmake.Windows",
+            "custom_build_cmd": [
+               "build_AWSNativeSDK_windows.cmd"
+            ],
+            "custom_install_cmd": [
+               "install_AWSNativeSDK_windows.cmd"
+            ]
+         },
+         "Android":{
+            "git_tag":"1.9.50",
+            "package_version":"1.9.50-rev1",
+            "cmake_find_source":"FindAWSNativeSDK.cmake.Android",
+            "custom_build_cmd": [
+               "build_AWSNativeSDK_android.cmd"
+            ],
+            "custom_install_cmd": [
+               "install_AWSNativeSDK_android.cmd"
+            ]
+         }
+      },
+      "Darwin":{
+         "Mac":{
+            "package_version":"1.7.167-rev5",
+            "cmake_find_source":"FindAWSNativeSDK.cmake.Mac",
+            "custom_build_cmd": [
+               "./build_AWSNativeSDK_mac.sh"
+            ],
+            "custom_install_cmd": [
+               "./install_AWSNativeSDK_mac.sh"
+            ]
+         },
+         "iOS":{
+            "cmake_find_source":"FindAWSNativeSDK.cmake.iOS",
+            "custom_build_cmd": [
+               "./build_AWSNativeSDK_ios.sh"
+            ],
+            "custom_install_cmd": [
+               "./install_AWSNativeSDK_ios.sh"
+            ]
+         }
+      },
+      "Linux":{
+         "Linux":{
+            "package_version":"1.7.167-rev6",
+            "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
+            "custom_build_cmd": [
+               "./build_AWSNativeSDK_linux.sh"
+            ],
+            "custom_install_cmd": [
+               "./install_AWSNativeSDK_linux.sh"
+            ]
+         }
+      }
+   }
+}

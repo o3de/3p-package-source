@@ -1,0 +1,21 @@
+{
+    "git_url":"https://github.com/Tencent/rapidjson",
+    "git_tag":"master",
+    "git_commit":"6534506e829a489bda78bc5eac5faa34da0a2c51",
+    "package_name":"RapidJSON",
+    "package_version":"1.1.0-rev1",
+    "package_url":"https://rapidjson.org",
+    "package_license":"MIT",
+    "package_license_file":"license.txt",
+    "cmake_find_template":"FindRapidJSON.cmake.template",
+    "cmake_find_target":"FindRapidJSON.cmake",
+    "Platforms":{
+        "Windows":{
+            "multiplatform":{
+                "custom_install_cmd": [
+                   "copy_rapidjson_includes.bat"
+                ]
+            }
+        }
+    }
+}
