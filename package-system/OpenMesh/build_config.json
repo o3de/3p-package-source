@@ -20,6 +20,34 @@
             ]
          }
       },
+      "Darwin":{
+         "Mac":{
+            "cmake_find_template":"FindOpenMesh.cmake.Mac",
+            "cmake_generate_args_debug":[
+               "-DDISABLE_QMAKE_BUILD=ON",
+               "-DBUILD_APPS=OFF",
+               "-DOPENMESH_DOCS=OFF",
+               "-DOPENMESH_BUILD_SHARED=OFF",
+               "-DOPENMESH_BUILD_UNIT_TESTS=OFF",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "cmake_generate_args_release":[
+               "-DDISABLE_QMAKE_BUILD=ON",
+               "-DBUILD_APPS=OFF",
+               "-DOPENMESH_DOCS=OFF",
+               "-DOPENMESH_BUILD_SHARED=OFF",
+               "-DOPENMESH_BUILD_UNIT_TESTS=OFF",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "cmake_build_args":[
+               "-j"
+            ]
+         }
+      },
       "Linux":{
          "Linux":{
             "cmake_find_template":"FindOpenMesh.cmake.Linux",
