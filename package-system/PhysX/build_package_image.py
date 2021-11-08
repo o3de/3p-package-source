@@ -45,8 +45,8 @@ def main():
         },
         'windows': {
             'EXTRA_SHARED_LIBS': '\n'.join((
-                '${CMAKE_CURRENT_LIST_DIR}/PhysX/pxshared/$<IF:$<CONFIG:debug>,debug/,$<$<CONFIG:profile>:profile/>>bin/PhysXDevice64.dll'
-                '${CMAKE_CURRENT_LIST_DIR}/PhysX/pxshared/$<IF:$<CONFIG:debug>,debug/,$<$<CONFIG:profile>:profile/>>bin/PhysGpu_64.dll'
+                '${CMAKE_CURRENT_LIST_DIR}/PhysX/pxshared/$<IF:$<CONFIG:debug>,debug/,$<$<CONFIG:profile>:profile/>>bin/PhysXDevice64.dll',
+                '${CMAKE_CURRENT_LIST_DIR}/PhysX/pxshared/$<IF:$<CONFIG:debug>,debug/,$<$<CONFIG:profile>:profile/>>bin/PhysXGpu_64.dll'
             )),
             'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '\n'.join((
                 '${PATH_TO_STATIC_LIBS}/LowLevel_static_64.lib',
