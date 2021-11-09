@@ -1,0 +1,66 @@
+{
+   "git_url":"https://gitlab.vci.rwth-aachen.de:9000/OpenMesh/OpenMesh.git",
+   "git_tag":"OpenMesh-8.1",
+   "patch_file":"openmesh-o3de.patch",
+   "package_name":"OpenMesh",
+   "package_version":"8.1-rev3",
+   "package_url":"https://www.graphics.rwth-aachen.de/software/openmesh/",
+   "package_license":"BSD-3-Clause",
+   "package_license_file":"LICENSE",
+   "cmake_find_target": "FindOpenMesh.cmake",
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "cmake_find_source":"FindOpenMesh.cmake.Windows",
+            "custom_build_cmd": [
+               "build_openmesh_windows.cmd"
+            ],
+            "custom_install_cmd": [
+               "install_openmesh_windows.cmd"
+            ]
+         }
+      },
+      "Darwin":{
+         "Mac":{
+            "build_configs": ["Release"],
+            "cmake_find_source":"FindOpenMesh.cmake.NonWindows",
+            "cmake_generate_args":[
+               "-DDISABLE_QMAKE_BUILD=ON",
+               "-DBUILD_APPS=OFF",
+               "-DOPENMESH_DOCS=OFF",
+               "-DOPENMESH_BUILD_UNIT_TESTS=OFF",
+               "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "cmake_build_args":[
+               "-j"
+            ]
+         }
+      },
+      "Linux":{
+         "Linux":{
+            "build_configs": ["Release"],
+            "cmake_find_source":"FindOpenMesh.cmake.NonWindows",
+            "cmake_generate_args":[
+               "-G",
+               "Unix\\ Makefiles",
+               "-DDISABLE_QMAKE_BUILD=ON",
+               "-DBUILD_APPS=OFF",
+               "-DOPENMESH_DOCS=OFF",
+               "-DOPENMESH_BUILD_SHARED=OFF",
+               "-DOPENMESH_BUILD_UNIT_TESTS=OFF",
+               "-DCMAKE_C_COMPILER=clang-12",
+               "-DCMAKE_CXX_COMPILER=clang++-12",
+               "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "cmake_build_args":[
+               "-j"
+            ]
+         }
+      }
+   }
+}

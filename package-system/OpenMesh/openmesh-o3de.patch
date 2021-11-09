@@ -1,0 +1,193 @@
+diff --git a/src/OpenMesh/Core/IO/exporter/ExporterT.hh b/src/OpenMesh/Core/IO/exporter/ExporterT.hh
+index 8f9dde90..c5a50ac4 100644
+--- a/src/OpenMesh/Core/IO/exporter/ExporterT.hh
++++ b/src/OpenMesh/Core/IO/exporter/ExporterT.hh
+@@ -102,12 +102,16 @@ public:
+ 
+   bool is_point_double() const override
+   {
+-    return OMFormat::is_double(typename Mesh::Point()[0]);
++// o3de change begin
++    return OMFormat::is_double(typename Mesh::Point().GetX());
++// o3de change end
+   }
+ 
+   bool is_normal_double() const override
+   {
+-    return OMFormat::is_double(typename Mesh::Normal()[0]);
++// o3de change begin
++    return OMFormat::is_double(typename Mesh::Normal().GetX());
++// o3de change end
+   }
+ 
+   Vec3f  normal(VertexHandle _vh)   const override
+diff --git a/src/OpenMesh/Core/IO/reader/OMReader.cc b/src/OpenMesh/Core/IO/reader/OMReader.cc
+index 66d4e819..c57ba5c3 100644
+--- a/src/OpenMesh/Core/IO/reader/OMReader.cc
++++ b/src/OpenMesh/Core/IO/reader/OMReader.cc
+@@ -679,6 +679,23 @@ bool _OMReader_::read_binary_halfedge_chunk(std::istream &_is, BaseImporter &_bi
+       break;
+     }
+ 
++    // o3de change begin
++    case Chunk::Type_Texcoord:
++    {
++      assert(OMFormat::dimensions(chunk_header_) == 2);
++
++      fileOptions_ += Options::FaceTexCoord;
++
++      OpenMesh::Vec2f v2f;
++      for (size_t hidx = 0; hidx < header_.n_edges_ * 2 && !_is.eof(); ++hidx) {
++        bytes_ += restore(_is, v2f, _swap);
++        if (fileOptions_.face_has_texcoord() && _opt.face_has_texcoord())
++          _bi.set_texcoord(HalfedgeHandle(int(hidx)), v2f);
++      }
++      break;
++    }
++    // o3de change end
++
+     default:
+       // skip unknown chunk
+       omerr() << "Unknown chunk type ignored!\n";
+diff --git a/src/OpenMesh/Core/IO/writer/OMWriter.cc b/src/OpenMesh/Core/IO/writer/OMWriter.cc
+index 78dfd6d3..a4e0289b 100644
+--- a/src/OpenMesh/Core/IO/writer/OMWriter.cc
++++ b/src/OpenMesh/Core/IO/writer/OMWriter.cc
+@@ -336,6 +336,30 @@ bool _OMWriter_::write_binary(std::ostream& _os, BaseExporter& _be,
+     }
+   }
+ 
++  // o3de change begin
++  // ---------- write halfedge texture coords
++  if (_be.n_edges() && _be.n_faces() && _opt.check(Options::FaceTexCoord)) {
++
++    t = _be.texcoord(HalfedgeHandle(0));
++
++    chunk_header.name_ = false;
++    chunk_header.entity_ = OMFormat::Chunk::Entity_Halfedge;
++    chunk_header.type_ = OMFormat::Chunk::Type_Texcoord;
++    chunk_header.signed_ = OMFormat::is_signed(t[0]);
++    chunk_header.float_ = OMFormat::is_float(t[0]);
++    chunk_header.dim_ = OMFormat::dim(t);
++    chunk_header.bits_ = OMFormat::bits(t[0]);
++
++    // std::clog << chunk_header << std::endl;
++    bytes += store(_os, chunk_header, swap);
++
++    auto nHE=header.n_edges_*2;
++    for (i = 0; i < nHE; ++i)
++      bytes += vector_store(_os, _be.texcoord(HalfedgeHandle(i)), swap);
++  }
++  // o3de change end
++
++
+   // ---------- write vertex topology (outgoing halfedge)
+   if (_be.n_vertices())
+   {
+diff --git a/src/OpenMesh/Core/Mesh/PolyMeshT_impl.hh b/src/OpenMesh/Core/Mesh/PolyMeshT_impl.hh
+index dabdacfe..75c60109 100644
+--- a/src/OpenMesh/Core/Mesh/PolyMeshT_impl.hh
++++ b/src/OpenMesh/Core/Mesh/PolyMeshT_impl.hh
+@@ -103,13 +103,24 @@ PolyMeshT<Kernel>::calc_face_normal(FaceHandle _fh) const
+   >::Result());
+ }
+ 
++// o3de change begin
++template<typename Point, typename Normal>
++void newell_norm(
++    Normal& n, const Point& a, const Point& b)
++{
++    n[0] += static_cast<typename vector_traits<Normal>::value_type>(a[1] * b[2]);
++    n[1] += static_cast<typename vector_traits<Normal>::value_type>(a[2] * b[0]);
++    n[2] += static_cast<typename vector_traits<Normal>::value_type>(a[0] * b[1]);
++}
++// o3de change end
++
+ template <class Kernel>
+ typename PolyMeshT<Kernel>::Normal
+ PolyMeshT<Kernel>::calc_face_normal_impl(FaceHandle _fh, PointIs3DTag) const
+ {
+   assert(this->halfedge_handle(_fh).is_valid());
+   ConstFaceVertexIter fv_it(this->cfv_iter(_fh));
+-  
++
+   // Safeguard for 1-gons
+   if (!(++fv_it).is_valid()) return Normal(0, 0, 0);
+ 
+@@ -131,16 +142,13 @@ PolyMeshT<Kernel>::calc_face_normal_impl(FaceHandle _fh, PointIs3DTag) const
+     const Point a = this->point(*fv_it) - this->point(*fv_itn);
+     const Point b = this->point(*fv_it) + this->point(*fv_itn);
+ 
+-
+     // Due to traits, the value types of normals and points can be different.
+     // Therefore we cast them here.
+-    n[0] += static_cast<typename vector_traits<Normal>::value_type>(a[1] * b[2]);
+-    n[1] += static_cast<typename vector_traits<Normal>::value_type>(a[2] * b[0]);
+-    n[2] += static_cast<typename vector_traits<Normal>::value_type>(a[0] * b[1]);
++    newell_norm(n, a, b); // o3de change
+   }
+ 
+   const typename vector_traits<Normal>::value_type length = norm(n);
+-  
++
+   // The expression ((n *= (1.0/norm)),n) is used because the OpenSG
+   // vector class does not return self after component-wise
+   // self-multiplication with a scalar!!!
+@@ -161,7 +169,7 @@ PolyMeshT<Kernel>::calc_face_normal_impl(FaceHandle, PointIsNot3DTag) const
+   assert(false);
+ 
+   Normal normal;
+-  vectorize(normal,Scalar(0));
++  vectorize(normal, Scalar(0.0)); // o3de fix
+   return normal;
+ }
+ 
+@@ -237,7 +245,7 @@ PolyMeshT<Kernel>::calc_face_normal_impl(const Point&, const Point&, const Point
+   assert(false);
+ 
+   Normal normal;
+-  vectorize(normal,Scalar(0));
++  vectorize(normal, Scalar(0.0)); // o3de fix
+   return normal;
+ }
+ 
+@@ -249,7 +257,7 @@ PolyMeshT<Kernel>::
+ calc_face_centroid(FaceHandle _fh) const
+ {
+   Point _pt;
+-  vectorize(_pt, Scalar(0));
++  vectorize(_pt, Scalar(0.0)); // o3de fix
+   Scalar valence = 0.0;
+   for (ConstFaceVertexIter cfv_it = this->cfv_iter(_fh); cfv_it.is_valid(); ++cfv_it, valence += 1.0)
+   {
+@@ -474,7 +482,7 @@ template <class Kernel>
+ void PolyMeshT<Kernel>::
+ calc_vertex_normal_fast(VertexHandle _vh, Normal& _n) const
+ {
+-  vectorize(_n, Scalar(0));
++  vectorize(_n, Scalar(0.0)); // o3de fix
+   for (ConstVertexFaceIter vf_it = this->cvf_iter(_vh); vf_it.is_valid(); ++vf_it)
+     _n += this->normal(*vf_it);
+ }
+@@ -484,7 +492,7 @@ template <class Kernel>
+ void PolyMeshT<Kernel>::
+ calc_vertex_normal_correct(VertexHandle _vh, Normal& _n) const
+ {
+-  vectorize(_n, Scalar(0));
++  vectorize(_n, Scalar(0.0)); // o3de fix
+   ConstVertexIHalfedgeIter cvih_it = this->cvih_iter(_vh);
+   if (! cvih_it.is_valid() )
+   {//don't crash on isolated vertices
+diff --git a/src/OpenMesh/Core/Mesh/TriConnectivity.cc b/src/OpenMesh/Core/Mesh/TriConnectivity.cc
+index c0ec6d45..89331d8a 100644
+--- a/src/OpenMesh/Core/Mesh/TriConnectivity.cc
++++ b/src/OpenMesh/Core/Mesh/TriConnectivity.cc
+@@ -494,7 +494,7 @@ void TriConnectivity::split_copy(EdgeHandle _eh, VertexHandle _vh)
+   const VertexHandle v0 = to_vertex_handle(halfedge_handle(_eh, 0));
+   const VertexHandle v1 = to_vertex_handle(halfedge_handle(_eh, 1));
+ 
+-  const int nf = n_faces();
++  const auto nf = n_faces(); // o3de change
+ 
+   // Split the halfedge ( handle will be preserved)
+   split(_eh, _vh);
