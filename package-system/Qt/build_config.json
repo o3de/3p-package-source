@@ -1,0 +1,51 @@
+{
+    "git_url": "https://github.com/o3de/qt5.git",
+    "git_tag": "5.15.1-o3de",
+    "git_commit": "b3a1a6947422928e8aecb14ad607199e9720d266",
+    "package_name": "qt",
+    "package_version": "5.15.2-rev4",
+    "package_url": "https://www.qt.io/",
+    "package_license": "LGPL-3.0",
+    "package_license_file": "qt/LICENSE.LGPLv3",
+    "cmake_find_source": "FindQt.cmake",
+    "cmake_find_target": "FindQt.cmake",
+    "Platforms": {
+        "Windows": {
+            "Windows": {
+                "depends_on_packages": [
+                    ["OpenSSL-1.1.1b-rev2-windows", "9af1c50343f89146b4053101a7aeb20513319a3fe2f007e356d7ce25f9241040", ""]
+                ],
+                "custom_build_cmd": [
+                    "install_miniconda.py",
+                    "install_windows_extras.py",
+                    "build.bat"
+                ],
+                "custom_install_cmd": [
+                    "copy_platform_cmakes.py"
+                ]
+            }
+        },
+        "Darwin": {
+            "Mac": {
+                "package_version": "5.15.2-rev5",
+                "custom_build_cmd": [
+                    "./build.sh"
+                ],
+                "custom_install_cmd": [
+                    "{python} copy_platform_cmakes.py"
+                ]
+            }
+        },
+        "Linux": {
+            "Linux": {
+                "package_version": "5.15.2-rev5",
+                "custom_build_cmd": [
+                    "./build.sh"
+                ],
+                "custom_install_cmd": [
+                    "{python} copy_platform_cmakes.py"
+                ]
+            }
+        }
+    }
+}
