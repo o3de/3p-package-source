@@ -12,7 +12,7 @@ if (TARGET $${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
-set(_PACKAGE_DIR $${CMAKE_CURRENT_LIST_DIR}/PhysX/$$<IF:$$<BOOL:$${LY_MONOLITHIC_GAME}>,physx,pxshared>/)
+set(_PACKAGE_DIR $${CMAKE_CURRENT_LIST_DIR}/PhysX/$$<IF:$$<BOOL:$${LY_MONOLITHIC_GAME}>,static,shared>/)
 
 set($${MY_NAME}_INCLUDE_DIR
     $${_PACKAGE_DIR}/include

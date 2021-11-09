@@ -110,7 +110,7 @@ index 3b905cc0..42bd05c2 100644
  )
  
  if(NOT DEFINED RELEASE_CONFIGURATION)
-@@ -31,12 +32,17 @@ set(OPTIONS
+@@ -31,12 +32,22 @@ set(OPTIONS
  )
  
  set(OPTIONS_RELEASE
@@ -123,6 +123,11 @@ index 3b905cc0..42bd05c2 100644
 +    "-DPX_OUTPUT_BIN_DIR=${CURRENT_PACKAGES_DIR}/build_output/profile"
 +    "-DPX_OUTPUT_LIB_DIR=${CURRENT_PACKAGES_DIR}/build_output/profile"
 +    "-DNV_USE_DEBUG_WINCRT=ON"
++)
++set(OPTIONS_CHECKED
++    "-DPX_OUTPUT_BIN_DIR=${CURRENT_PACKAGES_DIR}/build_output/checked"
++    "-DPX_OUTPUT_LIB_DIR=${CURRENT_PACKAGES_DIR}/build_output/checked"
++    "-DNV_USE_DEBUG_WINCRT=ON"
  )
  set(OPTIONS_DEBUG
 -    "-DPX_OUTPUT_BIN_DIR=${CURRENT_PACKAGES_DIR}/debug"
@@ -132,7 +137,7 @@ index 3b905cc0..42bd05c2 100644
      "-DNV_USE_DEBUG_WINCRT=ON"
  )
  
-@@ -50,6 +56,11 @@ elseif(VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_FREEBSD)
+@@ -50,6 +61,11 @@ elseif(VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_FREEBSD)
      list(APPEND OPTIONS "-DTARGET_BUILD_PLATFORM=linux")
  elseif(VCPKG_TARGET_IS_ANDROID)
      list(APPEND OPTIONS "-DTARGET_BUILD_PLATFORM=android")
@@ -144,15 +149,16 @@ index 3b905cc0..42bd05c2 100644
  else()
      message(FATAL_ERROR "Unhandled or unsupported target platform.")
  endif()
-@@ -82,6 +92,7 @@ vcpkg_cmake_configure(
+@@ -82,6 +98,8 @@ vcpkg_cmake_configure(
      OPTIONS ${OPTIONS}
      OPTIONS_DEBUG ${OPTIONS_DEBUG}
      OPTIONS_RELEASE ${OPTIONS_RELEASE}
 +    OPTIONS_PROFILE ${OPTIONS_PROFILE}
++    OPTIONS_CHECKED ${OPTIONS_CHECKED}
  )
  vcpkg_cmake_install()
  
-@@ -91,12 +103,25 @@ vcpkg_cmake_install()
+@@ -91,12 +109,25 @@ vcpkg_cmake_install()
  function(fixup_physx_artifacts)
      macro(_fixup _IN_DIRECTORY _OUT_DIRECTORY)
          foreach(_SUFFIX IN LISTS _fpa_SUFFIXES)
@@ -181,15 +187,16 @@ index 3b905cc0..42bd05c2 100644
              endif()
          endforeach()
      endmacro()
-@@ -104,6 +129,7 @@ function(fixup_physx_artifacts)
+@@ -104,6 +135,8 @@ function(fixup_physx_artifacts)
      cmake_parse_arguments(_fpa "" "DIRECTORY" "SUFFIXES" ${ARGN})
      _fixup("bin" ${_fpa_DIRECTORY})
      _fixup("debug/bin" "debug/${_fpa_DIRECTORY}")
 +    _fixup("profile/bin" "profile/${_fpa_DIRECTORY}")
++    _fixup("checked/bin" "checked/${_fpa_DIRECTORY}")
  endfunction()
  
  fixup_physx_artifacts(
-@@ -112,22 +138,25 @@ fixup_physx_artifacts(
+@@ -112,22 +145,27 @@ fixup_physx_artifacts(
  )
  fixup_physx_artifacts(
      DIRECTORY "bin"
@@ -204,12 +211,14 @@ index 3b905cc0..42bd05c2 100644
          "${CURRENT_PACKAGES_DIR}/bin/"
          "${CURRENT_PACKAGES_DIR}/debug/bin/"
 +        "${CURRENT_PACKAGES_DIR}/profile/bin/"
++        "${CURRENT_PACKAGES_DIR}/checked/bin/"
      )
  else()
      file(GLOB PHYSX_ARTIFACTS LIST_DIRECTORIES true
          "${CURRENT_PACKAGES_DIR}/bin/*"
          "${CURRENT_PACKAGES_DIR}/debug/bin/*"
 +        "${CURRENT_PACKAGES_DIR}/profile/bin/*"
++        "${CURRENT_PACKAGES_DIR}/checked/bin/*"
      )
      foreach(_ARTIFACT IN LISTS PHYSX_ARTIFACTS)
 -        if(IS_DIRECTORY ${_ARTIFACT})
@@ -217,37 +226,42 @@ index 3b905cc0..42bd05c2 100644
              file(REMOVE_RECURSE ${_ARTIFACT})
          endif()
      endforeach()
-@@ -136,6 +165,20 @@ endif()
+@@ -136,6 +174,25 @@ endif()
  file(REMOVE_RECURSE
      "${CURRENT_PACKAGES_DIR}/debug/include"
      "${CURRENT_PACKAGES_DIR}/debug/source"
 +    "${CURRENT_PACKAGES_DIR}/profile/include"
 +    "${CURRENT_PACKAGES_DIR}/profile/source"
++    "${CURRENT_PACKAGES_DIR}/checked/include"
++    "${CURRENT_PACKAGES_DIR}/checked/source"
      "${CURRENT_PACKAGES_DIR}/source"
  )
  file(INSTALL ${SOURCE_PATH}/README.md DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
 +if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_LIBRARY_LINKAGE STREQUAL "static")
 +    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc142.mt/debug/PhysXDevice64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/debug/bin)
 +    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc142.mt/profile/PhysXDevice64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/profile/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc142.mt/checked/PhysXDevice64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/checked/bin)
 +    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc142.mt/release/PhysXDevice64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/bin)
 +    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc140.mt/debug/PhysXGpu_64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/debug/bin)
 +    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc140.mt/profile/PhysXGpu_64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/profile/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc140.mt/checked/PhysXGpu_64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/checked/bin)
 +    file(INSTALL ${SOURCE_PATH}/physx/bin/win.x86_64.vc140.mt/release/PhysXGpu_64.dll DESTINATION ${CURRENT_PACKAGES_DIR}/bin)
 +elseif(VCPKG_TARGET_IS_LINUX AND NOT VCPKG_LIBRARY_LINKAGE STREQUAL "static")
 +    file(INSTALL ${SOURCE_PATH}/physx/bin/linux.clang/debug/libPhysXGpu_64.so DESTINATION ${CURRENT_PACKAGES_DIR}/debug/bin)
 +    file(INSTALL ${SOURCE_PATH}/physx/bin/linux.clang/profile/libPhysXGpu_64.so DESTINATION ${CURRENT_PACKAGES_DIR}/profile/bin)
++    file(INSTALL ${SOURCE_PATH}/physx/bin/linux.clang/checked/libPhysXGpu_64.so DESTINATION ${CURRENT_PACKAGES_DIR}/checked/bin)
 +    file(INSTALL ${SOURCE_PATH}/physx/bin/linux.clang/release/libPhysXGpu_64.so DESTINATION ${CURRENT_PACKAGES_DIR}/bin)
 +endif()
 diff --git a/ports/vcpkg-cmake/vcpkg_cmake_build.cmake b/ports/vcpkg-cmake/vcpkg_cmake_build.cmake
 index ef27a6c9..533343aa 100644
 --- a/ports/vcpkg-cmake/vcpkg_cmake_build.cmake
 +++ b/ports/vcpkg-cmake/vcpkg_cmake_build.cmake
-@@ -71,11 +71,14 @@ function(vcpkg_cmake_build)
+@@ -71,11 +71,17 @@ function(vcpkg_cmake_build)
          set(target_args "--target" "${arg_TARGET}")
      endif()
  
 -    foreach(buildtype IN ITEMS debug release)
-+    foreach(buildtype IN ITEMS debug profile release)
++    foreach(buildtype IN ITEMS debug profile checked release)
          if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL buildtype)
              if(buildtype STREQUAL "debug")
                  set(short_buildtype "dbg")
@@ -255,15 +269,20 @@ index ef27a6c9..533343aa 100644
 +            elseif(buildtype STREQUAL "profile")
 +                set(short_buildtype "profile")
 +                set(cmake_config "Profile")
++            elseif(buildtype STREQUAL "checked")
++                set(short_buildtype "checked")
++                set(cmake_config "Checked")
              else()
                  set(short_buildtype "rel")
                  set(cmake_config "Release")
-@@ -87,6 +90,8 @@ function(vcpkg_cmake_build)
+@@ -87,6 +93,10 @@ function(vcpkg_cmake_build)
                  set(env_path_backup "$ENV{PATH}")
                  if(buildtype STREQUAL "debug")
                      vcpkg_add_to_path(PREPEND "${CURRENT_INSTALLED_DIR}/debug/bin")
 +                elseif(buildtype STREQUAL "profile")
 +                    vcpkg_add_to_path(PREPEND "${CURRENT_INSTALLED_DIR}/profile/bin")
++                elseif(buildtype STREQUAL "checked")
++                    vcpkg_add_to_path(PREPEND "${CURRENT_INSTALLED_DIR}/checked/bin")
                  else()
                      vcpkg_add_to_path(PREPEND "${CURRENT_INSTALLED_DIR}/bin")
                  endif()
@@ -276,11 +295,11 @@ index 3b7d31ef..8ce2e5da 100644
          "PREFER_NINJA;DISABLE_PARALLEL_CONFIGURE;WINDOWS_USE_MSBUILD;NO_CHARSET_FLAG"
          "SOURCE_PATH;GENERATOR;LOGFILE_BASE"
 -        "OPTIONS;OPTIONS_DEBUG;OPTIONS_RELEASE"
-+        "OPTIONS;OPTIONS_DEBUG;OPTIONS_RELEASE;OPTIONS_PROFILE"
++        "OPTIONS;OPTIONS_DEBUG;OPTIONS_RELEASE;OPTIONS_PROFILE;OPTIONS_CHECKED"
      )
  
      if(DEFINED CACHE{Z_VCPKG_CMAKE_GENERATOR})
-@@ -385,6 +385,22 @@ function(vcpkg_cmake_configure)
+@@ -385,6 +385,38 @@ function(vcpkg_cmake_configure)
                  LOGNAME "${arg_LOGFILE_BASE}-rel"
              )
          endif()
@@ -298,6 +317,22 @@ index 3b7d31ef..8ce2e5da 100644
 +                    "-DCMAKE_INSTALL_PREFIX=${CURRENT_PACKAGES_DIR}"
 +                WORKING_DIRECTORY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-profile"
 +                LOGNAME "${arg_LOGFILE_BASE}-profile"
++            )
++        endif()
++
++        if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "checked")
++            message(STATUS "Configuring ${TARGET_TRIPLET}-checked")
++            file(MAKE_DIRECTORY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-checked")
++            vcpkg_execute_required_process(
++                COMMAND
++                    "${CMAKE_COMMAND}" "${arg_SOURCE_PATH}"
++                    ${arg_OPTIONS}
++                    ${arg_OPTIONS_CHECKED}
++                    -G "${generator}"
++                    "-DCMAKE_BUILD_TYPE=Checked"
++                    "-DCMAKE_INSTALL_PREFIX=${CURRENT_PACKAGES_DIR}"
++                WORKING_DIRECTORY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-checked"
++                LOGNAME "${arg_LOGFILE_BASE}-checked"
 +            )
 +        endif()
      endif()

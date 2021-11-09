@@ -40,13 +40,13 @@ def main():
 
     extraLibsPerPlatform = {
         'linux': {
-            'EXTRA_SHARED_LIBS': '${CMAKE_CURRENT_LIST_DIR}/PhysX/pxshared/$<IF:$<CONFIG:debug>,debug/,$<$<CONFIG:profile>:profile/>>bin/libPhysXGpu_64.so',
+            'EXTRA_SHARED_LIBS': '${PATH_TO_SHARED_LIBS}/libPhysXGpu_64.so',
             'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '',
         },
         'windows': {
             'EXTRA_SHARED_LIBS': '\n'.join((
-                '${CMAKE_CURRENT_LIST_DIR}/PhysX/pxshared/$<IF:$<CONFIG:debug>,debug/,$<$<CONFIG:profile>:profile/>>bin/PhysXDevice64.dll'
-                '${CMAKE_CURRENT_LIST_DIR}/PhysX/pxshared/$<IF:$<CONFIG:debug>,debug/,$<$<CONFIG:profile>:profile/>>bin/PhysGpu_64.dll'
+                '${PATH_TO_SHARED_LIBS}/PhysXDevice64.dll',
+                '${PATH_TO_SHARED_LIBS}/PhysXGpu_64.dll'
             )),
             'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '\n'.join((
                 '${PATH_TO_STATIC_LIBS}/LowLevel_static_64.lib',
@@ -91,9 +91,9 @@ def main():
             builder.build()
 
             if maybeStatic:
-                subdir = 'physx'
+                subdir = 'static'
             else:
-                subdir = 'pxshared'
+                subdir = 'shared'
             builder.copyBuildOutputTo(
                 outputDir,
                 extraFiles={
@@ -107,7 +107,7 @@ def main():
                 builder.writePackageInfoFile(
                     outputDir,
                     settings={
-                        'PackageName': f'PhysX-4.1.2.29882248-rev3-{args.platformName}',
+                        'PackageName': f'PhysX-4.1.2.29882248-rev4-{args.platformName}',
                         'URL': 'https://github.com/NVIDIAGameWorks/PhysX',
                         'License': 'BSD-3-Clause',
                         'LicenseFile': 'PhysX/LICENSE.md'
