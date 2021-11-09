@@ -11,7 +11,7 @@ RUN apt-get -y install vim
 # O3DE build dependencies
 RUN apt-get -y install build-essential
 RUN apt-get -y install libgl-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libsdl2-2.0-0 libsdl2-dev
-RUN apt-get -y install clang-6.0 libc++-dev libc++abi-dev uuid-dev libz-dev libncurses5-dev libcurl4-openssl-dev libjpeg-dev libjbig-dev libpython3.7
+RUN apt-get -y install clang-12 libc++-dev libc++abi-dev uuid-dev libz-dev libncurses5-dev libcurl4-openssl-dev libjpeg-dev libjbig-dev libpython3.7
  
 RUN update-alternatives --install /usr/bin/cc cc /usr/bin/clang 100
 RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 100

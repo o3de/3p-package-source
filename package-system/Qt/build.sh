@@ -40,7 +40,7 @@ fi
 cd $BUILD_PATH
 
 echo Configuring Qt...
-../configure \
+../src/configure \
 -prefix ${TARGET_INSTALL_ROOT} \
 -opensource \
 -nomake examples \

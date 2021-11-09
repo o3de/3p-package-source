@@ -27,23 +27,23 @@
         },
         "Darwin": {
             "Mac": {
+                "package_version": "5.15.2-rev5",
                 "custom_build_cmd": [
-                    "install_miniconda.py",
-                    "sh build.sh"
+                    "./build.sh"
                 ],
                 "custom_install_cmd": [
-                    "copy_platform_cmakes.py"
+                    "{python} copy_platform_cmakes.py"
                 ]
             }
         },
         "Linux": {
             "Linux": {
+                "package_version": "5.15.2-rev5",
                 "custom_build_cmd": [
-                    "install_miniconda.py",
-                    "sh build.sh"
+                    "./build.sh"
                 ],
                 "custom_install_cmd": [
-                    "copy_platform_cmakes.py"
+                    "{python} copy_platform_cmakes.py"
                 ]
             }
         }
