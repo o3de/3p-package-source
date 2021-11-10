@@ -1,0 +1,210 @@
+diff --git a/README.md b/README.md
+index fe61136b2..aae6b7b4e 100644
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,30 @@
++**Building PySide2 for Lumberyard**
++
++NOTE: Currently Windows is the only supported platform.
++
++PySide2 building requires CMake, Visual Studio 2019, and Python 3.6+
++
++To build, make a copy of build_pyside_example.bat as build_pyside.bat and modify the following parameters:
++--pyside-src: The PySide source to build against.
++--ly-path: This should be the path to the root (dev) directory of the branch of LY this is built for
++--qt-path: This shuold be the path to the Qt to build against
++--install-path: This should be the path to the pyside2 directory in your current branch to install to
++--libclang-path: This should be a path to an install of libclang. This can be downloaded from:
++http://download.qt.io/development_releases/prebuilt/libclang/
++--build-path: This is just the temporary directory for the build and kept left the same.
++
++Then open a command prompt and run:
++build_pyside.bat build_and_install
++
++This will build PySide and copy it to your LY install, checking out the files as it copies them over.
++
++**Upgrading**
++
++Patches to PySide's source may need to be carried forward to new versions, see:
++pyside2-qt-5.12.6/patches
++
++Original project README:
++
+ # Qt For Python
+ 
+ Qt For Python is the [Python Qt bindings project](http://wiki.qt.io/PySide2), providing
+diff --git a/build_scripts/main.py b/build_scripts/main.py
+index cf56850df..0e1a0fa4b 100644
+--- a/build_scripts/main.py
++++ b/build_scripts/main.py
+@@ -544,6 +544,9 @@ class PysideBuild(_build):
+                 py_include_dir = os.path.join(py_prefix, "include")
+             else:
+                 py_include_dir = os.path.join(py_prefix, "include/python{}".format(py_version))
++                if not os.path.isdir(py_include_dir):
++                    py_include_dir = os.path.join(py_prefix, "include/python{}m".format(py_version))
++
+         dbg_postfix = ""
+         if build_type == "Debug":
+             dbg_postfix = "_d"
+diff --git a/sources/pyside2/libpyside/pyside.cpp b/sources/pyside2/libpyside/pyside.cpp
+index e2b8708ce..0541c7d91 100644
+--- a/sources/pyside2/libpyside/pyside.cpp
++++ b/sources/pyside2/libpyside/pyside.cpp
+@@ -423,7 +423,7 @@ static const char invalidatePropertyName[] = "_PySideInvalidatePtr";
+ // class by walking up the meta objects.
+ static const char *typeName(QObject *cppSelf)
+ {
+-    const char *typeName = typeid(*cppSelf).name();
++    const char *typeName = getTypeId(*cppSelf).name();
+     if (!Shiboken::Conversions::getConverter(typeName)) {
+         for (auto metaObject = cppSelf->metaObject(); metaObject; metaObject = metaObject->superClass()) {
+             const char *name = metaObject->className();
+@@ -459,7 +459,6 @@ PyObject *getWrapperForQObject(QObject *cppSelf, SbkObjectType *sbk_type)
+     }
+ 
+     pyOut = Shiboken::Object::newObject(sbk_type, cppSelf, false, false, typeName(cppSelf));
+-
+     return pyOut;
+ }
+ 
+diff --git a/sources/pyside2/libpyside/pyside.h b/sources/pyside2/libpyside/pyside.h
+index ae400e1fe..b7412594b 100644
+--- a/sources/pyside2/libpyside/pyside.h
++++ b/sources/pyside2/libpyside/pyside.h
+@@ -50,12 +50,57 @@
+ 
+ #include <QtCore/QMetaType>
+ #include <QtCore/QHash>
++#include <QtCore/QMetaObject>
++#include <QtCore/QObject>
++
++#include <type_traits>
++#include <typeinfo>
+ 
+ struct SbkObjectType;
+ 
+ namespace PySide
+ {
+ 
++// Analog for std::type_info with the name field, to allow getTypeId to be used in lieu of typeid
++class TypeInfo
++{
++private:
++    const char* m_name = nullptr;
++
++public:
++    explicit TypeInfo(const char* name) : m_name(name) {}
++    const char* name() const { return m_name; }
++};
++
++// getTypeId returns an interface similar to the std::type_info returned by typeid, but will attempt to use
++// Qt's meta-object system for QObject subclasses instead - this allows Shiboken to interop with libraries that
++// are built without RTTI
++template <class T>
++const TypeInfo getTypeId(typename std::enable_if<std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    const char* typeName = T::staticMetaObject.className();
++    return TypeInfo(typeName);
++}
++
++template <class T>
++const TypeInfo getTypeId(typename std::enable_if<!std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    return TypeInfo(typeid(T).name());
++}
++
++template <class T>
++const TypeInfo getTypeId(const T& t, typename std::enable_if<std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    const char* typeName = t.metaObject() ? t.metaObject()->className() : T::staticMetaObject.className();
++    return TypeInfo(typeName);
++}
++
++template <class T>
++const TypeInfo getTypeId(const T& t, typename std::enable_if<!std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    return TypeInfo(typeid(t).name());
++}
++
+ PYSIDE_API void init(PyObject *module);
+ 
+ /**
+diff --git a/sources/shiboken2/CMakeLists.txt b/sources/shiboken2/CMakeLists.txt
+index c1349cae6..5e6071bb7 100644
+--- a/sources/shiboken2/CMakeLists.txt
++++ b/sources/shiboken2/CMakeLists.txt
+@@ -76,7 +76,7 @@ if (NOT PYTHON_EXTENSION_SUFFIX)
+   get_python_extension_suffix()
+ endif()
+ 
+-option(FORCE_LIMITED_API "Enable the limited API." "yes")
++option(FORCE_LIMITED_API "Enable the limited API." ON)
+ set(PYTHON_LIMITED_API 0)
+ 
+ shiboken_check_if_limited_api()
+diff --git a/sources/shiboken2/data/shiboken_helpers.cmake b/sources/shiboken2/data/shiboken_helpers.cmake
+index 6bd75d0ea..316b52f05 100644
+--- a/sources/shiboken2/data/shiboken_helpers.cmake
++++ b/sources/shiboken2/data/shiboken_helpers.cmake
+@@ -298,7 +298,7 @@ macro(shiboken_check_if_limited_api)
+         OUTPUT_VARIABLE PYTHON_LIMITED_LIBRARIES
+         OUTPUT_STRIP_TRAILING_WHITESPACE)
+ 
+-    if(FORCE_LIMITED_API STREQUAL "yes")
++    if(FORCE_LIMITED_API)
+         if (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} GREATER 4)
+             # GREATER_EQUAL is available only from cmake 3.7 on. We mean python 3.5 .
+             set(PYTHON_LIMITED_API 1)
+diff --git a/sources/shiboken2/generator/shiboken2/cppgenerator.cpp b/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
+index 64467e3d1..e729c49ea 100644
+--- a/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
++++ b/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
+@@ -58,7 +58,11 @@ static const char typeNameFunc[] = R"CPP(
+ template <class T>
+ static const char *typeNameOf(const T &t)
+ {
++#ifdef PYSIDE_H
++    const char *typeName =  PySide::getTypeId<T>(t).name();
++#else
+     const char *typeName =  typeid(t).name();
++#endif //PYSIDE_H
+     auto size = std::strlen(typeName);
+ #if defined(Q_CC_MSVC) // MSVC: "class QPaintDevice * __ptr64"
+     if (auto lastStar = strchr(typeName, '*')) {
+@@ -1522,18 +1526,31 @@ void CppGenerator::writeConverterRegister(QTextStream &s, const AbstractMetaClas
+         cppSignature.removeFirst();
+     }
+ 
+-    s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
++    if (usePySideExtensions() && metaClass->isQObject()) {
++        s << INDENT << "Shiboken::Conversions::registerConverterName(converter, PySide::getTypeId<::";
++    } else {
++        s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
++    }
+     QString qualifiedCppNameInvocation;
+     if (!classContext.forSmartPointer())
+         qualifiedCppNameInvocation = metaClass->qualifiedCppName();
+     else
+         qualifiedCppNameInvocation = classContext.preciseType()->cppSignature();
+ 
+-    s << qualifiedCppNameInvocation << ").name());\n";
++    if (usePySideExtensions() && metaClass->isQObject()) {
++        s << qualifiedCppNameInvocation << ">().name());\n";
++    } else {
++        s << qualifiedCppNameInvocation << ").name());\n";
++    }
+ 
+     if (shouldGenerateCppWrapper(metaClass)) {
+-        s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
+-        s << wrapperName(metaClass) << ").name());\n";
++        if (usePySideExtensions() && metaClass->isQObject()) {
++            s << INDENT << "Shiboken::Conversions::registerConverterName(converter, PySide::getTypeId<::";
++            s << wrapperName(metaClass) << ">().name());\n";
++        } else {
++            s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
++            s << wrapperName(metaClass) << ").name());\n";
++        }
+     }
+ 
+     s << endl;
