@@ -42,15 +42,6 @@ else()
     set(PATH_TO_SHARED_LIBS $${_PACKAGE_DIR}/bin)
 endif()
 
-set(PATH_TO_STATIC_LIBS $${_PACKAGE_DIR}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:$${PHYSX_PROFILE_CONFIG}>>/lib)
-# Frameworks are added and managed by XCode during the build process.
-# At the moment $$<CONFIG> does not get replaced for "debug", "profile" or
-# "release" for frameworks when added to XCode, so it's not able to find
-# the frameworks since their path is wrong. To workaround this, for now it
-# will only use the release version of the library.
-set(PATH_TO_SHARED_LIBS $${_PACKAGE_DIR}/bin)
-
-
 set($${MY_NAME}_LIBRARIES
     $${PATH_TO_STATIC_LIBS}/libPhysXCharacterKinematic_static_64.a
     $${PATH_TO_STATIC_LIBS}/libPhysXVehicle_static_64.a
