@@ -12,7 +12,7 @@ if (TARGET $${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
-set(_PACKAGE_DIR $${CMAKE_CURRENT_LIST_DIR}/PhysX/$$<IF:$$<BOOL:$${LY_MONOLITHIC_GAME}>,physx,pxshared>/)
+set(_PACKAGE_DIR $${CMAKE_CURRENT_LIST_DIR}/PhysX/$$<IF:$$<BOOL:$${LY_MONOLITHIC_GAME}>,static,shared>)
 
 set($${MY_NAME}_INCLUDE_DIR
     $${_PACKAGE_DIR}/include
@@ -22,14 +22,25 @@ set($${MY_NAME}_INCLUDE_DIR
 
 set($${MY_NAME}_COMPILE_DEFINITIONS $$<$$<BOOL:$${LY_MONOLITHIC_GAME}>:PX_PHYSX_STATIC_LIB>)
 
-set(PATH_TO_STATIC_LIBS $${_PACKAGE_DIR}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:profile>>/lib)
-# Frameworks are added and managed by XCode during the build process.
-# At the moment $$<CONFIG> does not get replaced for "debug", "profile" or
-# "release" for frameworks when added to XCode, so it's not able to find
-# the frameworks since their path is wrong. To workaround this, for now it
-# will only use the release version of the library.
-set(PATH_TO_SHARED_LIBS $${_PACKAGE_DIR}/bin)
+# LY_PHYSX_PROFILE_USE_CHECKED_LIBS allows to override what PhysX configuration to use on O3DE profile.
+set(LY_PHYSX_PROFILE_USE_CHECKED_LIBS OFF CACHE BOOL "When ON it uses PhysX SDK checked libraries on O3DE profile configuration")
+if(LY_PHYSX_PROFILE_USE_CHECKED_LIBS)
+    set(PHYSX_PROFILE_CONFIG "checked")
+else()
+    set(PHYSX_PROFILE_CONFIG "profile")
+endif()
 
+if(LY_MONOLITHIC_GAME)
+    set(PATH_TO_STATIC_LIBS $${_PACKAGE_DIR}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:$${PHYSX_PROFILE_CONFIG}>>/lib)
+else()
+    # Frameworks are added and managed by XCode during the build process.
+    # At the moment $$<CONFIG> does not get replaced for "debug", "profile" or
+    # "release" for frameworks when added to XCode, so it's not able to find
+    # the frameworks since their path is wrong. To workaround this, for now it
+    # will only use the release version of the library.
+    set(PATH_TO_STATIC_LIBS $${_PACKAGE_DIR}/lib)
+    set(PATH_TO_SHARED_LIBS $${_PACKAGE_DIR}/bin)
+endif()
 
 set($${MY_NAME}_LIBRARIES
     $${PATH_TO_STATIC_LIBS}/libPhysXCharacterKinematic_static_64.a
