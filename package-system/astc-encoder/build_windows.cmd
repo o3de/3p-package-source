@@ -6,7 +6,9 @@ REM SPDX-License-Identifier: Apache-2.0 OR MIT
 REM
 REM
 
-cmake -S temp/src -B temp/build -G "Visual Studio 16 2019" -DISA_SSE2=ON
+REM Note: on x86/x64 platforms, O3DE requires a minimum of SSE 4.1, so we do request this.
+
+cmake -S temp/src -B temp/build -G "Visual Studio 16 2019" -DISA_SSE41=ON
 
 @if %errorlevel% NEQ 0 ( exit /b 1 )
 cmake --build temp/build --config Release -j 8

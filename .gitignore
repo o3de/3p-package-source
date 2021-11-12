@@ -6,3 +6,5 @@ TestResults/**
 .pytest_cache
 packages/
 **/temp/**
+qt_compile_log.txt
+
