@@ -16,5 +16,13 @@ endif()
 add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
      
 ly_pip_install_local_package_editable(${CMAKE_CURRENT_LIST_DIR}/pyside2 pyside2)
+
+set(pyside2_RUNTIME_DEPENDENCIES
+    ${PYSIDE_BASE_PATH}/PySide2/libpyside2.abi3.so.5.14
+    ${PYSIDE_BASE_PATH}/PySide2/libpyside2.abi3.so.5.14.2.3
+    ${PYSIDE_BASE_PATH}/shiboken2/shiboken2.abi3.so
+    ${PYSIDE_BASE_PATH}/shiboken2/libshiboken2.abi3.so.5.14
+    ${PYSIDE_BASE_PATH}/shiboken2/libshiboken2.abi3.so.5.14.2.3
+)
      
 set(${MY_NAME}_FOUND True)
