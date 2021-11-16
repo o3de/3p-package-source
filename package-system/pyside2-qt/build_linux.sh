@@ -50,4 +50,4 @@ $LOCAL_PYTHON37_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --buil
 
 popd
 
-exit 0 
+exit 0

@@ -32,7 +32,6 @@ if __name__ == '__main__':
         long_description=long_description,
         packages=['PySide2', 'shiboken2'],
         install_requires=[
-
         ],
         tests_require=[
         ],
