@@ -39,9 +39,4 @@ $TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/shiboken2/shiboken2
 cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/
 cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/
 
-# Create the additional folder for cmake
-mkdir $PACKAGE_ROOT/Platform
-mkdir $PACKAGE_ROOT/Platform/Linux
-cp $TEMP_FOLDER/../pyside2_linux.cmake $PACKAGE_ROOT/Platform/Linux/
-
 exit 0
