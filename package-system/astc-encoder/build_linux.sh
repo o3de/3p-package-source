@@ -5,15 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
-cmake -S temp/src -B temp/build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DISA_SSE2=ON
-
-if [ $? -ne 0 ]; then
-    echo "Error generating build"
-    exit 1
-fi
-
-cmake --build temp/build -j 8
-if [ $? -ne 0 ]; then
-    echo "Error building"
-    exit 1
-fi
+# Note: on x86/x64 platforms, O3DE requires a minimum of SSE 4.1, so we do request this.
+cmake -S temp/src -B temp/build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DISA_SSE41=ON || exit $?
+cmake --build temp/build -j 8 || exit $?

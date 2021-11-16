@@ -9,19 +9,12 @@ export CXX=clang++
 
 # using -DISA_AVX2=ON enables build for x86_64
 # using -DISA_NEON=ON enables build for arm64 
-# to build arm64 requires xcode 12.3 and macos 11 which is not supported on my Mac
-# we have to disable cpu specific options for an universal build
+# to build arm64 requires xcode 12.3 and macos 11
+# Note: on x86/x64 platforms, O3DE requires a minimum of SSE 4.1, so we do request this.
 
-cmake -S temp/src -B temp/build -G "Unix Makefiles" 
+cmake -S temp/src -B temp/build -G "Unix Makefiles" \
+    -DISA_SSE41=ON \
+    -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake || exit $?
 
-if [ $? -ne 0 ]; then
-    echo "Error generating build"
-    exit 1
-fi
-
-cmake --build temp/build --config Release -j 8
-if [ $? -ne 0 ]; then
-    echo "Error building"
-    exit 1
-fi
+cmake --build temp/build --config Release --parallel || exit $?
 
