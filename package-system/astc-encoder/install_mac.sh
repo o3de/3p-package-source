@@ -17,7 +17,7 @@ cp -f temp/src/Source/astcenc.h $INCLUDE_PATH/ || exit $?
 
 BUILD_PATH=temp/build/Source
 
-# copy sse2 lib and executable
+# copy sse4.1 lib and executable
 cp -f $BUILD_PATH/astcenc-sse4.1 $BIN_PATH/ || exit $?
 cp -f $BUILD_PATH/libastcenc-sse4.1-static.a $BIN_PATH/ || exit $?
 
