@@ -1,0 +1,224 @@
+diff --git a/build_scripts/main.py b/build_scripts/main.py
+index cf56850df..0e1a0fa4b 100644
+--- a/build_scripts/main.py
++++ b/build_scripts/main.py
+@@ -544,6 +544,9 @@ class PysideBuild(_build):
+                 py_include_dir = os.path.join(py_prefix, "include")
+             else:
+                 py_include_dir = os.path.join(py_prefix, "include/python{}".format(py_version))
++                if not os.path.isdir(py_include_dir):
++                    py_include_dir = os.path.join(py_prefix, "include/python{}m".format(py_version))
++
+         dbg_postfix = ""
+         if build_type == "Debug":
+             dbg_postfix = "_d"
+diff --git a/sources/pyside2/libpyside/CMakeLists.txt b/sources/pyside2/libpyside/CMakeLists.txt
+index 7493a453a..f67196815 100644
+--- a/sources/pyside2/libpyside/CMakeLists.txt
++++ b/sources/pyside2/libpyside/CMakeLists.txt
+@@ -1,13 +1,5 @@
+ project(libpyside)
+ 
+-if(${Qt5Qml_FOUND})
+-    if(NOT "${Qt5Qml_PRIVATE_INCLUDE_DIRS}" MATCHES "/QtQml/")
+-        string(REPLACE "/QtCore" "/QtQml" replaceme "${Qt5Core_PRIVATE_INCLUDE_DIRS}")
+-        list(APPEND Qt5Qml_PRIVATE_INCLUDE_DIRS ${replaceme})
+-        list(REMOVE_DUPLICATES Qt5Qml_PRIVATE_INCLUDE_DIRS)
+-    endif()
+-endif()
+-
+ if(${Qt5Quick_FOUND})
+     if(NOT "${Qt5Quick_PRIVATE_INCLUDE_DIRS}" MATCHES "/QtQuick/")
+         string(REPLACE "/QtCore" "/QtQuick" replaceme "${Qt5Core_PRIVATE_INCLUDE_DIRS}")
+@@ -17,26 +9,11 @@ if(${Qt5Quick_FOUND})
+     endif()
+ endif()
+ 
++# Disable QML support
++set(QML_SUPPORT 0)
+ set(QML_PRIVATE_API_SUPPORT 0)
+-if(Qt5Qml_FOUND)
+-    # Used for registering custom QQuickItem classes defined in Python code.
+-    set(QML_SUPPORT 1)
+-    set(QML_INCLUDES ${Qt5Qml_INCLUDE_DIRS})
+-    set(QML_LIBRARIES ${Qt5Qml_LIBRARIES})
+-
+-    if(Qt5Qml_PRIVATE_INCLUDE_DIRS)
+-        # Used for transforming QML exceptions into Python exceptions.
+-        set(QML_PRIVATE_API_SUPPORT 1)
+-        set(QML_INCLUDES ${QML_INCLUDES} ${Qt5Qml_PRIVATE_INCLUDE_DIRS})
+-    else()
+-        message(WARNING "QML private API include files could not be found, support for catching QML exceptions inside Python code will not work.")
+-    endif()
+-else()
+-    set(QML_SUPPORT 0)
+-    set(QML_PRIVATE_API_SUPPORT 0)
+-    set(QML_INCLUDES "")
+-    set(QML_LIBRARIES "")
+-endif()
++set(QML_INCLUDES "")
++set(QML_LIBRARIES "")
+ 
+ qt5_wrap_cpp(DESTROYLISTENER_MOC "destroylistener.h")
+ 
+diff --git a/sources/pyside2/libpyside/pyside.cpp b/sources/pyside2/libpyside/pyside.cpp
+index e2b8708ce..0541c7d91 100644
+--- a/sources/pyside2/libpyside/pyside.cpp
++++ b/sources/pyside2/libpyside/pyside.cpp
+@@ -423,7 +423,7 @@ static const char invalidatePropertyName[] = "_PySideInvalidatePtr";
+ // class by walking up the meta objects.
+ static const char *typeName(QObject *cppSelf)
+ {
+-    const char *typeName = typeid(*cppSelf).name();
++    const char *typeName = getTypeId(*cppSelf).name();
+     if (!Shiboken::Conversions::getConverter(typeName)) {
+         for (auto metaObject = cppSelf->metaObject(); metaObject; metaObject = metaObject->superClass()) {
+             const char *name = metaObject->className();
+@@ -459,7 +459,6 @@ PyObject *getWrapperForQObject(QObject *cppSelf, SbkObjectType *sbk_type)
+     }
+ 
+     pyOut = Shiboken::Object::newObject(sbk_type, cppSelf, false, false, typeName(cppSelf));
+-
+     return pyOut;
+ }
+ 
+diff --git a/sources/pyside2/libpyside/pyside.h b/sources/pyside2/libpyside/pyside.h
+index ae400e1fe..b7412594b 100644
+--- a/sources/pyside2/libpyside/pyside.h
++++ b/sources/pyside2/libpyside/pyside.h
+@@ -50,12 +50,57 @@
+ 
+ #include <QtCore/QMetaType>
+ #include <QtCore/QHash>
++#include <QtCore/QMetaObject>
++#include <QtCore/QObject>
++
++#include <type_traits>
++#include <typeinfo>
+ 
+ struct SbkObjectType;
+ 
+ namespace PySide
+ {
+ 
++// Analog for std::type_info with the name field, to allow getTypeId to be used in lieu of typeid
++class TypeInfo
++{
++private:
++    const char* m_name = nullptr;
++
++public:
++    explicit TypeInfo(const char* name) : m_name(name) {}
++    const char* name() const { return m_name; }
++};
++
++// getTypeId returns an interface similar to the std::type_info returned by typeid, but will attempt to use
++// Qt's meta-object system for QObject subclasses instead - this allows Shiboken to interop with libraries that
++// are built without RTTI
++template <class T>
++const TypeInfo getTypeId(typename std::enable_if<std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    const char* typeName = T::staticMetaObject.className();
++    return TypeInfo(typeName);
++}
++
++template <class T>
++const TypeInfo getTypeId(typename std::enable_if<!std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    return TypeInfo(typeid(T).name());
++}
++
++template <class T>
++const TypeInfo getTypeId(const T& t, typename std::enable_if<std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    const char* typeName = t.metaObject() ? t.metaObject()->className() : T::staticMetaObject.className();
++    return TypeInfo(typeName);
++}
++
++template <class T>
++const TypeInfo getTypeId(const T& t, typename std::enable_if<!std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    return TypeInfo(typeid(t).name());
++}
++
+ PYSIDE_API void init(PyObject *module);
+ 
+ /**
+diff --git a/sources/shiboken2/CMakeLists.txt b/sources/shiboken2/CMakeLists.txt
+index c1349cae6..5e6071bb7 100644
+--- a/sources/shiboken2/CMakeLists.txt
++++ b/sources/shiboken2/CMakeLists.txt
+@@ -76,7 +76,7 @@ if (NOT PYTHON_EXTENSION_SUFFIX)
+   get_python_extension_suffix()
+ endif()
+ 
+-option(FORCE_LIMITED_API "Enable the limited API." "yes")
++option(FORCE_LIMITED_API "Enable the limited API." ON)
+ set(PYTHON_LIMITED_API 0)
+ 
+ shiboken_check_if_limited_api()
+diff --git a/sources/shiboken2/data/shiboken_helpers.cmake b/sources/shiboken2/data/shiboken_helpers.cmake
+index 6bd75d0ea..316b52f05 100644
+--- a/sources/shiboken2/data/shiboken_helpers.cmake
++++ b/sources/shiboken2/data/shiboken_helpers.cmake
+@@ -298,7 +298,7 @@ macro(shiboken_check_if_limited_api)
+         OUTPUT_VARIABLE PYTHON_LIMITED_LIBRARIES
+         OUTPUT_STRIP_TRAILING_WHITESPACE)
+ 
+-    if(FORCE_LIMITED_API STREQUAL "yes")
++    if(FORCE_LIMITED_API)
+         if (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} GREATER 4)
+             # GREATER_EQUAL is available only from cmake 3.7 on. We mean python 3.5 .
+             set(PYTHON_LIMITED_API 1)
+diff --git a/sources/shiboken2/generator/shiboken2/cppgenerator.cpp b/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
+index 64467e3d1..e729c49ea 100644
+--- a/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
++++ b/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
+@@ -58,7 +58,11 @@ static const char typeNameFunc[] = R"CPP(
+ template <class T>
+ static const char *typeNameOf(const T &t)
+ {
++#ifdef PYSIDE_H
++    const char *typeName =  PySide::getTypeId<T>(t).name();
++#else
+     const char *typeName =  typeid(t).name();
++#endif //PYSIDE_H
+     auto size = std::strlen(typeName);
+ #if defined(Q_CC_MSVC) // MSVC: "class QPaintDevice * __ptr64"
+     if (auto lastStar = strchr(typeName, '*')) {
+@@ -1522,18 +1526,31 @@ void CppGenerator::writeConverterRegister(QTextStream &s, const AbstractMetaClas
+         cppSignature.removeFirst();
+     }
+ 
+-    s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
++    if (usePySideExtensions() && metaClass->isQObject()) {
++        s << INDENT << "Shiboken::Conversions::registerConverterName(converter, PySide::getTypeId<::";
++    } else {
++        s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
++    }
+     QString qualifiedCppNameInvocation;
+     if (!classContext.forSmartPointer())
+         qualifiedCppNameInvocation = metaClass->qualifiedCppName();
+     else
+         qualifiedCppNameInvocation = classContext.preciseType()->cppSignature();
+ 
+-    s << qualifiedCppNameInvocation << ").name());\n";
++    if (usePySideExtensions() && metaClass->isQObject()) {
++        s << qualifiedCppNameInvocation << ">().name());\n";
++    } else {
++        s << qualifiedCppNameInvocation << ").name());\n";
++    }
+ 
+     if (shouldGenerateCppWrapper(metaClass)) {
+-        s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
+-        s << wrapperName(metaClass) << ").name());\n";
++        if (usePySideExtensions() && metaClass->isQObject()) {
++            s << INDENT << "Shiboken::Conversions::registerConverterName(converter, PySide::getTypeId<::";
++            s << wrapperName(metaClass) << ">().name());\n";
++        } else {
++            s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
++            s << wrapperName(metaClass) << ").name());\n";
++        }
+     }
+ 
+     s << endl;

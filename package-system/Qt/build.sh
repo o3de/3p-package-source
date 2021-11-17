@@ -84,12 +84,3 @@ for qtlib in "${qtarray[@]}"; do
     echo $qtlib installed.
 done
 echo Qt installed successfully!
-
-if [[ "$OSTYPE" != "darwin"* ]]; then
-    VERSION=$($TARGET_INSTALL_ROOT/bin/qmake -query QT_VERSION)
-    # Strip libQt5Core for WSL compatibility
-    strip --remove-section=.note.ABI-tag $TARGET_INSTALL_ROOT/lib/libQt5Core.so.$VERSION
-    # Remove symlinks from the build dir, we regenerate them
-    find $TARGET_INSTALL_ROOT/lib -type l | xargs rm
-    echo Qt install post-processing complete!
-fi

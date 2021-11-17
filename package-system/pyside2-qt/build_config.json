@@ -1,0 +1,28 @@
+{
+    "git_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
+    "git_tag": "v5.14.2.3",
+    "package_name": "pyside2",
+    "package_version": "5.15.2-rev1",
+    "package_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
+    "package_license": "custom",
+    "package_license_file": "pyside2/LICENSE.LGPLv3",
+    "patch_file": "pyside_o3de-v5.14.2.3.patch",
+    "cmake_find_target": "Findpyside2.cmake",
+    "Platforms": {
+        "Linux": {
+            "Linux": {
+                "depends_on_packages" :[ 
+                    ["python-3.7.10-rev2-linux", "6b9cf455e6190ec38836194f4454bb9db6bfc6890b4baff185cc5520aa822f05", ""],
+                    ["qt-5.15.2-rev6-linux", "a37bd9989f1e8fe57d94b98cbf9bd5c3caaea740e2f314e5162fa77300551531", ""]
+                ],
+                "cmake_find_source": "Findpyside2.cmake.Linux",
+                "custom_build_cmd": [
+                    "./build_linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./package_linux.sh"
+                ]
+            }
+        }
+    }
+}
