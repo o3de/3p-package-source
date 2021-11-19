@@ -13,6 +13,7 @@ if (TARGET $${TARGET_WITH_NAMESPACE})
 endif()
 
 set(_PACKAGE_DIR $${CMAKE_CURRENT_LIST_DIR}/PhysX/$$<IF:$$<BOOL:$${LY_MONOLITHIC_GAME}>,static,shared>)
+set(_PACKAGE_DIR_SHARED $${CMAKE_CURRENT_LIST_DIR}/PhysX/shared)
 
 set($${MY_NAME}_INCLUDE_DIR
     $${_PACKAGE_DIR}/include
@@ -31,7 +32,8 @@ else()
 endif()
 
 set(PATH_TO_STATIC_LIBS $${_PACKAGE_DIR}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:$${PHYSX_PROFILE_CONFIG}>>/lib)
-set(PATH_TO_SHARED_LIBS $${_PACKAGE_DIR}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:$${PHYSX_PROFILE_CONFIG}>>/bin)
+set(PATH_TO_SHARED_LIBS $${_PACKAGE_DIR_SHARED}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:$${PHYSX_PROFILE_CONFIG}>>/bin)
+
 if(DEFINED CMAKE_IMPORT_LIBRARY_SUFFIX)
     set(PATH_TO_IMPORT_LIBS $${PATH_TO_STATIC_LIBS})
     set(import_lib_prefix $${CMAKE_IMPORT_LIBRARY_PREFIX})
