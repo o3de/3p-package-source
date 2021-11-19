@@ -141,6 +141,9 @@ else()
             ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream.0unstable${CMAKE_SHARED_LIBRARY_SUFFIX}
             ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream.1.0.0${CMAKE_SHARED_LIBRARY_SUFFIX}
             3rdParty::AWSNativeSDK::Checksums
+        RUNTIME_DEPENDENCIES
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream.0unstable${CMAKE_SHARED_LIBRARY_SUFFIX}
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream.1.0.0${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
 endif()
 
