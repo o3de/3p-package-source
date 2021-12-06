@@ -1,17 +1,26 @@
 diff --git a/Source/CMakeLists.txt b/Source/CMakeLists.txt
-index a90fa27..e5ecf8e 100644
+index a90fa27..4e22383 100644
 --- a/Source/CMakeLists.txt
 +++ b/Source/CMakeLists.txt
-@@ -15,10 +15,11 @@
+@@ -15,10 +15,18 @@
  #  under the License.
  #  ----------------------------------------------------------------------------
  
-+# O3DE change: use "-flto -ffat-lto-objects" instead of "-flto -fno-fat-lto-objects" for linux since it may remove some functions for static library which leads to undefined symbols
- # Overwrite the LTO flags to force fat LTO; worth 3-4% performance
+-# Overwrite the LTO flags to force fat LTO; worth 3-4% performance
++# O3DE change: use "-ffat-lto-objects" instead of the default (-fno-fat-lto-objects)
++# for linux since it may remove some functions for static library which leads to undefined symbols
  # See https://gitlab.kitware.com/cmake/cmake/-/issues/16808
- if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND ${CLI})
+-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND ${CLI})
 -    set(CMAKE_CXX_COMPILE_OPTIONS_IPO "-flto")
-+    set(CMAKE_CXX_COMPILE_OPTIONS_IPO "-ffat-lto-objects")
++# Note that 
++# 1. XCode does not support --ffat-lto-objects
++# 2. Its not necessary to specify -flto in cmake >= 3.9 because it auto enables it for you if
++#    the target has set INTERPROCEDURAL_OPTIMIZATION target property.  
++# 3. If you use LTO, the bitcode emitted will only be usable on compiler versions equal to or higher
++#    than the version you made the lto-enabled static lib with, so you will have to get the minimum supported
++#    version of xcode and use xcode-select to compile with.
++if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND ${CLI} AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
++   set(CMAKE_CXX_COMPILE_OPTIONS_IPO "-ffat-lto-objects")
  endif()
  
  if(${DECOMPRESSOR})

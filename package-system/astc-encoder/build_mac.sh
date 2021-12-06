@@ -13,8 +13,10 @@ export CXX=clang++
 # Note: on x86/x64 platforms, O3DE requires a minimum of SSE 4.1, so we do request this.
 
 cmake -S temp/src -B temp/build -G "Unix Makefiles" \
+    -DCMAKE_BUILD_TYPE=Release \
     -DISA_SSE41=ON \
-    -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake || exit $?
+    -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake \
+    || exit $?
 
-cmake --build temp/build --config Release --parallel || exit $?
+cmake --build temp/build --parallel || exit $?
 
