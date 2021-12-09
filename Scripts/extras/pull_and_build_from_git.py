@@ -36,7 +36,8 @@ be different by platform, and all are required. The keys are:
 The following keys can exist at the root level or the target-platform level:
 
 * git_url               : The git clone url for the source to pull for building
-* git_tag               : The git tag to identify the branch to pull from for building
+* git_tag               : The git tag or branch to identify the branch to pull from for building
+* git_commit            : (optional) A specific git commit to check out. This is useful for upstream repos that do not tag their releases.
 * package_version       : (required) The string to describe the package version. This string is used to build the full package name. 
                           This can be uniform for all platforms or can be set for a specific platform
 * prebuilt_source       : (optional) If the 3rd party library files are prebuilt and accessible, then setting this key to the relative location of 
