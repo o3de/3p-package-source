@@ -84,6 +84,10 @@ The following keys can only exist at the target platform level as they describe 
                                             this argument is optional.  You could do the install in your custom build command instead.
                                             see the note about environment variables below.
 
+* custom_install_json                     : A list of json files that track copy from and to targets to copy and assemble the built binaries
+                                            into the target package folder. This argument is optional. 
+                                            You could do the install in your custom build command instead. See the note about environment variables below.
+
 * custom_test_cmd                         : after making the package, it will run this and expect exit code 0
                                             this argument is optional.
                                             see the note about environment variables below.
@@ -701,6 +705,38 @@ class BuildInfo(object):
                                          env=env_to_use)
             if call_result.returncode != 0:
                 raise BuildError(f"Error executing custom install command {custom_install_cmd}")
+                
+        # Allow libraries to define a list of files to include via a json script that stores folder paths and
+        # individual files in the "Install_Paths" array
+        custom_install_jsons = self.platform_config.get('custom_install_json', [])
+        for custom_install_json_file in custom_install_jsons:
+            custom_json_full_path = os.path.join(self.base_folder, custom_install_json_file)
+            print(f"Running custom install json file {custom_json_full_path}")
+            custom_json_full_path_file = open(custom_json_full_path)
+            custom_install_json = json.loads(custom_json_full_path_file.read())
+            if not custom_install_json:
+                raise BuildError(f"Error loading custom install json file {custom_install_json_file}")
+            source_subfolder = None
+            if "Source_Subfolder" in custom_install_json:
+                source_subfolder = custom_install_json["Source_Subfolder"]
+            for install_path in custom_install_json["Install_Paths"]:
+                install_src_path = install_path
+                if source_subfolder is not None:
+                    install_src_path = os.path.join(source_subfolder, install_src_path)
+                resolved_src_path = os.path.join(env_to_use['TEMP_FOLDER'], install_src_path)
+                resolved_target_path = os.path.join(env_to_use['TARGET_INSTALL_ROOT'], install_path)
+                if os.path.isdir(resolved_src_path):
+                    # Newer versions of Python support the parameter dirs_exist_ok=True,
+                    # but that's not available in earlier Python versions.
+                    # It's useful to treat it as an error if the target exists, because that means that something has
+                    # already touched that folder and there might be unexpected behavior copying an entire tree into it.
+                    shutil.copytree(resolved_src_path, resolved_target_path)
+                elif os.path.isfile(resolved_src_path):
+                    os.makedirs(os.path.dirname(resolved_target_path), exist_ok=True)
+                    shutil.copy2(resolved_src_path, resolved_target_path)
+                else:
+                    raise BuildError(f"Error executing custom install command {custom_install_cmd}, found invalid source path {resolved_target_path}")
+
 
     def check_build_keys(self, keys_to_check):
         """

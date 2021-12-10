@@ -19,9 +19,9 @@
                 "custom_build_cmd" : [
                     "build_assimp_windows.cmd"
                 ],
-                "custom_install_cmd": [
-                    "install_assimp_windows.cmd"
-                ],
+              "custom_install_json": [
+                "install_assimp_windows.json"
+              ],
                 "custom_test_cmd" : [
                     "test_assimp_windows.cmd"
                 ]
