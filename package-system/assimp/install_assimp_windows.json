@@ -7,10 +7,12 @@
     "lib/Release/assimp-vc142-mt.lib",
     "bin/Release/assimp.exe",
     "bin/Release/assimp-vc142-mt.dll",
+    "bin/Release/unit.exe",
     "bin/Debug/assimpd.exe",
     "bin/Debug/assimpd.pdb",
     "bin/Debug/assimp-vc142-mtd.dll",
     "bin/Debug/assimp-vc142-mtd.pdb",
+    "bin/Debug/unit.exe",
     "port/PyAssimp/"
   ]
 }
