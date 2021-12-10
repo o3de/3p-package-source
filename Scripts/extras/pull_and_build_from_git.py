@@ -735,7 +735,7 @@ class BuildInfo(object):
                     os.makedirs(os.path.dirname(resolved_target_path), exist_ok=True)
                     shutil.copy2(resolved_src_path, resolved_target_path)
                 else:
-                    raise BuildError(f"Error executing custom install command {custom_install_cmd}, found invalid source path {resolved_target_path}")
+                    raise BuildError(f"Error executing custom install json {custom_install_json_file}, found invalid source path {resolved_src_path}")
 
 
     def check_build_keys(self, keys_to_check):
