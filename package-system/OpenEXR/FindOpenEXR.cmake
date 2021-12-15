@@ -24,6 +24,49 @@ if (NOT TARGET ZLIB::ZLIB)
 endif()
 
 find_package(Imath MODULE REQUIRED) # will bring in the FindImath.cmake in the same folder
+find_package(OpenEXR CONFIG REQUIRED)
+
+set(OpenEXR_COMPONENTS
+    OpenEXR::OpenEXRConfig
+    OpenEXR::IexConfig
+    OpenEXR::IlmThreadConfig
+    OpenEXR::Iex
+    OpenEXR::IlmThread
+    OpenEXR::OpenEXRCore
+    OpenEXR::OpenEXRUtil
+    OpenEXR::OpenEXR
+)
+
+foreach(component ${OpenEXR_COMPONENTS})
+    if(TARGET ${component})
+        # convert the includes to system includes
+        get_target_property(system_includes ${component} INTERFACE_INCLUDE_DIRECTORIES)
+        set_target_properties(${component} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "") # Clear it in case someone refers to it
+        
+        if (COMMAND ly_target_include_system_directories)
+            ly_target_include_system_directories(TARGET ${component} INTERFACE ${system_includes})
+        else()
+            target_include_directories(${component} SYSTEM INTERFACE ${system_includes})
+        endif()
+
+        # Alias the target with 3rdParty prefix
+        add_library(3rdParty::${component} ALIAS ${component})
+
+        # inside the loop where it sets the system includes for each component
+        foreach(conf IN LISTS CMAKE_CONFIGURATION_TYPES)
+            string(TOUPPER ${conf} UCONF)
+            if (${UCONF} STREQUAL "DEBUG" AND ${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+                set_target_properties(${component} PROPERTIES 
+                                        MAP_IMPORTED_CONFIG_${UCONF} DEBUG)
+            else()
+                set_target_properties(${component} PROPERTIES 
+                                        MAP_IMPORTED_CONFIG_${UCONF} RELEASE)
+            endif()
+        endforeach()
+    else()
+        message(WARNING "Target not found in OpenEXR: ${component}")
+    endif()
+endforeach()
 
 # read the existing config files that OpenEXR made when it compiled:
 o3de_import_existing_config_files(OpenEXR ${CMAKE_CURRENT_LIST_DIR}/OpenEXR/lib/cmake)

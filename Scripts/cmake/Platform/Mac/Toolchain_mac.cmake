@@ -14,4 +14,8 @@ set(CMAKE_SYSTEM_NAME Darwin)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "The minimum OSX Version to support" FORCE)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
+# If we need to compile for Mac M1, set CMAKE_APPLE_SILICON_PROCESSOR to arm64 on the command line.
+# this will override CMAKE_HOST_SYSTEM_PROCESSOR.
+set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
+
 # cmake will auto-select the rest.
