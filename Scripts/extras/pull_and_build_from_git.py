@@ -45,7 +45,7 @@ The following keys can exist at the root level or the target-platform level:
                           'prebuilt_args' below.
 * prebuild_args         : (required if  prebuilt_source is set) A map of target subfolders within the target 3rd party folder against a glob pattern of
                           file(s) to copy to the target subfolders.
-* cmake_find_source     : The name of the source find*.cmake file that will be used in the target package
+* cmake_find_source     : The name of the source Find*.cmake file that will be used in the target package
                           that is ingested by the lumberyard 3P system.
 * cmake_find_template   : If the find*.cmake in the target package requires template processing, then this is name of the template file that is used to 
                           generate the contents of the find*.cmake file in the target package. 
@@ -240,6 +240,8 @@ class PackageInfo(object):
         self.build_configs = _get_value("build_configs", required=False, default=['Debug', 'Release'])
         self.extra_files_to_copy = _get_value("extra_files_to_copy", required=False)
         self.cmake_install_filter = _get_value("cmake_install_filter", required=False, default=[])
+        self.custom_toolchain_file = _get_value("custom_toolchain_file", required=False)
+
         if self.cmake_find_template and self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
         if not self.cmake_find_template and not self.cmake_find_source:
@@ -386,7 +388,7 @@ class BuildInfo(object):
     """
 
     def __init__(self, package_info, platform_config, base_folder, build_folder, package_install_root, 
-                 custom_toolchain_file, cmake_command, clean_build, cmake_find_template, 
+                 cmake_command, clean_build, cmake_find_template, 
                  cmake_find_source, prebuilt_source, prebuilt_args, src_folder, skip_git):
         """
         Initialize the Build management object with information needed
@@ -396,7 +398,6 @@ class BuildInfo(object):
         :param base_folder:             The base folder where the build_config exists
         :param build_folder:            The root folder to build into
         :param package_install_root:    The root of the package folder where the new package will be assembled
-        :param custom_toolchain_file:   Option toolchain file to use for specific target platforms
         :param cmake_command:           The cmake executable command to use for cmake
         :param clean_build:             Option to clean any existing build folder before proceeding
         :param cmake_find_template:     The template for the find*.cmake generated file
@@ -412,7 +413,6 @@ class BuildInfo(object):
 
         self.package_info = package_info
         self.platform_config = platform_config
-        self.custom_toolchain_file = custom_toolchain_file
         self.cmake_command = cmake_command
         self.base_folder = base_folder
         self.base_temp_folder = build_folder
@@ -597,7 +597,7 @@ class BuildInfo(object):
         can_skip_generate = False
 
         for config in self.build_configs:
-
+            print(f'Configuring {config.lower()} ... ')
             if not can_skip_generate:
                 cmake_generator_args = self.platform_config.get(f'cmake_generate_args_{config.lower()}')
                 if not cmake_generator_args:
@@ -619,8 +619,14 @@ class BuildInfo(object):
                                       '-S', str(cmakelists_folder.absolute()),
                                       '-B', str(self.build_folder.name)]
 
-                if self.custom_toolchain_file:
-                    cmake_generator_args.append( f'-DCMAKE_TOOLCHAIN_FILE="{self.custom_toolchain_file}"')
+                if self.package_info.custom_toolchain_file:
+                    custom_toolchain_file = self.package_info.custom_toolchain_file
+                    custom_toolchain_file_path = pathlib.Path(custom_toolchain_file).absolute().resolve()
+                    if not custom_toolchain_file_path.exists():
+                        raise BuildError(f"Custom toolchain file specified does not exist: {custom_toolchain_file}\n"
+                                         f"Path resolved: {custom_toolchain_file_path} ")
+                    print(f'Using custom toolchain file at {custom_toolchain_file_path}')
+                    cmake_generator_args.append( f'-DCMAKE_TOOLCHAIN_FILE="{custom_toolchain_file_path}"')
 
                 cmake_module_path = ""
                 paths_to_join = []
@@ -920,7 +926,10 @@ class BuildInfo(object):
     def test_package(self):
         has_test_commands = self.check_build_keys(['custom_test_cmd'])
         if not has_test_commands:
+            print(f"\n\nNo tests defined, skipping test phase.")
             return
+
+        print(f"\n\nRunning Tests...")
 
         custom_test_cmds= self.platform_config.get('custom_test_cmd', [])
         for custom_test_cmd in custom_test_cmds:
@@ -932,6 +941,7 @@ class BuildInfo(object):
                                         env=self.create_custom_env())
             if call_result.returncode != 0:
                 raise BuildError(f"Error executing custom test command {custom_test_cmd}")
+        print(f"\n... Tests OK!")
 
     def execute(self):
         """
@@ -962,7 +972,7 @@ class BuildInfo(object):
         self.generate_package_info()
 
 
-def prepare_build(platform_name, base_folder, build_folder, package_root_folder, cmake_command, toolchain_file, build_config_file,
+def prepare_build(platform_name, base_folder, build_folder, package_root_folder, cmake_command, build_config_file,
                   clean, src_folder, skip_git):
     """
     Prepare a Build manager object based on parameters provided (possibly from command line)
@@ -972,7 +982,6 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
     :param build_folder:        The root folder to build into
     :param package_root_folder: The root of the package folder where the new package will be assembled
     :param cmake_command:       The cmake executable command to use for cmake
-    :param toolchain_file:      Option toolchain file to use for specific target platforms
     :param build_config_file:   The build config file to open from the base_folder
     :param clean:               Option to clean any existing build folder before proceeding
     :param src_folder:          Option to manually specify the src folder
@@ -1051,7 +1060,6 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
                      base_folder=base_folder_path,
                      build_folder=build_folder_path,
                      package_install_root=package_install_root,
-                     custom_toolchain_file=toolchain_file,
                      cmake_command=cmake_command,
                      clean_build=clean,
                      cmake_find_template=cmake_find_template_path,
@@ -1081,9 +1089,6 @@ if __name__ == '__main__':
         parser.add_argument('--cmake-path',
                             help='Path to where cmake is installed. Defaults to the system installed one.',
                             default='')
-        parser.add_argument('--custom-toolchain-file',
-                            help=f'Path to a custom toolchain file if needed.',
-                            default=None)
         parser.add_argument('--build-config-file',
                             help=f"Filename of the build config file within the base_path. Defaults to '{DEFAULT_BUILD_CONFIG_FILENAME}'.",
                             default=DEFAULT_BUILD_CONFIG_FILENAME)
@@ -1103,21 +1108,12 @@ if __name__ == '__main__':
 
         cmake_path = validate_cmake(f"{parsed_args.cmake_path}/cmake" if parsed_args.cmake_path else "cmake")
 
-        if parsed_args.custom_toolchain_file:
-            if os.path.isabs(parsed_args.custom_toolchain_file):
-                custom_toolchain_file = parsed_args.custom_toolchain_file
-            else:
-                custom_toolchain_file = os.path.abspath(parsed_args.custom_toolchain_file)
-        else:
-            custom_toolchain_file = None
-
         # Prepare for the build
         build_info = prepare_build(platform_name=parsed_args.platform_name,
                                    base_folder=parsed_args.base_path,
                                    build_folder=parsed_args.build_path,
                                    package_root_folder=parsed_args.package_root,
                                    cmake_command=cmake_path,
-                                   toolchain_file=custom_toolchain_file,
                                    build_config_file=parsed_args.build_config_file,
                                    clean=parsed_args.clean,
                                    src_folder=parsed_args.source_path,

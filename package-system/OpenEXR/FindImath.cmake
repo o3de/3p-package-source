@@ -34,17 +34,17 @@ foreach(component ${Imath_COMPONENTS})
         # Alias the target with 3rdParty prefix
         add_library(3rdParty::${component} ALIAS ${component})
 
-		# inside the loop where it sets the system includes for each component
-		foreach(conf IN LISTS CMAKE_CONFIGURATION_TYPES)
-			string(TOUPPER ${conf} UCONF)
-			if (${UCONF} STREQUAL "DEBUG" AND ${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-				set_target_properties(${component} PROPERTIES 
-										MAP_IMPORTED_CONFIG_${UCONF} DEBUG)
-			else()
-				set_target_properties(${component} PROPERTIES 
-										MAP_IMPORTED_CONFIG_${UCONF} RELEASE)
-			endif()
-		endforeach()
+        # inside the loop where it sets the system includes for each component
+        foreach(conf IN LISTS CMAKE_CONFIGURATION_TYPES)
+            string(TOUPPER ${conf} UCONF)
+            if (${UCONF} STREQUAL "DEBUG" AND ${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+                set_target_properties(${component} PROPERTIES 
+                                        MAP_IMPORTED_CONFIG_${UCONF} DEBUG)
+            else()
+                set_target_properties(${component} PROPERTIES 
+                                        MAP_IMPORTED_CONFIG_${UCONF} RELEASE)
+            endif()
+        endforeach()
     else()
         message(WARNING "Target not found in Imath: ${component}")
     endif()

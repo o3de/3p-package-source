@@ -1,0 +1,21 @@
+This package contains OpenImageIO, OpenColorIO, and other 3rd party dependencies.
+For full licensing and copyright information of these, see the following documents:
+
+OpenImageIO/share/doc/OpenImageIO/LICENSE.md
+OpenColorIO/LICENSE
+privatedeps/pystring/LICENSE
+privatedeps/yaml-cpp/LICENSE
+privatedeps/LibJPEGTurbo/share/doc/libjpeg-turbo/LICENSE.md
+privatedeps/Boost/LICENSE_1_0.txt
+
+OpenImageIO and OpenColorIO use several third party dependencies.  Please see the
+following documents for a description of them and their licensing:
+
+OpenImageIO/share/doc/OpenImageIO/THIRD-PARTY.md
+OpenColorIO/THIRD-PARTY.md
+
+In addition, OpenColorIO Also ships with a dependency on pystring and yaml-cpp
+
+
+OpenImageIO Also depends on boost and LibJPEGTurbo:
+
