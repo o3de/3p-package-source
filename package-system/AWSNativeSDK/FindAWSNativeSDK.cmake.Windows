@@ -46,28 +46,25 @@ endif()
 
 # Helper function to define individual AWSNativeSDK Libraries
 function(ly_declare_aws_library)
-
     set(options)
     set(oneValueArgs NAME LIB_FILE)
     set(multiValueArgs BUILD_DEPENDENCIES RUNTIME_DEPENDENCIES)
-    
+
     cmake_parse_arguments(ly_declare_aws_library "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     set(TARGET_WITH_NAMESPACE "3rdParty::${AWSNATIVESDK_PACKAGE_NAME}::${ly_declare_aws_library_NAME}")
     if (NOT TARGET ${TARGET_WITH_NAMESPACE})
-
         add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 
         ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE} INTERFACE ${AWSNATIVESDK_INCLUDE_PATH})
 
         if (ly_declare_aws_library_LIB_FILE)
-
             target_link_libraries(${TARGET_WITH_NAMESPACE} 
                 INTERFACE
                     ${AWSNATIVE_SDK_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}${ly_declare_aws_library_LIB_FILE}${CMAKE_STATIC_LIBRARY_SUFFIX}
                     ${ly_declare_aws_library_BUILD_DEPENDENCIES}
             )
-            
+
             if (NOT LY_MONOLITHIC_GAME)
                 ly_add_dependencies(${TARGET_WITH_NAMESPACE} ${AWSNATIVE_SDK_LIB_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}${ly_declare_aws_library_LIB_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX})
 
@@ -81,14 +78,12 @@ function(ly_declare_aws_library)
                     ${ly_declare_aws_library_BUILD_DEPENDENCIES}
             )
         endif()
-        
-        target_link_options(${TARGET_WITH_NAMESPACE} INTERFACE ${AWSNATIVESDK_LINK_OPTIONS})
 
+        target_link_options(${TARGET_WITH_NAMESPACE} INTERFACE ${AWSNATIVESDK_LINK_OPTIONS})
 
         target_compile_definitions(${TARGET_WITH_NAMESPACE} INTERFACE ${AWSNATIVESDK_COMPILE_DEFINITIONS})
 
     endif()
-    
 endfunction()
 
 
