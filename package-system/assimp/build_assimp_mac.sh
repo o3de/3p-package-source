@@ -6,21 +6,21 @@
 #
 #
 
-cmake -S temp/src -B temp/build -G Xcode \
-    -DBUILD_SHARED_LIBS=OFF ^
-    -DCMAKE_BUILD_TYPE=Release ^
-    -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS" ^
-    -DASSIMP_BUILD_ZLIB=OFF ^
+cmake -S temp/src -B temp/build \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS" \
+    -DASSIMP_BUILD_ZLIB=OFF \
     temp/src/CMakeLists.txt || exit 1
 cmake --build temp/src --config release || exit 1
-cmake --build temp/src --config debug || exit 1
 
-cmake -S temp/src -B temp/build -G Xcode \
-    -DBUILD_SHARED_LIBS=OFF ^
-    -DCMAKE_BUILD_TYPE=Release ^
-    -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS" ^
-    -DASSIMP_BUILD_ZLIB=OFF ^
+cmake -S temp/src -B temp/build \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS" \
+    -DASSIMP_BUILD_ZLIB=OFF \
     temp/src/CMakeLists.txt || exit 1
 cmake --build temp/src --config release || exit 1
-cmake --build temp/src --config debug || exit 1
 
