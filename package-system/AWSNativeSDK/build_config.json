@@ -13,7 +13,8 @@
       "Windows":{
          "Windows":{
             "git_tag":"1.9.50",
-            "package_version":"1.9.50-rev1",
+            "package_version":"1.9.50-rev2",
+            "patch_file":"AWSNativeSDK-1.9.50-windows.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Windows",
             "custom_build_cmd": [
                "build_AWSNativeSDK_windows.cmd"
