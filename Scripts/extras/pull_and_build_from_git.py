@@ -84,9 +84,7 @@ The following keys can only exist at the target platform level as they describe 
                                             this argument is optional.  You could do the install in your custom build command instead.
                                             see the note about environment variables below.
 
-* custom_install_json                     : A list of json files that track copy from and to targets to copy and assemble the built binaries
-                                            into the target package folder. This argument is optional. 
-                                            You could do the install in your custom build command instead. See the note about environment variables below.
+* custom_install_json                     : A list of files to copy into the target package folder from the built SDK. This argument is optional.
 
 * custom_test_cmd                         : after making the package, it will run this and expect exit code 0
                                             this argument is optional.
