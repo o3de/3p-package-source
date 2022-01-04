@@ -13,6 +13,14 @@
    ],
    "Platforms":{
       "Windows":{
+         "Windows":{
+            "custom_build_cmd": [
+               "build_windows.cmd"
+            ],
+            "custom_install_cmd": [
+               "package_windows.cmd"
+            ]
+         }
       },
       "Darwin":{
       },
