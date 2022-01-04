@@ -1,0 +1,30 @@
+{
+   "git_url":"https://github.com/sqlite/sqlite.git",
+   "git_tag":"version-3.32.2",
+   "package_name":"SQLite",
+   "package_version":"3.32.2-rev1",
+   "package_url":"https://www.sqlite.org",
+   "package_license":"CUSTOM",
+   "package_license_file":"copyright.txt",
+   "cmake_find_source":"FindSQLite.cmake",
+   "cmake_find_target":"FindSQLite.cmake",
+   "additional_src_files":[
+      "copyright.txt"
+   ],
+   "Platforms":{
+      "Windows":{
+      },
+      "Darwin":{
+      },
+      "Linux":{
+         "Linux":{
+            "custom_build_cmd": [
+               "./build_linux.sh"
+            ],
+            "custom_install_cmd": [
+               "./package_linux.sh"
+            ]
+         }
+      }
+   }
+}
