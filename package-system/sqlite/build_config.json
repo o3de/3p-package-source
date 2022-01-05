@@ -25,20 +25,20 @@
       "Darwin":{
          "Mac":{
             "custom_build_cmd": [
-               "./build_linux.sh"
+               "./build_unix_like.sh"
             ],
             "custom_install_cmd": [
-               "./package_linux.sh"
+               "./package_unix_like.sh"
             ]
          }
       },
       "Linux":{
          "Linux":{
             "custom_build_cmd": [
-               "./build_linux.sh"
+               "./build_unix_like.sh"
             ],
             "custom_install_cmd": [
-               "./package_linux.sh"
+               "./package_unix_like.sh"
             ]
          }
       }
