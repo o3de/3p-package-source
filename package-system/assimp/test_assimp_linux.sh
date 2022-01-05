@@ -15,3 +15,4 @@ cd test_out
 
 ../src/bin/unit || exit 1
 exit 0
+
