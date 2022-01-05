@@ -498,7 +498,7 @@ class BuildInfo(object):
                     raise BuildError(f"Invalid/missing license file '{self.package_info.package_license_file}' specified in the build config.")
 
             license_file_content = package_license_src.read_text("UTF-8", "ignore")
-            if "Copyright" not in license_file_content and "OPEN 3D ENGINE LICENSING" not in license_file_content:
+            if "Copyright" not in license_file_content and "OPEN 3D ENGINE LICENSING" not in license_file_content and "copyright" not in license_file_content:
                 raise BuildError(f"Unable to find 'Copyright' or the O3DE licensing text in the license file {str(self.package_info.package_license_file)}. Is this a valid license file?")
             target_license_copy = self.build_install_folder / os.path.basename(package_license_src)
             if target_license_copy.is_file():
