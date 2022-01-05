@@ -23,6 +23,14 @@
          }
       },
       "Darwin":{
+         "Mac":{
+            "custom_build_cmd": [
+               "./build_linux.sh"
+            ],
+            "custom_install_cmd": [
+               "./package_linux.sh"
+            ]
+         }
       },
       "Linux":{
          "Linux":{
