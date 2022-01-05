@@ -728,8 +728,10 @@ class BuildInfo(object):
                     # but that's not available in earlier Python versions.
                     # It's useful to treat it as an error if the target exists, because that means that something has
                     # already touched that folder and there might be unexpected behavior copying an entire tree into it.
+                    print(f"    Copying directory '{resolved_src_path}' to '{resolved_target_path}'")
                     shutil.copytree(resolved_src_path, resolved_target_path)
                 elif os.path.isfile(resolved_src_path):
+                    print(f"    Copying file '{resolved_src_path}' to '{resolved_target_path}'")
                     os.makedirs(os.path.dirname(resolved_target_path), exist_ok=True)
                     shutil.copy2(resolved_src_path, resolved_target_path)
                 else:

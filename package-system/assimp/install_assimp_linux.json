@@ -1,0 +1,11 @@
+{
+  "Source_Subfolder": "src",
+  "Install_Paths": [
+    "include/",
+    "lib/libassimp.a",
+    "bin/assimp",
+    "bin/libassimp.so.5.0.1",
+    "bin/unit",
+    "port/PyAssimp/"
+  ]
+}
