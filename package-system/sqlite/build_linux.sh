@@ -20,7 +20,7 @@ pushd $TEMP_FOLDER/build
 ../src/configure --enable-debug=yes --disable-tcl --enable-shared=no --prefix=$TEMP_FOLDER/install-debug
 if [ $? -eq 0 ]
 then
-    echo "Configure (debug) complete"
+    echo "Configure complete (debug)"
 else
     echo "Unable to configure sqlite (debug)" >&2
     exit 1
@@ -30,7 +30,7 @@ fi
 make
 if [ $? -eq 0 ]
 then
-    echo "Build (debug) complete"
+    echo "Build complete (debug)"
 else
     echo "Unable to build sqlite (debug)" >&2
     exit 1
@@ -40,9 +40,9 @@ fi
 make install
 if [ $? -eq 0 ]
 then
-    echo "Temp install (debug) complete"
+    echo "Temp install complete (debug)"
 else
-    echo "Unable to install (temp) sqlite (debug)" >&2
+    echo "Unable to install sqlite (debug)" >&2
     exit 1
 fi
 
@@ -53,7 +53,7 @@ make distclean
 ../src/configure --enable-debug=no --disable-tcl --enable-shared=no --prefix=$TEMP_FOLDER/install-release
 if [ $? -eq 0 ]
 then
-    echo "Configure (release) complete"
+    echo "Configure complete (release)"
 else
     echo "Unable to configure sqlite (release)" >&2
     exit 1
@@ -63,7 +63,7 @@ fi
 make
 if [ $? -eq 0 ]
 then
-    echo "Build (release) complete"
+    echo "Build complete (release)"
 else
     echo "Unable to build sqlite (release)" >&2
     exit 1
@@ -73,9 +73,9 @@ fi
 make install
 if [ $? -eq 0 ]
 then
-    echo "Temp install (release) complete"
+    echo "Temp install complete (release)"
 else
-    echo "Unable to install (release) sqlite (debug)" >&2
+    echo "Unable to install sqlite (release)" >&2
     exit 1
 fi
 
