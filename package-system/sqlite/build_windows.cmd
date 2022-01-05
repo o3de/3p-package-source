@@ -49,5 +49,3 @@ copy %BLD_PATH%\sqlite3.pdb %TEMP_FOLDER%\build-release\
 ECHO Build Successful
 
 exit /b 0
-
-

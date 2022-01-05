@@ -26,7 +26,6 @@ set(${MY_NAME}_LIBRARY
     "$<$<CONFIG:Release>:${${MY_NAME}_LIBRARY_RELEASE}>"
     "$<$<CONFIG:Debug>:${${MY_NAME}_LIBRARY_DEBUG}>")
 
-
 add_library(${TARGET_WITH_NAMESPACE} STATIC IMPORTED GLOBAL)
 set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES IMPORTED_LOCATION "${${MY_NAME}_LIBRARY_RELEASE}")
 set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIBRARY_DEBUG}")
@@ -36,17 +35,3 @@ target_link_libraries(${TARGET_WITH_NAMESPACE}
                       INTERFACE ${CMAKE_DL_LIBS})
 
 set(${MY_NAME}_FOUND True)
-    
-    
-   
-  
-
- 
-
-
-
- 
-
-  
-
-   

@@ -35,4 +35,3 @@ copy %TEMP_FOLDER%\build-release\sqlite3.lib %PACKAGE_BASE%\lib\release\
 copy %TEMP_FOLDER%\build-release\sqlite3.pdb %PACKAGE_BASE%\lib\release\
 
 exit /b 0
-
