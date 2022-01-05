@@ -41,7 +41,7 @@ configure_and_build() {
     fi
 
     echo "CMake Configure $build_type $lib_type"
-    CC=/usr/lib/llvm-6.0/bin/clang CXX=/usr/lib/llvm-6.0/bin/clang++ cmake -S "$src_path" -B "$bld_path/${build_type}_${lib_type}" \
+    CC=/usr/lib/llvm-12/bin/clang CXX=/usr/lib/llvm-12/bin/clang++ cmake -S "$src_path" -B "$bld_path/${build_type}_${lib_type}" \
           -G "Unix Makefiles" \
           -DTARGET_ARCH=LINUX \
           -DCMAKE_CXX_STANDARD=17 \
