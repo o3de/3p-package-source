@@ -26,14 +26,9 @@ cp $INSTALL_SOURCE/sqlite3.h $PACKAGE_BASE/
 # Copy the debug and release static libraries
 mkdir $PACKAGE_BASE/lib
 
-mkdir $PACKAGE_BASE/lib/debug
-cp $TEMP_FOLDER/install-debug/lib/libsqlite3.a $PACKAGE_BASE/lib/debug/
-cp $TEMP_FOLDER/install-debug/lib/libsqlite3.la $PACKAGE_BASE/lib/debug/
-cp -r $TEMP_FOLDER/install-debug/lib/pkgconfig $PACKAGE_BASE/lib/debug/
-
-mkdir $PACKAGE_BASE/lib/release
-cp $TEMP_FOLDER/install-release/lib/libsqlite3.a $PACKAGE_BASE/lib/release/
-cp $TEMP_FOLDER/install-release/lib/libsqlite3.la $PACKAGE_BASE/lib/release/
-cp -r $TEMP_FOLDER/install-release/lib/pkgconfig $PACKAGE_BASE/lib/release/
+mkdir $PACKAGE_BASE/lib
+cp $TEMP_FOLDER/install/lib/libsqlite3.a $PACKAGE_BASE/lib/
+cp $TEMP_FOLDER/install/lib/libsqlite3.la $PACKAGE_BASE/lib/
+cp -r $TEMP_FOLDER/install/lib/pkgconfig $PACKAGE_BASE/lib/
 
 exit 0

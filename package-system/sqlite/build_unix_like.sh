@@ -16,65 +16,26 @@ BUILD_FOLDER=$TEMP_FOLDER/build
 echo Building source
 pushd $TEMP_FOLDER/build
 
-# Run configure for debug
-../src/configure --enable-debug=yes --disable-tcl --enable-shared=no --prefix=$TEMP_FOLDER/install-debug
-if [ $? -eq 0 ]
+# Run configure 
+../src/configure --enable-debug=no --disable-tcl --enable-shared=no --prefix=$TEMP_FOLDER/install
+if [ $? -ne 0 ]
 then
-    echo "Configure complete (debug)"
-else
-    echo "Unable to configure sqlite (debug)" >&2
+    echo "Unable to configure sqlite" >&2
     exit 1
 fi
 
-# Run the make and build for debug
+# Run the make and build
 make
-if [ $? -eq 0 ]
+if [ $? -ne 0 ]
 then
-    echo "Build complete (debug)"
-else
-    echo "Unable to build sqlite (debug)" >&2
+    echo "Unable to build sqlite" >&2
     exit 1
 fi
 
-# Install the debug build to a temp install for debug
+# Install to a temp install folder
 make install
-if [ $? -eq 0 ]
+if [ $? -ne 0 ]
 then
-    echo "Temp install complete (debug)"
-else
-    echo "Unable to install sqlite (debug)" >&2
-    exit 1
-fi
-
-# Clean and prepare for the release build
-make distclean
-
-# Run configure for release
-../src/configure --enable-debug=no --disable-tcl --enable-shared=no --prefix=$TEMP_FOLDER/install-release
-if [ $? -eq 0 ]
-then
-    echo "Configure complete (release)"
-else
-    echo "Unable to configure sqlite (release)" >&2
-    exit 1
-fi
-
-# Run the make and build for release
-make
-if [ $? -eq 0 ]
-then
-    echo "Build complete (release)"
-else
-    echo "Unable to build sqlite (release)" >&2
-    exit 1
-fi
-
-# Install the debug build to a temp install for debug
-make install
-if [ $? -eq 0 ]
-then
-    echo "Temp install complete (release)"
-else
     echo "Unable to install sqlite (release)" >&2
     exit 1
 fi

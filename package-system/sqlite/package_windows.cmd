@@ -8,6 +8,7 @@ REM
 
 
 SET PACKAGE_BASE=%TARGET_INSTALL_ROOT%
+SET BLD_PATH=%TEMP_FOLDER%\build
 
 SET INSTALL_SOURCE=%TEMP_FOLDER%\build
 
@@ -21,17 +22,9 @@ REM Copy the header files
 cp %INSTALL_SOURCE%\sqlite3ext.h %PACKAGE_BASE%\
 cp %INSTALL_SOURCE%\sqlite3.h %PACKAGE_BASE%\
 
-REM Copy the debug and release static libraries
+REM Copy the static library
 mkdir %PACKAGE_BASE%\lib
-
-mkdir %PACKAGE_BASE%\lib\debug
-
-copy %TEMP_FOLDER%\build-debug\sqlite3.lib %PACKAGE_BASE%\lib\debug\
-copy %TEMP_FOLDER%\build-debug\sqlite3.pdb %PACKAGE_BASE%\lib\debug\
-
-mkdir %PACKAGE_BASE%\lib\release
-
-copy %TEMP_FOLDER%\build-release\sqlite3.lib %PACKAGE_BASE%\lib\release\
-copy %TEMP_FOLDER%\build-release\sqlite3.pdb %PACKAGE_BASE%\lib\release\
+copy %TEMP_FOLDER%\build\libsqlite3.lib %PACKAGE_BASE%\lib\sqlite3.lib
 
 exit /b 0
+
