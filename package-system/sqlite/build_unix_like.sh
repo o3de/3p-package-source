@@ -17,7 +17,7 @@ echo Building source
 pushd $TEMP_FOLDER/build
 
 # Run configure 
-../src/configure --enable-debug=no --disable-tcl --enable-shared=no --prefix=$TEMP_FOLDER/install
+../src/configure --enable-debug=no --disable-tcl --enable-shared=no --prefix=$TEMP_FOLDER/install --with-pic=yes
 if [ $? -ne 0 ]
 then
     echo "Unable to configure sqlite" >&2
