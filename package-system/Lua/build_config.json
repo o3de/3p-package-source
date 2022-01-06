@@ -2,7 +2,7 @@
    "git_url":"https://github.com/lua/lua.git",
    "git_tag":"v5.3.5",
    "package_name":"Lua",
-   "package_version":"5.3.5-rev6",
+   "package_version":"5.3.5-rev7",
    "package_url":"https://github.com/lua/lua",
    "package_license":"MIT",
    "package_license_file":"LICENSE.txt",
@@ -38,7 +38,6 @@
       },
       "Darwin":{
          "Mac":{
-            "package_version":"5.3.5-rev6",
             "cmake_generate_args":[
                "-G",
                "Xcode",
