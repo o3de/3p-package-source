@@ -13,12 +13,12 @@
       "CMakeLists.txt",
       "LICENSE.txt"
    ],
-   "build_configs":[
-      "Release"
-   ],
    "Platforms":{
       "Windows":{
          "Windows":{
+            "build_configs":[
+               "Release"
+            ],
             "cmake_generate_args":[
                "-G",
                "\"Visual Studio 15 Win64\"",
@@ -26,6 +26,9 @@
             ]
          },
          "Android":{
+            "build_configs":[
+               "Release"
+            ],
             "cmake_generate_args":[
                "-G",
                "Ninja",
@@ -60,6 +63,9 @@
       },
       "Linux":{
          "Linux":{
+            "build_configs":[
+               "Release"
+            ],
             "cmake_generate_args":[
                "-G",
                "Unix\\ Makefiles",
