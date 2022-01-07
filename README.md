@@ -2,10 +2,10 @@
 
 This is where the "sources" (ie, build scripts which make packages) for the O3DE package system are located.
 
-Note that the "sources" of most packages are not acutally stored here, most "package sources" actually just consist of a script which fetches the source code (or prebuilt packages) from somewhere else, constructs a temporary folder image for it, and then lets the package system pack that folder up as the package.
+Note that the "sources" of most packages are not actually stored here, most "package sources" actually just consist of a script which fetches the source code (or prebuilt packages) from somewhere else, constructs a temporary folder image for it, and then lets the package system pack that folder up as the package.
 
 In general
- * Add your new pacakge to the appropriate package_build_list_host_xxxx file
+ * Add your new package to the appropriate package_build_list_host_xxxx file
  * Put the scripts or instructions to construct the package image folder into the package-system subfolder
 
 Recommendation would be to make any temp packing in a folder called **/temp/** so as to use the current git ignores.

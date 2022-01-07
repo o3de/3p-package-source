@@ -26,6 +26,10 @@ fi
 
 src_path=temp/src
 bld_path=temp/build
+inst_path=temp/install
+
+echo "Command: rm -rf $inst_path"
+rm -rf $inst_path || (echo "Command: rm -rf $inst_path failed" ; exit 1)
 
 configure_and_build() {
     build_type=$1
@@ -37,18 +41,21 @@ configure_and_build() {
     fi
 
     echo "CMake Configure $build_type $lib_type"
-    CC=/usr/lib/llvm-6.0/bin/clang CXX=/usr/lib/llvm-6.0/bin/clang++ cmake -S "$src_path" -B "$bld_path/${build_type}_${lib_type}" \
+    CC=/usr/lib/llvm-12/bin/clang CXX=/usr/lib/llvm-12/bin/clang++ cmake -S "$src_path" -B "$bld_path/${build_type}_${lib_type}" \
           -G "Unix Makefiles" \
           -DTARGET_ARCH=LINUX \
           -DCMAKE_CXX_STANDARD=17 \
+          -DCPP_STANDARD=17 \
+          -DCMAKE_C_FLAGS="-fPIC" \
+          -DCMAKE_CXX_FLAGS="-fPIC" \
           -DENABLE_TESTING=OFF \
           -DENABLE_RTTI=ON \
           -DCUSTOM_MEMORY_MANAGEMENT=ON \
           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" \
           -DBUILD_SHARED_LIBS=$build_shared \
           -DCMAKE_BUILD_TYPE=$build_type \
-          -DCMAKE_INSTALL_BINDIR="bin/$build_type" \
-          -DCMAKE_INSTALL_LIBDIR="lib/$build_type" || (echo "CMake Configure $build_type $lib_type failed" ; exit 1)
+          -DCMAKE_INSTALL_BINDIR="bin" \
+          -DCMAKE_INSTALL_LIBDIR="lib" || (echo "CMake Configure $build_type $lib_type failed" ; exit 1)
 
     echo "CMake Build $build_type $lib_type to $bld_path/${build_type}_${lib_type}"
     cmake --build "$bld_path/${build_type}_${lib_type}" --config $build_type -j 12 || (echo "CMake Build $build_type $lib_type to $bld_path/${build_type}_${lib_type} failed" ; exit 1)

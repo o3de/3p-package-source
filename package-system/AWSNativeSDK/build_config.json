@@ -58,7 +58,8 @@
       },
       "Linux":{
          "Linux":{
-            "package_version":"1.7.167-rev6",
+            "git_tag":"1.9.50",
+            "package_version":"1.9.50-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build_AWSNativeSDK_linux.sh"
