@@ -15,9 +15,6 @@
    ],
    "Platforms":{
       "Windows":{
-         "build_configs":[
-            "Release"
-         ],
          "Windows":{
             "build_configs":[
                "Release"
