@@ -7,8 +7,8 @@
     "package_url":"https://github.com/assimp/assimp",
     "package_license":"BSD-3-Clause",
     "package_license_file":"LICENSE",
-    "cmake_find_source":"FindAssimp.cmake",
-    "cmake_find_target":"FindAssimp.cmake",
+    "cmake_find_source":"Findassimplib.cmake",
+    "cmake_find_target":"Findassimplib.cmake",
     "patch_file" : "0001-O3DE-fixes-applied-on-top-of-376e46887780e5090af0198.patch",
     "Platforms":{
         "Windows":{
