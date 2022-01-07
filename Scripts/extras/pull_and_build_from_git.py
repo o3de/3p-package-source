@@ -516,6 +516,7 @@ class BuildInfo(object):
 
             patch_cmd = ['git',
                          'apply',
+                         "--ignore-whitespace",
                          str(patch_file_path.absolute())]
 
             patch_result = subprocess.run(subp_args(patch_cmd),
