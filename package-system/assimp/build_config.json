@@ -33,7 +33,7 @@
                     ["zlib-1.2.11-rev5-mac", "b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096", ""]
                 ],
                 "custom_build_cmd": [
-                    "./build_assimp_mac.sh"
+                    "./build_assimp_unix_like.sh"
                  ],
                  "custom_install_json": [
                     "./install_assimp_mac.json"
@@ -49,7 +49,7 @@
                     ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
                 ],
                 "custom_build_cmd": [
-                    "./build_assimp_linux.sh"
+                    "./build_assimp_unix_like.sh"
                 ],
                 "custom_install_json": [
                     "./install_assimp_linux.json"

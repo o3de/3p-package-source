@@ -8,7 +8,6 @@
 
 cmake -S temp/src -B temp/build \
     -DBUILD_SHARED_LIBS=OFF \
-    -Dcxx=OFF \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS" \
     -DASSIMP_BUILD_ZLIB=OFF \
@@ -17,7 +16,6 @@ cmake --build temp/src --config release || exit 1
 
 cmake -S temp/src -B temp/build \
     -DBUILD_SHARED_LIBS=ON \
-    -Dcxx=OFF \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS" \
     -DASSIMP_BUILD_ZLIB=OFF \
