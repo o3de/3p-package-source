@@ -49,6 +49,7 @@
         "tiff-4.2.0.15-rev3-ios": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name iOS --package-root ../../package-system --clean"
     },
     "build_from_folder": {
+        "assimp-5.0.1-rev12-mac": "package-system/assimp-mac",
         "AWSNativeSDK-1.7.167-rev6-mac": "package-system/AWSNativeSDK-mac",
         "AWSNativeSDK-1.7.167-rev4-ios": "package-system/AWSNativeSDK-ios",
         "Lua-5.3.5-rev6-mac": "package-system/Lua-mac",

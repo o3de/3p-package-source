@@ -36,6 +36,7 @@
         "lz4-1.9.3-vcpkg-rev4-linux": "package-system/lz4/build_package_image.py --platform-name linux"
     },
     "build_from_folder": {
+        "assimp-5.0.1-rev12-linux": "package-system/assimp-linux",
         "AWSGameLiftServerSDK-3.4.1-rev1-linux": "package-system/AWSGameLiftServerSDK/linux",
         "AWSNativeSDK-1.7.167-rev6-linux": "package-system/AWSNativeSDK-linux",
         "Lua-5.3.5-rev5-linux": "package-system/Lua-linux",
