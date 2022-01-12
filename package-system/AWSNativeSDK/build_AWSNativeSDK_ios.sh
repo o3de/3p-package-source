@@ -49,7 +49,7 @@ make_configure_and_build_curl() {
   unzip  temp/curl-7.65.3.zip -d temp || exit 1
 
   EXISTING_CFLAGS=$CFLAGS
-  export CFLAGS="-arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -miphoneos-version-min=13.0 -fPIC"
+  export CFLAGS="-arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -miphoneos-version-min=14.0 -fPIC"
 
   (cd temp/curl-7.65.3 && ./configure --disable-shared --enable-static --enable-ipv6 --with-secure-transport --host="arm-apple-darwin" --prefix=$(pwd)/../curl_install) || exit 1
   (cd temp/curl-7.65.3 && make) || exit 1
