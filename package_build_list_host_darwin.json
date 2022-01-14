@@ -4,6 +4,7 @@
     "comment3" : "build_from_folder is package name --> folder containing built image of package",
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
+        "assimp-5.0.1-rev12-mac":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Mac --package-root ../../package-system --clean",
         "AWSNativeSDK-1.9.50-rev1-mac": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Mac --package-root ../../package-system --clean",
         "AWSNativeSDK-1.7.167-rev4-ios": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name iOS --package-root ../../package-system --clean",
         "Lua-5.3.5-rev7-mac": "Scripts/extras/pull_and_build_from_git.py ../../package-system/Lua --platform-name Mac --package-root ../../package-system --clean",
@@ -49,6 +50,7 @@
         "tiff-4.2.0.15-rev3-ios": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name iOS --package-root ../../package-system --clean"
     },
     "build_from_folder": {
+        "assimp-5.0.1-rev12-mac": "package-system/assimp-mac",
         "AWSNativeSDK-1.9.50-rev1-mac": "package-system/AWSNativeSDK-mac",
         "AWSNativeSDK-1.7.167-rev4-ios": "package-system/AWSNativeSDK-ios",
         "Lua-5.3.5-rev7-mac": "package-system/Lua-mac",

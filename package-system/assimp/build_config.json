@@ -1,0 +1,64 @@
+{
+    "git_url":"https://github.com/assimp/assimp",
+    "git_tag": "master",
+    "git_commit": "376e46887780e5090af0198e4e5577446159104d",  
+    "package_name":"assimp",
+    "package_version":"5.0.1-rev12",
+    "package_url":"https://github.com/assimp/assimp",
+    "package_license":"BSD-3-Clause",
+    "package_license_file":"LICENSE",
+    "cmake_find_source":"Findassimplib.cmake",
+    "cmake_find_target":"Findassimplib.cmake",
+    "patch_file" : "0001-O3DE-fixes-applied-on-top-of-376e46887780e5090af0198.patch",
+    "Platforms":{
+        "Windows":{
+            "Windows":{
+                "depends_on_packages" :[ 
+                    ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
+                ],
+                "custom_build_cmd" : [
+                    "build_assimp_windows.cmd"
+                ],
+                "custom_install_json": [
+                    "install_assimp_windows.json"
+                ],
+                "custom_test_cmd" : [
+                    "test_assimp_windows.cmd"
+                ]
+            }
+        },
+        "Darwin":{
+            "Mac":{
+                "depends_on_packages" :[ 
+                    ["zlib-1.2.11-rev5-mac", "b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096", ""]
+                ],
+                "custom_build_cmd": [
+                    "./build_assimp_unix_like.sh"
+                 ],
+                 "custom_install_json": [
+                    "./install_assimp_mac.json"
+                 ],
+                 "custom_test_cmd" : [
+                    "./test_assimp_mac.sh"
+                ]
+            }
+        },
+        "Linux":{
+            "Linux":{
+                "depends_on_packages" :[ 
+                    ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
+                ],
+                "custom_build_cmd": [
+                    "./build_assimp_unix_like.sh"
+                ],
+                "custom_install_json": [
+                    "./install_assimp_linux.json"
+                ],
+                "custom_test_cmd" : [
+                   "./test_assimp_linux.sh"
+               ]
+            }
+        }
+    }
+}
+

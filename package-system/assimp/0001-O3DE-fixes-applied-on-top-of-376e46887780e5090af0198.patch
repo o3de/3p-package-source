@@ -1,0 +1,317 @@
+From a8f0333acd438ce3038b64245a004f0f8a049f25 Mon Sep 17 00:00:00 2001
+From: AMZN-stankowi <4838196+AMZN-stankowi@users.noreply.github.com>
+Date: Tue, 7 Dec 2021 07:32:09 -0800
+Subject: [PATCH] O3DE fixes applied on top of
+ 376e46887780e5090af0198e4e5577446159104d, the base version O3DE started with.
+ mesh.h - added texture coordinate names material.h - added PBR material
+ properties- these have already been submitted to a later revision of assimp
+ FBXProperties.cpp - added support for properties with capital F Float, we had
+ some FBX files coming in with those. FBXConverter.cpp - this is the majority
+ of our changes. A lot of this is fixing how the transform hierarchy is
+ calculated to better preserve the default pose. The texture coordinate names
+ support is here, PBR materials, and a crash on keyframe list population is
+ downgraded to an error instead. AssxmlFileWriter.cpp - texture coordinate
+ names are added to the output here.
+
+Signed-off-by: AMZN-stankowi <4838196+AMZN-stankowi@users.noreply.github.com>
+---
+ code/AssetLib/Assxml/AssxmlFileWriter.cpp |   7 +-
+ code/AssetLib/FBX/FBXConverter.cpp        | 142 ++++++++++++++++------
+ code/AssetLib/FBX/FBXProperties.cpp       |   2 +-
+ include/assimp/material.h                 |  12 ++
+ include/assimp/mesh.h                     |   2 +
+ 5 files changed, 125 insertions(+), 40 deletions(-)
+
+diff --git a/code/AssetLib/Assxml/AssxmlFileWriter.cpp b/code/AssetLib/Assxml/AssxmlFileWriter.cpp
+index 05661d3fc..23d863cf0 100644
+--- a/code/AssetLib/Assxml/AssxmlFileWriter.cpp
++++ b/code/AssetLib/Assxml/AssxmlFileWriter.cpp
+@@ -598,8 +598,11 @@ static void WriteDump(const char *pFile, const char *cmd, const aiScene *scene,
+                 if (!mesh->mTextureCoords[a])
+                     break;
+ 
+-                ioprintf(io, "\t\t<TextureCoords num=\"%u\" set=\"%u\" num_components=\"%u\"> \n", mesh->mNumVertices,
+-                        a, mesh->mNumUVComponents[a]);
++                ioprintf(io, "\t\t<TextureCoords num=\"%u\" set=\"%u\" name=\"%s\" num_components=\"%u\"> \n",
++                    mesh->mNumVertices,
++                    a,
++                    mesh->mTextureCoordsNames[a].C_Str(),
++                    mesh->mNumUVComponents[a]);
+ 
+                 if (!shortened) {
+                     if (mesh->mNumUVComponents[a] == 3) {
+diff --git a/code/AssetLib/FBX/FBXConverter.cpp b/code/AssetLib/FBX/FBXConverter.cpp
+index c7bc57d97..d9ccaf8ab 100644
+--- a/code/AssetLib/FBX/FBXConverter.cpp
++++ b/code/AssetLib/FBX/FBXConverter.cpp
+@@ -855,6 +855,11 @@ bool FBXConverter::GenerateTransformationNodeChain(const Model &model, const std
+     // for (const auto &transform : chain) {
+     // skip inverse chain for no preservePivots
+     for (unsigned int i = TransformationComp_Translation; i < TransformationComp_MAXIMUM; i++) {
++
++        if (i == TransformationComp_PostRotation) {
++            chain[i] = chain[i].Inverse();
++        }
++
+       nd->mTransformation = nd->mTransformation * chain[i];
+     }
+     return false;
+@@ -1122,6 +1127,9 @@ unsigned int FBXConverter::ConvertMeshSingleMaterial(const MeshGeometry &mesh, c
+         for (const aiVector2D &v : uvs) {
+             *out_uv++ = aiVector3D(v.x, v.y, 0.0f);
+         }
++        
++        out_mesh->mTextureCoordsNames[i] = mesh.GetTextureCoordChannelName(i);
++
+ 
+         out_mesh->mNumUVComponents[i] = 2;
+     }
+@@ -1538,56 +1546,51 @@ void FBXConverter::ConvertCluster(std::vector<aiBone *> &local_mesh_bones, const
+ 
+     aiBone *bone = nullptr;
+ 
+-    if (bone_map.count(deformer_name)) {
+-        ASSIMP_LOG_VERBOSE_DEBUG_F("retrieved bone from lookup ", bone_name.C_Str(), ". Deformer:", deformer_name);
+-        bone = bone_map[deformer_name];
+-    } else {
+-        ASSIMP_LOG_VERBOSE_DEBUG_F("created new bone ", bone_name.C_Str(), ". Deformer: ", deformer_name);
+-        bone = new aiBone();
+-        bone->mName = bone_name;
++    ASSIMP_LOG_VERBOSE_DEBUG_F("created new bone ", bone_name.C_Str(), ". Deformer: ", deformer_name);
++    bone = new aiBone();
++    bone->mName = bone_name;
+ 
+-        // store local transform link for post processing
+-        bone->mOffsetMatrix = cl->TransformLink();
+-        bone->mOffsetMatrix.Inverse();
++    // store local transform link for post processing
++    bone->mOffsetMatrix = cl->TransformLink();
++    bone->mOffsetMatrix.Inverse();
+ 
+-        aiMatrix4x4 matrix = (aiMatrix4x4)absolute_transform;
++    aiMatrix4x4 matrix = (aiMatrix4x4)absolute_transform;
+ 
+-        bone->mOffsetMatrix = bone->mOffsetMatrix * matrix; // * mesh_offset
++    bone->mOffsetMatrix = bone->mOffsetMatrix * matrix; // * mesh_offset
+ 
+-        //
+-        // Now calculate the aiVertexWeights
+-        //
++    //
++    // Now calculate the aiVertexWeights
++    //
+ 
+-        aiVertexWeight *cursor = nullptr;
++    aiVertexWeight *cursor = nullptr;
+ 
+-        bone->mNumWeights = static_cast<unsigned int>(out_indices.size());
+-        cursor = bone->mWeights = new aiVertexWeight[out_indices.size()];
++    bone->mNumWeights = static_cast<unsigned int>(out_indices.size());
++    cursor = bone->mWeights = new aiVertexWeight[out_indices.size()];
+ 
+-        const size_t no_index_sentinel = std::numeric_limits<size_t>::max();
+-        const WeightArray &weights = cl->GetWeights();
++    const size_t no_index_sentinel = std::numeric_limits<size_t>::max();
++    const WeightArray &weights = cl->GetWeights();
+ 
+-        const size_t c = index_out_indices.size();
+-        for (size_t i = 0; i < c; ++i) {
+-            const size_t index_index = index_out_indices[i];
++    const size_t c = index_out_indices.size();
++    for (size_t i = 0; i < c; ++i) {
++        const size_t index_index = index_out_indices[i];
+ 
+-            if (index_index == no_index_sentinel) {
+-                continue;
+-            }
++        if (index_index == no_index_sentinel) {
++            continue;
++        }
+ 
+-            const size_t cc = count_out_indices[i];
+-            for (size_t j = 0; j < cc; ++j) {
+-                // cursor runs from first element relative to the start
+-                // or relative to the start of the next indexes.
+-                aiVertexWeight &out_weight = *cursor++;
++        const size_t cc = count_out_indices[i];
++        for (size_t j = 0; j < cc; ++j) {
++            // cursor runs from first element relative to the start
++            // or relative to the start of the next indexes.
++            aiVertexWeight &out_weight = *cursor++;
+ 
+-                out_weight.mVertexId = static_cast<unsigned int>(out_indices[index_index + j]);
+-                out_weight.mWeight = weights[i];
+-            }
++            out_weight.mVertexId = static_cast<unsigned int>(out_indices[index_index + j]);
++            out_weight.mWeight = weights[i];
+         }
+-
+-        bone_map.insert(std::pair<const std::string, aiBone *>(deformer_name, bone));
+     }
+ 
++    bone_map.insert(std::pair<const std::string, aiBone *>(deformer_name, bone));
++
+     ASSIMP_LOG_DEBUG_F("bone research: Indicies size: ", out_indices.size());
+ 
+     // lookup must be populated in case something goes wrong
+@@ -2095,6 +2098,11 @@ void FBXConverter::SetShadingPropertiesCommon(aiMaterial *out_mat, const Propert
+     const aiColor3D &Emissive = GetColorPropertyFromMaterial(props, "Emissive", ok);
+     if (ok) {
+         out_mat->AddProperty(&Emissive, 1, AI_MATKEY_COLOR_EMISSIVE);
++    } else {
++        const aiColor3D &emissiveColor = GetColorPropertyFromMaterial(props, "Maya|emissive", ok);
++        if (ok) {
++            out_mat->AddProperty(&emissiveColor, 1, AI_MATKEY_COLOR_EMISSIVE);
++        }
+     }
+ 
+     const aiColor3D &Ambient = GetColorPropertyFromMaterial(props, "Ambient", ok);
+@@ -2176,6 +2184,52 @@ void FBXConverter::SetShadingPropertiesCommon(aiMaterial *out_mat, const Propert
+     if (ok) {
+         out_mat->AddProperty(&DispFactor, 1, "$mat.displacementscaling", 0, 0);
+     }
++
++    // PBR material information
++    const aiColor3D &baseColor = GetColorProperty(props, "Maya|base_color", ok);
++    if (ok) {
++        out_mat->AddProperty(&baseColor, 1, AI_MATKEY_BASE_COLOR);
++    }
++
++    const float useColorMap = PropertyGet<float>(props, "Maya|use_color_map", ok);
++    if (ok) {
++        out_mat->AddProperty(&useColorMap, 1, AI_MATKEY_USE_COLOR_MAP);
++    }
++
++    const float useMetallicMap = PropertyGet<float>(props, "Maya|use_metallic_map", ok);
++    if (ok) {
++        out_mat->AddProperty(&useMetallicMap, 1, AI_MATKEY_USE_METALLIC_MAP);
++    }
++
++    const float metallicFactor = PropertyGet<float>(props, "Maya|metallic", ok);
++    if (ok) {
++        out_mat->AddProperty(&metallicFactor, 1, AI_MATKEY_METALLIC_FACTOR);
++    }
++
++    const float useRoughnessMap = PropertyGet<float>(props, "Maya|use_roughness_map", ok);
++    if (ok) {
++        out_mat->AddProperty(&useRoughnessMap, 1, AI_MATKEY_USE_ROUGHNESS_MAP);
++    }
++
++    const float roughnessFactor = PropertyGet<float>(props, "Maya|roughness", ok);
++    if (ok) {
++        out_mat->AddProperty(&roughnessFactor, 1, AI_MATKEY_ROUGHNESS_FACTOR);
++    }
++
++    const float useEmissiveMap = PropertyGet<float>(props, "Maya|use_emissive_map", ok);
++    if (ok) {
++        out_mat->AddProperty(&useEmissiveMap, 1, AI_MATKEY_USE_EMISSIVE_MAP);
++    }
++
++    const float emissiveIntensity = PropertyGet<float>(props, "Maya|emissive_intensity", ok);
++    if (ok) {
++        out_mat->AddProperty(&emissiveIntensity, 1, AI_MATKEY_EMISSIVE_INTENSITY);
++    }
++
++    const float useAOMap = PropertyGet<float>(props, "Maya|use_ao_map", ok);
++    if (ok) {
++        out_mat->AddProperty(&useAOMap, 1, AI_MATKEY_USE_AO_MAP);
++    }
+ }
+ 
+ void FBXConverter::SetShadingPropertiesRaw(aiMaterial *out_mat, const PropertyTable &props, const TextureMap &_textures, const MeshGeometry *const mesh) {
+@@ -3031,6 +3085,7 @@ aiNodeAnim* FBXConverter::GenerateSimpleNodeAnim(const std::string& name,
+     const PropertyTable &props = target.Props();
+ 
+     // collect unique times and keyframe lists
++    bool anyKeyframeListsPopulated = false;
+     KeyFrameListList keyframeLists[TransformationComp_MAXIMUM];
+     KeyTimeList keytimes;
+ 
+@@ -3039,6 +3094,7 @@ aiNodeAnim* FBXConverter::GenerateSimpleNodeAnim(const std::string& name,
+             continue;
+ 
+         keyframeLists[i] = GetKeyframeList((*chain[i]).second, start, stop);
++        anyKeyframeListsPopulated = true;
+ 
+         for (KeyFrameListList::const_iterator it = keyframeLists[i].begin(); it != keyframeLists[i].end(); ++it) {
+             const KeyTimeList& times = *std::get<0>(*it);
+@@ -3055,6 +3111,14 @@ aiNodeAnim* FBXConverter::GenerateSimpleNodeAnim(const std::string& name,
+     const Model::RotOrder rotOrder = target.RotationOrder();
+     const size_t keyCount = keytimes.size();
+ 
++    if (keyCount == 0 && anyKeyframeListsPopulated)
++    {
++        // Later code will assert and potentially crash if the keyCount is zero and there are keyframeLists, so check now and error out.
++        FBXImporter::LogError(Formatter::format("Animation has a key frame list with zero animation keys and cannot be loaded: ") << name);
++        // The call site asserts on the return value, and cleans it up if all keys are empty, which they will be in this error case.
++        return na.release();
++    }
++
+     aiVector3D defTranslate = PropertyGet(props, "Lcl Translation", aiVector3D(0.f, 0.f, 0.f));
+     aiVector3D defRotation = PropertyGet(props, "Lcl Rotation", aiVector3D(0.f, 0.f, 0.f));
+     aiVector3D defScale = PropertyGet(props, "Lcl Scaling", aiVector3D(1.f, 1.f, 1.f));
+@@ -3104,7 +3168,11 @@ aiNodeAnim* FBXConverter::GenerateSimpleNodeAnim(const std::string& name,
+ 
+     const aiVector3D& postRotation = PropertyGet<aiVector3D>(props, "PostRotation", ok);
+     if (ok && postRotation.SquareLength() > zero_epsilon) {
+-        const aiQuaternion postQuat = EulerToQuaternion(postRotation, Model::RotOrder_EulerXYZ);
++        aiMatrix4x4 rotationMatrix;
++        GetRotationMatrix(Model::RotOrder_EulerXYZ, postRotation, rotationMatrix);
++        rotationMatrix.Inverse();
++        const auto postQuat = aiQuaternion(aiMatrix3x3(rotationMatrix));
++        
+         for (size_t i = 0; i < keyCount; ++i) {
+             outRotations[i].mValue = outRotations[i].mValue * postQuat;
+         }
+diff --git a/code/AssetLib/FBX/FBXProperties.cpp b/code/AssetLib/FBX/FBXProperties.cpp
+index a3a95228e..c33452197 100644
+--- a/code/AssetLib/FBX/FBXProperties.cpp
++++ b/code/AssetLib/FBX/FBXProperties.cpp
+@@ -117,7 +117,7 @@ Property* ReadTypedProperty(const Element& element)
+             ParseTokenAsFloat(*tok[6]))
+         );
+     }
+-    else if (!strcmp(cs,"double") || !strcmp(cs,"Number") || !strcmp(cs,"Float") || !strcmp(cs,"FieldOfView") || !strcmp( cs, "UnitScaleFactor" ) ) {
++    else if (!strcmp(cs,"double") || !strcmp(cs,"Number") || !strcmp(cs,"float") || !strcmp(cs,"Float") || !strcmp(cs,"FieldOfView") || !strcmp( cs, "UnitScaleFactor" ) ) {
+         ai_assert(tok.size() >= 5);
+         return new TypedProperty<float>(ParseTokenAsFloat(*tok[4]));
+     }
+diff --git a/include/assimp/material.h b/include/assimp/material.h
+index 75695e50b..d4cb329db 100644
+--- a/include/assimp/material.h
++++ b/include/assimp/material.h
+@@ -949,6 +949,18 @@ extern "C" {
+ #define AI_MATKEY_SHADER_PRIMITIVE "?sh.ps",0,0
+ #define AI_MATKEY_SHADER_COMPUTE "?sh.cs",0,0
+ 
++// ---------------------------------------------------------------------------
++// PBR material support
++#define AI_MATKEY_USE_COLOR_MAP "$mat.useColorMap", 0, 0
++#define AI_MATKEY_BASE_COLOR "$clr.base", 0, 0
++#define AI_MATKEY_USE_METALLIC_MAP "$mat.useMetallicMap", 0, 0
++#define AI_MATKEY_METALLIC_FACTOR "$mat.metallicFactor", 0, 0
++#define AI_MATKEY_USE_ROUGHNESS_MAP "$mat.useRoughnessMap", 0, 0
++#define AI_MATKEY_ROUGHNESS_FACTOR "$mat.roughnessFactor", 0, 0
++#define AI_MATKEY_USE_EMISSIVE_MAP "$mat.useEmissiveMap", 0, 0
++#define AI_MATKEY_EMISSIVE_INTENSITY "$mat.emissiveIntensity", 0, 0
++#define AI_MATKEY_USE_AO_MAP "$mat.useAOMap", 0, 0
++
+ // ---------------------------------------------------------------------------
+ // Pure key names for all texture-related properties
+ //! @cond MATS_DOC_FULL
+diff --git a/include/assimp/mesh.h b/include/assimp/mesh.h
+index 4b5af97ce..829a1e992 100644
+--- a/include/assimp/mesh.h
++++ b/include/assimp/mesh.h
+@@ -656,6 +656,8 @@ struct aiMesh {
+     */
+     C_STRUCT aiVector3D *mTextureCoords[AI_MAX_NUMBER_OF_TEXTURECOORDS];
+ 
++    C_STRUCT aiString mTextureCoordsNames[AI_MAX_NUMBER_OF_TEXTURECOORDS];
++
+     /** Specifies the number of components for a given UV channel.
+     * Up to three channels are supported (UVW, for accessing volume
+     * or cube maps). If the value is 2 for a given channel n, the
+-- 
+2.31.1.windows.1
+
