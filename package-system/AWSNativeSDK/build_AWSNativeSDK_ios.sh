@@ -7,6 +7,10 @@
 
 src_path=temp/src
 bld_path=temp/build
+inst_path=temp/install
+
+echo "Command: rm -rf $inst_path"
+rm -rf $inst_path || (echo "Command: rm -rf $inst_path failed" ; exit 1)
 
 configure_and_build_static() {
     build_type=$1
@@ -18,8 +22,9 @@ configure_and_build_static() {
           -DCMAKE_SYSTEM_NAME=Darwin \
           -DCMAKE_OSX_ARCHITECTURES="arm64" \
           -DCMAKE_OSX_SYSROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk" \
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
           -DCMAKE_CXX_STANDARD=17 \
+          -DCPP_STANDARD=17 \
           -DENABLE_TESTING=OFF \
           -DENABLE_RTTI=ON \
           -DCUSTOM_MEMORY_MANAGEMENT=ON \
@@ -28,7 +33,7 @@ configure_and_build_static() {
           -DCMAKE_BUILD_TYPE=$build_type \
           -DCURL_LIBRARY="temp/curl_install/lib/libcurl.a" \
           -DCURL_INCLUDE_DIR="temp/curl_install/include" \
-          -DCMAKE_INSTALL_LIBDIR="lib/$build_type" || (echo "CMake Configure $build_type Static failed" ; exit 1)
+          -DCMAKE_INSTALL_LIBDIR="lib" || (echo "CMake Configure $build_type Static failed" ; exit 1)
 
     echo "CMake Build $build_type Static to $bld_path/${build_type}_Static"
     cmake --build "$bld_path/${build_type}_Static" --config $build_type -j 12 || (echo "CMake Build $build_type Static to $bld_path/${build_type}_Static failed" ; exit 1)
@@ -44,7 +49,7 @@ make_configure_and_build_curl() {
   unzip  temp/curl-7.65.3.zip -d temp || exit 1
 
   EXISTING_CFLAGS=$CFLAGS
-  export CFLAGS="-arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -miphoneos-version-min=13.0 -fPIC"
+  export CFLAGS="-arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -miphoneos-version-min=14.0 -fPIC"
 
   (cd temp/curl-7.65.3 && ./configure --disable-shared --enable-static --enable-ipv6 --with-secure-transport --host="arm-apple-darwin" --prefix=$(pwd)/../curl_install) || exit 1
   (cd temp/curl-7.65.3 && make) || exit 1

@@ -1,8 +1,8 @@
 {
    "git_url":"https://github.com/aws/aws-sdk-cpp.git",
-   "git_tag":"1.7.167",
+   "git_tag":"1.9.50",
    "package_name":"AWSNativeSDK",
-   "package_version":"1.7.167-rev4",
+   "package_version":"1.9.50-rev1",
    "package_url":"https://github.com/aws/aws-sdk-cpp",
    "package_license":"Apache-2.0",
    "package_license_file":"LICENSE",
@@ -12,7 +12,6 @@
    "Platforms":{
       "Windows":{
          "Windows":{
-            "git_tag":"1.9.50",
             "package_version":"1.9.50-rev2",
             "patch_file":"AWSNativeSDK-1.9.50-windows.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Windows",
@@ -24,8 +23,6 @@
             ]
          },
          "Android":{
-            "git_tag":"1.9.50",
-            "package_version":"1.9.50-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Android",
             "custom_build_cmd": [
                "build_AWSNativeSDK_android.cmd"
@@ -37,8 +34,6 @@
       },
       "Darwin":{
          "Mac":{
-            "git_tag":"1.9.50",
-            "package_version":"1.9.50-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Mac",
             "custom_build_cmd": [
                "./build_AWSNativeSDK_mac.sh"
@@ -48,6 +43,7 @@
             ]
          },
          "iOS":{
+            "patch_file":"AWSNativeSDK-1.9.50-ios.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.iOS",
             "custom_build_cmd": [
                "./build_AWSNativeSDK_ios.sh"
@@ -59,8 +55,6 @@
       },
       "Linux":{
          "Linux":{
-            "git_tag":"1.9.50",
-            "package_version":"1.9.50-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build_AWSNativeSDK_linux.sh"

@@ -65,42 +65,29 @@ function(ly_declare_aws_library)
 endfunction()
 
 
-#### Common ####
-ly_declare_aws_library(
-    NAME 
-        Common
-    LIB_FILE 
-        aws-c-common
-)       
-
-#### Checksums ####
-ly_declare_aws_library(
-    NAME 
-        Checksums
-    LIB_FILE 
-        aws-checksums
-)
-
-#### EventStream ####
-ly_declare_aws_library(
-    NAME 
-        EventStream
-    LIB_FILE 
-        aws-c-event-stream
-    BUILD_DEPENDENCIES
-        3rdParty::AWSNativeSDK::Checksums
-)
-
 #### Core ####
+set(CORE_STATIC_LIBS
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-crt-cpp.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-s3.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-auth.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-mqtt.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-http.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-io.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-checksums.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-compression.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-cal.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-common.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libcurl.a
+)
+
 ly_declare_aws_library(
     NAME 
         Core
     LIB_FILE 
         aws-cpp-sdk-core
     BUILD_DEPENDENCIES
-        ${AWSNATIVE_SDK_LIB_PATH}/libcurl${CMAKE_STATIC_LIBRARY_SUFFIX}
-        3rdParty::AWSNativeSDK::Common
-        3rdParty::AWSNativeSDK::EventStream
+        ${CORE_STATIC_LIBS}
 )
 
 #### AccessManagement ####
@@ -235,46 +222,6 @@ ly_declare_aws_library(
 #########
 ######### Grouping Definitions #########
 #########
-
-
-#### Dependencies ####
-ly_declare_aws_library(
-    NAME 
-        Dependencies
-    BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::Checksums
-        3rdParty::AWSNativeSDK::Common
-        3rdParty::AWSNativeSDK::EventStream
-)
-
-#### IdentityMetrics ####
-ly_declare_aws_library(
-    NAME 
-        IdentityMetrics
-    BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::Dependencies
-        3rdParty::AWSNativeSDK::CognitoIdentity
-        3rdParty::AWSNativeSDK::CognitoIdp
-        3rdParty::AWSNativeSDK::Core
-        3rdParty::AWSNativeSDK::IdentityManagement
-        3rdParty::AWSNativeSDK::STS
-        3rdParty::AWSNativeSDK::MobileAnalytics
-)
-
-#### IdentityLambda ####
-ly_declare_aws_library(
-    NAME 
-        IdentityLambda
-    BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::Dependencies
-        3rdParty::AWSNativeSDK::CognitoIdentity
-        3rdParty::AWSNativeSDK::CognitoIdp
-        3rdParty::AWSNativeSDK::Core
-        3rdParty::AWSNativeSDK::IdentityManagement
-        3rdParty::AWSNativeSDK::Lambda
-        3rdParty::AWSNativeSDK::STS
-)
-
 #### GameLiftClient ####
 ly_declare_aws_library(
     NAME 
@@ -282,7 +229,6 @@ ly_declare_aws_library(
     BUILD_DEPENDENCIES 
         3rdParty::AWSNativeSDK::Core
         3rdParty::AWSNativeSDK::GameLift
-        3rdParty::AWSNativeSDK::Dependencies
 )
 
 #### AWSClientAuth ####
@@ -290,7 +236,7 @@ ly_declare_aws_library(
     NAME 
         AWSClientAuth
     BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::Dependencies
+        3rdParty::AWSNativeSDK::Core
         3rdParty::AWSNativeSDK::CognitoIdentity
         3rdParty::AWSNativeSDK::CognitoIdp
         3rdParty::AWSNativeSDK::STS
@@ -303,7 +249,6 @@ ly_declare_aws_library(
     NAME 
         AWSCore
     BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::Dependencies
         3rdParty::AWSNativeSDK::Core
         3rdParty::AWSNativeSDK::DynamoDB
         3rdParty::AWSNativeSDK::Lambda
