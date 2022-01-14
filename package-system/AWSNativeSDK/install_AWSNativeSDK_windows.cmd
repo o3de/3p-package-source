@@ -23,18 +23,19 @@ mkdir %OUT_LIB_PATH%\Release
 
 REM CMake Install Debug and 3rdParty
 ECHO "CMake Install Debug Shared to %INST_PATH%"
-call cmake --install %BLD_PATH%\Debug_Shared --prefix %INST_PATH% --config Debug
+call cmake --install %BLD_PATH%\Debug_Shared --prefix %INST_PATH%\Debug_Shared --config Debug
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO "CMake Install Debug Shared to %INST_PATH% failed"
+    ECHO "CMake Install Debug Shared to %INST_PATH%\Debug_Shared failed"
     exit /b 1
 )
 
 ECHO "CMake Install Debug Static to %INST_PATH%"
-call cmake --install %BLD_PATH%\Debug_Static --prefix %INST_PATH% --config Debug
+call cmake --install %BLD_PATH%\Debug_Static --prefix %INST_PATH%\Debug_Static --config Debug
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO "CMake Install Debug Static to %INST_PATH% failed"
+    ECHO "CMake Install Debug Static to %INST_PATH%\Debug_Static failed"
     exit /b 1
 )
+
 call:CopyDynamicAndStaticLibs "Debug"
 IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
@@ -42,18 +43,19 @@ IF %ERRORLEVEL% NEQ 0 (
 
 REM CMake Install Release and 3rdParty
 ECHO "CMake Install Release Shared to %INST_PATH%"
-call cmake --install %BLD_PATH%\Release_Shared --prefix %INST_PATH% --config Release
+call cmake --install %BLD_PATH%\Release_Shared --prefix %INST_PATH%\Release_Shared --config Release
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO "CMake Install Release Shared to %INST_PATH% failed"
+    ECHO "CMake Install Release Shared to %INST_PATH%\Release_Shared failed"
     exit /b 1
 )
 
 ECHO "CMake Install Release Static to %INST_PATH%"
-call cmake --install %BLD_PATH%\Release_Static --prefix %INST_PATH% --config Release
+call cmake --install %BLD_PATH%\Release_Static --prefix %INST_PATH%\Release_Static --config Release
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO "CMake Install Release Static to %INST_PATH% failed"
+    ECHO "CMake Install Release Static to %INST_PATH%\Release_Static failed"
     exit /b 1
 )
+
 call:CopyDynamicAndStaticLibs "Release"
 IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
@@ -61,7 +63,7 @@ IF %ERRORLEVEL% NEQ 0 (
 
 REM Copy include headers
 ECHO "Copying include headers to %OUT_INCLUDE_PATH%"
-Xcopy %INST_PATH%\include\* %OUT_INCLUDE_PATH% /E /Y
+Xcopy %INST_PATH%\Release_Static\include\* %OUT_INCLUDE_PATH% /E /Y
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "Copying include headers to %OUT_INCLUDE_PATH% failed"
     exit /b 1
@@ -81,44 +83,29 @@ exit /b 0
 :CopyDynamicAndStaticLibs
 SET BUILD_TYPE=%~1
 ECHO "Copying shared .dlls to %OUT_BIN_PATH%\%BUILD_TYPE%"
-copy /Y %INST_PATH%\bin\%BUILD_TYPE%\*.dll %OUT_BIN_PATH%\%BUILD_TYPE%\
+copy /Y %INST_PATH%\%BUILD_TYPE%_Shared\bin\*.dll %OUT_BIN_PATH%\%BUILD_TYPE%\
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "Copying shared .dlls to %OUT_BIN_PATH%\%BUILD_TYPE% failed"
     exit /b 1
 )
 
 ECHO "Copying shared .libs to %OUT_BIN_PATH%\%BUILD_TYPE%"
-copy /Y %INST_PATH%\bin\%BUILD_TYPE%\*.lib %OUT_BIN_PATH%\%BUILD_TYPE%\
+copy /Y %INST_PATH%\%BUILD_TYPE%_Shared\bin\*.lib %OUT_BIN_PATH%\%BUILD_TYPE%\
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "Copying shared .libs to %OUT_BIN_PATH%\%BUILD_TYPE% failed"
     exit /b 1
 )
 
-ECHO "Copying 3rdParty shared .dlls to %OUT_BIN_PATH%\%BUILD_TYPE%"
-copy /Y %BLD_PATH%\%BUILD_TYPE%_Shared\.deps\install\bin\*.dll %OUT_BIN_PATH%\%BUILD_TYPE%\
+copy /Y %INST_PATH%\%BUILD_TYPE%_Shared\lib\*.lib %OUT_BIN_PATH%\%BUILD_TYPE%\
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO "Copying 3rdParty shared .dlls to %OUT_BIN_PATH%\%BUILD_TYPE% failed"
-    exit /b 1
-)
-
-ECHO "Copying 3rdParty shared .libs to %OUT_BIN_PATH%\%BUILD_TYPE%"
-copy /Y %BLD_PATH%\%BUILD_TYPE%_Shared\.deps\install\lib\*.lib %OUT_BIN_PATH%\%BUILD_TYPE%\
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO "Copying 3rdParty shared .libs to %OUT_BIN_PATH%\%BUILD_TYPE% failed"
+    ECHO "Copying shared .libs to %OUT_BIN_PATH%\%BUILD_TYPE% failed"
     exit /b 1
 )
 
 ECHO "Copying static .libs to %OUT_LIB_PATH%\%BUILD_TYPE%"
-copy /Y %INST_PATH%\lib\%BUILD_TYPE%\*.lib %OUT_LIB_PATH%\%BUILD_TYPE%\
+copy /Y %INST_PATH%\%BUILD_TYPE%_Static\lib\*.lib %OUT_LIB_PATH%\%BUILD_TYPE%\
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "Copying static .libs to %OUT_LIB_PATH%\%BUILD_TYPE% failed"
-    exit /b 1
-)
-
-ECHO "Copying 3rdParty static .libs to %OUT_LIB_PATH%\%BUILD_TYPE%"
-copy /Y %BLD_PATH%\%BUILD_TYPE%_Static\.deps\install\lib\*.lib %OUT_LIB_PATH%\%BUILD_TYPE%\
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO "Copying 3rdParty static .libs to %OUT_LIB_PATH%\%BUILD_TYPE% failed"
     exit /b 1
 )
 GOTO:EOF

@@ -2,11 +2,11 @@
    "git_url":"https://github.com/lua/lua.git",
    "git_tag":"v5.3.5",
    "package_name":"Lua",
-   "package_version":"5.3.5-rev5",
+   "package_version":"5.3.5-rev7",
    "package_url":"https://github.com/lua/lua",
    "package_license":"MIT",
    "package_license_file":"LICENSE.txt",
-   "cmake_find_template":"FindLua.cmake.template",
+   "cmake_find_source":"FindLua.cmake",
    "cmake_find_target":"FindLua.cmake",
    "patch_file":"lua_5.3.5_amzn.patch",
    "additional_src_files":[
@@ -16,25 +16,20 @@
    "Platforms":{
       "Windows":{
          "Windows":{
+            "build_configs":[
+               "Release"
+            ],
             "cmake_generate_args":[
                "-G",
                "\"Visual Studio 15 Win64\"",
                "-DCMAKE_C_FLAGS=\"-D_CRT_SECURE_NO_WARNINGS\""
-            ],
-            "cmake_build_args":[
-               "-j"
             ]
          },
          "Android":{
-            "cmake_generate_args_debug":[
-               "-G",
-               "Ninja",
-               "-DCMAKE_TOOLCHAIN_FILE=%LY_ANDROID_NDK_ROOT%\\build\\cmake\\android.toolchain.cmake",
-               "-DANDROID_ABI=arm64-v8a",
-               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra -DLUA_COMPAT_5_2\"",
-               "-DCMAKE_BUILD_TYPE=Debug"
+            "build_configs":[
+               "Release"
             ],
-            "cmake_generate_args_release":[
+            "cmake_generate_args":[
                "-G",
                "Ninja",
                "-DCMAKE_TOOLCHAIN_FILE=%LY_ANDROID_NDK_ROOT%\\build\\cmake\\android.toolchain.cmake",
@@ -46,20 +41,21 @@
       },
       "Darwin":{
          "Mac":{
-            "package_version":"5.3.5-rev6",
+            "build_configs":[
+               "Release"
+            ],
             "cmake_generate_args":[
                "-G",
                "Xcode",
                "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12",
                "-DCMAKE_OSX_ARCHITECTURES=x86_64",
                "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra -DLUA_COMPAT_5_2 -DLUA_USE_MACOSX\""
-            ],
-            "cmake_build_args":[
-               "-j",
-               "8"
             ]
          },
          "iOS":{
+            "build_configs":[
+               "Release"
+            ],
             "custom_cmake_install":true,
             "cmake_generate_args":[
                "-G",
@@ -67,31 +63,22 @@
                "-DCMAKE_SYSTEM_NAME=iOS",
                "-DCMAKE_OSX_ARCHITECTURES=arm64",
                "-DCMAKE_THREAD_LIBS_INIT=-pthread",
+               "-DCMAKE_OSX_DEPLOYMENT_TARGET=13.0",
                "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra -DLUA_COMPAT_5_2\""
-            ],
-            "cmake_build_args":[
             ]
          }
       },
       "Linux":{
          "Linux":{
-            "cmake_generate_args_debug":[
-               "-G",
-               "Unix\\ Makefiles",
-               "-DCMAKE_C_COMPILER=gcc",
-               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra -DLUA_COMPAT_5_2 -DLUA_USE_LINUX\"",
-               "-DCMAKE_BUILD_TYPE=Debug"
+            "build_configs":[
+               "Release"
             ],
-            "cmake_generate_args_release":[
+            "cmake_generate_args":[
                "-G",
                "Unix\\ Makefiles",
                "-DCMAKE_C_COMPILER=gcc",
                "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra -DLUA_COMPAT_5_2 -DLUA_USE_LINUX\"",
                "-DCMAKE_BUILD_TYPE=Release"
-            ],
-            "cmake_build_args":[
-               "-j",
-               "4"
             ]
          }
       }

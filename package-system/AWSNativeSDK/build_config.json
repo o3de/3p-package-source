@@ -12,6 +12,9 @@
    "Platforms":{
       "Windows":{
          "Windows":{
+            "git_tag":"1.9.50",
+            "package_version":"1.9.50-rev2",
+            "patch_file":"AWSNativeSDK-1.9.50-windows.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Windows",
             "custom_build_cmd": [
                "build_AWSNativeSDK_windows.cmd"
@@ -34,7 +37,8 @@
       },
       "Darwin":{
          "Mac":{
-            "package_version":"1.7.167-rev6",
+            "git_tag":"1.9.50",
+            "package_version":"1.9.50-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Mac",
             "custom_build_cmd": [
                "./build_AWSNativeSDK_mac.sh"
@@ -55,7 +59,8 @@
       },
       "Linux":{
          "Linux":{
-            "package_version":"1.7.167-rev6",
+            "git_tag":"1.9.50",
+            "package_version":"1.9.50-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build_AWSNativeSDK_linux.sh"
