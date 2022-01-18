@@ -14,7 +14,20 @@ endif()
 # Even though expat itself exports it as lowercase expat, older cmake (and cmake's built-in targets)
 # expect uppercase.  So we define both, for backwards compat:
 
-set(EXPAT_LIBRARY ${CMAKE_CURRENT_LIST_DIR}/expat/lib/${CMAKE_STATIC_LIBRARY_PREFIX}expat${CMAKE_STATIC_LIBRARY_SUFFIX})
+if (WIN32)
+    # on windows, expat adds the nonstandard 'lib' prefix and MD, dMD suffixes for 
+    # Multighreaded Dynamic CRT and debug Multithreaded Dynamic CRT
+    # We don't use the debug version since its a pure C library with no C++ and thus will
+    # not have an ITERATOR_DEBUG_LEVEL conflict
+    set(PREFIX_TO_USE "lib")
+    set(SUFFIX_TO_USE "MD.lib")
+else()
+    # on other platforms its just standard prefixes and suffix
+    set(PREFIX_TO_USE ${CMAKE_STATIC_LIBRARY_PREFIX})
+    set(SUFFIX_TO_USE ${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
+
+set(EXPAT_LIBRARY ${CMAKE_CURRENT_LIST_DIR}/expat/lib/${PREFIX_TO_USE}expat${SUFFIX_TO_USE})
 set(expat_LIBRARY ${EXPAT_LIBRARY})
 
 set(EXPAT_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/expat/include)
@@ -24,7 +37,9 @@ set(EXPAT_FOUND TRUE)
 set(expat_FOUND TRUE)
 
 add_library(expat::expat STATIC IMPORTED GLOBAL)
+set_target_properties(expat::expat PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES "C")
 set_target_properties(expat::expat PROPERTIES IMPORTED_LOCATION ${EXPAT_LIBRARY})
+target_compile_definitions(expat::expat INTERFACE -DXML_STATIC)
 
 if (COMMAND ly_target_include_system_directories)
     # inside the O3DE ecosystem, this macro makes sure it works even in cmake < 3.19

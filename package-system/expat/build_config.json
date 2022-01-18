@@ -13,19 +13,53 @@
         "Windows":{
           "Windows": {
               "custom_cmake_install": true,
-              "cmake_generate_args_release": [
+              "cmake_generate_args": [
                   "-G",
                   "\"Visual Studio 16 2019\"",
                   "-DCMAKE_CXX_STANDARD=17",
+                  "-DEXPAT_BUILD_DOCS=OFF",
+                  "-DEXPAT_BUILD_TOOLS=OFF",
+                  "-DEXPAT_BUILD_EXAMPLES=OFF",
+                  "-DEXPAT_SHARED_LIBS=OFF",
+                  "-DEXPAT_BUILD_FUZZERS=OFF",
+                  "-DEXPAT_BUILD_TESTS=OFF",
                   "-DBUILD_SHARED_LIBS=0"
               ],
               "cmake_build_args": [
-                  "-j"
+                  "--parallel"
               ],
               "build_configs": [
                   "Release"
+              ],
+              "custom_test_cmd" : [
+                "test_expat_windows.cmd"
               ]
-          }
+          },
+          "Android": {
+            "custom_cmake_install": true,
+            "cmake_generate_args_release": [
+                "-G",
+                "Ninja",
+                "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake",
+                "-DCMAKE_CXX_STANDARD=17",
+                "-DEXPAT_BUILD_DOCS=OFF",
+                "-DEXPAT_BUILD_TOOLS=OFF",
+                "-DEXPAT_BUILD_EXAMPLES=OFF",
+                "-DEXPAT_SHARED_LIBS=OFF",
+                "-DEXPAT_BUILD_FUZZERS=OFF",
+                "-DEXPAT_BUILD_TESTS=OFF",
+                "-DBUILD_SHARED_LIBS=0"
+            ],
+            "cmake_build_args": [
+                "--parallel"
+            ],
+            "build_configs": [
+                "Release"
+            ],
+            "custom_test_cmd" : [
+                "test_expat_android.cmd"
+              ]
+        }
         },
         "Darwin": {
           "Mac": {
@@ -84,15 +118,17 @@
               "cmake_generate_args_release": [
                   "-G",
                   "Unix\\ Makefiles",
-                  "-DCMAKE_C_COMPILER=clang-6.0",
-                  "-DCMAKE_CXX_COMPILER=clang++-6.0",
-                  "-DCMAKE_CXX_FLAGS=\"-fPIC -O2\"",
                   "-DCMAKE_CXX_STANDARD=17",
-                  "-DCMAKE_BUILD_TYPE=Release",
+                  "-DEXPAT_BUILD_DOCS=OFF",
+                  "-DEXPAT_BUILD_TOOLS=OFF",
+                  "-DEXPAT_BUILD_EXAMPLES=OFF",
+                  "-DEXPAT_SHARED_LIBS=OFF",
+                  "-DEXPAT_BUILD_FUZZERS=OFF",
+                  "-DEXPAT_BUILD_TESTS=OFF",
                   "-DBUILD_SHARED_LIBS=0"
               ],
               "cmake_build_args":[
-                 "-j"
+                 "--parallel"
               ],
               "build_configs":[
                   "Release"
