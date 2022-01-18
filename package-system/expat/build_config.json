@@ -132,6 +132,9 @@
               ],
               "build_configs":[
                   "Release"
+              ],
+              "custom_test_cmd" : [
+                "./test_expat_linux.sh"
               ]
            }
         }

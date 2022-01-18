@@ -26,7 +26,11 @@ int main()
     printf("Reading %i bytes from file...\n", bytes_to_read);
 
     char* databuf = (char*)malloc(bytes_to_read + 1);
-    fread(databuf, 1, bytes_to_read, xmlfile);
+    if (fread(databuf, 1, bytes_to_read, xmlfile) != bytes_to_read)
+    {
+      printf("Could not read entire example_file.xml");
+      return 0;
+    }
     databuf[bytes_to_read] = 0;
     fclose(xmlfile);
 
