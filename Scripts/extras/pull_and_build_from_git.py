@@ -58,7 +58,9 @@ The following keys can exist at the root level or the target-platform level:
 * patch_file            : (optional) Option patch file to apply to the synced source before performing a build
 * source_path           : (optional) Option to provide a path to the project source rather than getting it from github
 * git_skip              : (optional) Option to skip all git commands, requires source_path
-
+* cmake_src_subfolder   : (optional) Some packages don't have a CMakeLists at the root and instead its in a subfolder.
+                                    In this case, set this to be the relative path from the src root to the folder that
+                                    contains the CMakeLists.txt.
 
 The following keys can only exist at the target platform level as they describe the specifics for that platform.
 
@@ -220,6 +222,7 @@ class PackageInfo(object):
         self.cmake_find_template_custom_indent = _get_value("cmake_find_template_custom_indent", default=1)
         self.additional_src_files = _get_value("additional_src_files", required=False)
         self.depends_on_packages = _get_value("depends_on_packages", required=False)
+        self.cmake_src_subfolder = _get_value("cmake_src_subfolder")
 
         if self.cmake_find_template and self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
@@ -566,8 +569,12 @@ class BuildInfo(object):
 
                 validate_args(cmake_generator_args)
 
+                cmakelists_folder = self.src_folder
+                if self.package_info.cmake_src_subfolder:
+                    cmakelists_folder = cmakelists_folder / self.package_info.cmake_src_subfolder
+
                 cmake_generate_cmd = [self.cmake_command,
-                                      '-S', str(self.src_folder.absolute()),
+                                      '-S', str(cmakelists_folder.absolute()),
                                       '-B', str(self.build_folder.name)]
 
                 if self.custom_toolchain_file:

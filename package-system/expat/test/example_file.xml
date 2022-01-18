@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rootelement>
+    <!-- a comment in here and a utf-8 element. This is not an 
+    exhaustive self test of expat though, it has those in its own code. -->
+    <special-element>✔️</special-element>
+</rootelement>
+

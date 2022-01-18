@@ -1,0 +1,103 @@
+{
+    "git_url":"https://github.com/libexpat/libexpat",
+    "git_tag":"R_2_4_2",
+    "package_name":"expat",
+    "package_version":"2.4.2-rev1",
+    "package_url":"https://libexpat.github.io/",
+    "package_license":"MIT",
+    "package_license_file":"expat/COPYING",
+    "cmake_find_source":"Findexpat.cmake",
+    "cmake_find_target":"Findexpat.cmake",
+    "cmake_src_subfolder": "expat",
+    "Platforms":{
+        "Windows":{
+          "Windows": {
+              "custom_cmake_install": true,
+              "cmake_generate_args_release": [
+                  "-G",
+                  "\"Visual Studio 16 2019\"",
+                  "-DCMAKE_CXX_STANDARD=17",
+                  "-DBUILD_SHARED_LIBS=0"
+              ],
+              "cmake_build_args": [
+                  "-j"
+              ],
+              "build_configs": [
+                  "Release"
+              ]
+          }
+        },
+        "Darwin": {
+          "Mac": {
+              "custom_cmake_install": true,
+              "cmake_generate_args_release": [
+                  "-G",
+                  "Xcode",
+                  "-DEXPAT_BUILD_DOCS=OFF",
+                  "-DEXPAT_BUILD_TOOLS=OFF",
+                  "-DEXPAT_BUILD_EXAMPLES=OFF",
+                  "-DEXPAT_SHARED_LIBS=OFF",
+                  "-DEXPAT_BUILD_FUZZERS=OFF",
+                  "-DEXPAT_BUILD_TESTS=OFF",
+                  "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake",
+                  "-DBUILD_SHARED_LIBS=0"
+              ],
+              "cmake_build_args": [
+                  "--parallel"
+              ],
+              "build_configs": [
+                  "Release"
+              ],
+              "custom_test_cmd" : [
+                "./test_expat_mac.sh"
+            ]
+          },
+          "iOS" : {
+            "custom_cmake_install": true,
+            "cmake_generate_args_release": [
+                "-G",
+                "Xcode",
+                "-DDCMAKE_MACOSX_BUNDLE=OFF",
+                "-DEXPAT_BUILD_DOCS=OFF",
+                "-DEXPAT_BUILD_TOOLS=OFF",
+                "-DEXPAT_BUILD_EXAMPLES=OFF",
+                "-DEXPAT_SHARED_LIBS=OFF",
+                "-DEXPAT_BUILD_FUZZERS=OFF",
+                "-DEXPAT_BUILD_TESTS=OFF",
+                "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake",
+                "-DBUILD_SHARED_LIBS=0"
+            ],
+            "cmake_build_args": [
+                "--parallel"
+            ],
+            "build_configs": [
+                "Release"
+            ],
+            "custom_test_cmd" : [
+              "./test_expat_ios.sh"
+            ]
+          }
+        },
+        "Linux":{
+           "Linux":{
+              "custom_cmake_install":true,
+              "cmake_generate_args_release": [
+                  "-G",
+                  "Unix\\ Makefiles",
+                  "-DCMAKE_C_COMPILER=clang-6.0",
+                  "-DCMAKE_CXX_COMPILER=clang++-6.0",
+                  "-DCMAKE_CXX_FLAGS=\"-fPIC -O2\"",
+                  "-DCMAKE_CXX_STANDARD=17",
+                  "-DCMAKE_BUILD_TYPE=Release",
+                  "-DBUILD_SHARED_LIBS=0"
+              ],
+              "cmake_build_args":[
+                 "-j"
+              ],
+              "build_configs":[
+                  "Release"
+              ]
+           }
+        }
+     }
+}
