@@ -125,6 +125,7 @@
                   "-DEXPAT_SHARED_LIBS=OFF",
                   "-DEXPAT_BUILD_FUZZERS=OFF",
                   "-DEXPAT_BUILD_TESTS=OFF",
+                  "-DCMAKE_C_FLAGS=-fPIC",
                   "-DBUILD_SHARED_LIBS=0"
               ],
               "cmake_build_args":[
