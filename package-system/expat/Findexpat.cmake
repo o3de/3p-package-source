@@ -39,7 +39,7 @@ set(expat_FOUND TRUE)
 add_library(expat::expat STATIC IMPORTED GLOBAL)
 set_target_properties(expat::expat PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES "C")
 set_target_properties(expat::expat PROPERTIES IMPORTED_LOCATION ${EXPAT_LIBRARY})
-target_compile_definitions(expat::expat INTERFACE -DXML_STATIC)
+target_compile_definitions(expat::expat INTERFACE XML_STATIC)
 
 if (COMMAND ly_target_include_system_directories)
     # inside the O3DE ecosystem, this macro makes sure it works even in cmake < 3.19

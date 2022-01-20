@@ -14,10 +14,10 @@ cmake -S test -B temp/build_test -G Ninja -DCMAKE_BUILD_TYPE=Release  \
 
 cmake --build temp/build_test --parallel || exit 1
 
-cd test
+pushd test
 
 ../temp/build_test/test_expat || exit 1
 
-cd ..
+popd
 
 exit 0
