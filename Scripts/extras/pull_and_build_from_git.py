@@ -59,15 +59,26 @@ The following keys can exist at the root level or the target-platform level:
 * patch_file            : (optional) Option patch file to apply to the synced source before performing a build
 * source_path           : (optional) Option to provide a path to the project source rather than getting it from github
 * git_skip              : (optional) Option to skip all git commands, requires source_path
-
-
+* cmake_src_subfolder   : (optional) Some packages don't have a CMakeLists at the root and instead its in a subfolder.
+                                    In this case, set this to be the relative path from the src root to the folder that
+                                    contains the CMakeLists.txt.
+* cmake_generate_args_common : (optional) When used at the root, this provides a set of cmake arguments for generation which will 
+                                apply to ALL platforms and configs (appended to cmake_generate_args).
+                                Can be overriden by a specific platform by specifying it in the platform specific section.
+                                The final args will be (cmake_generate_args || cmake_generation_args_CONFIG) + cmake_generate_args_common
+* cmake_build_args_common : (optional) When used at the root, provides a set of cmake arguments for building which will apply to ALL
+                            platforms and configurations.
+                            The final args will be (cmake_build_args || cmake_build_args_CONFIG) + cmake_build_args_common
+                            `cmake --build (build folder) --config config` will automatically be supplied.
+ 
 The following keys can only exist at the target platform level as they describe the specifics for that platform.
 
 * cmake_generate_args                     : The cmake generation arguments (minus the build folder target or any configuration) for generating 
                                             the project for the platform (for all configurations). To perform specific generation commands (i.e.
                                             for situations where the generator does not support multiple configs) the key can contain the 
-                                            suffix of the configuration name (cmake_generate_args_debug, cmake_generate_args_release)
-                                            
+                                            suffix of the configuration name (cmake_generate_args_debug, cmake_generate_args_release).
+                                            For common args that should apply to every config, see cmake_generate_args_common above.
+
 * cmake_build_args                        : Additional build args to pass to cmake during the cmake build command
 
 * cmake_install_filter                    : Optional list of filename patterns to filter what is actually copied to the target package based on
@@ -223,7 +234,9 @@ class PackageInfo(object):
         self.cmake_find_template_custom_indent = _get_value("cmake_find_template_custom_indent", default=1)
         self.additional_src_files = _get_value("additional_src_files", required=False)
         self.depends_on_packages = _get_value("depends_on_packages", required=False)
-
+        self.cmake_src_subfolder = _get_value("cmake_src_subfolder")
+        self.cmake_generate_args_common = _get_value("cmake_generate_args_common")
+        self.cmake_build_args_common = _get_value("cmake_build_args_common")
         if self.cmake_find_template and self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
         if not self.cmake_find_template and not self.cmake_find_source:
@@ -555,8 +568,6 @@ class BuildInfo(object):
             # Otherwise install directly to the target
             install_target_folder = self.build_install_folder
 
-        build_args = validate_args(self.platform_config.get('cmake_build_args', []))
-
         can_skip_generate = False
 
         for config in self.build_configs:
@@ -568,10 +579,18 @@ class BuildInfo(object):
                     # Can skip generate the next time since there is only 1 unique cmake generation
                     can_skip_generate = True
 
+                # if there is a cmake_generate_args_common key in the build config, then start with that.
+                if self.package_info.cmake_generate_args_common:
+                    cmake_generator_args = cmake_generator_args + self.package_info.cmake_generate_args_common
+
                 validate_args(cmake_generator_args)
 
+                cmakelists_folder = self.src_folder
+                if self.package_info.cmake_src_subfolder:
+                    cmakelists_folder = cmakelists_folder / self.package_info.cmake_src_subfolder
+
                 cmake_generate_cmd = [self.cmake_command,
-                                      '-S', str(self.src_folder.absolute()),
+                                      '-S', str(cmakelists_folder.absolute()),
                                       '-B', str(self.build_folder.name)]
 
                 if self.custom_toolchain_file:
@@ -605,6 +624,9 @@ class BuildInfo(object):
                                self.platform_config.get('cmake_build_args') or \
                                []
 
+            if self.package_info.cmake_build_args_common:
+                cmake_build_args = cmake_build_args + self.package_info.cmake_build_args_common
+
             validate_args(cmake_build_args)
 
             cmake_build_cmd = [self.cmake_command,
@@ -613,7 +635,7 @@ class BuildInfo(object):
             if custom_cmake_install:
                 cmake_build_cmd.extend(['--target', 'install'])
 
-            cmake_build_cmd.extend(build_args)
+            cmake_build_cmd.extend(cmake_build_args)
 
             call_result = subprocess.run(subp_args(cmake_build_cmd),
                                          shell=True,
