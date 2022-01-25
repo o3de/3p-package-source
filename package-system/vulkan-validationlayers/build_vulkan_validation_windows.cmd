@@ -15,7 +15,7 @@ set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 @rem cd temp/build
 
 @rem release build
-C:\Users\tonypeng\AppData\Local\Programs\Python\Python38\python.exe temp/src/scripts/update_deps.py --dir temp/src/external --arch x64 --config release
+python.exe temp/src/scripts/update_deps.py --dir temp/src/external --arch x64 --config release
 cmake -C temp/src/external/helper.cmake -S temp/src -B temp/build
 cmake --build temp/build --config Release --target clean
 cmake --build temp/build --config Release --target install 
@@ -23,27 +23,11 @@ mkdir temp\\build\\install\\lib\\release
 move temp\\build\\install\\lib\\* temp\\build\\install\\lib\\release\\
 
 @rem debug build
-C:\Users\tonypeng\AppData\Local\Programs\Python\Python38\python.exe temp/src/scripts/update_deps.py --dir temp/src/external --arch x64 --config debug
+python.exe temp/src/scripts/update_deps.py --dir temp/src/external --arch x64 --config debug
 cmake --build temp/build --config Debug --target clean
 cmake -C temp/src/external/helper.cmake -S temp/src -B temp/build
 cmake --build temp/build --config Debug --target install 
 mkdir temp\\build\\install\\lib\\debug
 move temp\\build\\install\\lib\\* temp\\build\\install\\lib\\debug\\
-
-@rem cmake --build . --config Release --target clean
-@rem cmake -C ../src/external/helper.cmake -DCMAKE_BUILD_TYPE=Release ../src
-@rem cmake --build . --config Release --target install
-@rem mkdir install\\lib\\release
-@rem move install\\lib\\* install\\lib\\release\\
-
-@rem cd ..\\..
-@rem C:\Users\tonypeng\AppData\Local\Programs\Python\Python38\python.exe temp/src/scripts/update_deps.py --dir temp/src/external --arch x64 --config debug
-@rem cd temp/build
-@rem 
-@rem cmake --build . --config Debug --target clean
-@rem cmake -C ../src/external/helper.cmake -DCMAKE_BUILD_TYPE=Debug ../src
-@rem cmake --build . --config Debug --target install
-@rem mkdir install\\lib\\debug
-@rem move install\\lib\\* install\\lib\\debug\\
 
 exit /b 0
