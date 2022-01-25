@@ -1,0 +1,59 @@
+{
+    "git_url":"https://github.com/KhronosGroup/Vulkan-ValidationLayers.git",
+    "git_tag":"v1.2.198",
+    "package_name":"vulkan-validationlayers",
+    "package_version":"1.2.198",
+    "package_url":"https://vulkan.lunarg.com/",
+    "package_license":"Apache-2.0",
+    "package_license_file":"LICENSE.txt",
+    "cmake_find_source":"Findvulkan-validationlayers.cmake",
+    "cmake_find_target":"Findvulkan-validationlayers.cmake",
+    "cmake_src_subfolder": "vulkan-validation",
+    "cmake_build_args" : [ "-j", "8"],
+    "cmake_generate_args_common": [],
+    "cmake_build_args_common": [
+        "--parallel"
+    ],
+    "Platforms":{
+        "Windows":{
+            "Windows":{   
+				"custom_build_cmd" : [
+                    "build_vulkan_validation_windows.cmd"
+                ],
+                "custom_install_cmd": [
+                    "install_vulkan_validation_windows.cmd"
+                ]
+            },
+			"Android":{
+                "custom_build_cmd" : [
+                ],
+                "custom_install_cmd": [
+                ]
+            }
+        },
+		"Darwin":{
+            "Mac":{
+                "custom_build_cmd": [
+                 ],
+                 "custom_install_cmd": [
+                 ]
+            },
+            "iOS":{
+                "custom_build_cmd": [
+                 ],
+                 "custom_install_cmd": [
+                 ]
+             }
+        },
+        "Linux":{
+            "Linux":{
+                "custom_build_cmd": [
+                ],
+                "custom_install_cmd": [
+                ],
+                "custom_test_cmd" : [
+               ]
+            }
+        }
+    }
+}
