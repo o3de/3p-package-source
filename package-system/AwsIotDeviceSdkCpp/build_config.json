@@ -1,14 +1,14 @@
 {
    "git_url":"https://github.com/aws/aws-iot-device-sdk-cpp-v2.git",
-   "git_tag":"v1.12.2",
+   "git_tag":"v1.15.2",
    "package_name":"AwsIotDeviceSdkCpp",
-   "package_version":"1.12.2-rev1",
+   "package_version":"1.15.2-rev1",
    "package_url":"https://github.com/aws/aws-iot-device-sdk-cpp-v2",
    "package_license":"Apache-2.0",
    "package_license_file":"LICENSE",
    "cmake_find_template":"FindAwsIotDeviceSdkCpp.cmake.template",
    "cmake_find_target":"FindAwsIotDeviceSdkCpp.cmake",
-   "patch_file":"aws-iot-device-sdk-cpp-v2-v1.12.2.patch",
+   "patch_file":"aws-iot-device-sdk-cpp-v2-v1.15.2.patch",
    "Platforms":{
       "Windows":{
          "Windows":{
