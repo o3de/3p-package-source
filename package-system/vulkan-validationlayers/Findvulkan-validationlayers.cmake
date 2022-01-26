@@ -1,12 +1,9 @@
 #
-# All or portions of this file Copyright (c) Amazon.com, Inc. or its affiliates or
-# its licensors.
+# Copyright (c) Contributors to the Open 3D Engine Project.
+# For complete copyright and license terms please see the LICENSE at the root of this distribution.
+# 
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
-# For complete copyright and license terms please see the LICENSE at the root of this
-# distribution (the "License"). All use of this software is governed by the License,
-# or, if provided, by the license below or the license accompanying this file. Do not
-# remove or modify any license notices. This file is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #
 
 set(MY_NAME "vulkan-validationlayers")
@@ -16,25 +13,18 @@ if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
-add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+set(PATH_TO_DLL ${CMAKE_CURRENT_LIST_DIR}/vulkan-validationlayers/lib/release)
 
-if (${PAL_PLATFORM_NAME} STREQUAL "Windows")
-    set(PATH_TO_DLL ${CMAKE_CURRENT_LIST_DIR}/vulkan-validationlayers/lib/release)
-    
-    set(${MY_NAME}_RELEASE_RUNTIME_DEPENDENCIES
-        ${PATH_TO_DLL}/VkLayer_khronos_validation.dll
-    )
+set(_DLL_NAME ${PATH_TO_DLL}/VkLayer_khronos_validation${CMAKE_SHARED_LIBRARY_SUFFIX})
 
-    set(${MY_NAME}_RUNTIME_JSON_DEPENDENCIES
-        ${PATH_TO_DLL}/VkLayer_khronos_validation.json
-    )
+add_library(${TARGET_WITH_NAMESPACE} SHARED IMPORTED GLOBAL)
 
-    ly_add_target_files(
-        TARGETS 
-        ${TARGET_WITH_NAMESPACE} 
-        FILES 
-        ${${MY_NAME}_RELEASE_RUNTIME_DEPENDENCIES} 
-        ${${MY_NAME}_RUNTIME_JSON_DEPENDENCIES})
-endif()
+set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES IMPORTED_LOCATION ${_DLL_NAME})
+ly_add_target_files(
+    TARGETS
+    ${TARGET_WITH_NAMESPACE}
+    FILES
+    ${${MY_NAME}_RUNTIME_JSON_DEPENDENCIES})
+)
 
 set(${MY_NAME}_FOUND True)
