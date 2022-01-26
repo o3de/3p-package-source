@@ -6,8 +6,6 @@
     "package_url":"https://github.com/KhronosGroup/Vulkan-ValidationLayers",
     "package_license":"Apache-2.0",
     "package_license_file":"LICENSE.txt",
-    "cmake_find_source":"Findvulkan-validationlayers.cmake",
-    "cmake_find_target":"Findvulkan-validationlayers.cmake",
     "cmake_src_subfolder": "vulkan-validation",
     "cmake_build_args" : [ "-j", "8"],
     "cmake_generate_args_common": [],
@@ -16,7 +14,9 @@
     ],
     "Platforms":{
         "Windows":{
-            "Windows":{   
+            "Windows":{
+                "cmake_find_source":"Findvulkan-validationlayers.cmake",
+                "cmake_find_target":"Findvulkan-validationlayers.cmake",   
                 "custom_build_cmd" : [
                     "build_vulkan_validation_windows.cmd"
                 ],
@@ -25,12 +25,20 @@
                 ]
             },
             "Android":{
-                "custom_build_cmd" : []
+                "cmake_find_source":"Findvulkan-validationlayers.cmake.stub",
+                "cmake_find_target":"Findvulkan-validationlayers.cmake.stub",
+                "custom_build_cmd" : [
+                    "build_vulkan_validation_stub.cmd"
+                ]
             }
         },
         "Linux":{
             "Linux":{
-                "custom_build_cmd": []
+                "cmake_find_source":"Findvulkan-validationlayers.cmake.stub",
+                "cmake_find_target":"Findvulkan-validationlayers.cmake.stub",
+                "custom_build_cmd" : [
+                    "./build_vulkan_validation_stub.sh"
+                ]
             }
         }
     }
