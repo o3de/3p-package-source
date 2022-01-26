@@ -17,14 +17,14 @@
     "Platforms":{
         "Windows":{
             "Windows":{   
-				"custom_build_cmd" : [
+                "custom_build_cmd" : [
                     "build_vulkan_validation_windows.cmd"
                 ],
                 "custom_install_cmd": [
                     "install_vulkan_validation_windows.cmd"
                 ]
             },
-			"Android":{
+            "Android":{
                 "custom_build_cmd" : []
             }
         },
