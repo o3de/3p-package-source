@@ -89,7 +89,8 @@
                "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12",
                "-DCMAKE_OSX_ARCHITECTURES=x86_64",
                "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
-               "-DCMAKE_CXX_STANDARD=17"
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\""
             ],
             "cmake_build_args":[
                "-j",
@@ -135,20 +136,22 @@
             "cmake_generate_args_debug":[
                "-G",
                "Unix\\ Makefiles",
-               "-DCMAKE_C_COMPILER=clang-6.0",
-               "-DCMAKE_CXX_COMPILER=clang++-6.0",
+               "-DCMAKE_C_COMPILER=clang-12",
+               "-DCMAKE_CXX_COMPILER=clang++-12",
                "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
                "-DCMAKE_CXX_STANDARD=17",
-               "-DCMAKE_BUILD_TYPE=Debug"
+               "-DCMAKE_BUILD_TYPE=Debug",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Debug\""
             ],
             "cmake_generate_args_release":[
                "-G",
                "Unix\\ Makefiles",
-               "-DCMAKE_C_COMPILER=clang-6.0",
-               "-DCMAKE_CXX_COMPILER=clang++-6.0",
+               "-DCMAKE_C_COMPILER=clang-12",
+               "-DCMAKE_CXX_COMPILER=clang++-12",
                "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
                "-DCMAKE_CXX_STANDARD=17",
-               "-DCMAKE_BUILD_TYPE=Release"
+               "-DCMAKE_BUILD_TYPE=Release",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\""
             ],
             "cmake_build_args":[
                "-j"
