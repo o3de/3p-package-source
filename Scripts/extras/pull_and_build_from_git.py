@@ -234,9 +234,9 @@ class PackageInfo(object):
         self.cmake_find_template_custom_indent = _get_value("cmake_find_template_custom_indent", default=1)
         self.additional_src_files = _get_value("additional_src_files", required=False)
         self.depends_on_packages = _get_value("depends_on_packages", required=False)
-        self.cmake_src_subfolder = _get_value("cmake_src_subfolder")
-        self.cmake_generate_args_common = _get_value("cmake_generate_args_common")
-        self.cmake_build_args_common = _get_value("cmake_build_args_common")
+        self.cmake_src_subfolder = _get_value("cmake_src_subfolder", required=False)
+        self.cmake_generate_args_common = _get_value("cmake_generate_args_common", required=False)
+        self.cmake_build_args_common = _get_value("cmake_build_args_common", required=False)
         if self.cmake_find_template and self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
         if not self.cmake_find_template and not self.cmake_find_source:
