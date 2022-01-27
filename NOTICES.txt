@@ -460,7 +460,6 @@ License:
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-
 ------------------------------------
 
 Package path: ..\..\AutomatedTesting\Gem\Sponza\Assets\license.txt
@@ -475,51 +474,6 @@ The original "Crytek Sponza" scene data can be downloaded from the
 
 The original content is under the "CC BY 3.0" License:
 https://creativecommons.org/licenses/by/3.0/
-------------------------------------
-
-Package path: ..\..\cmake\Packaging\LicenseScan.cmake.in
-
-License:
-
-#
-# Copyright (c) Contributors to the Open 3D Engine Project.
-# For complete copyright and license terms please see the LICENSE at the root of this distribution.
-#
-# SPDX-License-Identifier: Apache-2.0 OR MIT
-#
-#
-
-set(LY_ROOT_FOLDER "@LY_ROOT_FOLDER@")
-set(CMAKE_SCRIPT_MODE_FILE TRUE)
-
-# Scan the engine and 3rd Party folders for licenses
-cmake_path(SET _license_script_path "@LY_ROOT_FOLDER@/scripts/license_scanner")
-cmake_path(SET _license_script "${_license_script_path}/license_scanner.py")
-cmake_path(SET _license_config "${_license_script_path}/scanner_config.json")
-
-set(_license_scan_path "@LY_ROOT_FOLDER@" "@LY_PACKAGE_UNPACK_LOCATION@")
-set(_license_command
-    @LY_PYTHON_CMD@ -s
-    -u ${_license_script}
-    --config-file ${_license_config}
-    --license-file-path @CPACK_3P_LICENSE_FILE@
-    --package-file-path @CPACK_3P_MANIFEST_FILE@
-)
-
-message("Scanning ${_license_scan_path} for package licenses")
-
-execute_process(
-    COMMAND ${_license_command} --scan-path ${_license_scan_path}
-    RESULT_VARIABLE _license_result
-    ERROR_VARIABLE _license_errors
-    OUTPUT_VARIABLE _license_output
-    ECHO_OUTPUT_VARIABLE
-)
-
-if(NOT ${_license_result} EQUAL 0)
-    message(FATAL_ERROR "An error occurred during license scan.  ${_license_errors}")
-endif()
-
 ------------------------------------
 
 Package path: ..\..\Code\Framework\AzQtComponents\AzQtComponents\Components\Fonts\Open_Sans\LICENSE.txt
