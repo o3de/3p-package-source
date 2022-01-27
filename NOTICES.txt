@@ -1,6 +1,6 @@
 ------------------------------------
 
-Package path: LICENSE.txt
+Package path: ..\..\LICENSE.txt
 
 License:
 
@@ -33,7 +33,7 @@ source code may be found at https://github.com/chardet/chardet.
  
 ------------------------------------
 
-Package path: LICENSE_APACHE2.TXT
+Package path: ..\..\LICENSE_APACHE2.TXT
 
 License:
 
@@ -241,7 +241,7 @@ License:
 
 ------------------------------------
 
-Package path: LICENSE_MIT.TXT
+Package path: ..\..\LICENSE_MIT.TXT
 
 License:
 
@@ -254,7 +254,7 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------
 
-Package path: Assets\Editor\Fonts\Open_Sans\LICENSE.txt
+Package path: ..\..\Assets\Editor\Fonts\Open_Sans\LICENSE.txt
 
 License:
 
@@ -463,7 +463,66 @@ License:
 
 ------------------------------------
 
-Package path: Code\Framework\AzQtComponents\AzQtComponents\Components\Fonts\Open_Sans\LICENSE.txt
+Package path: ..\..\AutomatedTesting\Gem\Sponza\Assets\license.txt
+
+License:
+
+The content in this gem "O3DE\Gems\AtomContent\Sponza" is ported 
+from the original source, and modified for the O3DE Engine and Atom Renderer.
+
+The original "Crytek Sponza" scene data can be downloaded from the
+"McGuire Computer Graphics Archive": https://casual-effects.com/data/
+
+The original content is under the "CC BY 3.0" License:
+https://creativecommons.org/licenses/by/3.0/
+------------------------------------
+
+Package path: ..\..\cmake\Packaging\LicenseScan.cmake.in
+
+License:
+
+#
+# Copyright (c) Contributors to the Open 3D Engine Project.
+# For complete copyright and license terms please see the LICENSE at the root of this distribution.
+#
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+#
+
+set(LY_ROOT_FOLDER "@LY_ROOT_FOLDER@")
+set(CMAKE_SCRIPT_MODE_FILE TRUE)
+
+# Scan the engine and 3rd Party folders for licenses
+cmake_path(SET _license_script_path "@LY_ROOT_FOLDER@/scripts/license_scanner")
+cmake_path(SET _license_script "${_license_script_path}/license_scanner.py")
+cmake_path(SET _license_config "${_license_script_path}/scanner_config.json")
+
+set(_license_scan_path "@LY_ROOT_FOLDER@" "@LY_PACKAGE_UNPACK_LOCATION@")
+set(_license_command
+    @LY_PYTHON_CMD@ -s
+    -u ${_license_script}
+    --config-file ${_license_config}
+    --license-file-path @CPACK_3P_LICENSE_FILE@
+    --package-file-path @CPACK_3P_MANIFEST_FILE@
+)
+
+message("Scanning ${_license_scan_path} for package licenses")
+
+execute_process(
+    COMMAND ${_license_command} --scan-path ${_license_scan_path}
+    RESULT_VARIABLE _license_result
+    ERROR_VARIABLE _license_errors
+    OUTPUT_VARIABLE _license_output
+    ECHO_OUTPUT_VARIABLE
+)
+
+if(NOT ${_license_result} EQUAL 0)
+    message(FATAL_ERROR "An error occurred during license scan.  ${_license_errors}")
+endif()
+
+------------------------------------
+
+Package path: ..\..\Code\Framework\AzQtComponents\AzQtComponents\Components\Fonts\Open_Sans\LICENSE.txt
 
 License:
 
@@ -672,7 +731,7 @@ License:
 
 ------------------------------------
 
-Package path: Code\Framework\AzToolsFramework\AzToolsFramework\UI\LegacyFramework\Resources\Fonts\LICENSE.txt
+Package path: ..\..\Code\Framework\AzToolsFramework\AzToolsFramework\UI\LegacyFramework\Resources\Fonts\LICENSE.txt
 
 License:
 
@@ -881,7 +940,7 @@ License:
 
 ------------------------------------
 
-Package path: Code\Legacy\CrySystem\XML\Expat\COPYING.txt
+Package path: ..\..\Code\Legacy\CrySystem\XML\Expat\COPYING.txt
 
 License:
 
@@ -910,7 +969,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ------------------------------------
 
-Package path: Code\Tools\ProjectManager\Resources\Backgrounds\LICENSE.TXT
+Package path: ..\..\Code\Tools\ProjectManager\Resources\Backgrounds\LICENSE.TXT
 
 License:
 
@@ -920,34 +979,7 @@ SPDX-FileCopyrightText: purposes, without permission from or attributing the pho
 SPDX-FileCopyrightText: not include the right to compile photos from Unsplash to replicate a similar or competing service.
 ------------------------------------
 
-Package path: Gems\AssetMemoryAnalyzer\External\tabulator-master\LICENSE
-
-License:
-
-The MIT License (MIT)
-
-Copyright (c) 2015-2018 Oli Folkerd
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-------------------------------------
-
-Package path: Gems\Atom\Asset\ImageProcessingAtom\External\CubeMapGen\license.txt
+Package path: ..\..\Gems\Atom\Asset\ImageProcessingAtom\External\CubeMapGen\license.txt
 
 License:
 
@@ -973,7 +1005,7 @@ If you use the software (in whole or in part), you shall adhere to all applicabl
 
 ------------------------------------
 
-Package path: Gems\Atom\Feature\Common\Assets\Shaders\LightCulling\License for AMD bitonic sort code.txt
+Package path: ..\..\Gems\Atom\Feature\Common\Assets\Shaders\LightCulling\License for AMD bitonic sort code.txt
 
 License:
 
@@ -999,7 +1031,7 @@ THE SOFTWARE.
 
 ------------------------------------
 
-Package path: Gems\Atom\Feature\Common\Code\3rdParty\ACES\LICENSE.txt
+Package path: ..\..\Gems\Atom\Feature\Common\Code\3rdParty\ACES\LICENSE.txt
 
 License:
 
@@ -1084,7 +1116,7 @@ APPLICATIONS THEREOF, HELD BY PARTIES OTHER THAN A.M.P.A.S.,WHETHER DISCLOSED OR
 UNDISCLOSED.
 ------------------------------------
 
-Package path: Gems\Atom\RHI\Vulkan\External\glad\2.0.0-beta\include\glad\license.txt
+Package path: ..\..\Gems\Atom\RHI\Vulkan\External\glad\2.0.0-beta\include\glad\license.txt
 
 License:
 
@@ -1300,7 +1332,7 @@ vulkan.h was generated using a code generator from https://github.com/Dav1dde/gl
 
 ------------------------------------
 
-Package path: Gems\Atom\RPI\Code\External\MaskedOcclusionCulling\LICENSE.txt
+Package path: ..\..\Gems\Atom\RPI\Code\External\MaskedOcclusionCulling\LICENSE.txt
 
 License:
 
@@ -1487,7 +1519,7 @@ or implied. See the License for the specific language governing permissions and
 limitations under the License.
 ------------------------------------
 
-Package path: Gems\AtomContent\Sponza\Assets\license.txt
+Package path: ..\..\Gems\AtomContent\Sponza\Assets\license.txt
 
 License:
 
@@ -1501,7 +1533,7 @@ The original content is under the "CC BY 3.0" License:
 https://creativecommons.org/licenses/by/3.0/
 ------------------------------------
 
-Package path: Gems\AtomTressFX\External\license.txt
+Package path: ..\..\Gems\AtomTressFX\External\license.txt
 
 License:
 
@@ -1527,7 +1559,7 @@ THE SOFTWARE.
 
 ------------------------------------
 
-Package path: Gems\AtomTressFX\External\Code\license.txt
+Package path: ..\..\Gems\AtomTressFX\External\Code\license.txt
 
 License:
 
@@ -1553,7 +1585,7 @@ THE SOFTWARE.
 
 ------------------------------------
 
-Package path: Gems\FastNoise\Code\External\FastNoise\LICENSE
+Package path: ..\..\Gems\FastNoise\Code\External\FastNoise\LICENSE
 
 License:
 
@@ -1580,7 +1612,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------
 
-Package path: Gems\ImGui\External\ImGui\v1.82\imgui\LICENSE.txt
+Package path: ..\..\Gems\ImGui\External\ImGui\v1.82\imgui\LICENSE.txt
 
 License:
 
@@ -1608,7 +1640,7 @@ SOFTWARE.
 
 ------------------------------------
 
-Package path: Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSans\LICENSE_OFL.txt
+Package path: ..\..\Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSans\LICENSE_OFL.txt
 
 License:
 
@@ -1707,7 +1739,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ------------------------------------
 
-Package path: Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSansJP\LICENSE_OFL.txt
+Package path: ..\..\Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSansJP\LICENSE_OFL.txt
 
 License:
 
@@ -1806,7 +1838,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ------------------------------------
 
-Package path: Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSansKR\LICENSE_OFL.txt
+Package path: ..\..\Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSansKR\LICENSE_OFL.txt
 
 License:
 
@@ -1905,7 +1937,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ------------------------------------
 
-Package path: Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSansSC\LICENSE_OFL.txt
+Package path: ..\..\Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSansSC\LICENSE_OFL.txt
 
 License:
 
@@ -2004,7 +2036,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ------------------------------------
 
-Package path: Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSansTC\LICENSE_OFL.txt
+Package path: ..\..\Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSansTC\LICENSE_OFL.txt
 
 License:
 
@@ -2103,7 +2135,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ------------------------------------
 
-Package path: Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSerif\LICENSE_OFL.txt
+Package path: ..\..\Gems\LyShineExamples\Assets\UI\Fonts\LyShineExamples\NotoSerif\LICENSE_OFL.txt
 
 License:
 
@@ -2202,7 +2234,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ------------------------------------
 
-Package path: python\runtime\python-3.7.10-rev2-windows\python\LICENSE.txt
+Package path: ..\..\python\runtime\python-3.7.10-rev2-windows\python\LICENSE.txt
 
 License:
 
@@ -2463,7 +2495,7 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\assimp-5.0.1-rev11-multiplatform\assimp\LICENSE.txt
+Package path: ..\..\..\3rdParty\packages\assimp-5.0.1-rev12-windows\assimp\LICENSE
 
 License:
 
@@ -2548,7 +2580,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\astc-encoder-3.2-rev1-windows\astc-encoder\LICENSE.txt
+Package path: ..\..\..\3rdParty\packages\astc-encoder-3.2-rev2-windows\astc-encoder\LICENSE.txt
 
 License:
 
@@ -2730,7 +2762,7 @@ TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\AWSGameLiftServerSDK-3.4.1-rev1-windows\AWSGameLiftServerSDK\LICENSE_AMAZON_GAMELIFT_SDK.TXT
+Package path: ..\..\..\3rdParty\packages\AWSGameLiftServerSDK-3.4.1-rev1-windows\AWSGameLiftServerSDK\LICENSE_AMAZON_GAMELIFT_SDK.TXT
 
 License:
 
@@ -2914,7 +2946,7 @@ END OF TERMS AND CONDITIONS
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\AWSNativeSDK-1.7.167-rev4-windows\AWSNativeSDK\LICENSE
+Package path: ..\..\..\3rdParty\packages\AWSNativeSDK-1.9.50-rev2-windows\AWSNativeSDK\LICENSE
 
 License:
 
@@ -3122,7 +3154,7 @@ License:
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\azslc-1.7.34-rev1-windows\azslc\LICENSE.txt
+Package path: ..\..\..\3rdParty\packages\azslc-1.7.34-rev1-windows\azslc\LICENSE.txt
 
 License:
 
@@ -3155,7 +3187,7 @@ source code may be found at https://github.com/chardet/chardet.
  
 ------------------------------------
 
-Package path: ..\3rdParty\packages\Blast-v1.1.7_rc2-9-geb169fe-rev2-windows\Blast\license.txt
+Package path: ..\..\..\3rdParty\packages\Blast-v1.1.7_rc2-9-geb169fe-rev2-windows\Blast\license.txt
 
 License:
 
@@ -3231,7 +3263,7 @@ HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\cityhash-1.1-multiplatform\cityhash\COPYING
+Package path: ..\..\..\3rdParty\packages\cityhash-1.1-multiplatform\cityhash\COPYING
 
 License:
 
@@ -3257,7 +3289,7 @@ License:
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\civetweb-1.8-rev1-windows\civetweb\LICENSE.md
+Package path: ..\..\..\3rdParty\packages\civetweb-1.8-rev1-windows\civetweb\LICENSE.md
 
 License:
 
@@ -3474,7 +3506,7 @@ https://github.com/svaarala/duktape/blob/master/LICENSE.txt
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\Crashpad-0.8.0-rev1-windows\Crashpad\share\crashpad\copyright
+Package path: ..\..\..\3rdParty\packages\Crashpad-0.8.0-rev1-windows\Crashpad\share\crashpad\copyright
 
 License:
 
@@ -3683,7 +3715,7 @@ License:
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\d3dx12-headers-rev1-windows\d3dx12\license.txt
+Package path: ..\..\..\3rdParty\packages\d3dx12-headers-rev1-windows\d3dx12\license.txt
 
 License:
 
@@ -3710,7 +3742,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ------------------------------------
 
-Package path: ..\3rdParty\packages\DirectXShaderCompilerDxc-1.6.2104-o3de-rev3-windows\DirectXShaderCompilerDxc\LICENSE.TXT
+Package path: ..\..\..\3rdParty\packages\DirectXShaderCompilerDxc-1.6.2104-o3de-rev3-windows\DirectXShaderCompilerDxc\LICENSE.TXT
 
 License:
 
@@ -3788,13 +3820,12 @@ miniz               llvm/lib/Miniz/miniz.c llvm/include/miniz/miniz.h llvm/lib/M
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\expat-2.1.0-multiplatform\expat\COPYING
+Package path: ..\..\..\3rdParty\packages\expat-2.4.2-rev1-windows\expat\COPYING
 
 License:
 
-Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd
-                               and Clark Cooper
-Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 Expat maintainers.
+Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper
+Copyright (c) 2001-2019 Expat maintainers
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -3817,7 +3848,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\freetype-2.10.4.16-windows\freetype\FTL.TXT
+Package path: ..\..\..\3rdParty\packages\freetype-2.10.4.16-windows\freetype\FTL.TXT
 
 License:
 
@@ -3993,7 +4024,7 @@ Legal Terms
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\googlebenchmark-1.5.0-rev2-windows\googlebenchmark\LICENSE
+Package path: ..\..\..\3rdParty\packages\googlebenchmark-1.5.0-rev2-windows\googlebenchmark\LICENSE
 
 License:
 
@@ -4202,7 +4233,7 @@ License:
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\googletest-1.8.1-rev4-windows\googletest\LICENSE
+Package path: ..\..\..\3rdParty\packages\googletest-1.8.1-rev4-windows\googletest\LICENSE
 
 License:
 
@@ -4237,7 +4268,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\ilmbase-2.3.0-rev4-multiplatform\ilmbase\LICENSE
+Package path: ..\..\..\3rdParty\packages\ilmbase-2.3.0-rev4-multiplatform\ilmbase\LICENSE
 
 License:
 
@@ -4278,7 +4309,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\ISPCTexComp-36b80aa-rev1-windows\license.txt
+Package path: ..\..\..\3rdParty\packages\ISPCTexComp-36b80aa-rev1-windows\license.txt
 
 License:
 
@@ -4304,7 +4335,7 @@ SOFTWARE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\libpng-1.6.37-rev1-windows\libpng\LICENSE
+Package path: ..\..\..\3rdParty\packages\libpng-1.6.37-rev1-windows\libpng\LICENSE
 
 License:
 
@@ -4445,7 +4476,7 @@ be appreciated.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\libsamplerate-0.2.1-rev2-windows\libsamplerate\COPYING
+Package path: ..\..\..\3rdParty\packages\libsamplerate-0.2.1-rev2-windows\libsamplerate\COPYING
 
 License:
 
@@ -4477,7 +4508,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\Lua-5.3.5-rev5-windows\Lua\LICENSE.txt
+Package path: ..\..\..\3rdParty\packages\Lua-5.3.5-rev5-windows\Lua\LICENSE.txt
 
 License:
 
@@ -4490,7 +4521,7 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------
 
-Package path: ..\3rdParty\packages\lz4-1.9.3-vcpkg-rev4-windows\lz4\LICENSE
+Package path: ..\..\..\3rdParty\packages\lz4-1.9.3-vcpkg-rev4-windows\lz4\LICENSE
 
 License:
 
@@ -4508,7 +4539,7 @@ receive more limited attention and support for such scenario.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\mcpp-2.7.2_az.2-rev1-windows\mcpp\LICENSE
+Package path: ..\..\..\3rdParty\packages\mcpp-2.7.2_az.2-rev1-windows\mcpp\LICENSE
 
 License:
 
@@ -4544,7 +4575,7 @@ License:
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\md5-2.0-multiplatform\md5\rfc1321.txt
+Package path: ..\..\..\3rdParty\packages\md5-2.0-multiplatform\md5\rfc1321.txt
 
 License:
 
@@ -5730,7 +5761,7 @@ Rivest                                                         [Page 21]
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\mikkelsen-1.0.0.4-windows\LICENSE.txt
+Package path: ..\..\..\3rdParty\packages\mikkelsen-1.0.0.4-windows\LICENSE.txt
 
 License:
 
@@ -5754,7 +5785,7 @@ freely, subject to the following restrictions:
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\NvCloth-v1.1.6-4-gd243404-pr58-rev1-windows\NvCloth\NvCloth\license.txt
+Package path: ..\..\..\3rdParty\packages\NvCloth-v1.1.6-4-gd243404-pr58-rev1-windows\NvCloth\NvCloth\license.txt
 
 License:
 
@@ -5830,7 +5861,7 @@ HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\openimageio-2.1.16.0-rev2-windows\LICENSE.md
+Package path: ..\..\..\3rdParty\packages\openimageio-2.1.16.0-rev2-windows\LICENSE.md
 
 License:
 
@@ -5864,7 +5895,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\OpenMesh-8.1-rev1-windows\OpenMesh\LICENSE
+Package path: ..\..\..\3rdParty\packages\OpenMesh-8.1-rev3-windows\OpenMesh\LICENSE
 
 License:
 
@@ -5913,7 +5944,7 @@ OpenMesh is licensed under the 3-clause BSD License. See the LICENSE file for th
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\OpenSSL-1.1.1b-rev2-windows\OpenSSL\LICENSE
+Package path: ..\..\..\3rdParty\packages\OpenSSL-1.1.1b-rev2-windows\OpenSSL\LICENSE
 
 License:
 
@@ -6045,7 +6076,7 @@ License:
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\PhysX-4.1.2.29882248-rev3-windows\PhysX\LICENSE.md
+Package path: ..\..\..\3rdParty\packages\PhysX-4.1.2.29882248-rev5-windows\PhysX\LICENSE.md
 
 License:
 
@@ -6079,7 +6110,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\poly2tri-7f0487a-rev1-windows\poly2tri\LICENSE
+Package path: ..\..\..\3rdParty\packages\poly2tri-7f0487a-rev1-windows\poly2tri\LICENSE
 
 License:
 
@@ -6112,7 +6143,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\pybind11-2.4.3-rev2-multiplatform\pybind11\LICENSE
+Package path: ..\..\..\3rdParty\packages\pybind11-2.4.3-rev3-multiplatform\pybind11\LICENSE
 
 License:
 
@@ -6148,7 +6179,7 @@ external contributions to this project including patches, pull requests, etc.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\pyside2-qt-5.15.1-rev2-windows\pyside2\LICENSES.txt
+Package path: ..\..\..\3rdParty\packages\pyside2-qt-5.15.1-rev2-windows\pyside2\LICENSES.txt
 
 License:
 
@@ -9425,7 +9456,7 @@ Library.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\qt-5.15.2-rev4-windows\qt\LICENSE
+Package path: ..\..\..\3rdParty\packages\qt-5.15.2-rev4-windows\qt\LICENSE
 
 License:
 
@@ -9615,7 +9646,7 @@ permanent authorization for you to choose that version for the Library.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\RapidJSON-1.1.0-rev1-multiplatform\RapidJSON\license.txt
+Package path: ..\..\..\3rdParty\packages\RapidJSON-1.1.0-rev1-multiplatform\RapidJSON\license.txt
 
 License:
 
@@ -9679,7 +9710,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\RapidXML-1.13-rev1-multiplatform\RapidXML\include\rapidxml\license.txt
+Package path: ..\..\..\3rdParty\packages\RapidXML-1.13-rev1-multiplatform\RapidXML\include\rapidxml\license.txt
 
 License:
 
@@ -9738,7 +9769,7 @@ IN THE SOFTWARE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\SPIRVCross-2021.04.29-rev1-windows\SPIRVCross\LICENSE
+Package path: ..\..\..\3rdParty\packages\SPIRVCross-2021.04.29-rev1-windows\SPIRVCross\LICENSE
 
 License:
 
@@ -9947,7 +9978,7 @@ License:
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\SQLite-3.32.2-rev3-multiplatform\SQLite\copyright.txt
+Package path: ..\..\..\3rdParty\packages\SQLite-3.37.2-rev1-windows\SQLite\copyright.txt
 
 License:
 
@@ -9980,7 +10011,7 @@ In order to keep SQLite completely free and unencumbered by copyright, the proje
 This copyright can be found at https://www.sqlite.org/copyright.html
 ------------------------------------
 
-Package path: ..\3rdParty\packages\squish-ccr-deb557d-rev1-windows\squish-ccr\LICENSE.txt
+Package path: ..\..\..\3rdParty\packages\squish-ccr-deb557d-rev1-windows\squish-ccr\LICENSE.txt
 
 License:
 
@@ -10018,7 +10049,7 @@ preserved in its entirety.
    -------------------------------------------------------------------------- */
 ------------------------------------
 
-Package path: ..\3rdParty\packages\tiff-4.2.0.15-rev3-windows\tiff\COPYRIGHT
+Package path: ..\..\..\3rdParty\packages\tiff-4.2.0.15-rev3-windows\tiff\COPYRIGHT
 
 License:
 
@@ -10046,7 +10077,7 @@ OF THIS SOFTWARE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\v-hacd-2.3-1a49edf-rev1-windows\v-hacd\LICENSE
+Package path: ..\..\..\3rdParty\packages\v-hacd-2.3-1a49edf-rev1-windows\v-hacd\LICENSE
 
 License:
 
@@ -10082,7 +10113,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\xxhash-0.7.4-rev1-multiplatform\xxhash\include\xxhash\LICENSE.txt
+Package path: ..\..\..\3rdParty\packages\xxhash-0.7.4-rev1-multiplatform\xxhash\include\xxhash\LICENSE.txt
 
 License:
 
@@ -10137,7 +10168,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\zlib-1.2.11-rev5-windows\zlib\LICENSE
+Package path: ..\..\..\3rdParty\packages\zlib-1.2.11-rev5-windows\zlib\LICENSE
 
 License:
 
@@ -10175,7 +10206,7 @@ the FAQ for more information on the distribution of modified source versions.
 
 ------------------------------------
 
-Package path: ..\3rdParty\packages\zstd-1.35-multiplatform\zstd\LICENSE
+Package path: ..\..\..\3rdParty\packages\zstd-1.35-multiplatform\zstd\LICENSE
 
 License:
 
