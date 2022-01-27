@@ -5,5 +5,11 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 #
-
-# Blank stub for Linux and Android as they are not supported yet.
+set(MY_NAME "vulkan-validationlayers")
+set(TARGET_WITH_NAMESPACE "3rdParty::${MY_NAME}")
+if (TARGET ${TARGET_WITH_NAMESPACE})
+    return()
+endif()
+# Blank stub library for Linux and Android as they are not supported yet.
+add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+set(${MY_NAME}_FOUND True)
