@@ -17,15 +17,22 @@ set(PATH_TO_DLL ${CMAKE_CURRENT_LIST_DIR}/vulkan-validationlayers/lib/release)
 
 set(_DLL_NAME ${PATH_TO_DLL}/VkLayer_khronos_validation${CMAKE_SHARED_LIBRARY_SUFFIX})
 set(${MY_NAME}_RUNTIME_JSON_DEPENDENCIES ${PATH_TO_DLL}/VkLayer_khronos_validation.json)
- 
-add_library(${TARGET_WITH_NAMESPACE} SHARED IMPORTED GLOBAL) 
-set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES IMPORTED_IMPLIB ${_DLL_NAME})
-set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES IMPORTED_LOCATION ${_DLL_NAME})
+
+# Using INTERFACE instead of SHARED due to needing to specify IMPORTED_IMPLIB *AND* IMPORTED_LOCATION properties.
+# Only the dll file is needed to enable validation.
+# SHARED version:
+# set(_LIB_NAME ${PATH_TO_DLL}/VkLayer_khronos_validation${CMAKE_STATIC_LIBRARY_SUFFIX})
+# set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES IMPORTED_IMPLIB ${_LIB_NAME})
+# set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES IMPORTED_LOCATION ${_DLL_NAME})
+# add_library(${TARGET_WITH_NAMESPACE} SHARED IMPORTED GLOBAL) 
+
+add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL) 
 ly_add_target_files(
     TARGETS
     ${TARGET_WITH_NAMESPACE}
     FILES
     ${${MY_NAME}_RUNTIME_JSON_DEPENDENCIES}
+    ${_DLL_NAME}
 )
 
 set(${MY_NAME}_FOUND True)
