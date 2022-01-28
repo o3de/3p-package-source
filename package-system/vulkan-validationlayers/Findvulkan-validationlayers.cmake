@@ -16,15 +16,16 @@ endif()
 set(PATH_TO_DLL ${CMAKE_CURRENT_LIST_DIR}/vulkan-validationlayers/lib/release)
 
 set(_DLL_NAME ${PATH_TO_DLL}/VkLayer_khronos_validation${CMAKE_SHARED_LIBRARY_SUFFIX})
-
-add_library(${TARGET_WITH_NAMESPACE} SHARED IMPORTED GLOBAL)
-
+set(${MY_NAME}_RUNTIME_JSON_DEPENDENCIES ${PATH_TO_DLL}/VkLayer_khronos_validation.json)
+ 
+add_library(${TARGET_WITH_NAMESPACE} SHARED IMPORTED GLOBAL) 
+set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES IMPORTED_IMPLIB ${_DLL_NAME})
 set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES IMPORTED_LOCATION ${_DLL_NAME})
 ly_add_target_files(
     TARGETS
     ${TARGET_WITH_NAMESPACE}
     FILES
-    ${${MY_NAME}_RUNTIME_JSON_DEPENDENCIES})
+    ${${MY_NAME}_RUNTIME_JSON_DEPENDENCIES}
 )
 
 set(${MY_NAME}_FOUND True)
