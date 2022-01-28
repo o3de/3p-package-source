@@ -18,13 +18,13 @@
         "LicenseFile": "python/LICENSE.txt"
     },
     {
-        "PackageName": "assimp-5.0.1-rev11-multiplatform",
-        "URL": "https://www.assimp.org/index.php",
+        "PackageName": "assimp-5.0.1-rev12-windows",
+        "URL": "https://github.com/assimp/assimp",
         "License": "BSD-3-Clause",
-        "LicenseFile": "assimp/LICENSE.txt"
+        "LicenseFile": "assimp/LICENSE"
     },
     {
-        "PackageName": "astc-encoder-3.2-rev1-windows",
+        "PackageName": "astc-encoder-3.2-rev2-windows",
         "URL": "https://github.com/ARM-software/astc-encoder",
         "License": "Apache-2.0",
         "LicenseFile": "astc-encoder/LICENSE.txt"
@@ -36,7 +36,7 @@
         "LicenseFile": "AWSGameLiftServerSDK/LICENSE_AMAZON_GAMELIFT_SDK.TXT"
     },
     {
-        "PackageName": "AWSNativeSDK-1.7.167-rev4-windows",
+        "PackageName": "AWSNativeSDK-1.9.50-rev2-windows",
         "URL": "https://github.com/aws/aws-sdk-cpp",
         "License": "Apache-2.0",
         "LicenseFile": "AWSNativeSDK/LICENSE"
@@ -84,7 +84,7 @@
         "LicenseFile": "DirectXShaderCompilerDxc/LICENSE.TXT"
     },
     {
-        "PackageName": "expat-2.1.0-multiplatform",
+        "PackageName": "expat-2.4.2-rev1-windows",
         "URL": "https://libexpat.github.io/",
         "License": "MIT",
         "LicenseFile": "expat/COPYING"
@@ -174,9 +174,9 @@
         "LicenseFile": "LICENSE.md"
     },
     {
-        "PackageName": "OpenMesh-8.1-rev1-windows",
-        "URL": "https://www.openmesh.org",
-        "License": "BSD 3",
+        "PackageName": "OpenMesh-8.1-rev3-windows",
+        "URL": "https://www.graphics.rwth-aachen.de/software/openmesh/",
+        "License": "BSD-3-Clause",
         "LicenseFile": "OpenMesh/LICENSE"
     },
     {
@@ -186,9 +186,9 @@
         "LicenseFile": "OpenSSL/LICENSE"
     },
     {
-        "PackageName": "PhysX-4.1.2.29882248-rev3-windows",
+        "PackageName": "PhysX-4.1.2.29882248-rev5-windows",
         "URL": "https://github.com/NVIDIAGameWorks/PhysX",
-        "License": "custom",
+        "License": "BSD-3-Clause",
         "LicenseFile": "PhysX/LICENSE.md"
     },
     {
@@ -198,9 +198,9 @@
         "LicenseFile": "poly2tri/LICENSE"
     },
     {
-        "PackageName": "pybind11-2.4.3-rev2-multiplatform",
+        "PackageName": "pybind11-2.4.3-rev3-multiplatform",
         "URL": "https://github.com/pybind/pybind11",
-        "License": "BSD",
+        "License": "BSD-3-Clause",
         "LicenseFile": "pybind11/LICENSE"
     },
     {
@@ -234,9 +234,9 @@
         "LicenseFile": "SPIRVCross/LICENSE"
     },
     {
-        "PackageName": "SQLite-3.32.2-rev3-multiplatform",
-        "URL": "https://www.sqlite.org/",
-        "License": "Public Domain",
+        "PackageName": "SQLite-3.37.2-rev1-windows",
+        "URL": "https://www.sqlite.org",
+        "License": "CUSTOM",
         "LicenseFile": "SQLite/copyright.txt"
     },
     {
