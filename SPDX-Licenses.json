@@ -132,7 +132,31 @@
         "LicenseFile": "libsamplerate/COPYING"
     },
     {
-        "PackageName": "Lua-5.3.5-rev5-windows",
+        "PackageName": "Lua-5.4.4-rev1-windows",
+        "URL": "https://github.com/lua/lua",
+        "License": "MIT",
+        "LicenseFile": "Lua/LICENSE.txt"
+    },
+    {
+        "PackageName": "Lua-5.4.4-rev1-linux",
+        "URL": "https://github.com/lua/lua",
+        "License": "MIT",
+        "LicenseFile": "Lua/LICENSE.txt"
+    },
+    {
+        "PackageName": "Lua-5.4.4-rev1-android",
+        "URL": "https://github.com/lua/lua",
+        "License": "MIT",
+        "LicenseFile": "Lua/LICENSE.txt"
+    },
+    {
+        "PackageName": "Lua-5.4.4-rev1-ios",
+        "URL": "https://github.com/lua/lua",
+        "License": "MIT",
+        "LicenseFile": "Lua/LICENSE.txt"
+    },
+    {
+        "PackageName": "Lua-5.4.4-rev1-mac",
         "URL": "https://github.com/lua/lua",
         "License": "MIT",
         "LicenseFile": "Lua/LICENSE.txt"

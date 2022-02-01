@@ -21,7 +21,11 @@ ilmbase-2.3.0-rev4-multiplatform,https://github.com/AcademySoftwareFoundation/op
 ISPCTexComp-36b80aa-rev1-windows,https://github.com/GameTechDev/ISPCTextureCompressor,MIT,license.txt
 libpng-1.6.37-rev1-windows,http://www.libpng.org/,libpng-2.0,libpng/LICENSE
 libsamplerate-0.2.1-rev2-windows,http://libsndfile.github.io/libsamplerate/,BSD-2-Clause,libsamplerate/COPYING
-Lua-5.3.5-rev5-windows,https://github.com/lua/lua,MIT,Lua/LICENSE.txt
+Lua-5.4.4-rev1-windows,https://github.com/lua/lua,MIT,Lua/LICENSE.txt
+Lua-5.4.4-rev1-ios,https://github.com/lua/lua,MIT,Lua/LICENSE.txt
+Lua-5.4.4-rev1-mac,https://github.com/lua/lua,MIT,Lua/LICENSE.txt
+Lua-5.4.4-rev1-linux,https://github.com/lua/lua,MIT,Lua/LICENSE.txt
+Lua-5.4.4-rev1-ios,https://github.com/lua/lua,MIT,Lua/LICENSE.txt
 lz4-1.9.3-vcpkg-rev4-windows,https://github.com/lz4/lz4,BSD-2-Clause,lz4/LICENSE
 mcpp-2.7.2_az.2-rev1-windows,https://sourceforge.net/projects/mcpp/files/mcpp/V.2.7.2,custom,mcpp/LICENSE
 md5-2.0-multiplatform,https://www.fourmilab.ch/md5/,Public domain,md5/rfc1321.txt
