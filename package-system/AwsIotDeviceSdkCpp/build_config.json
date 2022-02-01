@@ -79,14 +79,15 @@
          }
       },
       "Darwin":{
-         "Mac":{
+         "Mac":{,
+            "package_version":"1.15.2-rev2",
             "build_configs":[
                "Release"
             ],
             "cmake_generate_args":[
                "-G",
                "Xcode",
-               "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12",
+               "-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0",
                "-DCMAKE_OSX_ARCHITECTURES=x86_64",
                "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
                "-DCMAKE_CXX_STANDARD=17",
