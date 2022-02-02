@@ -1,5 +1,9 @@
 # Build New AWS Service Target in AWSNativeSDK
-Find and identify the service package required from the package directory at [aws/aws-sdk-cpp](https://github.com/aws/aws-sdk-cpp) on GitHub.
+## Overview
+
+This package defines and builds the AWS C++ SDK libarires for O3DE. It builds all core libraries and an opinionated subset of AWS client libraries. To add a new AWS Service client (or target) please use the example and instructions below.
+
+Find and identify the service package(s) required from the package directory at [aws/aws-sdk-cpp](https://github.com/aws/aws-sdk-cpp) on GitHub. Refer to the [AWS SDK for C++ Developer Guide](https://docs.aws.amazon.com/sdk-for-cpp/v1/developer-guide/welcome.html) for further help.
 The package name is the suffix of the directory name for the service.
 
 ```
