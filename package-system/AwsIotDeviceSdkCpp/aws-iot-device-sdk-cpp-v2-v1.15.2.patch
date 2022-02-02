@@ -1,5 +1,5 @@
---- aws-iot-device-sdk-cpp-v2-orig/crt/aws-crt-cpp/crt/aws-c-common/cmake/AwsSharedLibSetup.cmake	2021-04-19 10:00:25.727859800 -0500
-+++ aws-iot-device-sdk-cpp-v2/crt/aws-crt-cpp/crt/aws-c-common/cmake/AwsSharedLibSetup.cmake	2021-04-19 09:34:20.334467600 -0500
+--- src-orig/crt/aws-crt-cpp/crt/aws-c-common/cmake/AwsSharedLibSetup.cmake	2021-04-19 10:00:25.727859800 -0500
++++ src/crt/aws-crt-cpp/crt/aws-c-common/cmake/AwsSharedLibSetup.cmake	2021-04-19 09:34:20.334467600 -0500
 @@ -1,13 +1,21 @@
  # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  # SPDX-License-Identifier: Apache-2.0.
@@ -23,11 +23,11 @@
      include(GNUInstallDirs)
 -    set(LIBRARY_DIRECTORY ${CMAKE_INSTALL_LIBDIR})
 -    set(RUNTIME_DIRECTORY ${CMAKE_INSTALL_BINDIR})
-     
+ 
      # this is the absolute dumbest thing in the world, but find_package won't work without it
      # also I verified this is correctly NOT "lib64" when CMAKE_C_FLAGS includes "-m32"
---- aws-iot-device-sdk-cpp-v2-orig/crt/aws-crt-cpp/crt/aws-checksums/cmake/AwsSharedLibSetup.cmake	2021-04-19 10:00:41.994449100 -0500
-+++ aws-iot-device-sdk-cpp-v2/crt/aws-crt-cpp/crt/aws-checksums/cmake/AwsSharedLibSetup.cmake	2021-04-19 09:35:03.311355400 -0500
+--- src-orig/crt/aws-crt-cpp/crt/aws-checksums/cmake/AwsSharedLibSetup.cmake	2021-04-19 10:00:41.994449100 -0500
++++ src/crt/aws-crt-cpp/crt/aws-checksums/cmake/AwsSharedLibSetup.cmake	2021-04-19 09:35:03.311355400 -0500
 @@ -1,13 +1,21 @@
  # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  # SPDX-License-Identifier: Apache-2.0.
