@@ -1,4 +1,6 @@
-This package will download and build aws-iot-device-sdk-cpp-v2 from the original Github source.  
+This package will download and build aws-iot-device-sdk-cpp-v2 from the original Github source. 
+
+Supported platforms include Windows, Linux and MacOS. The iOS version doesn't build and the Android version is in preview.
 
 A few things to be aware of:
 
@@ -9,27 +11,13 @@ A few things to be aware of:
 	https://github.com/awslabs/aws-checksums/pull/47
 	https://github.com/awslabs/aws-c-common/pull/792
 
-3. The iOS version is not supported by O3DE currently and it has the following build error:
-/Users/Shared/ly/lyengine/3rdPartySource/package-system/AwsIotDeviceSdkCpp/temp/src/crt/aws-crt-cpp/crt/aws-c-io/source/tls_channel_handler.c:333:5: error: 
-   implicit declaration of function 's_tls_ctx_options_pem_clean_up' is invalid in C99 [-Werror,-Wimplicit-function-declaration]
-  s_tls_ctx_options_pem_clean_up(options);
-  ^
-/Users/Shared/ly/lyengine/3rdPartySource/package-system/AwsIotDeviceSdkCpp/temp/src/crt/aws-crt-cpp/crt/aws-c-io/source/tls_channel_handler.c:333:5: note: 
-   did you mean 'aws_tls_ctx_options_clean_up'?
-/Users/Shared/ly/lyengine/3rdPartySource/package-system/AwsIotDeviceSdkCpp/temp/src/crt/aws-crt-cpp/crt/aws-c-io/source/tls_channel_handler.c:25:6: note: 
-   'aws_tls_ctx_options_clean_up' declared here
-void aws_tls_ctx_options_clean_up(struct aws_tls_ctx_options *options) {
-   ^
-/Users/Shared/ly/lyengine/3rdPartySource/package-system/AwsIotDeviceSdkCpp/temp/src/crt/aws-crt-cpp/crt/aws-c-io/source/tls_channel_handler.c:352:5: error: 
-   implicit declaration of function 's_tls_ctx_options_pem_clean_up' is invalid in C99 [-Werror,-Wimplicit-function-declaration]
-  s_tls_ctx_options_pem_clean_up(options);
-  ^
-2 errors generated.
+3. The iOS version is not supported by O3DE currently and it has a build error about the implicit declaration of function 's_tls_ctx_options_pem_clean_up'.
 
-4. The Android version is not supported by O3DE currently, but you can try to build it with 'go' and 'perl' installed.
-https://www.activestate.com/products/perl/downloads/
-https://golang.org/doc/install?download=go1.16.3.windows-amd64.msi
+4. The Android version is not supported by O3DE currently, but you can try to build it with 'go' and 'perl' installed:
+* https://www.activestate.com/products/perl/downloads/
+* https://golang.org/doc/install?download=go1.16.3.windows-amd64.msi
 You may also need to do the following for go to work:
 	go env -w GOPRIVATE=*
+This command causes the go command to treat any module as private and should therefore not use the proxy or checksum database.
 
 
