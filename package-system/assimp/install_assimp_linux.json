@@ -4,7 +4,7 @@
     "include/",
     "lib/libassimp.a",
     "bin/assimp",
-    "bin/libassimp.so.5.0.1",
+    "bin/libassimp.so.5.1.6",
     "bin/unit",
     "port/PyAssimp/"
   ]
