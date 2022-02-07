@@ -6,97 +6,21 @@
 #
 #
 
-# CMake definition for Lua 5.3.5
-
 cmake_minimum_required(VERSION 3.17)
 
-PROJECT ( lua )
+project(lua C)
 
-# Headers
-SET(HDR_LIBLUA
-    lapi.h
-    lauxlib.h
-    lcode.h
-    lctype.h
-    ldebug.h
-    ldo.h
-    lfunc.h
-    lgc.h
-    llex.h
-    llimits.h
-    lmem.h
-    lobject.h
-    lopcodes.h
-    lparser.h
-    lprefix.h
-    lstate.h
-    lstring.h
-    ltable.h
-    ltests.h
-    ltm.h
-    lua.h
-    luaconf.h
-    lualib.h
-    lundump.h
-    lvm.h
-    lzio.h
-)
+file(GLOB_RECURSE HDR_LIBLUA *.h)
 
-# Build Libraries
-SET(SRC_LIBLUA
-    lapi.c
-    lauxlib.c
-    lbaselib.c
-    lbitlib.c
-    lcode.c
-    lcorolib.c
-    lctype.c
-    ldblib.c
-    ldebug.c
-    ldo.c
-    ldump.c
-    lfunc.c
-    lgc.c
-    linit.c
-    liolib.c
-    llex.c
-    lmathlib.c
-    lmem.c
-    loadlib.c
-    lobject.c
-    lopcodes.c
-    loslib.c
-    lparser.c
-    lstate.c
-    lstring.c
-    lstrlib.c
-    ltable.c
-    ltablib.c
-    ltests.c
-    ltm.c
-    lundump.c
-    lutf8lib.c
-    lvm.c
-    lzio.c
-)
+ADD_LIBRARY ( lualib STATIC onelua.c )
 
-LIST(APPEND SRC_LIBLUA ${HDR_LIBLUA})
-
-#Library
-ADD_LIBRARY ( lualib STATIC ${SRC_LIBLUA} )
-
-TARGET_LINK_LIBRARIES (lualib)
-
-target_include_directories( lualib PUBLIC include/ )
+# setting MAKE_LIB will make it create the static library.
+# you can alternatively not define it and it will by default make the interpreter executable.
+target_compile_definitions( lualib PRIVATE 
+            MAKE_LIB)
 
 set_target_properties(lualib
     PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/lib/debug/"
-        ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib/release/"
-        LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/lib/debug/"
-        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib/release/"
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin/debug/"
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin/release/"
         PUBLIC_HEADER "${HDR_LIBLUA}"
 )
 
@@ -106,9 +30,9 @@ install(TARGETS lualib
         PUBLIC_HEADER
             DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Lua
         LIBRARY
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}/release
         RUNTIME
-            DESTINATION ${CMAKE_INSTALL_BINDIR}/$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>
+            DESTINATION ${CMAKE_INSTALL_BINDIR}/release
         ARCHIVE
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}/release
 )
