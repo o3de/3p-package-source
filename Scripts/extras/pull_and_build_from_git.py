@@ -847,8 +847,9 @@ class BuildInfo(object):
             delete_folder(self.package_install_root)
 
         # Prepare the target package folder
-        if not self.build_install_folder.is_dir():
-            self.build_install_folder.mkdir(parents=True)
+        if self.build_install_folder.is_dir():
+            shutil.rmtree(str(self.build_install_folder))
+        self.build_install_folder.mkdir(parents=True)
 
         prebuilt_source_path = (self.base_folder.resolve() / self.prebuilt_source).resolve()
         target_base_package_path = self.build_install_folder.resolve()
