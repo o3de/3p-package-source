@@ -24,6 +24,8 @@
             "build_configs": ["Release"],
             "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Mac",
             "cmake_generate_args":[
+               "-GNinja",
+               "-Csrc/cmake/caches/PredefinedParams.cmake",
                "-DCMAKE_BUILD_TYPE=Release",
                "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
                "-DCMAKE_INSTALL_BINDIR=\"bin/Release\"",
@@ -50,8 +52,10 @@
                "-DSPIRV_BUILD_TESTS:BOOL=ON"
             ],
             "cmake_build_args":[
+               "--target",
+               "all llvm-as llvm-dis",
                "-j",
-               "8"
+               "16"
             ],
             "cmake_install_filter":[
                "bin/*",
