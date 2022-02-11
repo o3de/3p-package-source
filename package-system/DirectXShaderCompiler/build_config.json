@@ -54,8 +54,7 @@
             "cmake_build_args":[
                "--target",
                "all llvm-as llvm-dis",
-               "-j",
-               "16"
+               "--parallel"
             ],
             "cmake_install_filter":[
                "bin/*",
@@ -95,8 +94,7 @@
             "cmake_build_args":[
                "--target",
                "all llvm-as llvm-dis",
-               "-j",
-               "16"
+               "--parallel"
             ],
             "cmake_install_filter":[
                "bin/*",
