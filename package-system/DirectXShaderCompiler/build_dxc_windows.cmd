@@ -22,7 +22,7 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 REM Make sure TAEF is installed
-call python utils\hct\hctgettaef.py
+%PYTHON_BINARY% utils\hct\hctgettaef.py
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "utils\hct\hctgettaef.py Command Failed"
     exit /b 1
