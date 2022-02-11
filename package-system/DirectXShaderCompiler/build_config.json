@@ -93,8 +93,10 @@
                "-DSPIRV_BUILD_TESTS:BOOL=ON"
             ],
             "cmake_build_args":[
+               "--target",
+               "all llvm-as llvm-dis",
                "-j",
-               "2"
+               "16"
             ],
             "cmake_install_filter":[
                "bin/*",
