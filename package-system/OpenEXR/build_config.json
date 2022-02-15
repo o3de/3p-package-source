@@ -1,100 +1,83 @@
 {
    "git_url":"https://github.com/AcademySoftwareFoundation/openexr.git",
-   "git_tag":"RB-2.3",
-   "package_name":"ilmbase",
-   "package_version":"2.3.0-rev4",
-   "package_url":"https://github.com/03de/OpenEXR",
-   "package_license":"Apache-2.0",
-   "package_license_file":"LICENSE",
-   "cmake_find_target":"Findilmbase.cmake",
+   "git_tag":"v3.1.3",
+   "package_name":"OpenEXR",
+   "package_version":"3.1.3-rev2",
+   "package_url":"https://www.openexr.com/",
+   "package_license":"BSD-3-Clause",
+   "package_license_file":"LICENSE.md",
+   "cmake_find_source":"FindOpenEXR.cmake",
+   "cmake_find_target":"FindOpenEXR.cmake",
    "Platforms":{
       "Windows":{
          "Windows":{
-            "cmake_find_template":"Findilmbase.cmake.Windows",
-            "cmake_generate_args_debug":[
-               "-G",
-               "\"Visual Studio 16 2019\"",
-               "-DOPENEXR_BUILD_PYTHON_LIBS=OFF",
-               "-DOPENEXR_BUILD_TESTS=OFF",
-               "-DOPENEXR_BUILD_UTILS=OFF",
-               "-DOPENEXR_BUILD_SHARED=OFF",
-               "-DOPENEXR_BUILD_STATIC=ON",
-               "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-windows/ilmbase\"",
-               "-DCMAKE_BUILD_TYPE=Debug",
-               "-DZLIB_ROOT=../../../zlib-windows/zlib"
+            "build_configs" : ["debug", "release"],
+            "depends_on_packages" :[ 
+               ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
             ],
-            "cmake_generate_args_release":[
+            "cmake_generate_args":[
                "-G",
                "\"Visual Studio 16 2019\"",
-               "-DOPENEXR_BUILD_PYTHON_LIBS=OFF",
-               "-DOPENEXR_BUILD_TESTS=OFF",
-               "-DOPENEXR_BUILD_UTILS=OFF",
-               "-DOPENEXR_BUILD_SHARED=OFF",
-               "-DOPENEXR_BUILD_STATIC=ON",
-               "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-windows/ilmbase\"",
-               "-DCMAKE_BUILD_TYPE=Release",
-               "-DZLIB_ROOT=../../../zlib-windows/zlib"
-            ]
+               "-DBUILD_TESTING=OFF",
+               "-DOPENEXR_INSTALL_EXAMPLES=OFF",
+               "-DOPENEXR_BUILD_TOOLS=OFF",
+               "-DBUILD_SHARED_LIBS=OFF",
+               "-DCMAKE_INSTALL_PREFIX=\"../../openexr-windows/OpenEXR\""
+            ],
+            "custom_test_cmd" : [
+               "test_openexr_windows.cmd"
+            ],
+			"extra_files_to_copy": [
+				["FindImath.cmake", "FindImath.cmake"]
+			]
          }
       },
       "Darwin":{
          "Mac":{
-            "cmake_find_template":"Findilmbase.cmake.Mac",
-            "cmake_generate_args_debug":[
-               "-G",
-               "Xcode",
-               "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
-               "-DOPENEXR_BUILD_PYTHON_LIBS=OFF",
-               "-DOPENEXR_BUILD_TESTS=OFF",
-               "-DOPENEXR_BUILD_UTILS=OFF",
-               "-DOPENEXR_BUILD_SHARED=OFF",
-               "-DOPENEXR_BUILD_STATIC=ON",
-               "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-mac/ilmbase\"",
-               "-DCMAKE_BUILD_TYPE=Debug",
-               "-DZLIB_ROOT=../../../zlib-mac/zlib"
+            "build_configs" : ["Release"],
+            "depends_on_packages" :[ 
+               ["zlib-1.2.11-rev5-mac", "b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096", ""]
             ],
-            "cmake_generate_args_release":[
+            "custom_toolchain_file" : "../cmake/Platform/Mac/Toolchain_mac.cmake",
+            "cmake_generate_args_release": [
                "-G",
                "Xcode",
-               "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
-               "-DOPENEXR_BUILD_PYTHON_LIBS=OFF",
-               "-DOPENEXR_BUILD_TESTS=OFF",
-               "-DOPENEXR_BUILD_UTILS=OFF",
-               "-DOPENEXR_BUILD_SHARED=OFF",
-               "-DOPENEXR_BUILD_STATIC=ON",
-               "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-mac/ilmbase\"",
-               "-DCMAKE_BUILD_TYPE=Release",
-               "-DZLIB_ROOT=../../../zlib-mac/zlib"
-            ]
+               "-DBUILD_TESTING=OFF",
+               "-DBUILD_SHARED_LIBS=OFF",
+               "-DOPENEXR_INSTALL_EXAMPLES=OFF",
+               "-DOPENEXR_INSTALL_TOOLS=OFF",
+               "-DDOCS=OFF",
+               "-DPYTHON=OFF",
+               "-DCMAKE_INSTALL_PREFIX=\"../../OpenEXR-mac/OpenEXR\"",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "custom_test_cmd" : [
+               "./test_openexr_mac.sh"
+			],
+			"extra_files_to_copy": [
+				["FindImath.cmake", "FindImath.cmake"]
+			]
          }
       },
       "Linux":{
          "Linux":{
-            "cmake_find_template":"Findilmbase.cmake.Linux",
-            "cmake_generate_args_debug":[
-               "-G",
-               "Ninja",
-               "-DOPENEXR_BUILD_PYTHON_LIBS=OFF",
-               "-DOPENEXR_BUILD_TESTS=OFF",
-               "-DOPENEXR_BUILD_UTILS=OFF",
-               "-DOPENEXR_BUILD_SHARED=OFF",
-               "-DOPENEXR_BUILD_STATIC=ON",
-               "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-linux/ilmbase\"",
-               "-DCMAKE_BUILD_TYPE=Debug",
-               "-DZLIB_ROOT=../../../zlib-linux/zlib"
-            ],
+            "build_configs" : ["Release"],
+            "depends_on_packages" :[ 
+                ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
+           ],
             "cmake_generate_args_release":[
                "-G",
                "Ninja",
-               "-DOPENEXR_BUILD_PYTHON_LIBS=OFF",
-               "-DOPENEXR_BUILD_TESTS=OFF",
-               "-DOPENEXR_BUILD_UTILS=OFF",
-               "-DOPENEXR_BUILD_SHARED=OFF",
-               "-DOPENEXR_BUILD_STATIC=ON",
-               "-DCMAKE_INSTALL_PREFIX=\"../../ilmbase-linux/ilmbase\"",
-               "-DCMAKE_BUILD_TYPE=Release",
-               "-DZLIB_ROOT=../../../zlib-linux/zlib"
-            ]
+               "-DBUILD_TESTING=OFF",
+               "-DOPENEXR_RUN_FUZZ_TESTS=OFF",
+               "-DOPENEXR_INSTALL_EXAMPLES=OFF",
+               "-DOPENEXR_BUILD_TOOLS=OFF",
+               "-DBUILD_SHARED_LIBS=OFF",
+               "-DCMAKE_INSTALL_PREFIX=\"../../openexr-linux/OpenEXR\""
+            ],
+			"extra_files_to_copy": [
+				["FindImath.cmake", "FindImath.cmake"]
+			]
          }
       }
    }

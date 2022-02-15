@@ -779,6 +779,19 @@ class BuildInfo(object):
 
         return False
 
+    def copy_extra_files(self):
+        """
+        Copies any extra files specified in the build config into the destination folder for packaging.
+        """
+        extra_files_to_copy = self.platform_config.get('extra_files_to_copy', [])
+
+        for (source, dest) in extra_files_to_copy:
+            print(f"Source file: {self.base_folder / source}, Destination file: {self.package_install_root / dest}")
+            shutil.copy2(
+                self.base_folder / source,
+                self.package_install_root / dest
+            )
+
     def build_for_platform(self):
         """
         Build for the current platform (host+target)
@@ -918,6 +931,9 @@ class BuildInfo(object):
 
             # Build the package
             self.build_for_platform()
+
+            # Copy extra files specified in the build config
+            self.copy_extra_files()
 
         # Generate the Find*.cmake file
         self.generate_cmake()
