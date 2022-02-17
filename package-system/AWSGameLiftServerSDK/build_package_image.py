@@ -16,23 +16,25 @@ import subprocess
 import shutil
 import urllib.request
 import zipfile
+from typing import List
 
 PACKAGE_NAME: str = "AWSGameLiftServerSDK"
 PACKAGE_VERSION: str = "3.4.2-rev1"
 PACKAGE_PLATFORM: str = ""
 PACKAGE_URL: str = "https://aws.amazon.com/documentation/gamelift/"
 PACKAGE_LICENSE: str = "Apache-2.0"
-PACKAGE_LICENSE_FILE: str = "LICENSE_AMAZON_GAMELIFT_SDK.txt"
+PACKAGE_LICENSE_FILE: str = "LICENSE_AMAZON_GAMELIFT_SDK.TXT"
 
 GAMELIFT_SERVER_SDK_RELEASE_VERSION: str = "4.0.2"
 GAMELIFT_SERVER_SDK_DOWNLOAD_URL: str = "https://gamelift-release.s3-us-west-2.amazonaws.com/GameLift_06_03_2021.zip"
+
 PACKAGE_BASE_PATH: pathlib.Path = pathlib.Path(os.path.dirname(__file__))
 PACKAGE_ROOT_PATH: pathlib.Path = PACKAGE_BASE_PATH.parent
+PACKAGE_BUILD_TYPES: List[str] = ["Debug", "Release"]
+PACKAGE_LIB_TYPES: List[str] = ["Shared", "Static"]
+PACKAGE_PLATFORM_OPTIONS: List[str] = ["windows", "linux"]
 
 # utils
-class BuildError(Exception):
-    pass
-
 class WorkingDirectoryInfo(object):
     def __init__(self, root_path: pathlib.Path,
                  source_path: pathlib.Path,
@@ -45,7 +47,7 @@ class WorkingDirectoryInfo(object):
         self.output_path = output_path
         self.libs_output_path = libs_output_path
 
-def subp_args(args):
+def subp_args(args) -> str:
     arg_string = " ".join([arg for arg in args])
     print(f"Command: {arg_string}")
     return arg_string
@@ -59,7 +61,7 @@ def collect_package_info() -> None:
     parser.add_argument(
         '--platform-name',
         required=True,
-        choices=['windows']
+        choices=PACKAGE_PLATFORM_OPTIONS
     )
     
     args = parser.parse_args()
@@ -98,51 +100,130 @@ def download_gamelift_server_sdk(working_directory: WorkingDirectoryInfo) -> Non
     with zipfile.ZipFile(gamelift_sdk_zip_file, "r") as f:
         f.extractall(working_directory.root_path.resolve())
 
-def build_gamelift_server_sdk(working_directory: WorkingDirectoryInfo,
-                              build_type: str,
-                              lib_type: str) -> None:
-    build_folder: pathlib.Path = working_directory.build_path.joinpath(f"{build_type}_{lib_type}").resolve()
+def apply_patch_on_sdk_source(working_directory: WorkingDirectoryInfo) -> None:
+    patch_file: str = PACKAGE_BASE_PATH.joinpath(f"{PACKAGE_NAME}-{PACKAGE_VERSION.split('-')[0]}-{PACKAGE_PLATFORM}.patch").resolve()
+    source_folder: str = working_directory.source_path.resolve()
+    git_result = subprocess.run(subp_args(["git","init"]), 
+                                shell=True,
+                                capture_output=True,
+                                cwd=source_folder)
+    if git_result.returncode != 0:
+        raise Exception(f"Error git init sdk source: {str(git_result.stderr)}")
+    git_result = subprocess.run(subp_args(["git","add","."]), 
+                                shell=True,
+                                capture_output=True,
+                                cwd=source_folder)
+    if git_result.returncode != 0:
+        raise Exception(f"Error git add sdk source: {str(git_result.stderr)}")
+    git_result = subprocess.run(subp_args(["git","commit","-m","temp"]),
+                                shell=True,
+                                capture_output=True,
+                                cwd=source_folder)
+    if git_result.returncode != 0:
+        raise Exception(f"Error git commit sdk source: {str(git_result.stderr)}")
+    git_result = subprocess.run(subp_args(["git","apply", "--ignore-space-change", "--ignore-whitespace", f"{patch_file}"]),
+                                shell=True,
+                                capture_output=True,
+                                cwd=source_folder)
+    if git_result.returncode != 0:
+        raise Exception(f"Error git apply patch sdk source: {str(git_result.stderr)}")
+
+def get_custom_build_env():
+    custom_env = os.environ.copy()
+    if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+        custom_env["CC"] = "clang"
+        custom_env["CXX"] = "clang++"
+        custom_env["CFLAGS"] = "-fPIC"
+        custom_env["CXXFLAGS"] = "-fPIC"
+    return custom_env
+
+def configure_sdk_project(source_folder: str,
+                          build_folder: str,
+                          build_type: str,
+                          lib_type: str) -> None:
     build_shared: str = "ON" if lib_type == "Shared" else "OFF"
-    
-    print(f"Generating GameLift Server SDK project with {build_type} {lib_type} configuration...")
-    configure_cmd: List[str] = ["cmake -G \"Visual Studio 16 2019\" -A x64 -S .",
-                                f"-B {build_folder.resolve()}",
+    if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
+        generator: str = "-G \"Visual Studio 16 2019\" -A x64"
+    elif PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+        generator: str = "-G \"Unix Makefiles\""
+    else:
+        raise Exception(f"Error unsupported platform: {PACKAGE_PLATFORM}")
+        
+    configure_cmd: List[str] = [f"cmake {generator} -S .",
+                                f"-B {build_folder}",
                                 f"-DBUILD_SHARED_LIBS={build_shared}",
                                 f"-DCMAKE_BUILD_TYPE={build_type}"]
     configure_result = subprocess.run(subp_args(configure_cmd),
                                       shell=True,
                                       capture_output=True,
-                                      cwd=str(working_directory.source_path.resolve()))
+                                      cwd=source_folder,
+                                      env=get_custom_build_env())
     if configure_result.returncode != 0:
-        raise BuildError(f"Error generating project: {str(configure_result.stderr)}")
+        raise Exception(f"Error generating project: {str(configure_result.stderr)}")
+
+def build_sdk_project(source_folder: str,
+                      build_folder: str,
+                      build_type: str) -> None:
+    if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
+        target: str = "--target ALL_BUILD"
+    elif PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+        target: str = ""
+    else:
+        raise Exception(f"Error unsupported platform: {PACKAGE_PLATFORM}")
     
-    print(f"Building GameLift Server SDK project with {build_type} {lib_type} configuration...")
     build_cmd: List[str] = ["cmake",
-                            f"--build {build_folder.resolve()}",
+                            f"--build {build_folder}",
                             f"--config {build_type}",
-                            "--target ALL_BUILD -j"]
+                            f"{target} -j"]
     build_result = subprocess.run(subp_args(build_cmd),
                                   shell=True,
                                   capture_output=True,
-                                  cwd=str(working_directory.source_path.resolve()))
+                                  cwd=source_folder,
+                                  env=get_custom_build_env())
     if build_result.returncode != 0:
-        raise BuildError(f"Error building project: {str(build_result.stderr)}")
-    
-    print(f"Copying {build_type} {lib_type} built libs into output folder...")
-    install_folder: pathlib.Path = build_folder.joinpath("prefix")
-    
-    if lib_type == "Shared":
-        destination: pathlib.Path = working_directory.libs_output_path.joinpath(f"bin/{build_type}")
+        raise Exception(f"Error building project: {str(build_result.stderr)}")
+        
+def copy_sdk_libs(libs_output_path: pathlib.Path,
+                  build_path: pathlib.Path,
+                  build_type: str,
+                  lib_type: str) -> None:
+    if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
+        shared_libs_extension: str = ".dll"
+        static_libs_extension: str = ".lib"
+    elif PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+        shared_libs_extension: str = ".so"
+        static_libs_extension: str = ".a"
     else:
-        destination: pathlib.Path = working_directory.libs_output_path.joinpath(f"lib/{build_type}")
+        raise Exception(f"Error unsupported platform: {PACKAGE_PLATFORM}")
+    
+    install_folder: pathlib.Path = build_path.joinpath("prefix")
+    
+    if lib_type == PACKAGE_LIB_TYPES[0]:
+        destination: pathlib.Path = libs_output_path.joinpath(f"bin/{build_type}")
+    else:
+        destination: pathlib.Path = libs_output_path.joinpath(f"lib/{build_type}")
     destination.mkdir(parents=True)
     
-    if lib_type == "Shared":
-        for file in install_folder.joinpath("bin").glob("*.dll"):
+    if lib_type == PACKAGE_LIB_TYPES[0]:
+        for file in install_folder.joinpath("bin").glob(f"*{shared_libs_extension}"):
             shutil.copy2(file.resolve(), destination.resolve())
     
-    for file in install_folder.joinpath("lib").glob("*.lib"):
+    for file in install_folder.joinpath("lib").glob(f"*{static_libs_extension}"):
         shutil.copy2(file.resolve(), destination.resolve())
+
+def build_gamelift_server_sdk(working_directory: WorkingDirectoryInfo,
+                              build_type: str,
+                              lib_type: str) -> None:
+    build_folder: pathlib.Path = working_directory.build_path.joinpath(f"{build_type}_{lib_type}").resolve()
+    
+    print(f"Generating GameLift Server SDK project with {build_type} {lib_type} configuration...")
+    configure_sdk_project(working_directory.source_path.resolve(), build_folder.resolve(), build_type, lib_type)
+    
+    print(f"Building GameLift Server SDK project with {build_type} {lib_type} configuration...")
+    build_sdk_project(working_directory.source_path.resolve(), build_folder.resolve(), build_type)
+    
+    print(f"Copying {build_type} {lib_type} built sdk libs into output folder...")
+    copy_sdk_libs(working_directory.libs_output_path, build_folder, build_type, lib_type)
 
 def generate_packageInfo(working_directory: WorkingDirectoryInfo) -> None:
     settings={
@@ -163,7 +244,7 @@ def generate_cmake_file(working_directory: WorkingDirectoryInfo) -> None:
         target_cmake_file: pathlib.Path = working_directory.output_path.joinpath(f"Find{PACKAGE_NAME}.cmake")
         target_cmake_file.write_text(find_cmake_content)
     else:
-        raise BuildError(f"Error finding cmake source file: {cmake_file_source.resolve()}")
+        raise Exception(f"Error finding cmake source file: {cmake_file_source.resolve()}")
 
 
 if __name__ == '__main__':
@@ -177,18 +258,23 @@ if __name__ == '__main__':
         print(f"Downloading GameLift Server SDK from {GAMELIFT_SERVER_SDK_DOWNLOAD_URL}...")
         download_gamelift_server_sdk(working_directory)
         
+        print("Initializing and applying patch to GameLift Server SDK source....")
+        apply_patch_on_sdk_source(working_directory)
+        
         # build sdk with different configurations
-        build_gamelift_server_sdk(working_directory, "Debug", "Shared")
-        build_gamelift_server_sdk(working_directory, "Debug", "Static")
-        build_gamelift_server_sdk(working_directory, "Release", "Shared")
-        build_gamelift_server_sdk(working_directory, "Release", "Static")
+        for build_type in PACKAGE_BUILD_TYPES:
+            if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
+                for lib_type in PACKAGE_LIB_TYPES:
+                    build_gamelift_server_sdk(working_directory, build_type, lib_type)
+            elif PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+                build_gamelift_server_sdk(working_directory, build_type, PACKAGE_LIB_TYPES[1])
         
         print("Copying include and license files into output directory...")
         shutil.copytree(working_directory.source_path.joinpath("gamelift-server-sdk/include").resolve(),
                         working_directory.libs_output_path.joinpath("include").resolve())
         shutil.copy2(working_directory.source_path.joinpath(PACKAGE_LICENSE_FILE).resolve(),
                      working_directory.libs_output_path.resolve())
-        shutil.copy2(working_directory.source_path.joinpath("NOTICE_C++_AMAZON_GAMELIFT_SDK.txt").resolve(),
+        shutil.copy2(working_directory.source_path.joinpath("NOTICE_C++_AMAZON_GAMELIFT_SDK.TXT").resolve(),
                      working_directory.libs_output_path.resolve())
         
         print("Generating package info into output directory...")
@@ -197,6 +283,6 @@ if __name__ == '__main__':
         print("Gnerating cmake file into output directory...")
         generate_cmake_file(working_directory)
         exit(0)
-    except BuildError as err:
-        print(err)
+    except Exception as e:
+        print(e)
         exit(1)

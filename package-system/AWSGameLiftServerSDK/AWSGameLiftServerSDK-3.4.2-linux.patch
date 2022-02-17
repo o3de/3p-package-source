@@ -1,0 +1,81 @@
+diff --git a/cmake/External_boost.cmake b/cmake/External_boost.cmake
+index 6fc990b..17f99d7 100644
+--- a/cmake/External_boost.cmake
++++ b/cmake/External_boost.cmake
+@@ -66,8 +66,14 @@ if(use_bat)
+     BUILD_COMMAND b2 address-model=${am} ${boost_with_args}
+   )
+ else()
++  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
++    set(_build_variant "debug")
++  else()
++    set(_build_variant  "release")
++  endif()
++
+   list(APPEND boost_with_args
+-    "cxxflags=-fPIC")
++    "cflags=-fPIC" "cxxflags=-fPIC" "toolset=clang-12.0" "variant=${_build_variant}")
+   set(boost_cmds
+     CONFIGURE_COMMAND ./bootstrap.sh --prefix=<INSTALL_DIR>
+     BUILD_COMMAND ./b2 address-model=${am} ${boost_with_args}
+diff --git a/cmake/External_sioclient.cmake b/cmake/External_sioclient.cmake
+index 3333da3..6233d98 100644
+--- a/cmake/External_sioclient.cmake
++++ b/cmake/External_sioclient.cmake
+@@ -4,23 +4,41 @@ add_optional_deps(_deps "boost")
+ get_filename_component(_self_dir ${CMAKE_CURRENT_LIST_FILE} PATH)
+ 
+ if(UNIX)
+-    ExternalProject_Add(sioclient
+-      GIT_REPOSITORY https://github.com/socketio/socket.io-client-cpp.git
+-      GIT_TAG 1.6.1
+-      GIT_SUBMODULES
++    ExternalProject_Add(sioclient-src
++        GIT_REPOSITORY https://github.com/socketio/socket.io-client-cpp.git
++        GIT_TAG 1.6.1
++        GIT_SUBMODULES
+         lib/websocketpp
+         lib/rapidjson
+-      SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/sioclient"
+-      INSTALL_DIR "${GameLiftServerSdk_INSTALL_PREFIX}"
+-      PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
+-        "${_self_dir}/sioclient.CMakeLists.txt"
+-        "<SOURCE_DIR>/CMakeLists.txt"
+-      CMAKE_CACHE_ARGS
+-        ${GameLiftServerSdk_DEFAULT_ARGS}
+-        ${GameLiftServerSdk_THIRDPARTYLIBS_ARGS}
+-        "-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true"
+-      DEPENDS
+-        ${_deps}
++        SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/sioclient"
++        UPDATE_COMMAND ""
++        PATCH_COMMAND ""
++        INSTALL_COMMAND ""
++        CONFIGURE_COMMAND ""
++        BUILD_COMMAND ""
++    )
++
++    ExternalProject_Add(sioclient
++        DEPENDS sioclient-src
++        DOWNLOAD_COMMAND ""
++        SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/sioclient"
++        INSTALL_DIR "${GameLiftServerSdk_INSTALL_PREFIX}"
++        PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
++            "${_self_dir}/sioclient.CMakeLists.txt"
++            "<SOURCE_DIR>/CMakeLists.txt"
++        CMAKE_CACHE_ARGS
++            ${GameLiftServerSdk_DEFAULT_ARGS}
++            ${GameLiftServerSdk_THIRDPARTYLIBS_ARGS}
++            "-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true"
++        DEPENDS
++            ${_deps}
++    )
++
++    add_custom_command(
++        TARGET sioclient-src POST_BUILD
++        COMMAND git fetch origin
++        COMMAND git merge 56123c87598f8b1dd471be83ca841ceae07f95ba
++        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/sioclient/lib/websocketpp"
+     )
+ elseif(WIN32)
+     ExternalProject_Add(sioclient-src
