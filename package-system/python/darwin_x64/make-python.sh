@@ -54,7 +54,7 @@ cd temp
 mkdir $SCRIPT_DIR/package
 
 echo "-------------- Cloning python from git --------------"
-git clone https://github.com/python/cpython.git --branch "v3.7.10" --depth 1
+git clone https://github.com/python/cpython.git --branch "v3.7.12" --depth 1
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error cloning python!"
@@ -116,8 +116,9 @@ echo "-------------- Building a Mac python package from official sources -------
 cd $PYTHON_SRC_DIR
 cd Mac
 cd BuildScript
+
 # the following env vars get around a problem compiling tcl/tk
-tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN=$VENV_BIN_DIR $VENV_BIN_DIR/python3 ./build-installer.py --universal-archs=intel-64 --build-dir $SCRIPT_DIR/temp/python_build --third-party=$SCRIPT_DIR/temp/downloaded_packages --dep-target=10.9
+ac_cv_header_libintl_h=no ac_cv_lib_intl_textdomain=no tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN=$VENV_BIN_DIR $VENV_BIN_DIR/python3 ./build-installer.py --universal-archs=intel-64 --build-dir $SCRIPT_DIR/temp/python_build --third-party=$SCRIPT_DIR/temp/downloaded_packages --dep-target=10.15
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not build python!"
@@ -130,8 +131,8 @@ FRAMEWORK_OUTPUT_FOLDER=$SCRIPT_DIR/temp/python_build/_root/Library/Frameworks
 echo Framework output folder: $FRAMEWORK_OUTPUT_FOLDER
 cd $RELOC_SRC_DIR
 echo "---------- Altering the produced framework folder to be relocatable ---------"
-echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.7.10 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
-$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.7.10 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.7.12 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.7.12 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not make python relocatable!"

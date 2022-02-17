@@ -1,0 +1,62 @@
+diff --git a/PCbuild/get_externals.bat b/PCbuild/get_externals.bat
+index 38fc275..a2fc80e 100644
+--- a/PCbuild/get_externals.bat
++++ b/PCbuild/get_externals.bat
+@@ -49,10 +49,10 @@ echo.Fetching external libraries...
+ 
+ set libraries=
+ set libraries=%libraries%                                       bzip2-1.0.6
+-if NOT "%IncludeSSLSrc%"=="false" set libraries=%libraries%     openssl-1.1.1g
+-set libraries=%libraries%                                       sqlite-3.31.1.0
+-if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tcl-core-8.6.9.0
+-if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tk-8.6.9.0
++if NOT "%IncludeSSLSrc%"=="false" set libraries=%libraries%     openssl-1.1.1m
++set libraries=%libraries%                                       sqlite-3.37.2.0
++if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tcl-core-8.6.12.0
++if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tk-8.6.12.0
+ if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tix-8.4.3.6
+ set libraries=%libraries%                                       xz-5.2.2
+ set libraries=%libraries%                                       zlib-1.2.11
+@@ -72,8 +72,8 @@ for %%e in (%libraries%) do (
+ echo.Fetching external binaries...
+ 
+ set binaries=
+-if NOT "%IncludeSSL%"=="false"     set binaries=%binaries% openssl-bin-1.1.1g
+-if NOT "%IncludeTkinter%"=="false" set binaries=%binaries% tcltk-8.6.9.0
++if NOT "%IncludeSSL%"=="false"     set binaries=%binaries% openssl-bin-1.1.1m
++if NOT "%IncludeTkinter%"=="false" set binaries=%binaries% tcltk-8.6.12.0
+ if NOT "%IncludeSSLSrc%"=="false"  set binaries=%binaries% nasm-2.11.06
+ 
+ for %%b in (%binaries%) do (
+diff --git a/PCbuild/python.props b/PCbuild/python.props
+index 1034e7f..b74977d 100644
+--- a/PCbuild/python.props
++++ b/PCbuild/python.props
+@@ -46,11 +46,11 @@
+     <ExternalsDir>$(EXTERNALS_DIR)</ExternalsDir>
+     <ExternalsDir Condition="$(ExternalsDir) == ''">$([System.IO.Path]::GetFullPath(`$(PySourcePath)externals`))</ExternalsDir>
+     <ExternalsDir Condition="!HasTrailingSlash($(ExternalsDir))">$(ExternalsDir)\</ExternalsDir>
+-    <sqlite3Dir>$(ExternalsDir)sqlite-3.31.1.0\</sqlite3Dir>
++    <sqlite3Dir>$(ExternalsDir)sqlite-3.37.2.0\</sqlite3Dir>
+     <bz2Dir>$(ExternalsDir)bzip2-1.0.6\</bz2Dir>
+     <lzmaDir>$(ExternalsDir)xz-5.2.2\</lzmaDir>
+-    <opensslDir>$(ExternalsDir)openssl-1.1.1g\</opensslDir>
+-    <opensslOutDir>$(ExternalsDir)openssl-bin-1.1.1g\$(ArchName)\</opensslOutDir>
++    <opensslDir>$(ExternalsDir)openssl-1.1.1m\</opensslDir>
++    <opensslOutDir>$(ExternalsDir)openssl-bin-1.1.1m\$(ArchName)\</opensslOutDir>
+     <opensslIncludeDir>$(opensslOutDir)include</opensslIncludeDir>
+     <nasmDir>$(ExternalsDir)\nasm-2.11.06\</nasmDir>
+     <zlibDir>$(ExternalsDir)\zlib-1.2.11\</zlibDir>
+diff --git a/PCbuild/tcltk.props b/PCbuild/tcltk.props
+index b185cb7..a901998 100644
+--- a/PCbuild/tcltk.props
++++ b/PCbuild/tcltk.props
+@@ -4,7 +4,7 @@
+   <PropertyGroup>
+     <TclMajorVersion>8</TclMajorVersion>
+     <TclMinorVersion>6</TclMinorVersion>
+-    <TclPatchLevel>9</TclPatchLevel>
++    <TclPatchLevel>12</TclPatchLevel>
+     <TclRevision>0</TclRevision>
+     <TkMajorVersion>$(TclMajorVersion)</TkMajorVersion>
+     <TkMinorVersion>$(TclMinorVersion)</TkMinorVersion>

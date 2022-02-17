@@ -49,14 +49,24 @@ mkdir %outputdir%
 mkdir %tempdir%
 cd /d %tempdir%
 
-echo Cloning python from git using v3.7.10...
-git clone https://github.com/python/cpython.git --branch "v3.7.10" --depth 1
+echo Cloning python from git using v3.7.12..
+git clone https://github.com/python/cpython.git --branch "v3.7.12" --depth 1
 if %ERRORLEVEL% NEQ 0 (
     echo "Git clone failed"
     exit /B 1
 )
 
 cd /d %python_src%
+
+set patch_file=%ScriptDir%\open3d_python.patch
+echo Applying patch file %patch_file%
+git apply --ignore-whitespace %patch_file%
+if %ERRORLEVEL% NEQ 0 (
+    echo "Git apply failed"
+    exit /B 1
+)
+
+echo Getting external libraries
 call .\PCBuild\get_externals.bat
 
 msbuild.exe "%python_src%\PCbuild\pcbuild.proj" /t:Build /m /nologo /v:m /p:Configuration=Debug /p:Platform=x64 /p:IncludeExternals=true /p:IncludeSSL=true /p:IncludeTkinter=true /p:PlatformToolset=v141
