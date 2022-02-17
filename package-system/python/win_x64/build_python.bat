@@ -115,7 +115,7 @@ robocopy %python_src%\PCbuild\amd64 %outputdir%\python Python*.pdb %ROBOCOPY_OPT
 cd /d %ScriptDir%
 
 echo clearing temp dir...
-rem rmdir /s /q %tempdir%
+rmdir /s /q %tempdir%
 
 rem we leave only the output folder which is the actual output for packaging.
 echo this folder is ready for packaging: %outputdir%
