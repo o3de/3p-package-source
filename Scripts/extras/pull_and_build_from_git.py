@@ -237,6 +237,7 @@ class PackageInfo(object):
         self.cmake_src_subfolder = _get_value("cmake_src_subfolder", required=False)
         self.cmake_generate_args_common = _get_value("cmake_generate_args_common", required=False)
         self.cmake_build_args_common = _get_value("cmake_build_args_common", required=False)
+        self.build_configs = _get_value("build_configs", required=False, default=['Debug', 'Release'])
         if self.cmake_find_template and self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
         if not self.cmake_find_template and not self.cmake_find_source:
@@ -399,7 +400,7 @@ class BuildInfo(object):
         self.clean_build = clean_build
         self.cmake_find_template = cmake_find_template
         self.cmake_find_source = cmake_find_source
-        self.build_configs = platform_config.get('build_configs', ['Debug', 'Release'])
+        self.build_configs = platform_config.get('build_configs', package_info.build_configs)
         self.prebuilt_source = prebuilt_source
         self.prebuilt_args = prebuilt_args
         self.skip_git = skip_git
@@ -846,8 +847,9 @@ class BuildInfo(object):
             delete_folder(self.package_install_root)
 
         # Prepare the target package folder
-        if not self.build_install_folder.is_dir():
-            self.build_install_folder.mkdir(parents=True)
+        if self.build_install_folder.is_dir():
+            shutil.rmtree(str(self.build_install_folder))
+        self.build_install_folder.mkdir(parents=True)
 
         prebuilt_source_path = (self.base_folder.resolve() / self.prebuilt_source).resolve()
         target_base_package_path = self.build_install_folder.resolve()

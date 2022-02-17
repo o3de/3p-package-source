@@ -1,15 +1,14 @@
 {
     "git_url":"https://github.com/assimp/assimp",
-    "git_tag": "master",
-    "git_commit": "376e46887780e5090af0198e4e5577446159104d",  
+    "git_tag": "v5.1.6",
     "package_name":"assimp",
-    "package_version":"5.0.1-rev12",
+    "package_version":"5.1.6-rev1",
     "package_url":"https://github.com/assimp/assimp",
     "package_license":"BSD-3-Clause",
     "package_license_file":"LICENSE",
     "cmake_find_source":"Findassimplib.cmake",
     "cmake_find_target":"Findassimplib.cmake",
-    "patch_file" : "0001-O3DE-fixes-applied-on-top-of-376e46887780e5090af0198.patch",
+    "patch_file" : "O3DE-fixes-applied-on-top-of-v5.1.6.patch",
     "Platforms":{
         "Windows":{
             "Windows":{
