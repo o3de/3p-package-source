@@ -81,15 +81,6 @@ if %ERRORLEVEL% NEQ 0 (
   exit /B 1
 )
 
-cd /d %python_src%
-echo installing PIP...
-.\PCBuild\amd64\Python.exe  -m ensurepip --upgrade
-if %ERRORLEVEL% NEQ 0 (
-  echo Failed to ensure pip is present.
-  exit /B 1
-)
-.\PCBuild\amd64\Python.exe -m pip install --upgrade pip
-
 echo creating the installation image...
 rem We'll actually use the real python dist builder to do this:
 cd /d %python_src%
@@ -105,6 +96,16 @@ if %ERRORLEVEL% NEQ 0 (
   exit /B 1
 )
 
+cd /d %python_src%
+echo installing PIP...
+%outputdir%\python\Python.exe  -m ensurepip --root %outputdir%\python --upgrade
+if %ERRORLEVEL% NEQ 0 (
+  echo Failed to ensure pip is present.
+  exit /B 1
+)
+%outputdir%\python\Python.exe -m pip install --target %outputdir%\python\lib\site-packages --upgrade pip 
+
+
 echo copying package metadata and cmake files...
 rem But we do add our own few things...
 set ROBOCOPY_OPTIONS=/NJH /NJS /NP /NDL
@@ -114,7 +115,7 @@ robocopy %python_src%\PCbuild\amd64 %outputdir%\python Python*.pdb %ROBOCOPY_OPT
 cd /d %ScriptDir%
 
 echo clearing temp dir...
-rmdir /s /q %tempdir%
+rem rmdir /s /q %tempdir%
 
 rem we leave only the output folder which is the actual output for packaging.
 echo this folder is ready for packaging: %outputdir%
