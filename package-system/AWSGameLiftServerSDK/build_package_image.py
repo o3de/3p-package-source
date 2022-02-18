@@ -129,13 +129,14 @@ def apply_patch_on_sdk_source(working_directory: WorkingDirectoryInfo) -> None:
         raise Exception(f"Error git apply patch sdk source: {str(git_result.stderr)}")
 
 def get_custom_build_env():
-    custom_env = os.environ.copy()
     if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+        custom_env = os.environ.copy()
         custom_env["CC"] = "clang"
         custom_env["CXX"] = "clang++"
         custom_env["CFLAGS"] = "-fPIC"
         custom_env["CXXFLAGS"] = "-fPIC"
-    return custom_env
+        return custom_env
+    return None
 
 def configure_sdk_project(source_folder: str,
                           build_folder: str,
