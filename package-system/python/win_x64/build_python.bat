@@ -49,14 +49,24 @@ mkdir %outputdir%
 mkdir %tempdir%
 cd /d %tempdir%
 
-echo Cloning python from git using v3.7.10...
-git clone https://github.com/python/cpython.git --branch "v3.7.10" --depth 1
+echo Cloning python from git using v3.7.12..
+git clone https://github.com/python/cpython.git --branch "v3.7.12" --depth 1
 if %ERRORLEVEL% NEQ 0 (
     echo "Git clone failed"
     exit /B 1
 )
 
 cd /d %python_src%
+
+set patch_file=%ScriptDir%\open3d_python.patch
+echo Applying patch file %patch_file%
+git apply --ignore-whitespace %patch_file%
+if %ERRORLEVEL% NEQ 0 (
+    echo "Git apply failed"
+    exit /B 1
+)
+
+echo Getting external libraries
 call .\PCBuild\get_externals.bat
 
 msbuild.exe "%python_src%\PCbuild\pcbuild.proj" /t:Build /m /nologo /v:m /p:Configuration=Debug /p:Platform=x64 /p:IncludeExternals=true /p:IncludeSSL=true /p:IncludeTkinter=true /p:PlatformToolset=v141
@@ -70,15 +80,6 @@ if %ERRORLEVEL% NEQ 0 (
   echo Failed to build release python
   exit /B 1
 )
-
-cd /d %python_src%
-echo installing PIP...
-.\PCBuild\amd64\Python.exe  -m ensurepip --upgrade
-if %ERRORLEVEL% NEQ 0 (
-  echo Failed to ensure pip is present.
-  exit /B 1
-)
-.\PCBuild\amd64\Python.exe -m pip install --upgrade pip
 
 echo creating the installation image...
 rem We'll actually use the real python dist builder to do this:
@@ -94,6 +95,16 @@ if %ERRORLEVEL% NEQ 0 (
   echo "Failed to call python's layout script (release)"
   exit /B 1
 )
+
+cd /d %python_src%
+echo installing PIP...
+%outputdir%\python\Python.exe  -m ensurepip --root %outputdir%\python --upgrade
+if %ERRORLEVEL% NEQ 0 (
+  echo Failed to ensure pip is present.
+  exit /B 1
+)
+%outputdir%\python\Python.exe -m pip install --target %outputdir%\python\lib\site-packages --upgrade pip 
+
 
 echo copying package metadata and cmake files...
 rem But we do add our own few things...

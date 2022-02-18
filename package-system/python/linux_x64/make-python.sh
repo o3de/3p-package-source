@@ -48,7 +48,7 @@ mkdir -p temp
 
 echo ------------------------ GIT CLONE python 3.7 --------------------
 cd temp
-git clone https://github.com/python/cpython.git --branch 3.7 --depth 1
+git clone https://github.com/python/cpython.git --branch v3.7.12 --depth 1
 
 if [[ ! -d "cpython" ]]; then
     echo "Was unable to create cpython dir via git clone.  Is git installed?"
@@ -74,7 +74,7 @@ fi
 # Prepare the package folder
 cd $SCRIPT_DIR
 
-# Install the newly built python 3.7.10 to the package/python folder
+# Install the newly built python 3.7.12 to the package/python folder
 cd $SCRIPT_DIR
 cd temp
 cd cpython
@@ -118,6 +118,11 @@ PYTHONNOUSERSITE=1 ./python/bin/python3 -m pip install --upgrade pip
 sed -i "1s+.*+\#\!/bin/sh+" ./python/bin/pip* 
 sed -i "2i\\
 \"exec\" \"\`dirname \$0\`/python\" \"\$0\" \"\$\@\" " ./python/bin/pip*
+
+# https://github.com/o3de/o3de/issues/7281 Reports NVD vulnerability in the wininst-*.exe files that
+# get included in the package. Since this is a linux only package, we can remove them 
+echo "Removing wininst*.exe files"
+rm -v $SCRIPT_DIR/package/python/lib/python3.7/distutils/command/wininst-*.exe
 
 echo ""
 echo "------ PYTHON WAS BUILT FROM SOURCE -----"
