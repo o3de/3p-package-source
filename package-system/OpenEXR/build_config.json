@@ -8,6 +8,9 @@
    "package_license_file":"LICENSE.md",
    "cmake_find_source":"FindOpenEXR.cmake",
    "cmake_find_target":"FindOpenEXR.cmake",
+   "extra_files_to_copy": [
+      ["FindImath.cmake", "FindImath.cmake"]
+   ],
    "Platforms":{
       "Windows":{
          "Windows":{
@@ -26,10 +29,7 @@
             ],
             "custom_test_cmd" : [
                "test_openexr_windows.cmd"
-            ],
-			"extra_files_to_copy": [
-				["FindImath.cmake", "FindImath.cmake"]
-			]
+            ]
          }
       },
       "Darwin":{
@@ -53,10 +53,7 @@
             ],
             "custom_test_cmd" : [
                "./test_openexr_mac.sh"
-			],
-			"extra_files_to_copy": [
-				["FindImath.cmake", "FindImath.cmake"]
-			]
+            ]
          }
       },
       "Linux":{
@@ -74,10 +71,7 @@
                "-DOPENEXR_BUILD_TOOLS=OFF",
                "-DBUILD_SHARED_LIBS=OFF",
                "-DCMAKE_INSTALL_PREFIX=\"../../openexr-linux/OpenEXR\""
-            ],
-			"extra_files_to_copy": [
-				["FindImath.cmake", "FindImath.cmake"]
-			]
+            ]
          }
       }
    }
