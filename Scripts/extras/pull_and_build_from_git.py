@@ -70,6 +70,7 @@ The following keys can exist at the root level or the target-platform level:
                             platforms and configurations.
                             The final args will be (cmake_build_args || cmake_build_args_CONFIG) + cmake_build_args_common
                             `cmake --build (build folder) --config config` will automatically be supplied.
+* extra_files_to_copy   : (optional) a list of pairs of files to copy [source, destination]. 
  
 The following keys can only exist at the target platform level as they describe the specifics for that platform.
 
@@ -238,6 +239,7 @@ class PackageInfo(object):
         self.cmake_generate_args_common = _get_value("cmake_generate_args_common", required=False)
         self.cmake_build_args_common = _get_value("cmake_build_args_common", required=False)
         self.build_configs = _get_value("build_configs", required=False, default=['Debug', 'Release'])
+        self.extra_files_to_copy = _get_value("extra_files_to_copy", required=False)
         if self.cmake_find_template and self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
         if not self.cmake_find_template and not self.cmake_find_source:
@@ -779,6 +781,19 @@ class BuildInfo(object):
 
         return False
 
+    def copy_extra_files(self):
+        """
+        Copies any extra files specified in the build config into the destination folder for packaging.
+        """
+        extra_files_to_copy = self.package_info.extra_files_to_copy
+        if extra_files_to_copy:
+            for (source, dest) in extra_files_to_copy:
+                print(f"Source file: {self.base_folder / source}, Destination file: {self.package_install_root / dest}")
+                shutil.copy2(
+                    self.base_folder / source,
+                    self.package_install_root / dest
+                )
+
     def build_for_platform(self):
         """
         Build for the current platform (host+target)
@@ -918,6 +933,9 @@ class BuildInfo(object):
 
             # Build the package
             self.build_for_platform()
+
+            # Copy extra files specified in the build config
+            self.copy_extra_files()
 
         # Generate the Find*.cmake file
         self.generate_cmake()
