@@ -4,7 +4,7 @@ You can find the official GameLift documentation [here](https://aws.amazon.com/d
 
 ## Minimum requirements:
 * Either of the following:
-  * Microsoft Visual Studio 2019 - Windows Build
+  * Microsoft Visual Studio 2017 - Windows Build
   * Clang 12.0 and GCC 9.3 - Linux Build
 * CMake version 3.20 or later
 * Python version 3.7 or later
@@ -13,20 +13,19 @@ You can find the official GameLift documentation [here](https://aws.amazon.com/d
 ## Prepare steps:
 1. As there is no public repository for server sdk source code, please double check [Amazon GameLift Release Notes](https://docs.aws.amazon.com/gamelift/latest/developerguide/release-notes.html)
    to confirm server sdk version information
-2. Modify `PACKAGE_VERSION`, `GAMELIFT_SERVER_SDK_RELEASE_VERSION` and `GAMELIFT_SERVER_SDK_DOWNLOAD_URL` to update version
-
-## Build the GameLiftServerSdk - Linux
-Link Clang compiler for cmake build, for example:
-```
-$ sudo ln -s /usr/lib/llvm-12/bin/clang /usr/bin/clang
-```
-```
-$ sudo ln -s /usr/lib/llvm-12/bin/clang++ /usr/bin/clang++ 
-```
+2. Modify `PACKAGE_VERSION`, `GAMELIFT_SERVER_SDK_RELEASE_VERSION` and `GAMELIFT_SERVER_SDK_DOWNLOAD_URL` to update version 
+   (Refer to `build_package_image.py` script)
+3. [Linux Build] Link Clang compiler for cmake build, for example:
+   ```
+   $ sudo ln -s /usr/lib/llvm-12/bin/clang /usr/bin/clang
+   ```
+   ```
+   $ sudo ln -s /usr/lib/llvm-12/bin/clang++ /usr/bin/clang++ 
+   ```
 
 ## FAQ
-* For windows build, as dependent boost version is old and not well compatible with Visual Studio 2019, feel free to switch to `Visual Studio 15 2017` if necessary 
-  (Refer to function `configure_sdk_project` in `build_package_image.py` script)
+* For windows build, the Amazon GameLift Server SDK depends on an older version of boost, it is recommend to build with `Visual Studio 15 2017`
 * For windows build, if you get error message `The specified path, file name, or both are too long. The fully qualified file name must be less than 260 characters, and the directory name must be less than 248 characters`
-  Please move `3p-package-source` directory out of nested directories and retry.
+  (Refer to [PathTooLongException](https://docs.microsoft.com/en-us/dotnet/api/system.io.pathtoolongexception?view=net-6.0))
+  Please move `3p-package-source` directory to shorter path location and retry.
 

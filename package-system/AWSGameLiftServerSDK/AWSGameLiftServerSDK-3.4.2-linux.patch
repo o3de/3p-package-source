@@ -74,7 +74,7 @@ index 3333da3..6233d98 100644
 +    add_custom_command(
 +        TARGET sioclient-src POST_BUILD
 +        COMMAND git fetch origin
-+        COMMAND git merge 56123c87598f8b1dd471be83ca841ceae07f95ba
++        COMMAND git merge 56123c87598f8b1dd471be83ca841ceae07f95ba # keep build dependency consistent
 +        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/sioclient/lib/websocketpp"
      )
  elseif(WIN32)
