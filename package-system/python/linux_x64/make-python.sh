@@ -54,10 +54,53 @@ if [[ ! -d "cpython" ]]; then
     echo "Was unable to create cpython dir via git clone.  Is git installed?"
     exit 1
 fi
+
+echo ------------------------ GIT CLONE expat 2.4.6 --------------------
+git clone https://github.com/libexpat/libexpat.git --branch "R_2_4_6" --depth 1
+
+if [[ ! -d "libexpat" ]]; then
+    echo "Was unable to create libexpat dir via git clone.  Is git installed?"
+    exit 1
+fi
+
+echo ------------------------ GIT CLONE bzip2 1.0.8 --------------------
+git clone git://sourceware.org/git/bzip2.git --branch "bzip2-1.0.8" --depth 1
+if [[ ! -d "bzip2" ]]; then
+    echo "Was unable to create bzip2 dir via git clone.  Is git installed?"
+    exit 1
+fi
+
+echo ------------------------ Building bzip2 1.0.8 ----------------------
+pushd bzip2
+
+PATCH_FILE=$SCRIPT_DIR/open3d_bzip2.patch
+echo Applying patch file $PATCH_FILE
+git apply --ignore-whitespace $PATCH_FILE
+if [ $retVal -ne 0 ]; then
+    echo "Git apply failed"
+    exit $retVal
+fi
+
+make bzip2
+
+make install PREFIX=install
+
+popd
+
+
 cd cpython
 
-# Build from the source with optimizations and shared libs enabled , and override the RPATH
-./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../..'
+PATCH_FILE=$SCRIPT_DIR/open3d_python.patch
+echo Applying patch file $PATCH_FILE
+git apply --ignore-whitespace $PATCH_FILE
+if [ $retVal -ne 0 ]; then
+    echo "Git apply failed"
+    exit $retVal
+fi
+
+
+# Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
+./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../bzip2/install/lib' CPPFLAGS='-I../bzip2/install/include' CFLAGS='-I../temp/bzip2/install/include'
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error running configuring optimized build"
@@ -123,6 +166,14 @@ sed -i "2i\\
 # get included in the package. Since this is a linux only package, we can remove them 
 echo "Removing wininst*.exe files"
 rm -v $SCRIPT_DIR/package/python/lib/python3.7/distutils/command/wininst-*.exe
+
+echo "Removing out of date pip*.whl"
+rm -v $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/_bundled/pip-*.whl
+
+echo "Removing pip references from ensurepip"
+cat $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py_temp
+rm $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py
+mv $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py
 
 echo ""
 echo "------ PYTHON WAS BUILT FROM SOURCE -----"
