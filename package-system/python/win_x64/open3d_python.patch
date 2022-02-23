@@ -1,15 +1,108 @@
+diff --git a/Lib/ensurepip/__init__.py b/Lib/ensurepip/__init__.py
+index 94d40b0..fea685b 100644
+--- a/Lib/ensurepip/__init__.py
++++ b/Lib/ensurepip/__init__.py
+@@ -11,11 +11,10 @@ __all__ = ["version", "bootstrap"]
+ 
+ _SETUPTOOLS_VERSION = "47.1.0"
+ 
+-_PIP_VERSION = "20.1.1"
++_PIP_VERSION = "22.0.3"
+ 
+ _PROJECTS = [
+-    ("setuptools", _SETUPTOOLS_VERSION, "py3"),
+-    ("pip", _PIP_VERSION, "py2.py3"),
++    ("setuptools", _SETUPTOOLS_VERSION, "py3")
+ ]
+ 
+ 
+diff --git a/Mac/BuildScript/build-installer.py b/Mac/BuildScript/build-installer.py
+index 4fab488..e8a0f5a 100755
+--- a/Mac/BuildScript/build-installer.py
++++ b/Mac/BuildScript/build-installer.py
+@@ -331,7 +331,7 @@ def library_recipes():
+     if getDeptargetTuple() < (10, 5):
+         result.extend([
+           dict(
+-              name="Bzip2 1.0.6",
++              name="Bzip2 1.0.8",
+               url="http://bzip.org/1.0.6/bzip2-1.0.6.tar.gz",
+               checksum='00b516f4704d4a7cb50a1d97e6e8e15b',
+               configure=None,
+diff --git a/PCbuild/_bz2.vcxproj.filters b/PCbuild/_bz2.vcxproj.filters
+index eac64dd..b3fedcf 100644
+--- a/PCbuild/_bz2.vcxproj.filters
++++ b/PCbuild/_bz2.vcxproj.filters
+@@ -4,10 +4,10 @@
+     <Filter Include="Source Files">
+       <UniqueIdentifier>{f53a859d-dad2-4d5b-ae41-f28d8b571f5a}</UniqueIdentifier>
+     </Filter>
+-    <Filter Include="bzip2 1.0.6 Header Files">
++    <Filter Include="bzip2 1.0.8 Header Files">
+       <UniqueIdentifier>{7e0bed05-ae33-43b7-8797-656455bbb7f3}</UniqueIdentifier>
+     </Filter>
+-    <Filter Include="bzip2 1.0.6 Source Files">
++    <Filter Include="bzip2 1.0.8 Source Files">
+       <UniqueIdentifier>{ed574b89-6983-4cdf-9f98-fe7048d9e89c}</UniqueIdentifier>
+     </Filter>
+   </ItemGroup>
+@@ -16,33 +16,33 @@
+       <Filter>Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\blocksort.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\bzlib.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\compress.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\crctable.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\decompress.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\huffman.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\randtable.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+   </ItemGroup>
+   <ItemGroup>
+     <ClInclude Include="$(bz2Dir)\bzlib.h">
+-      <Filter>bzip2 1.0.6 Header Files</Filter>
++      <Filter>bzip2 1.0.8 Header Files</Filter>
+     </ClInclude>
+     <ClInclude Include="$(bz2Dir)\bzlib_private.h">
+-      <Filter>bzip2 1.0.6 Header Files</Filter>
++      <Filter>bzip2 1.0.8 Header Files</Filter>
+     </ClInclude>
+   </ItemGroup>
+ </Project>
 diff --git a/PCbuild/get_externals.bat b/PCbuild/get_externals.bat
-index 38fc275..a2fc80e 100644
+index 38fc275..59d7a73 100644
 --- a/PCbuild/get_externals.bat
 +++ b/PCbuild/get_externals.bat
-@@ -49,10 +49,10 @@ echo.Fetching external libraries...
+@@ -48,11 +48,11 @@ if NOT DEFINED PYTHON (
+ echo.Fetching external libraries...
  
  set libraries=
- set libraries=%libraries%                                       bzip2-1.0.6
+-set libraries=%libraries%                                       bzip2-1.0.6
 -if NOT "%IncludeSSLSrc%"=="false" set libraries=%libraries%     openssl-1.1.1g
 -set libraries=%libraries%                                       sqlite-3.31.1.0
 -if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tcl-core-8.6.9.0
 -if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tk-8.6.9.0
++set libraries=%libraries%                                       bzip2-1.0.8
 +if NOT "%IncludeSSLSrc%"=="false" set libraries=%libraries%     openssl-1.1.1m
 +set libraries=%libraries%                                       sqlite-3.37.2.0
 +if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tcl-core-8.6.12.0
@@ -29,7 +122,7 @@ index 38fc275..a2fc80e 100644
  
  for %%b in (%binaries%) do (
 diff --git a/PCbuild/python.props b/PCbuild/python.props
-index 1034e7f..b74977d 100644
+index 1034e7f..df0911a 100644
 --- a/PCbuild/python.props
 +++ b/PCbuild/python.props
 @@ -46,11 +46,11 @@
@@ -37,8 +130,9 @@ index 1034e7f..b74977d 100644
      <ExternalsDir Condition="$(ExternalsDir) == ''">$([System.IO.Path]::GetFullPath(`$(PySourcePath)externals`))</ExternalsDir>
      <ExternalsDir Condition="!HasTrailingSlash($(ExternalsDir))">$(ExternalsDir)\</ExternalsDir>
 -    <sqlite3Dir>$(ExternalsDir)sqlite-3.31.1.0\</sqlite3Dir>
+-    <bz2Dir>$(ExternalsDir)bzip2-1.0.6\</bz2Dir>
 +    <sqlite3Dir>$(ExternalsDir)sqlite-3.37.2.0\</sqlite3Dir>
-     <bz2Dir>$(ExternalsDir)bzip2-1.0.6\</bz2Dir>
++    <bz2Dir>$(ExternalsDir)bzip2-1.0.8\</bz2Dir>
      <lzmaDir>$(ExternalsDir)xz-5.2.2\</lzmaDir>
 -    <opensslDir>$(ExternalsDir)openssl-1.1.1g\</opensslDir>
 -    <opensslOutDir>$(ExternalsDir)openssl-bin-1.1.1g\$(ArchName)\</opensslOutDir>
@@ -47,6 +141,19 @@ index 1034e7f..b74977d 100644
      <opensslIncludeDir>$(opensslOutDir)include</opensslIncludeDir>
      <nasmDir>$(ExternalsDir)\nasm-2.11.06\</nasmDir>
      <zlibDir>$(ExternalsDir)\zlib-1.2.11\</zlibDir>
+diff --git a/PCbuild/readme.txt b/PCbuild/readme.txt
+index 9c521fa..5e57a95 100644
+--- a/PCbuild/readme.txt
++++ b/PCbuild/readme.txt
+@@ -157,7 +157,7 @@ interpreter, but they do implement several major features.  See the
+ about getting the source for building these libraries.  The sub-projects
+ are:
+ _bz2
+-    Python wrapper for version 1.0.6 of the libbzip2 compression library
++    Python wrapper for version 1.0.8 of the libbzip2 compression library
+     Homepage:
+         http://www.bzip.org/
+ _lzma
 diff --git a/PCbuild/tcltk.props b/PCbuild/tcltk.props
 index b185cb7..a901998 100644
 --- a/PCbuild/tcltk.props
@@ -60,3 +167,52 @@ index b185cb7..a901998 100644
      <TclRevision>0</TclRevision>
      <TkMajorVersion>$(TclMajorVersion)</TkMajorVersion>
      <TkMinorVersion>$(TclMinorVersion)</TkMinorVersion>
+diff --git a/setup.py b/setup.py
+index bf90600..a80a647 100644
+--- a/setup.py
++++ b/setup.py
+@@ -1535,7 +1535,7 @@ class PyBuildExt(build_ext):
+             expat_sources = []
+             expat_depends = []
+         else:
+-            expat_inc = [os.path.join(os.getcwd(), srcdir, 'Modules', 'expat')]
++            expat_inc = [os.path.join(os.getcwd(), srcdir, '..' , '..', 'libexpat', 'expat', 'lib')]
+             define_macros = [
+                 ('HAVE_EXPAT_CONFIG_H', '1'),
+                 # bpo-30947: Python uses best available entropy sources to
+@@ -1544,20 +1544,21 @@ class PyBuildExt(build_ext):
+             ]
+             extra_compile_args = []
+             expat_lib = []
+-            expat_sources = ['expat/xmlparse.c',
+-                             'expat/xmlrole.c',
+-                             'expat/xmltok.c']
+-            expat_depends = ['expat/ascii.h',
+-                             'expat/asciitab.h',
+-                             'expat/expat.h',
+-                             'expat/expat_config.h',
+-                             'expat/expat_external.h',
+-                             'expat/internal.h',
+-                             'expat/latin1tab.h',
+-                             'expat/utf8tab.h',
+-                             'expat/xmlrole.h',
+-                             'expat/xmltok.h',
+-                             'expat/xmltok_impl.h'
++            expat_sources = ['../../libexpat/expat/lib/xmlparse.c',
++                             '../../libexpat/expat/lib/xmlrole.c',
++                             '../../libexpat/expat/lib/xmltok.c'
++                             ]
++            expat_depends = ['../../libexpat/expat/lib/ascii.h',
++                             '../../libexpat/expat/lib/asciitab.h',
++                             '../../libexpat/expat/lib/expat.h',
++                             '../../libexpat/expat/lib/expat_config.h',
++                             '../../libexpat/expat/lib/expat_external.h',
++                             '../../libexpat/expat/lib/internal.h',
++                             '../../libexpat/expat/lib/latin1tab.h',
++                             '../../libexpat/expat/lib/utf8tab.h',
++                             '../../libexpat/expat/lib/xmlrole.h',
++                             '../../libexpat/expat/lib/xmltok.h',
++                             '../../libexpat/expat/lib/xmltok_impl.h'
+                              ]
+ 
+             cc = sysconfig.get_config_var('CC').split()[0]

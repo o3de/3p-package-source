@@ -56,6 +56,13 @@ if %ERRORLEVEL% NEQ 0 (
     exit /B 1
 )
 
+echo Cloning expat from git using v2.4.6
+git clone https://github.com/libexpat/libexpat.git --branch "R_2_4_6" --depth 1
+if %ERRORLEVEL% NEQ 0 (
+    echo "Git clone failed"
+    exit /B 1
+)
+
 cd /d %python_src%
 
 set patch_file=%ScriptDir%\open3d_python.patch
@@ -97,14 +104,17 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 cd /d %python_src%
-echo installing PIP...
+echo installing PIP... (Based on the cpython v3.7.12)
 %outputdir%\python\Python.exe  -m ensurepip --root %outputdir%\python --upgrade
 if %ERRORLEVEL% NEQ 0 (
   echo Failed to ensure pip is present.
   exit /B 1
 )
-%outputdir%\python\Python.exe -m pip install --target %outputdir%\python\lib\site-packages --upgrade pip 
+echo upgrading PIP... 
+%outputdir%\python\Python.exe -m pip install --target %outputdir%\python\Lib\site-packages --upgrade pip 
 
+rem Now that PIP is part of the package, remove the wheel file of the pre-upgrade version from the package
+del /F /Q %outputdir%\python\Lib\ensurepip\_bundled\pip-*.whl
 
 echo copying package metadata and cmake files...
 rem But we do add our own few things...
