@@ -61,6 +61,18 @@ if [ $retVal -ne 0 ]; then
     exit $retVal
 fi
 
+echo ------------------------ GIT CLONE expat 2.4.6 --------------------
+git clone https://github.com/libexpat/libexpat.git --branch "R_2_4_6" --depth 1
+
+if [[ ! -d "libexpat" ]]; then
+    echo "Was unable to create libexpat dir via git clone.  Is git installed?"
+    exit 1
+fi
+
+echo ------------------------ Applying expat 2.4.6 onto cpythons 2.4.1 expat --------
+cp -f -v libexpat/expat/lib/*.h cpython/Modules/expat/
+cp -f -v libexpat/expat/lib/*.c cpython/Modules/expat/
+
 echo "-------------- Cloning relocatable-python from git --------------"
 git clone https://github.com/gregneagle/relocatable-python.git
 retVal=$?
@@ -165,6 +177,12 @@ cd $SCRIPT_DIR/package
 cp $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/LICENSE.txt ./LICENSE
 cp $SCRIPT_DIR/PackageInfo.json .
 cp $SCRIPT_DIR/*.cmake .
+
+echo "---------- Removing pip references from ensurepip --------------"
+rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/ensurepip/_bundled/pip-20*.whl
+cat $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py_temp
+rm $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/ensurepip/__init__.py
+mv $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py
 
 echo "--------------  Cleaning temp folder -----------------"
 rm -rf $SCRIPT_DIR/temp
