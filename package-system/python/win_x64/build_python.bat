@@ -62,6 +62,8 @@ if %ERRORLEVEL% NEQ 0 (
     echo "Git clone failed"
     exit /B 1
 )
+copy /Y /V libexpat/expat/lib/*.h cpython/Modules/expat/
+copy /Y /V libexpat/expat/lib/*.c cpython/Modules/expat/
 
 cd /d %python_src%
 
