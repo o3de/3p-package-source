@@ -16,14 +16,14 @@ echo "--------------- PYTHON PACKAGE BUILD SCRIPT ----------------"
 echo ""
 echo "BASIC REQUIREMENTS in case something goes wrong:"
 echo "   - git installed and in PATH"
-echo "   - packages installed: apt-get dev-essential tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev"
+echo "   - packages installed: apt-get dev-essential tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev texinfo"
 echo "   - python3 with pip in PATH! (i.e. sudo apt install python3 and sudo apt install python3-pip"
 echo "   - Note: This script is currently written for buildng on Ubuntu Linux only."
 echo "   - Note: installing binaries with pip must result with them being on PATH."
 echo ""
 
 # Make sure we have all the required dev packages
-REQUIRED_DEV_PACKAGES="tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev"
+REQUIRED_DEV_PACKAGES="tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev texinfo"
 ALL_PACKAGES=`apt list 2>/dev/null`
 for req_package in $REQUIRED_DEV_PACKAGES
 do
@@ -96,6 +96,42 @@ make install PREFIX=install
 
 popd
 
+echo ""
+echo "--------------- Cloning libffi 1.0.8 and building static version ---------------"
+echo ""
+git clone https://github.com/libffi/libffi.git --branch "v3.4.2" --depth 1
+if [[ ! -d "libffi" ]]; then
+    echo "Was unable to create libffi dir via git clone."
+    exit 1
+fi
+
+pushd libffi
+
+# According to the README.md for libffi, we need to run autogen.sh first
+./autogen.sh
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error running autogen.sh for libffi"
+    exit $retVal
+fi
+ 
+./configure --prefix=$SCRIPT_DIR/temp/ffi_lib --enable-shared=no --with-fpic=yes CFLAGS='-fPIC' CPPFLAGS='-fPIC'
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error running configuring for libffi"
+    exit $retVal
+fi
+
+make install
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error building libffi"
+    exit $retVal
+fi
+
+popd
+
+
 cd cpython
 
 echo ""
@@ -103,7 +139,7 @@ echo "--------------- Building cpython from source ---------------"
 echo ""
 
 # Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
-./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../bzip2/install/lib' CPPFLAGS='-I../bzip2/install/include' CFLAGS='-I../temp/bzip2/install/include'
+./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../bzip2/install/lib -L../ffi_lib/lib' CPPFLAGS='-I../bzip2/install/include -I../ffi_lib/include' CFLAGS='-I../temp/bzip2/install/include -I../ffi_lib/include'
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error running configuring optimized build"
