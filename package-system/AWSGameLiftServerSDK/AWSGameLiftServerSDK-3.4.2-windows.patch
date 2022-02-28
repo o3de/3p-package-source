@@ -1,0 +1,35 @@
+diff --git a/cmake/External_boost.cmake b/cmake/External_boost.cmake
+index 6fc990b..81139b6 100644
+--- a/cmake/External_boost.cmake
++++ b/cmake/External_boost.cmake
+@@ -50,6 +50,8 @@ if(use_bat)
+     set(_toolset "msvc-14.0")
+   elseif(MSVC15)
+     set(_toolset "msvc-14.1")
++  elseif(MSVC16)
++    set(_toolset "msvc-14.2")
+   endif()
+ 
+   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+diff --git a/cmake/External_sioclient.cmake b/cmake/External_sioclient.cmake
+index 3333da3..f845030 100644
+--- a/cmake/External_sioclient.cmake
++++ b/cmake/External_sioclient.cmake
+@@ -51,11 +51,10 @@ elseif(WIN32)
+        DEPENDS
+          ${_deps}
+      )
+-     if(MSVC14)
+-        add_custom_command(
+-            TARGET sioclient-src POST_BUILD
+-            COMMAND git pull origin master
+-            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/sioclient/lib/websocketpp"
+-        )
+-    endif(MSVC14)
++    add_custom_command(
++        TARGET sioclient-src POST_BUILD
++        COMMAND git fetch origin
++        COMMAND git merge 56123c87598f8b1dd471be83ca841ceae07f95ba # keep build dependency consistent
++        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/sioclient/lib/websocketpp"
++    )
+ endif(UNIX)
