@@ -71,6 +71,13 @@ The following keys can exist at the root level or the target-platform level:
                             The final args will be (cmake_build_args || cmake_build_args_CONFIG) + cmake_build_args_common
                             `cmake --build (build folder) --config config` will automatically be supplied.
 * extra_files_to_copy   : (optional) a list of pairs of files to copy [source, destination]. 
+
+* cmake_install_filter                    : Optional list of filename patterns to filter what is actually copied to the target package based on
+                                            the 3rd party library's install definition. (For example, a library may install headers and static
+                                            libraries when all you want in the package is just the binary executables). If omitted, then the entire
+                                            install tree will be copied to the target package.
+                                            This field can exist at the root but also at individual platform target level.
+
  
 The following keys can only exist at the target platform level as they describe the specifics for that platform.
 
@@ -81,11 +88,6 @@ The following keys can only exist at the target platform level as they describe 
                                             For common args that should apply to every config, see cmake_generate_args_common above.
 
 * cmake_build_args                        : Additional build args to pass to cmake during the cmake build command
-
-* cmake_install_filter                    : Optional list of filename patterns to filter what is actually copied to the target package based on
-                                            the 3rd party library's install definition. (For example, a library may install headers and static
-                                            libraries when all you want in the package is just the binary executables). If omitted, then the entire
-                                            install tree will be copied to the target package
 
 * custom_build_cmd                        : A list of custom scripts to run to build from the source that was pulled from git. This option is 
                                             mutually exclusive from the cmake_generate_args and cmake_build_args options.
@@ -111,9 +113,6 @@ The following keys can only exist at the target platform level as they describe 
 * custom_additional_libraries             : Any additional dependent system library to include in the find*.cmake file for the library that will 
                                             applied to targets that consume this 3P library during linking
                                             
-* custom_cmake_install                    : Custom flag for certain platforms (ie iOS) that needs the installation arguments applied during the 
-                                            cmake generation, and not to apply the cmake install process
-
 * depends_on_packages                     : list of name of 3-TUPLES of [package name, package hash, subfolder] that 'find' files live in] 
                                             [  ["zlib-1.5.3-rev5",    "some hash", ""],
                                                ["some other package", "some other hash", "subfoldername"], 
@@ -240,6 +239,7 @@ class PackageInfo(object):
         self.cmake_build_args_common = _get_value("cmake_build_args_common", required=False)
         self.build_configs = _get_value("build_configs", required=False, default=['Debug', 'Release'])
         self.extra_files_to_copy = _get_value("extra_files_to_copy", required=False)
+        self.cmake_install_filter = _get_value("cmake_install_filter", required=False, default=[])
         if self.cmake_find_template and self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
         if not self.cmake_find_template and not self.cmake_find_source:
@@ -558,10 +558,9 @@ class BuildInfo(object):
         if not is_multi_config:
             if 'cmake_generate_args_debug' not in self.platform_config and 'cmake_generate_args_release' not in self.platform_config:
                 raise BuildError("Invalid configuration")
-        custom_cmake_install = self.platform_config.get('custom_cmake_install', False)
 
         # Check for the optional install filter
-        cmake_install_filter = self.platform_config.get('cmake_install_filter', None)
+        cmake_install_filter = self.platform_config.get('cmake_install_filter', self.package_info.cmake_install_filter)
         if cmake_install_filter:
             # If there is a custom install filter, then we need to install to another temp folder and copy over based on the filter rules
             install_target_folder = self.base_temp_folder / 'working_install'
@@ -613,8 +612,8 @@ class BuildInfo(object):
 
                 cmake_generate_cmd.extend(cmake_generator_args)
                 
-                if custom_cmake_install:
-                    cmake_generate_cmd.extend([f"-DCMAKE_INSTALL_PREFIX={str(self.build_install_folder.resolve())}"])
+                # make sure it always installs into a prefix (ie, not the system!)
+                cmake_generate_cmd.extend([f"-DCMAKE_INSTALL_PREFIX={str(install_target_folder.resolve())}"])
 
                 call_result = subprocess.run(subp_args(cmake_generate_cmd),
                                              shell=True,
@@ -635,8 +634,6 @@ class BuildInfo(object):
             cmake_build_cmd = [self.cmake_command,
                                '--build', str(self.build_folder.name),
                                '--config', config]
-            if custom_cmake_install:
-                cmake_build_cmd.extend(['--target', 'install'])
 
             cmake_build_cmd.extend(cmake_build_args)
 
@@ -647,17 +644,15 @@ class BuildInfo(object):
             if call_result.returncode != 0:
                 raise BuildError(f"Error building project for platform {self.package_info.platform_name}")
 
-            if not custom_cmake_install:
-                cmake_install_cmd = [self.cmake_command,
-                                     '--install', str(self.build_folder.name),
-                                     '--prefix', str(install_target_folder.resolve()),
-                                     '--config', config]
-                call_result = subprocess.run(subp_args(cmake_install_cmd),
-                                             shell=True,
-                                             capture_output=False,
-                                             cwd=str(self.build_folder.parent.resolve()))
-                if call_result.returncode != 0:
-                    raise BuildError(f"Error installing project for platform {self.package_info.platform_name}")
+            cmake_install_cmd = [self.cmake_command,
+                                    '--install', str(self.build_folder.name),
+                                    '--config', config]
+            call_result = subprocess.run(subp_args(cmake_install_cmd),
+                                            shell=True,
+                                            capture_output=False,
+                                            cwd=str(self.build_folder.parent.resolve()))
+            if call_result.returncode != 0:
+                raise BuildError(f"Error installing project for platform {self.package_info.platform_name}")
 
         if cmake_install_filter:
             # If an install filter was specified, then perform a copy from the intermediate temp install folder
@@ -669,7 +664,6 @@ class BuildInfo(object):
             for glob_result in glob_results:
                 if os.path.isdir(glob_result):
                     continue
-                print(glob_result)
                 source_relative = os.path.relpath(glob_result, source_root_folder)
                 matched = False
                 for pattern in cmake_install_filter:

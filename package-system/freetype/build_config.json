@@ -1,44 +1,102 @@
 {
    "git_url":"https://gitlab.freedesktop.org/freetype/freetype.git",
-   "git_tag":"VER-2-10-4",
+   "git_tag":"VER-2-11-1",
    "package_name":"freetype",
-   "package_version":"2.10.4.16",
+   "package_version":"2.11.1-rev1",
    "package_url":"https://www.freetype.org/",
    "package_license":"FTL",
    "package_license_file":"docs/FTL.TXT",
-   "cmake_find_source":"Findfreetype.cmake",
-   "cmake_find_target":"Findfreetype.cmake",
-   "patch_file":"freetype.patch",
+   "cmake_find_source":"FindFreetype.cmake",
+   "cmake_find_target":"FindFreetype.cmake",
+   "cmake_build_args_common" : [ 
+      "--parallel"
+   ],
+   "cmake_generate_args_common" : [
+      "-DCMAKE_CXX_STANDARD=17",
+      "-DBUILD_SHARED_LIBS=FALSE",
+      "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+      "-DCMAKE_DISABLE_FIND_PACKAGE_ZLIB=FALSE",
+      "-DCMAKE_DISABLE_FIND_PACKAGE_BZip2=TRUE",
+      "-DCMAKE_DISABLE_FIND_PACKAGE_PNG=TRUE",
+      "-DCMAKE_DISABLE_FIND_PACKAGE_HarfBuzz=TRUE",
+      "-DCMAKE_DISABLE_FIND_PACKAGE_BrotliDec=TRUE"
+   ],
+   "cmake_install_filter":[
+      "*.h",
+      "*.lib",
+      "*.TXT",
+      "*.a"
+   ],
+   "build_configs": [
+      "Release"
+   ],
    "Platforms":{
       "Windows":{
          "Windows":{
-            "custom_build_cmd": [
-               "build_package_image.py --platform windows"
-            ]
+            "depends_on_packages" :[ 
+               ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
+            ],
+           
+            "cmake_generate_args": [
+                "-G",
+                "\"Visual Studio 16 2019\""
+            ],
+            "custom_test_cmd" : [
+               "test_Freetype_windows.cmd"
+           ]
          },
          "Android":{
-            "custom_build_cmd": [
-               "build_package_image.py --platform android"
-            ]
+            "depends_on_packages" :[ 
+               ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""]
+            ],
+            "cmake_generate_args" : [
+               "-G",
+               "\"Ninja Multi-Config\"",
+               "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake"
+            ],
+            "custom_test_cmd" : [
+               "test_Freetype_android.cmd"
+           ]
          }
       },
       "Darwin":{
-        "Mac":{
-            "custom_build_cmd": [
-                "python3 build_package_image.py --platform mac"
-            ]
-        },
+         "Mac":{
+            "depends_on_packages" :[ 
+               ["zlib-1.2.11-rev5-mac", "b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096", ""]
+            ],
+            "cmake_generate_args": [
+               "-G", "Xcode",
+               "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
+            ],
+            "custom_test_cmd" : [
+               "./test_Freetype_mac.sh"
+           ]
+         },
         "iOS":{
-            "custom_build_cmd": [
-                "python3 build_package_image.py --platform ios"
-            ]
+            "depends_on_packages" :[ 
+               ["zlib-1.2.11-rev5-ios", "c7f10b4d0fe63192054d926f53b08e852cdf472bc2b18e2f7be5aecac1869f7f", ""]
+            ],
+            "cmake_generate_args": [
+               "-G", "Xcode",
+               "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake"
+            ],
+            "custom_test_cmd" : [
+               "./test_Freetype_ios.sh"
+           ]
         }
       },
       "Linux":{
          "Linux":{
-            "custom_build_cmd": [
-                "python3 build_package_image.py --platform linux"
-             ]
+            "depends_on_packages" :[ 
+               ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
+            ],
+            "cmake_generate_args": [
+               "-G",
+               "\"Ninja Multi-Config\""
+            ],
+            "custom_test_cmd" : [
+               "./test_Freetype_linux.sh"
+           ]
          }
       }
    }
