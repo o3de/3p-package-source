@@ -47,7 +47,7 @@ mkdir -p temp
 
 
 echo ""
-echo "--------------- GIT CLONE python 3.7 ---------------"
+echo "--------------- Cloning python 3.7.12 from git ---------------"
 echo ""
 cd temp
 git clone https://github.com/python/cpython.git --branch v3.7.12 --depth 1
@@ -58,7 +58,7 @@ if [[ ! -d "cpython" ]]; then
 fi
 
 echo ""
-echo "--------------- Cloning expat 2.4.6 from git and applying update ---------------"
+echo "--------------- Cloning libexpat 2.4.6 from git and applying update ---------------"
 echo ""
 git clone https://github.com/libexpat/libexpat.git --branch "R_2_4_6" --depth 1
 

@@ -16,19 +16,6 @@ index 94d40b0..fea685b 100644
  ]
  
  
-diff --git a/Mac/BuildScript/build-installer.py b/Mac/BuildScript/build-installer.py
-index 4fab488..e8a0f5a 100755
---- a/Mac/BuildScript/build-installer.py
-+++ b/Mac/BuildScript/build-installer.py
-@@ -331,7 +331,7 @@ def library_recipes():
-     if getDeptargetTuple() < (10, 5):
-         result.extend([
-           dict(
--              name="Bzip2 1.0.6",
-+              name="Bzip2 1.0.8",
-               url="http://bzip.org/1.0.6/bzip2-1.0.6.tar.gz",
-               checksum='00b516f4704d4a7cb50a1d97e6e8e15b',
-               configure=None,
 diff --git a/PCbuild/_bz2.vcxproj.filters b/PCbuild/_bz2.vcxproj.filters
 index eac64dd..b3fedcf 100644
 --- a/PCbuild/_bz2.vcxproj.filters

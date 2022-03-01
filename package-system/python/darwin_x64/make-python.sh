@@ -69,7 +69,7 @@ if [ $retVal -ne 0 ]; then
 fi
 
 echo ""
-echo "---------------- Cloning expat 2.4.6 from git and applying update ----------------"
+echo "---------------- Cloning libexpat 2.4.6 from git and applying update ----------------"
 echo ""
 git clone https://github.com/libexpat/libexpat.git --branch "R_2_4_6" --depth 1
 if [ $retVal -ne 0 ]; then
