@@ -14,8 +14,8 @@ find_package(Freetype)
 
 add_executable(test_Freetype test_Freetype.c)
 
-# note that we use 3rdParty::TIFF here.  This will ONLY work 
-# if the O3DE version of TIFF is used, which is what we are testing for.
+# note that we use 3rdParty::Freetype here.  This will ONLY work 
+# if the O3DE version of Freetype is used, which is what we are testing for.
 target_link_libraries(test_Freetype PRIVATE 3rdParty::Freetype)
 
 set_target_properties(test_Freetype PROPERTIES
