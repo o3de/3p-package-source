@@ -36,7 +36,7 @@
         "qt-5.15.2-rev5-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/Qt --platform-name Linux --package-root ../../package-system --clean",
         "zlib-1.2.11-rev5-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux --package-root ../../package-system --clean",
         "lz4-1.9.3-vcpkg-rev4-linux": "package-system/lz4/build_package_image.py --platform-name linux",
-        "expat-2.4.2-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/expat --platform-name Linux --package-root ../../package-system/expat/temp --clean"
+        "expat-2.4.2-rev2-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/expat --platform-name Linux --package-root ../../package-system/expat/temp --clean"
     },
     "build_from_folder": {
         "assimp-5.1.6-rev1-linux": "package-system/assimp-linux",
@@ -73,6 +73,6 @@
         "qt-5.15.2-rev5-linux": "package-system/qt-linux",
         "zlib-1.2.11-rev5-linux": "package-system/zlib-linux",
         "lz4-1.9.3-vcpkg-rev4-linux": "package-system/lz4-linux",
-        "expat-2.4.2-rev1-linux": "package-system/expat/temp/expat-linux"
+        "expat-2.4.2-rev2-linux": "package-system/expat/temp/expat-linux"
     }
 }
