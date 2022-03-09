@@ -30,7 +30,7 @@ def main():
     packageSystemDir = Path(__file__).resolve().parents[1]
     opensslPackageSourceDir = packageSystemDir / 'OpenSSL'
     outputDir = packageSystemDir / f'OpenSSL-{args.platformName}'
-    opensslPatch = opensslPackageSourceDir / 'set_openssl_port_to_1_1_1_b.patch'
+    opensslPatch = opensslPackageSourceDir / 'set_openssl_port_to_1_1_1_m.patch'
 
     enableStdioOnIOS = opensslPackageSourceDir / 'enable-stdio-on-iOS.patch'
 
@@ -64,7 +64,7 @@ def main():
         builder.writePackageInfoFile(
             outputDir,
             settings={
-                'PackageName': f'OpenSSL-1.1.1b-rev2-{args.platformName}',
+                'PackageName': f'OpenSSL-1.1.1m-rev1-{args.platformName}',
                 'URL': 'https://github.com/openssl/openssl',
                 'License': 'OpenSSL',
                 'LicenseFile': 'OpenSSL/LICENSE'
