@@ -17,7 +17,7 @@ int main()
     if (png_get_header_ver(0))
     {
         printf("png header version: %s\n", png_get_header_ver(0));
-        printf("test_png: All is OK!");
+        printf("test_png: All is OK!\n");
         return 0;
     }
     printf("Failed to call png_get_header_ver(), error!\n");

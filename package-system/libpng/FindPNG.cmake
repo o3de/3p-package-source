@@ -45,7 +45,21 @@ else()
     target_include_directories(PNG::PNG SYSTEM INTERFACE ${PNG_INCLUDE_DIRS})
 endif()
 
-target_link_libraries(PNG::PNG INTERFACE ZLIB::ZLIB)
+# quietly see if we need to link to libm for pow().  some systems need this, some don't.
+set(ADDITIONAL_SYSTEM_LIB_DEPENDENCIES "")
+
+function(check_if_libm_required output_variable_name) # function scope so that any changes to the environment are reverted
+    include(CheckLibraryExists)
+    set(CMAKE_REQUIRED_QUIET TRUE)
+    check_library_exists(m pow "" LIBM CMAKE_REQUIRED_QUIET)
+    if(LIBM)
+        set(${output_variable_name} "m" PARENT_SCOPE)
+    endif()
+endfunction()
+
+check_if_libm_required(ADDITIONAL_SYSTEM_LIB_DEPENDENCIES)
+
+target_link_libraries(PNG::PNG INTERFACE ZLIB::ZLIB ${ADDITIONAL_SYSTEM_LIB_DEPENDENCIES})
 
 # now that PNG::PNG is fully defined, alias it to 3rdParty::PNG for O3DE:
 add_library(3rdParty::PNG ALIAS PNG::PNG)

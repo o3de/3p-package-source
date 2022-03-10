@@ -104,6 +104,9 @@
                     "-G",
                     "Unix\\ Makefiles",
                     "-DCMAKE_BUILD_TYPE=Release"
+                ],
+                "custom_test_cmd": [
+                    "./test_png_linux.sh"
                 ]
             }
         }
