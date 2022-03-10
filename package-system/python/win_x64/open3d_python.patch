@@ -1,15 +1,95 @@
+diff --git a/Lib/ensurepip/__init__.py b/Lib/ensurepip/__init__.py
+index 94d40b0..fea685b 100644
+--- a/Lib/ensurepip/__init__.py
++++ b/Lib/ensurepip/__init__.py
+@@ -11,11 +11,10 @@ __all__ = ["version", "bootstrap"]
+ 
+ _SETUPTOOLS_VERSION = "47.1.0"
+ 
+-_PIP_VERSION = "20.1.1"
++_PIP_VERSION = "22.0.3"
+ 
+ _PROJECTS = [
+-    ("setuptools", _SETUPTOOLS_VERSION, "py3"),
+-    ("pip", _PIP_VERSION, "py2.py3"),
++    ("setuptools", _SETUPTOOLS_VERSION, "py3")
+ ]
+ 
+ 
+diff --git a/PCbuild/_bz2.vcxproj.filters b/PCbuild/_bz2.vcxproj.filters
+index eac64dd..b3fedcf 100644
+--- a/PCbuild/_bz2.vcxproj.filters
++++ b/PCbuild/_bz2.vcxproj.filters
+@@ -4,10 +4,10 @@
+     <Filter Include="Source Files">
+       <UniqueIdentifier>{f53a859d-dad2-4d5b-ae41-f28d8b571f5a}</UniqueIdentifier>
+     </Filter>
+-    <Filter Include="bzip2 1.0.6 Header Files">
++    <Filter Include="bzip2 1.0.8 Header Files">
+       <UniqueIdentifier>{7e0bed05-ae33-43b7-8797-656455bbb7f3}</UniqueIdentifier>
+     </Filter>
+-    <Filter Include="bzip2 1.0.6 Source Files">
++    <Filter Include="bzip2 1.0.8 Source Files">
+       <UniqueIdentifier>{ed574b89-6983-4cdf-9f98-fe7048d9e89c}</UniqueIdentifier>
+     </Filter>
+   </ItemGroup>
+@@ -16,33 +16,33 @@
+       <Filter>Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\blocksort.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\bzlib.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\compress.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\crctable.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\decompress.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\huffman.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+     <ClCompile Include="$(bz2Dir)\randtable.c">
+-      <Filter>bzip2 1.0.6 Source Files</Filter>
++      <Filter>bzip2 1.0.8 Source Files</Filter>
+     </ClCompile>
+   </ItemGroup>
+   <ItemGroup>
+     <ClInclude Include="$(bz2Dir)\bzlib.h">
+-      <Filter>bzip2 1.0.6 Header Files</Filter>
++      <Filter>bzip2 1.0.8 Header Files</Filter>
+     </ClInclude>
+     <ClInclude Include="$(bz2Dir)\bzlib_private.h">
+-      <Filter>bzip2 1.0.6 Header Files</Filter>
++      <Filter>bzip2 1.0.8 Header Files</Filter>
+     </ClInclude>
+   </ItemGroup>
+ </Project>
 diff --git a/PCbuild/get_externals.bat b/PCbuild/get_externals.bat
-index 38fc275..a2fc80e 100644
+index 38fc275..59d7a73 100644
 --- a/PCbuild/get_externals.bat
 +++ b/PCbuild/get_externals.bat
-@@ -49,10 +49,10 @@ echo.Fetching external libraries...
+@@ -48,11 +48,11 @@ if NOT DEFINED PYTHON (
+ echo.Fetching external libraries...
  
  set libraries=
- set libraries=%libraries%                                       bzip2-1.0.6
+-set libraries=%libraries%                                       bzip2-1.0.6
 -if NOT "%IncludeSSLSrc%"=="false" set libraries=%libraries%     openssl-1.1.1g
 -set libraries=%libraries%                                       sqlite-3.31.1.0
 -if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tcl-core-8.6.9.0
 -if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tk-8.6.9.0
++set libraries=%libraries%                                       bzip2-1.0.8
 +if NOT "%IncludeSSLSrc%"=="false" set libraries=%libraries%     openssl-1.1.1m
 +set libraries=%libraries%                                       sqlite-3.37.2.0
 +if NOT "%IncludeTkinterSrc%"=="false" set libraries=%libraries% tcl-core-8.6.12.0
@@ -29,7 +109,7 @@ index 38fc275..a2fc80e 100644
  
  for %%b in (%binaries%) do (
 diff --git a/PCbuild/python.props b/PCbuild/python.props
-index 1034e7f..b74977d 100644
+index 1034e7f..df0911a 100644
 --- a/PCbuild/python.props
 +++ b/PCbuild/python.props
 @@ -46,11 +46,11 @@
@@ -37,8 +117,9 @@ index 1034e7f..b74977d 100644
      <ExternalsDir Condition="$(ExternalsDir) == ''">$([System.IO.Path]::GetFullPath(`$(PySourcePath)externals`))</ExternalsDir>
      <ExternalsDir Condition="!HasTrailingSlash($(ExternalsDir))">$(ExternalsDir)\</ExternalsDir>
 -    <sqlite3Dir>$(ExternalsDir)sqlite-3.31.1.0\</sqlite3Dir>
+-    <bz2Dir>$(ExternalsDir)bzip2-1.0.6\</bz2Dir>
 +    <sqlite3Dir>$(ExternalsDir)sqlite-3.37.2.0\</sqlite3Dir>
-     <bz2Dir>$(ExternalsDir)bzip2-1.0.6\</bz2Dir>
++    <bz2Dir>$(ExternalsDir)bzip2-1.0.8\</bz2Dir>
      <lzmaDir>$(ExternalsDir)xz-5.2.2\</lzmaDir>
 -    <opensslDir>$(ExternalsDir)openssl-1.1.1g\</opensslDir>
 -    <opensslOutDir>$(ExternalsDir)openssl-bin-1.1.1g\$(ArchName)\</opensslOutDir>
@@ -47,6 +128,19 @@ index 1034e7f..b74977d 100644
      <opensslIncludeDir>$(opensslOutDir)include</opensslIncludeDir>
      <nasmDir>$(ExternalsDir)\nasm-2.11.06\</nasmDir>
      <zlibDir>$(ExternalsDir)\zlib-1.2.11\</zlibDir>
+diff --git a/PCbuild/readme.txt b/PCbuild/readme.txt
+index 9c521fa..5e57a95 100644
+--- a/PCbuild/readme.txt
++++ b/PCbuild/readme.txt
+@@ -157,7 +157,7 @@ interpreter, but they do implement several major features.  See the
+ about getting the source for building these libraries.  The sub-projects
+ are:
+ _bz2
+-    Python wrapper for version 1.0.6 of the libbzip2 compression library
++    Python wrapper for version 1.0.8 of the libbzip2 compression library
+     Homepage:
+         http://www.bzip.org/
+ _lzma
 diff --git a/PCbuild/tcltk.props b/PCbuild/tcltk.props
 index b185cb7..a901998 100644
 --- a/PCbuild/tcltk.props

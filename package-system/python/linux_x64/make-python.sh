@@ -12,18 +12,18 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 
 echo ""
-echo "------ BUILDING PYTHON FROM SOURCE ------"
+echo "--------------- PYTHON PACKAGE BUILD SCRIPT ----------------"
 echo ""
 echo "BASIC REQUIREMENTS in case something goes wrong:"
 echo "   - git installed and in PATH"
-echo "   - packages installed: apt-get dev-essential tk8.6-dev python3 libssl-dev tcl8.6-dev libbz2-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev"
+echo "   - packages installed: apt-get dev-essential tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev texinfo"
 echo "   - python3 with pip in PATH! (i.e. sudo apt install python3 and sudo apt install python3-pip"
 echo "   - Note: This script is currently written for buildng on Ubuntu Linux only."
 echo "   - Note: installing binaries with pip must result with them being on PATH."
 echo ""
 
 # Make sure we have all the required dev packages
-REQUIRED_DEV_PACKAGES="tk8.6-dev python3 libssl-dev tcl8.6-dev libbz2-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev"
+REQUIRED_DEV_PACKAGES="tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev texinfo"
 ALL_PACKAGES=`apt list 2>/dev/null`
 for req_package in $REQUIRED_DEV_PACKAGES
 do
@@ -46,7 +46,9 @@ echo ""
 mkdir -p temp
 
 
-echo ------------------------ GIT CLONE python 3.7 --------------------
+echo ""
+echo "--------------- Cloning python 3.7.12 from git ---------------"
+echo ""
 cd temp
 git clone https://github.com/python/cpython.git --branch v3.7.12 --depth 1
 
@@ -54,10 +56,90 @@ if [[ ! -d "cpython" ]]; then
     echo "Was unable to create cpython dir via git clone.  Is git installed?"
     exit 1
 fi
+
+echo ""
+echo "--------------- Cloning libexpat 2.4.6 from git and applying update ---------------"
+echo ""
+git clone https://github.com/libexpat/libexpat.git --branch "R_2_4_6" --depth 1
+
+if [[ ! -d "libexpat" ]]; then
+    echo "Was unable to create libexpat dir via git clone.  Is git installed?"
+    exit 1
+fi
+
+cp -f -v libexpat/expat/lib/*.h cpython/Modules/expat/
+cp -f -v libexpat/expat/lib/*.c cpython/Modules/expat/
+
+
+echo ""
+echo "--------------- Cloning bzip2 1.0.8 and building ---------------"
+echo ""
+git clone git://sourceware.org/git/bzip2.git --branch "bzip2-1.0.8" --depth 1
+if [[ ! -d "bzip2" ]]; then
+    echo "Was unable to create bzip2 dir via git clone.  Is git installed?"
+    exit 1
+fi
+
+pushd bzip2
+
+PATCH_FILE=$SCRIPT_DIR/open3d_bzip2.patch
+echo Applying patch file $PATCH_FILE
+git apply --ignore-whitespace $PATCH_FILE
+if [ $retVal -ne 0 ]; then
+    echo "Git apply failed"
+    exit $retVal
+fi
+
+make bzip2
+
+make install PREFIX=install
+
+popd
+
+echo ""
+echo "--------------- Cloning libffi 1.0.8 and building static version ---------------"
+echo ""
+git clone https://github.com/libffi/libffi.git --branch "v3.4.2" --depth 1
+if [[ ! -d "libffi" ]]; then
+    echo "Was unable to create libffi dir via git clone."
+    exit 1
+fi
+
+pushd libffi
+
+# According to the README.md for libffi, we need to run autogen.sh first
+./autogen.sh
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error running autogen.sh for libffi"
+    exit $retVal
+fi
+ 
+./configure --prefix=$SCRIPT_DIR/temp/ffi_lib --enable-shared=no --with-fpic=yes CFLAGS='-fPIC' CPPFLAGS='-fPIC'
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error running configuring for libffi"
+    exit $retVal
+fi
+
+make install
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error building libffi"
+    exit $retVal
+fi
+
+popd
+
+
 cd cpython
 
-# Build from the source with optimizations and shared libs enabled , and override the RPATH
-./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../..'
+echo ""
+echo "--------------- Building cpython from source ---------------"
+echo ""
+
+# Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
+./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../bzip2/install/lib -L../ffi_lib/lib' CPPFLAGS='-I../bzip2/install/include -I../ffi_lib/include' CFLAGS='-I../temp/bzip2/install/include -I../ffi_lib/include'
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error running configuring optimized build"
@@ -98,7 +180,9 @@ cd $SCRIPT_DIR/package/python/bin
 ln -s python3 python
 cd $SCRIPT_DIR/package
 
-echo "----------------------------- Upgrading pip ----------------"
+echo ""
+echo "--------------- Upgrading pip ---------------"
+echo ""
 # the pip that may come from the above repo can be broken, so we'll use get-pip
 # and then upgrade it.
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
@@ -124,8 +208,16 @@ sed -i "2i\\
 echo "Removing wininst*.exe files"
 rm -v $SCRIPT_DIR/package/python/lib/python3.7/distutils/command/wininst-*.exe
 
+echo "Removing out of date pip*.whl"
+rm -v $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/_bundled/pip-*.whl
+
+echo "Removing pip references from ensurepip"
+cat $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py_temp
+rm $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py
+mv $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py
+
 echo ""
-echo "------ PYTHON WAS BUILT FROM SOURCE -----"
+echo "--------------- PYTHON WAS BUILT FROM SOURCE ---------------"
 echo ""
 
 echo "Package has completed building, and is now in $SCRIPT_DIR/package"
