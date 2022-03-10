@@ -48,7 +48,7 @@
         "googlebenchmark-1.5.0-rev2-linux": "package-system/googlebenchmark-linux",
         "googletest-1.8.1-rev4-linux": "package-system/googletest-linux",
         "ISPCTexComp-36b80aa-rev1-linux": "package-system/ISPCTexComp-linux",
-        "png-1.6.37-rev1-linux": "package-system/libpng/temp/libpng-linux",
+        "png-1.6.37-rev1-linux": "package-system/libpng/temp/png-linux",
         "libsamplerate-0.2.1-rev2-linux": "package-system/libsamplerate-linux",
         "mcpp-2.7.2_az.1-rev1-linux": "package-system/mcpp-linux",
         "OpenMesh-8.1-rev3-linux": "package-system/OpenMesh-linux",

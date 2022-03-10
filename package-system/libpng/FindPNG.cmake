@@ -56,5 +56,5 @@ set(PNG_FOUND TRUE)
 # A good way to know if you're in O3DE or not is that O3DE sets various cache variables before 
 # calling find_package, specifically, LY_VERSION_ENGINE_NAME is always set very early:
 if (NOT LY_VERSION_ENGINE_NAME)
-    message(STATUS "Using the O3DE version of the TIFF library from ${CMAKE_CURRENT_LIST_DIR}")
+    message(STATUS "Using the O3DE version of the PNG library from ${CMAKE_CURRENT_LIST_DIR}")
 endif()

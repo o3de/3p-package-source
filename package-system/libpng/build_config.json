@@ -38,6 +38,9 @@
                 "cmake_generate_args_release": [
                     "-G",
                     "\"Visual Studio 16 2019\""
+                ],
+                "custom_test_cmd": [
+                    "test_png_windows.cmd"
                 ]
             },
             "Android":{
@@ -53,6 +56,9 @@
                 "cmake_build_args_release" : [
                     "--target",
                     "png_static"
+                ],
+                "custom_test_cmd": [
+                    "test_png_android.cmd"
                 ]
             }
         },
