@@ -71,16 +71,14 @@ def main():
             },
         )
 
-        extraLibs = []
-        compileDefs = []
+        crypto_library_dependencies = ''
         if args.platformName == 'windows':
-            extraLibs.append('crypt32.lib')
+            crypto_library_dependencies = 'crypt32.lib ws2_32.lib'
         builder.writeCMakeFindFile(
             outputDir,
             template=cmakeFindFileTemplate,
             templateEnv={
-                'CUSTOM_ADDITIONAL_LIBRARIES':extraLibs,
-                'CUSTOM_ADDITIONAL_COMPILE_DEFINITIONS':compileDefs,
+                'CRYPTO_LIBRARY_DEPENDENCIES':crypto_library_dependencies
             },
         )
 
