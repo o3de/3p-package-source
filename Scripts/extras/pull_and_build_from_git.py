@@ -326,12 +326,12 @@ def delete_folder(folder):
     """
 
     if platform.system() == 'Windows':
-        call_result = subprocess.run(subp_args(['rmdir', '/Q', '/S', str(folder.name)]),
+        call_result = subprocess.run(subp_args(['rmdir', '/Q', '/S', str(folder)]),
                                      shell=True,
                                      capture_output=True,
                                      cwd=str(folder.parent.absolute()))
     else:
-        call_result = subprocess.run(subp_args(['rm', '-rf', str(folder.name)]),
+        call_result = subprocess.run(subp_args(['rm', '-rf', str(folder)]),
                                      shell=True,
                                      capture_output=True,
                                      cwd=str(folder.parent.absolute()))
@@ -450,12 +450,12 @@ class BuildInfo(object):
 
         # Always clean the target package install folder to prevent stale files from being included
         if self.package_install_root.is_dir():
-            delete_folder(self.package_install_root)
+            delete_folder(self.package_install_root.absolute().resolve())
 
         if not self.build_folder.is_dir():
             self.build_folder.mkdir(parents=True)
         elif self.clean_build:
-            delete_folder(self.build_folder)
+            delete_folder(self.build_folder.absolute().resolve())
             self.build_folder.mkdir(parents=True)
 
         if not self.build_install_folder.is_dir():
@@ -483,7 +483,7 @@ class BuildInfo(object):
                                          cwd=str(self.src_folder.absolute()))
             if call_result.returncode != 0:
                 # Not a valid git folder, okay to remove and re-clone
-                delete_folder(self.src_folder)
+                delete_folder(self.src_folder.absolute().resolve())
                 self.clone_to_local()
             else:
                 # Do a re-pull
@@ -564,11 +564,17 @@ class BuildInfo(object):
         if cmake_install_filter:
             # If there is a custom install filter, then we need to install to another temp folder and copy over based on the filter rules
             install_target_folder = self.base_temp_folder / 'working_install'
-            if not install_target_folder.is_dir():
-                install_target_folder.mkdir(parents=True)
         else:
             # Otherwise install directly to the target
             install_target_folder = self.build_install_folder
+
+        install_target_folder = install_target_folder.resolve().absolute()
+
+        if self.clean_build and install_target_folder.is_dir():
+            delete_folder(install_target_folder.absolute().resolve())
+
+        if not install_target_folder.is_dir():
+            install_target_folder.mkdir(parents=True)
 
         can_skip_generate = False
 
@@ -853,7 +859,7 @@ class BuildInfo(object):
 
         # Optionally clean the target package folder first
         if self.clean_build and self.package_install_root.is_dir():
-            delete_folder(self.package_install_root)
+            delete_folder(self.package_install_root.absolute().resolve())
 
         # Prepare the target package folder
         if self.build_install_folder.is_dir():
