@@ -50,7 +50,7 @@ def main():
     with TemporaryDirectory() as tempdir:
         tempdir = Path(tempdir)
         builder = VcpkgBuilder(packageName='OpenSSL', portName='openssl', vcpkgDir=tempdir, targetPlatform=args.platformName, static=useStaticLibsForPlatform[args.platformName])
-        builder.cloneVcpkg('f44fb85b341b8f58815b95c84d8488126b251570')
+        builder.cloneVcpkg('b86c0c35b88e2bf3557ff49dc831689c2f085090')
         builder.bootstrap()
         builder.patch(opensslPatch)
         builder.patch(enableStdioOnIOS)

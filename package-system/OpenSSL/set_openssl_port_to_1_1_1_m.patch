@@ -1,63 +1,36 @@
-From 18884b079e3945b29e4adc3b33a76c19929f9b0a Mon Sep 17 00:00:00 2001
-Date: Tue, 8 Mar 2022 12:31:34 -0800
+From 4fdbcfd46b65c2199e77b88f2478cf21ca19ee3c Mon Sep 17 00:00:00 2001
+Date: Fri, 11 Mar 2022 13:18:47 -0800
 Subject: [PATCH] Set OpenSSL version to 1.1.1m
 
 ---
- ports/openssl-unix/CONTROL    | 2 +-
- ports/openssl-windows/CONTROL | 2 +-
- ports/openssl/CONTROL         | 2 +-
- ports/openssl/portfile.cmake  | 4 ++--
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ ports/openssl-unix/vcpkg.json    | 2 +-
+ ports/openssl-windows/vcpkg.json | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/ports/openssl-unix/CONTROL b/ports/openssl-unix/CONTROL
-index 02553017b..0847df065 100644
---- a/ports/openssl-unix/CONTROL
-+++ b/ports/openssl-unix/CONTROL
-@@ -1,5 +1,5 @@
- Source: openssl-unix
--Version: 1.1.1h
-+Version: 1.1.1m
- Port-Version: 1
- Description: Deprecated OpenSSL port
- Supports: !(windows|uwp)
-diff --git a/ports/openssl-windows/CONTROL b/ports/openssl-windows/CONTROL
-index 0dd8bc462..f181ee8e9 100644
---- a/ports/openssl-windows/CONTROL
-+++ b/ports/openssl-windows/CONTROL
-@@ -1,5 +1,5 @@
- Source: openssl-windows
--Version: 1.1.1h
-+Version: 1.1.1m
- Port-Version: 1
- Description: Deprecated OpenSSL port
- Supports: windows
-diff --git a/ports/openssl/CONTROL b/ports/openssl/CONTROL
-index df1c9ced4..e81d4e449 100644
---- a/ports/openssl/CONTROL
-+++ b/ports/openssl/CONTROL
-@@ -1,4 +1,4 @@
- Source: openssl
--Version: 1.1.1j
-+Version: 1.1.1m
- Homepage: https://www.openssl.org
- Description: OpenSSL is an open source project that provides a robust, commercial-grade, and full-featured toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols. It is also a general-purpose cryptography library.
-diff --git a/ports/openssl/portfile.cmake b/ports/openssl/portfile.cmake
-index cd7884f17..ca7fec287 100644
---- a/ports/openssl/portfile.cmake
-+++ b/ports/openssl/portfile.cmake
-@@ -2,11 +2,11 @@ if(EXISTS "${CURRENT_INSTALLED_DIR}/include/openssl/ssl.h")
-   message(FATAL_ERROR "Can't build openssl if libressl/boringssl is installed. Please remove libressl/boringssl, and try install openssl again if you need it.")
- endif()
- 
--set(OPENSSL_VERSION 1.1.1j)
-+set(OPENSSL_VERSION 1.1.1m)
- vcpkg_download_distfile(ARCHIVE
-     URLS "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" "https://www.openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz"
-     FILENAME "openssl-${OPENSSL_VERSION}.tar.gz"
--    SHA512 51e44995663b5258b0018bdc1e2b0e7e8e0cce111138ca1f80514456af920fce4e409a411ce117c0f3eb9190ac3e47c53a43f39b06acd35b7494e2bec4a607d5
-+    SHA512 ba0ef99b321546c13385966e4a607734df38b96f6ed45c4c67063a5f8d1482986855279797a6920d9f86c2ec31ce3e104dcc62c37328caacdd78aec59aa66156
- )
- 
- vcpkg_find_acquire_program(PERL)
+diff --git a/ports/openssl-unix/vcpkg.json b/ports/openssl-unix/vcpkg.json
+index 16ac635a7..e0694795f 100644
+--- a/ports/openssl-unix/vcpkg.json
++++ b/ports/openssl-unix/vcpkg.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "openssl-unix",
+-  "version-string": "1.1.1h",
++  "version-string": "1.1.1m",
+   "port-version": 2,
+   "description": "Deprecated OpenSSL port",
+   "supports": "!(windows | uwp)",
+diff --git a/ports/openssl-windows/vcpkg.json b/ports/openssl-windows/vcpkg.json
+index 069235b15..be53ad5c2 100644
+--- a/ports/openssl-windows/vcpkg.json
++++ b/ports/openssl-windows/vcpkg.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "openssl-windows",
+-  "version-string": "1.1.1h",
++  "version-string": "1.1.1m",
+   "port-version": 2,
+   "description": "Deprecated OpenSSL port",
+   "supports": "windows",
 -- 
 2.34.0.windows.1
+
