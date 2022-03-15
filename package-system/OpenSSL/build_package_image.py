@@ -22,7 +22,7 @@ def main():
     parser.add_argument(
         '--platform-name',
         dest='platformName',
-        choices=['windows', 'android', 'mac', 'ios', 'linux'],
+        choices=['windows', 'android', 'mac', 'ios'],
         default=VcpkgBuilder.defaultPackagePlatformName(),
     )
     args = parser.parse_args()
@@ -34,13 +34,10 @@ def main():
 
     enableStdioOnIOS = opensslPackageSourceDir / 'enable-stdio-on-iOS.patch'
 
-    cmakeFindFile = opensslPackageSourceDir / f'FindOpenSSL_{args.platformName}.cmake.template'
-    if not cmakeFindFile.exists():
-        cmakeFindFile = opensslPackageSourceDir / 'FindOpenSSL.cmake.template'
+    cmakeFindFile = opensslPackageSourceDir / 'FindOpenSSL.cmake.template'
     cmakeFindFileTemplate = cmakeFindFile.open().read()
 
     useStaticLibsForPlatform = {
-        'linux': False,
         'android': True,
         'mac': True,
         'ios': True,

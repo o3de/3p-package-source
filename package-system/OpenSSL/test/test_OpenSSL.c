@@ -6,6 +6,7 @@
 */
 
 #include <stdio.h>
+#include <string.h>
 
 // this is just a super basic include and compile and link test
 // it doesn't exercise the library much, but if this compiles and links
