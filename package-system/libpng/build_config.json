@@ -2,7 +2,7 @@
     "git_url": "https://git.code.sf.net/p/libpng/code",
     "git_tag": "v1.6.37",
     "package_name": "png",
-    "package_version": "1.6.37-rev1",
+    "package_version": "1.6.37-rev2",
     "package_url": "http://www.libpng.org/",
     "package_license": "libpng-2.0",
     "package_license_file": "LICENSE",
@@ -15,7 +15,8 @@
         "-DPNG_STATIC=ON",
         "-DCMAKE_POSITION_INDEPENDENT_CODE=TRUE",
         "-DCMAKE_CXX_STANDARD=17",
-        "-DBUILD_SHARED_LIBS=OFF"
+        "-DBUILD_SHARED_LIBS=OFF",
+        "-DPNG_ARM_NEON=on"
     ],
     "cmake_build_args_common": [
         "--parallel"
