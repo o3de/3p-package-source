@@ -3,7 +3,7 @@
     "git_tag": "5.15.1-o3de",
     "git_commit": "b3a1a6947422928e8aecb14ad607199e9720d266",
     "package_name": "qt",
-    "package_version": "5.15.2-rev4",
+    "package_version": "5.15.2-rev7",
     "package_url": "https://www.qt.io/",
     "package_license": "LGPL-3.0",
     "package_license_file": "qt/LICENSE.LGPLv3",
@@ -12,13 +12,15 @@
     "Platforms": {
         "Windows": {
             "Windows": {
+                "patch_file": "qt-image-format-windows.patch",
                 "depends_on_packages": [
-                    ["OpenSSL-1.1.1b-rev2-windows", "9af1c50343f89146b4053101a7aeb20513319a3fe2f007e356d7ce25f9241040", ""]
+                    ["OpenSSL-1.1.1b-rev2-windows", "9af1c50343f89146b4053101a7aeb20513319a3fe2f007e356d7ce25f9241040", ""],
+                    ["tiff-4.2.0.15-rev3-windows", "c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60", ""],
+                    ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
                 ],
                 "custom_build_cmd": [
-                    "install_miniconda.py",
                     "install_windows_extras.py",
-                    "build.bat"
+                    "build-windows.bat"
                 ],
                 "custom_install_cmd": [
                     "copy_platform_cmakes.py"
@@ -27,9 +29,13 @@
         },
         "Darwin": {
             "Mac": {
-                "package_version": "5.15.2-rev5",
+                "patch_file": "qt-image-format.patch",
+                "depends_on_packages": [
+                    ["tiff-4.2.0.15-rev3-mac", "c2615ccdadcc0e1d6c5ed61e5965c4d3a82193d206591b79b805c3b3ff35a4bf", ""],
+                    ["zlib-1.2.11-rev5-mac", "b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096", ""]
+                ],
                 "custom_build_cmd": [
-                    "./build.sh"
+                    "./build-darwin.sh"
                 ],
                 "custom_install_cmd": [
                     "{python} copy_platform_cmakes.py"
@@ -38,9 +44,13 @@
         },
         "Linux": {
             "Linux": {
-                "package_version": "5.15.2-rev5",
+                "patch_file": "qt-image-format.patch",
+                "depends_on_packages": [
+                    ["tiff-4.2.0.15-rev3-linux", "2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a", ""],
+                    ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
+                ],
                 "custom_build_cmd": [
-                    "./build.sh"
+                    "./build-linux.sh"
                 ],
                 "custom_install_cmd": [
                     "{python} copy_platform_cmakes.py"
