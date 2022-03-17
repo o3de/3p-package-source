@@ -319,24 +319,45 @@ def validate_patch():
     version_result = version_result_lines[0]
     return version_result
 
+def create_folder(folder):
+    """
+    Handles error checking and messaging for creating a tree of folders.
+    It is assumed that it is okay if the folder exists, but not okay if the 
+    folder is a file.
+    """
+    # wrap it up in a Path so that if a string is passed in, this still works.
+    path_folder = pathlib.Path(folder).resolve(strict=False)
+    if path_folder.is_file():
+        print(f"create_folder expected a folder but found a file: {path_folder}")
+    
+    path_folder.mkdir(parents=True, exist_ok=True)
+
 
 def delete_folder(folder):
     """
-    Use the system's remove folder command instead of os.rmdir
+    Use the system's remove folder command instead of os.rmdir().
+    This function does various checks before trying, to avoid having to do those
+    checks over and over in code.
     """
-
+    # wrap it up in a Path so that if a string is passed in, this still works.
+    path_folder = pathlib.Path(folder).resolve(strict=False)
+    if path_folder.is_file():
+        print(f"Expected a folder, but found a file: {path_folder}")
+    if not path_folder.is_dir():
+        return
+    
     if platform.system() == 'Windows':
-        call_result = subprocess.run(subp_args(['rmdir', '/Q', '/S', str(folder)]),
+        call_result = subprocess.run(subp_args(['rmdir', '/Q', '/S', str(path_folder)]),
                                      shell=True,
                                      capture_output=True,
-                                     cwd=str(folder.parent.absolute()))
+                                     cwd=str(path_folder.parent.resolve()))
     else:
-        call_result = subprocess.run(subp_args(['rm', '-rf', str(folder)]),
+        call_result = subprocess.run(subp_args(['rm', '-rf', str(path_folder)]),
                                      shell=True,
                                      capture_output=True,
-                                     cwd=str(folder.parent.absolute()))
+                                     cwd=str(path_folder.parent.resolve()))
     if call_result.returncode != 0:
-        raise BuildError(f"Unable to delete folder {str(folder)}: {str(call_result.stderr)}")
+        raise BuildError(f"Unable to delete folder {str(path_folder)}: {str(call_result.stderr)}")
 
 
 def validate_args(input_args):
@@ -449,17 +470,15 @@ class BuildInfo(object):
         """
 
         # Always clean the target package install folder to prevent stale files from being included
-        if self.package_install_root.is_dir():
-            delete_folder(self.package_install_root.absolute().resolve())
+        delete_folder(self.package_install_root)
+        delete_folder(self.build_install_folder)
 
-        if not self.build_folder.is_dir():
-            self.build_folder.mkdir(parents=True)
-        elif self.clean_build:
-            delete_folder(self.build_folder.absolute().resolve())
-            self.build_folder.mkdir(parents=True)
+        if self.clean_build:
+            delete_folder(self.build_folder)
 
-        if not self.build_install_folder.is_dir():
-            self.build_install_folder.mkdir(parents=True)
+        create_folder(self.build_folder)
+        create_folder(self.package_install_root)
+        create_folder(self.build_install_folder)
 
     def sync_source(self):
         """
@@ -480,10 +499,10 @@ class BuildInfo(object):
             call_result = subprocess.run(subp_args(git_pull_cmd),
                                          shell=True,
                                          capture_output=True,
-                                         cwd=str(self.src_folder.absolute()))
+                                         cwd=str(self.src_folder.resolve()))
             if call_result.returncode != 0:
                 # Not a valid git folder, okay to remove and re-clone
-                delete_folder(self.src_folder.absolute().resolve())
+                delete_folder(self.src_folder)
                 self.clone_to_local()
             else:
                 # Do a re-pull
@@ -492,7 +511,7 @@ class BuildInfo(object):
                 call_result = subprocess.run(subp_args(git_pull_cmd),
                                              shell=True,
                                              capture_output=True,
-                                             cwd=str(self.src_folder.absolute()))
+                                             cwd=str(self.src_folder.resolve()))
                 if call_result.returncode != 0:
                     raise BuildError(f"Error pulling source from GitHub: {call_result.stderr.decode('UTF-8', 'ignore')}")
         else:
@@ -568,13 +587,12 @@ class BuildInfo(object):
             # Otherwise install directly to the target
             install_target_folder = self.build_install_folder
 
-        install_target_folder = install_target_folder.resolve().absolute()
+        install_target_folder = install_target_folder.resolve()
 
-        if self.clean_build and install_target_folder.is_dir():
-            delete_folder(install_target_folder.absolute().resolve())
+        if self.clean_build:
+            delete_folder(install_target_folder)
 
-        if not install_target_folder.is_dir():
-            install_target_folder.mkdir(parents=True)
+        create_folder(install_target_folder)
 
         can_skip_generate = False
 
@@ -680,8 +698,7 @@ class BuildInfo(object):
                 if matched:
                     target_path = self.build_install_folder / source_relative
                     target_folder_path = target_path.parent
-                    if not target_folder_path.is_dir():
-                        target_folder_path.mkdir(parents=True)
+                    create_folder(target_folder_path)
                     shutil.copy2(glob_result, str(target_folder_path.resolve()), follow_symlinks=False)
 
     def create_custom_env(self):
@@ -858,13 +875,12 @@ class BuildInfo(object):
         assert self.prebuilt_args
 
         # Optionally clean the target package folder first
-        if self.clean_build and self.package_install_root.is_dir():
-            delete_folder(self.package_install_root.absolute().resolve())
+        if self.clean_build:
+            delete_folder(self.package_install_root)
 
         # Prepare the target package folder
-        if self.build_install_folder.is_dir():
-            shutil.rmtree(str(self.build_install_folder))
-        self.build_install_folder.mkdir(parents=True)
+        delete_folder(self.build_install_folder)
+        create_folder(self.build_install_folder)
 
         prebuilt_source_path = (self.base_folder.resolve() / self.prebuilt_source).resolve()
         target_base_package_path = self.build_install_folder.resolve()
@@ -880,9 +896,10 @@ class BuildInfo(object):
 
             # Make sure the specified target folder exists
             target_base_folder_path = target_base_package_path / dest_path
-            if not target_base_folder_path.is_dir():
-                target_base_folder_path.mkdir(parents=True)
-
+            if target_base_folder_path.is_file():
+                raise BuildError(f'Error: Target folder {target_base_folder_path} is a file')
+            create_folder(target_base_folder_path)
+           
             total_copied = 0
 
             # For each search pattern, run a glob
@@ -893,8 +910,7 @@ class BuildInfo(object):
                 source_relative = os.path.relpath(glob_result, source_base_folder_path)
                 target_path = target_base_folder_path / source_relative
                 target_folder_path = target_path.parent
-                if not target_folder_path.is_dir():
-                    target_folder_path.mkdir(parents=True)
+                create_folder(target_folder_path)
                 shutil.copy2(glob_result, str(target_folder_path.resolve()), follow_symlinks=False)
                 total_copied += 1
             print(f"{total_copied} files copied to {target_base_folder_path}")

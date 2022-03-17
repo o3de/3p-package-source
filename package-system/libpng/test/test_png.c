@@ -9,7 +9,7 @@
 // Doesn't test much else about it.  Can be expanded if this becomes a problem in the
 // future.
 
-   #include <png.h>
+#include <png.h>
 #include <stdio.h>
 
 int main()
