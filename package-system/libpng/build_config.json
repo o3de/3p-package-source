@@ -1,67 +1,113 @@
 {
     "git_url": "https://git.code.sf.net/p/libpng/code",
     "git_tag": "v1.6.37",
-    "package_name": "libpng",
-    "package_version": "1.6.37-rev1",
+    "package_name": "png",
+    "package_version": "1.6.37-rev2",
     "package_url": "http://www.libpng.org/",
     "package_license": "libpng-2.0",
     "package_license_file": "LICENSE",
-    "cmake_find_source": "Findlibpng.cmake",
-    "cmake_find_target": "Findlibpng.cmake",
+    "cmake_find_source": "FindPNG.cmake",
+    "cmake_find_target": "FindPNG.cmake",
+    "cmake_generate_args_common" : [
+        "-DPNG_SHARED=OFF",
+        "-DPNG_TESTS=OFF",
+        "-DPNG_DEBUG=OFF",
+        "-DPNG_STATIC=ON",
+        "-DCMAKE_POSITION_INDEPENDENT_CODE=TRUE",
+        "-DCMAKE_CXX_STANDARD=17",
+        "-DBUILD_SHARED_LIBS=OFF",
+        "-DPNG_ARM_NEON=on"
+    ],
+    "cmake_build_args_common": [
+        "--parallel"
+    ],
+    "build_configs":[
+        "Release"
+    ],
+    "cmake_install_filter" : [
+        "*.h",
+        "*.a",
+        "*.lib",
+        "LICENSE"
+      ],
     "Platforms": {
         "Windows": {
             "Windows": {
-                "cmake_generate_args": [
-                    "-DZLIB_ROOT=../../zlib-windows/zlib",
-                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
-                    "-DPNG_SHARED=OFF",
-                    "-DPNG_TESTS=OFF",
-                    "-DPNG_DEBUG=OFF"
+                "depends_on_packages" :[ 
+                    ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
+                ],
+                "cmake_generate_args_release": [
+                    "-G",
+                    "\"Visual Studio 16 2019\""
+                ],
+                "custom_test_cmd": [
+                    "test_png_windows.cmd"
                 ]
             },
             "Android":{
-                "custom_build_cmd" : [
-                    "build_libpng_android.cmd"
+                "depends_on_packages" :[ 
+                    ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""]
                 ],
-                "custom_install_cmd": [
-                    "install_libpng_android.cmd"
+                "cmake_generate_args_release": [
+                    "-G",
+                    "Ninja",
+                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake",
+                    "-DCMAKE_BUILD_TYPE=Release"
+                ],
+                "cmake_build_args_release" : [
+                    "--target",
+                    "png_static"
+                ],
+                "custom_test_cmd": [
+                    "test_png_android.cmd"
                 ]
             }
         },
         "Darwin": {
             "Mac": {
-                "cmake_generate_args": [
-                    "-DZLIB_ROOT=../../zlib-mac/zlib",
-                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
-                    "-DPNG_SHARED=OFF",
-                    "-DPNG_TESTS=OFF",
-                    "-DPNG_DEBUG=OFF"
+                "depends_on_packages" :[ 
+                    ["zlib-1.2.11-rev5-mac", "b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096", ""]
+                ],
+                "cmake_generate_args_release": [
+                    "-G",
+                    "Xcode",
+                    "-DDCMAKE_MACOSX_BUNDLE=OFF",
+                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake",
+                    "-T",
+                    "buildsystem=1"
+                ],
+                "custom_test_cmd": [
+                    "./test_png_mac.sh"
                 ]
             },
             "iOS": {
-                "cmake_generate_args": [
-                    "-DZLIB_ROOT=../../zlib-ios/zlib",
-                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
-                    "-DPNG_SHARED=OFF",
-                    "-DPNG_TESTS=OFF",
-                    "-DPNG_DEBUG=OFF",
-                    "-DCMAKE_SYSTEM_PROCESSOR=arm",
-                    "-DPNG_ARM_NEON=on",
-                    "-DCMAKE_SYSTEM_NAME=iOS",
-                    "-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0",
-                    "-DCMAKE_OSX_ARCHITECTURES=arm64"
+                "depends_on_packages" :[ 
+                    ["zlib-1.2.11-rev5-ios", "c7f10b4d0fe63192054d926f53b08e852cdf472bc2b18e2f7be5aecac1869f7f", ""]
+                ],
+                "cmake_generate_args_release": [
+                    "-G",
+                    "Xcode",
+                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake",
+                    "-T",
+                    "buildsystem=1"
+                ],
+                "custom_test_cmd": [
+                    "./test_png_ios.sh"
                 ]
             }
         },
         "Linux": {
             "Linux": {
-                "cmake_generate_args": [
-                    "-DZLIB_ROOT=../../zlib-linux/zlib",
-                    "-DCMAKE_POLICY_DEFAULT_CMP0074=NEW",
-                    "-DCMAKE_POSITION_INDEPENDENT_CODE=1",
-                    "-DPNG_SHARED=OFF",
-                    "-DPNG_TESTS=OFF",
-                    "-DPNG_DEBUG=OFF"
+                "depends_on_packages" :[ 
+                    ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
+                ],
+                "cmake_generate_args_release": [
+                    "-G",
+                    "Unix\\ Makefiles",
+                    "-DCMAKE_BUILD_TYPE=Release"
+                ],
+                "custom_test_cmd": [
+                    "./test_png_linux.sh"
                 ]
             }
         }

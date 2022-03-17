@@ -1,2 +1,1 @@
-Before building libpng, you must build the zlib package using build_package.py. For example:
-d:\o3de-repos\o3de\python\python ..\3p-package-scripts\o3de_package_scripts\build_package.py --search_path . zlib-1.2.11-rev1-windows
+To build libpng, make sure you have 'awk' installed on Mac and Linux.
