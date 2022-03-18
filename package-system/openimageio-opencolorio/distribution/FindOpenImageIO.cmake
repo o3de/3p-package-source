@@ -24,11 +24,10 @@ endif()
 
 # todo: FIX THIS
 if (NOT TARGET PNG::PNG)
-    set(CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/../dependencies/libpng-1.6.37-mac/libpng;${CMAKE_PREFIX_PATH}")
     if (COMMAND ly_download_associated_package)
         ly_download_associated_package(PNG)
     endif()
-    find_package(PNG MODULE)
+    find_package(PNG)
 endif()
 
 if (NOT TARGET Imath::Imath)
@@ -37,7 +36,6 @@ if (NOT TARGET Imath::Imath)
     endif()
     find_package(Imath)
 endif()
-
 
 if (NOT TARGET Freetype::Freetype)
     if (COMMAND ly_download_associated_package)
@@ -60,15 +58,12 @@ if (NOT TARGET TIFF::TIFF)
     find_package(TIFF)
 endif()
 
-
 if (NOT TARGET expat::expat)
     if (COMMAND ly_download_associated_package)
         ly_download_associated_package(expat)
     endif()
     find_package(expat)
 endif()
-
-find_package(expat)
 
 # the following block sets the variables that are expected
 # if you were to use the built-in CMake FindOpenImageIO.cmake
@@ -122,6 +117,14 @@ else()
     target_include_directories(OpenImageIO::OpenImageIO SYSTEM INTERFACE ${OpenImageIO_INCLUDE_DIR})
 endif()
 
+#only windows ships with debug libraries:
+if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+    set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES 
+        IMPORTED_LOCATION_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
+        IMPORTED_LOCATION_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
+
 # alias the OpenImageIO library to the O3DE 3rdParty library
 add_library(3rdParty::OpenImageIO ALIAS OpenImageIO::OpenImageIO)
 add_library(3rdParty::OpenImageIO_Util ALIAS OpenImageIO::OpenImageIO_Util)
@@ -131,7 +134,7 @@ add_library(3rdParty::OpenImageIO_Util ALIAS OpenImageIO::OpenImageIO_Util)
 # A good way to know if you're in O3DE or not is that O3DE sets various cache variables before 
 # calling find_package, specifically, LY_VERSION_ENGINE_NAME is always set very early:
 if (NOT LY_VERSION_ENGINE_NAME)
-    message(STATUS "Using the O3DE version of the OpenImageIO library from ${CMAKE_CURRENT_LIST_DIR}")
+    message(STATUS "Using O3DE OpenImageIO ${OpenImageIO_VERSION} from ${CMAKE_CURRENT_LIST_DIR}")
 endif()
 
 # OpenImageIO Also includes a number of executables, as well as a python module.
