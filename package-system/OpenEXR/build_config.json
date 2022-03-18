@@ -2,35 +2,64 @@
    "git_url":"https://github.com/AcademySoftwareFoundation/openexr.git",
    "git_tag":"v3.1.3",
    "package_name":"OpenEXR",
-   "package_version":"3.1.3-rev2",
+   "package_version":"3.1.3-rev3",
    "package_url":"https://www.openexr.com/",
    "package_license":"BSD-3-Clause",
    "package_license_file":"LICENSE.md",
    "cmake_find_source":"FindOpenEXR.cmake",
    "cmake_find_target":"FindOpenEXR.cmake",
    "extra_files_to_copy": [
-      ["FindImath.cmake", "FindImath.cmake"]
+      ["FindImath.cmake", "FindImath.cmake"],
+      ["../../Scripts/cmake/o3de_package_utilities.cmake", "o3de_package_utilities.cmake"]
+   ],
+   "cmake_install_filter":[
+      "*.cmake",
+      "*.a",
+      "*.lib",
+      "*.h",
+      "LICENSE.md"
+   ],
+   "cmake_generate_args_common" : [
+      "-DBUILD_TESTING=OFF",
+      "-DOPENEXR_BUILD_EXAMPLES=OFF",
+      "-DOPENEXR_INSTALL_EXAMPLES=OFF",
+      "-DOPENEXR_BUILD_TOOLS=OFF",
+      "-DOPENEXR_INSTALL_TOOLS=OFF",
+      "-DOPENEXR_RUN_FUZZ_TESTS=OFF",
+      "-DBUILD_SHARED_LIBS=OFF",
+      "-DDOCS=OFF",
+      "-DPYTHON=OFF"
    ],
    "Platforms":{
       "Windows":{
          "Windows":{
-            "build_configs" : ["debug", "release"],
+            "build_configs" : ["Debug", "Release"],
             "depends_on_packages" :[ 
                ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
             ],
             "cmake_generate_args":[
                "-G",
-               "\"Visual Studio 16 2019\"",
-               "-DBUILD_TESTING=OFF",
-               "-DOPENEXR_INSTALL_EXAMPLES=OFF",
-               "-DOPENEXR_BUILD_TOOLS=OFF",
-               "-DBUILD_SHARED_LIBS=OFF",
-               "-DCMAKE_INSTALL_PREFIX=\"../../openexr-windows/OpenEXR\""
+               "\"Visual Studio 16 2019\""
             ],
             "custom_test_cmd" : [
                "test_openexr_windows.cmd"
             ]
-         }
+         },
+         "Android": {
+            "depends_on_packages" :[ 
+               ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""]
+            ],
+            "build_configs" : ["Release"],
+            "cmake_generate_args_release": [
+                "-G",
+                "Ninja",
+                "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake",
+                "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "custom_test_cmd" : [
+                "test_openexr_android.cmd"
+              ]
+        }
       },
       "Darwin":{
          "Mac":{
@@ -41,36 +70,40 @@
             "custom_toolchain_file" : "../cmake/Platform/Mac/Toolchain_mac.cmake",
             "cmake_generate_args_release": [
                "-G",
-               "Xcode",
-               "-DBUILD_TESTING=OFF",
-               "-DBUILD_SHARED_LIBS=OFF",
-               "-DOPENEXR_INSTALL_EXAMPLES=OFF",
-               "-DOPENEXR_INSTALL_TOOLS=OFF",
-               "-DDOCS=OFF",
-               "-DPYTHON=OFF",
-               "-DCMAKE_INSTALL_PREFIX=\"../../OpenEXR-mac/OpenEXR\"",
-               "-DCMAKE_BUILD_TYPE=Release"
+               "Xcode"
             ],
             "custom_test_cmd" : [
                "./test_openexr_mac.sh"
+            ]
+         },
+         "iOS":{
+            "build_configs" : ["Release"],
+            "depends_on_packages" :[ 
+               ["zlib-1.2.11-rev5-ios", "c7f10b4d0fe63192054d926f53b08e852cdf472bc2b18e2f7be5aecac1869f7f", ""]
+            ],
+            "custom_toolchain_file" : "../cmake/Platform/iOS/Toolchain_ios.cmake",
+            "cmake_generate_args_release": [
+               "-G",
+               "Xcode"
+            ],
+            "custom_test_cmd" : [
+               "./test_openexr_ios.sh"
             ]
          }
       },
       "Linux":{
          "Linux":{
-            "build_configs" : ["Release"],
+            "build_configs" : ["release"],
             "depends_on_packages" :[ 
                 ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
            ],
             "cmake_generate_args_release":[
                "-G",
                "Ninja",
-               "-DBUILD_TESTING=OFF",
-               "-DOPENEXR_RUN_FUZZ_TESTS=OFF",
-               "-DOPENEXR_INSTALL_EXAMPLES=OFF",
-               "-DOPENEXR_BUILD_TOOLS=OFF",
-               "-DBUILD_SHARED_LIBS=OFF",
-               "-DCMAKE_INSTALL_PREFIX=\"../../openexr-linux/OpenEXR\""
+               "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "custom_test_cmd" : [
+               "./test_openexr_linux.sh"
             ]
          }
       }
