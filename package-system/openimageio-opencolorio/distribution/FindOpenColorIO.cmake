@@ -29,6 +29,13 @@ set_target_properties(OpenColorIO::OpenColorIO PROPERTIES
     INTERFACE_COMPILE_DEFINITIONS "OIIO_STATIC_DEFINE=1"
 )
 
+# windows has Debug libraries available.
+if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+    set_target_properties(OpenColorIO::OpenColorIO PROPERTIES 
+    IMPORTED_LOCATION_DEBUG ${OpenColorIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenColorIO${CMAKE_STATIC_LIBRARY_SUFFIX})
+endif()
+
+
 target_link_libraries(OpenColorIO::OpenColorIO INTERFACE 
     Imath::Imath
     # private dependencies that we intentionally DO NOT WANT to create friendly targets for:
@@ -54,5 +61,5 @@ add_library(3rdParty::OpenColorIO ALIAS OpenColorIO::OpenColorIO)
 # A good way to know if you're in O3DE or not is that O3DE sets various cache variables before 
 # calling find_package, specifically, LY_VERSION_ENGINE_NAME is always set very early:
 if (NOT LY_VERSION_ENGINE_NAME)
-    message(STATUS "Using the O3DE versionof the OpenColorIO library ${OpenColorIO_VERSION} from ${CMAKE_CURRENT_LIST_DIR}")
+    message(STATUS "Using O3DE OpenColorIO ${OpenColorIO_VERSION} from ${CMAKE_CURRENT_LIST_DIR}")
 endif()

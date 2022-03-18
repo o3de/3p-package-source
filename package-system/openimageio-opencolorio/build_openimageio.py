@@ -78,9 +78,9 @@ dependencies = {
         {
             'zlib' :     ('zlib-1.2.11-rev5-mac',              'b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096'),
             'openexr' :  ('OpenEXR-3.1.3-rev2-mac',            'af8163d3a92ebf8833ebf61589c5f82ba48d8b5fe42e55693ed6248e540609ef'),
-            'python' :   ('python-3.7.12-rev1-darwin',         'fb8292c0ec52cb66676eb14ce7989523ba4b973690319573e5eb78cf221dae4f'),
+            'python' :   ('python-3.7.12-rev2-darwin',         'ee4b77a907e08e3f3e6a08ea6418e8c083c78c20d264b4bc055e50d0db512001'),
             'tiff' :     ('tiff-4.2.0.15-rev3-mac',            'c2615ccdadcc0e1d6c5ed61e5965c4d3a82193d206591b79b805c3b3ff35a4bf'),
-            'libpng' :   ('png-1.6.37-rev1-mac',               '723c64763bed5f9946ed46f00cdc71acb6e6de5caffc6a07388c901c1921b782'),
+            'libpng' :   ('png-1.6.37-rev2-mac',               '515252226a6958c459f53d8598d80ec4f90df33d2f1637104fd1a636f4962f07'),
             'expat' :    ('expat-2.4.2-rev2-mac',              '70f195977a17b08a4dc8687400fd7f2589e3b414d4961b562129166965b6f658'),
             'freetype' : ('freetype-2.11.1-rev1-mac',          'b66107d3499f2e9c072bd88db26e0e5c1b8013128699393c6a8495afca3d2548')
         }
@@ -555,3 +555,9 @@ print(f"Build and test complete!  Folder image created in {final_package_image_r
 
 # TODO:  Add a test for opencolorio to prove it works without other deps.
 # TODO:  Figure out how the deployment of Python PYDs work (mac, linux, windows)
+# TODO:  Extract BOOST and build it for other 3p projects.  VFX PLATFORM is boost 1.76
+# TODO:  Update Pybind11 - need at least the version this is looking for
+# TODO:  OPenEXR Mac OS version update to minos!
+
+# TODO:  Does more than 1 package depend on Boost? yes, potentially
+# TODO:  Does more than 1 package depend on yaml-cpp?  Yes, potentially
