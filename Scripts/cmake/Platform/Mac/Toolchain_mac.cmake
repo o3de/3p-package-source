@@ -12,7 +12,6 @@
 
 set(CMAKE_SYSTEM_NAME Darwin)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "The minimum OSX Version to support" FORCE)
-set(CMAKE_C_FLAGS "-fPIC")
-set(CMAKE_CXX_FLAGS "-fPIC")
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 # cmake will auto-select the rest.
