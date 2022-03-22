@@ -14,7 +14,7 @@
             "Windows": {
                 "patch_file": "qt-image-format-windows.patch",
                 "depends_on_packages": [
-                    ["OpenSSL-1.1.1b-rev2-windows", "9af1c50343f89146b4053101a7aeb20513319a3fe2f007e356d7ce25f9241040", ""],
+                    ["OpenSSL-1.1.1m-rev1-windows", "7d8d3904c70b7da471f777ee788678614a9b20d3ac926b7c0d60ccf2a17c7959", ""],
                     ["tiff-4.2.0.15-rev3-windows", "c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60", ""],
                     ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
                 ],
