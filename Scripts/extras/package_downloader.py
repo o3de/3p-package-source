@@ -21,6 +21,8 @@ import sys
 # used if LY_PACKAGE_SERVER_URLS is not set.
 DEFAULT_LY_PACKAGE_SERVER_URLS = "https://d2c171ws20a1rv.cloudfront.net"
 
+possible_download_errors = (ssl.SSLError, URLError, OSError)
+
 # its not necessarily the case that you ever actually have to use boto3
 # if all the servers you specify in your server list (Default above) are 
 # not s3 buckets.  So it is not a failure to be missing boto3 unless you actually
@@ -31,7 +33,9 @@ try:
     from botocore.exceptions import BotoCoreError
     from botocore.exceptions import ClientError
     _aws_s3_available = True
+    possible_download_errors = (ClientError, BotoCoreError, ssl.SSLError, URLError, OSError)
 except:
+    print("Could not import boto3 (pip install boto3) - downloading from S3 buckets will not function")
     pass
 
 class PackageDownloader(): 
@@ -120,7 +124,7 @@ class PackageDownloader():
                         file_data = server_response.read()
                         with open(package_download_name, "wb") as save_package:
                             save_package.write(file_data)
-            except (ClientError, BotoCoreError, ssl.SSLError, URLError, OSError) as e:
+            except possible_download_errors as e:
                 print(f"        - Unable to get package from this server: {e}")
                 continue # try the next URL, if any...
 
