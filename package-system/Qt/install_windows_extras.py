@@ -33,7 +33,7 @@ try:
         installer_link = dependencies[name]
         file_name = os.path.basename(installer_link)
 
-        # Download the zip (if we haven't already, so that this script can be run iteratively)
+        # Download the zip if needed
         if not os.path.exists(file_name):
             print(f"Downloading {name} from {installer_link}")
 
