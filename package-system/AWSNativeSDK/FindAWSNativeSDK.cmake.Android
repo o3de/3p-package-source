@@ -14,14 +14,27 @@ set(AWS_BASE_PATH ${CMAKE_CURRENT_LIST_DIR}/${AWSNATIVESDK_PACKAGE_NAME})
 # Include Path
 set(AWSNATIVESDK_INCLUDE_PATH ${AWS_BASE_PATH}/include)
 
+# AWS Native SDK depends on OpenSSL and ZLIB, so if they're not included already, we find and use them
+if (NOT TARGET OpenSSL::SSL)
+    if (COMMAND ly_download_associated_package)
+        ly_download_associated_package(OpenSSL)
+    endif()
+    find_package(OpenSSL)
+endif()
+if (NOT TARGET ZLIB::ZLIB)
+    if (COMMAND ly_download_associated_package)
+        ly_download_associated_package(ZLIB)
+    endif()
+    find_package(ZLIB)
+endif()
+
 # Determine the lib path and any extra build dependencies
 if(LY_MONOLITHIC_GAME)
     set(AWSNATIVE_SDK_LIB_PATH ${AWS_BASE_PATH}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>)
     set(AWSNATIVESDK_BUILD_DEPENDENCIES
         ${AWSNATIVE_SDK_LIB_PATH}/dependencies/${CMAKE_STATIC_LIBRARY_PREFIX}curl${CMAKE_STATIC_LIBRARY_SUFFIX}
-        ${AWSNATIVE_SDK_LIB_PATH}/dependencies/${CMAKE_STATIC_LIBRARY_PREFIX}ssl${CMAKE_STATIC_LIBRARY_SUFFIX}
-        ${AWSNATIVE_SDK_LIB_PATH}/dependencies/${CMAKE_STATIC_LIBRARY_PREFIX}crypto${CMAKE_STATIC_LIBRARY_SUFFIX}
-        ${AWSNATIVE_SDK_LIB_PATH}/dependencies/${CMAKE_STATIC_LIBRARY_PREFIX}z${CMAKE_STATIC_LIBRARY_SUFFIX}
+        OpenSSL::SSL
+        ZLIB::ZLIB
     )
 else()
     set(AWSNATIVE_SDK_LIB_PATH ${AWS_BASE_PATH}/bin/$<IF:$<CONFIG:Debug>,Debug,Release>)
