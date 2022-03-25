@@ -10,10 +10,21 @@ REM Prerequisites:
 REM - Visual Studio 2017 is installed
 REM - 7-zip is installed: https://www.7-zip.org/
 
+REM Check whether 7-zip is installed
+if not defined ZIP_EXE (
+    set ZIP_EXE="C:\Program Files\7-Zip\7z.exe"
+)
+if not exist %ZIP_EXE% (
+    echo "7-zip is not found at %ZIP_EXE%"
+    echo "You will need to download and install 7-zip from https://www.7-zip.org/ to unzip the prebuilt clang package"
+    echo "Set the ZIP_EXE environment variable to the path of 7z.exe if 7-zip is not installed at the default location C:\Program Files\7-Zip\7z.exe"
+    exit 1
+)
+
 REM Download the prebuilt clang package from the Qt server. The current version of PySide2 is not compatible with the latest version of clang package.
 echo Downloading the prebuilt clang package from the Qt server
 call curl https://download.qt.io/development_releases/prebuilt/libclang/libclang-release_80-based-windows-vs2017_64.7z -L -o %TEMP_FOLDER%\libclang-release_80-based-windows-vs2017_64.7z
-"C:\Program Files\7-Zip\7z.exe" x %TEMP_FOLDER%\libclang-release_80-based-windows-vs2017_64.7z -o%TEMP_FOLDER%\libclang-release_80-based-windows-vs2017_64 -y
+call %ZIP_EXE% x %TEMP_FOLDER%\libclang-release_80-based-windows-vs2017_64.7z -o%TEMP_FOLDER%\libclang-release_80-based-windows-vs2017_64 -y
 REM Set up the environment variables required by the PySide build
 set LLVM_INSTALL_DIR=%TEMP_FOLDER%\libclang-release_80-based-windows-vs2017_64\libclang
 set PATH=%TEMP_FOLDER%\libclang-release_80-based-windows-vs2017_64\libclang\bin;%TEMP_FOLDER%\cmake-3.10.2-win64-x64\cmake-3.10.2-win64-x64\bin;%PATH%
@@ -21,7 +32,7 @@ set PATH=%TEMP_FOLDER%\libclang-release_80-based-windows-vs2017_64\libclang\bin;
 REM Download CMake version 3.10.2. The current version of PySide2 is not compatible with the latest version of CMake.
 echo Downloading CMake (version 3.10.2)
 call curl https://github.com/Kitware/CMake/releases/download/v3.10.2/cmake-3.10.2-win64-x64.zip -L -o %TEMP_FOLDER%\cmake-3.10.2-win64-x64.zip
-"C:\Program Files\7-Zip\7z.exe" x %TEMP_FOLDER%\cmake-3.10.2-win64-x64.zip -o%TEMP_FOLDER%\cmake-3.10.2-win64-x64 -y
+call %ZIP_EXE% x %TEMP_FOLDER%\cmake-3.10.2-win64-x64.zip -o%TEMP_FOLDER%\cmake-3.10.2-win64-x64 -y
 
 REM Get the paths to the package dependencies: Python, Qt and OpenSSL
 for /F "tokens=1,2,3 delims=;" %%a in ("%DOWNLOADED_PACKAGE_FOLDERS%") do (
