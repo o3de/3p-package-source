@@ -2,19 +2,36 @@
     "git_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
     "git_tag": "v5.14.2.3",
     "package_name": "pyside2",
-    "package_version": "5.15.2-rev2",
     "package_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
     "package_license": "custom",
     "package_license_file": "pyside2/LICENSE.LGPLv3",
     "patch_file": "pyside_o3de-v5.14.2.3.patch",
     "cmake_find_target": "Findpyside2.cmake",
     "Platforms": {
+        "Windows": {
+            "Windows": {
+                "depends_on_packages" :[ 
+                    ["python-3.7.10-rev1-windows", "851383addea5c54b7c6398860d04606c1053f1157c2edd801ec3d47394f73136", ""],
+                    ["qt-5.15.2-rev4-windows", "a4634caaf48192cad5c5f408504746e53d338856148285057274f6a0ccdc071d", ""],
+                    ["OpenSSL-1.1.1m-rev1-windows", "7d8d3904c70b7da471f777ee788678614a9b20d3ac926b7c0d60ccf2a17c7959", ""]
+                ],
+                "package_version": "5.15.2-rev1",
+                "cmake_find_source": "Findpyside2.cmake.Windows",
+                "custom_build_cmd": [
+                    "build_windows.cmd"
+                ],
+                "custom_install_cmd": [
+                    "package_windows.cmd"
+                ]
+            }
+        },
         "Linux": {
             "Linux": {
-                "depends_on_packages" :[ 
-                    ["python-3.7.10-rev2-linux", "6b9cf455e6190ec38836194f4454bb9db6bfc6890b4baff185cc5520aa822f05", ""],
-                    ["qt-5.15.2-rev6-linux", "a37bd9989f1e8fe57d94b98cbf9bd5c3caaea740e2f314e5162fa77300551531", ""]
+                "depends_on_packages": [
+                    [ "python-3.7.10-rev2-linux", "6b9cf455e6190ec38836194f4454bb9db6bfc6890b4baff185cc5520aa822f05", "" ],
+                    [ "qt-5.15.2-rev6-linux", "a37bd9989f1e8fe57d94b98cbf9bd5c3caaea740e2f314e5162fa77300551531", "" ]
                 ],
+                "package_version": "5.15.2-rev2",
                 "cmake_find_source": "Findpyside2.cmake.Linux",
                 "custom_build_cmd": [
                     "./build_linux.sh"
