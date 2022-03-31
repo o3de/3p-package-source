@@ -67,7 +67,7 @@ echo Configuring Qt...
 -no-feature-vnc \
 -no-feature-linuxfb \
 --tiff=system \
---zlib=system \
+-qt-zlib \
 -v \
 -no-cups \
 -no-glib \

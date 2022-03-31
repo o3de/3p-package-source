@@ -44,6 +44,7 @@
         },
         "Linux": {
             "Linux": {
+                "package_version": "5.15.2-rev8",
                 "patch_file": "qt-image-format.patch",
                 "depends_on_packages": [
                     ["tiff-4.2.0.15-rev3-linux", "2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a", ""],
