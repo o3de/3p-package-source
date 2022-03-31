@@ -13,7 +13,8 @@
    ],
    "cmake_generate_args_common" : [
       "-DCMAKE_CXX_STANDARD=17",
-      "-DDYNAMIC_LOADER=OFF"
+      "-DDYNAMIC_LOADER=OFF",
+      "-DOPENXR_DEBUG_POSTFIX=d"
    ],
    "cmake_install_filter":[
       "*.h",
@@ -21,14 +22,14 @@
       "*.a"
    ],
    "build_configs": [
-      "Release"
+      "Release",
+      "Debug"
    ],
    "Platforms":{
       "Windows":{
          "Windows":{
             "depends_on_packages" :[ 
             ],
-           
             "cmake_generate_args": [
                 "-G",
                 "\"Visual Studio 16 2019\""
