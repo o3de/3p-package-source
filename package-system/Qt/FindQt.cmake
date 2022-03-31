@@ -35,7 +35,6 @@ set(QT5_COMPONENTS
     OpenGL
     Svg
     Test
-    WebEngineWidgets
     Widgets
     Xml
 )
@@ -51,8 +50,6 @@ foreach(component ${QT5_COMPONENTS})
 endforeach()
 unset(Qt5Positioning_DIR CACHE)
 unset(Qt5PrintSupport_DIR CACHE)
-unset(Qt5WebChannel_DIR CACHE)
-unset(Qt5WebEngineCore_DIR CACHE)
 unset(Qt5Qml_DIR CACHE)
 unset(Qt5QmlModels_DIR CACHE)
 unset(Qt5Quick_DIR CACHE)
@@ -97,8 +94,6 @@ mark_as_advanced(Qt5_DIR) # Hiding from GUI
 mark_as_advanced(Qt5LinguistTools_DIR) # Hiding from GUI, this variable comes from the LinguistTools module
 mark_as_advanced(Qt5Positioning_DIR)
 mark_as_advanced(Qt5PrintSupport_DIR)
-mark_as_advanced(Qt5WebChannel_DIR)
-mark_as_advanced(Qt5WebEngineCore_DIR)
 mark_as_advanced(Qt5Qml_DIR)
 mark_as_advanced(Qt5QmlModels_DIR)
 mark_as_advanced(Qt5Quick_DIR)

@@ -18,25 +18,37 @@ dependencies = {
     "icu": "https://github.com/unicode-org/icu/releases/download/release-65-1/icu4c-65_1-Win64-MSVC2017.zip"
 }
 
-for name in dependencies:
-    print(f"Attempting to install {name}")
+current_dir = os.getcwd()
 
-    installer_link = dependencies[name]
-    file_name = os.path.basename(installer_link)
+try:
 
-    # Download the zip (if we haven't already, so that this script can be run iteratively)
-    if not os.path.exists(file_name):
-        print(f"Downloading {name} from {installer_link}")
+    # Set the current working directory to temp
+    current_dir = os.getcwd()
+    os.chdir("temp")
+    temp_dir = os.getcwd()
 
-        urllib.request.urlretrieve(installer_link, file_name)
+    for name in dependencies:
+        print(f"Attempting to install {name}")
 
-        print(f"Download of {name} complete => {os.path.abspath(file_name)}")
+        installer_link = dependencies[name]
+        file_name = os.path.basename(installer_link)
 
-    # We will unzip the package into the local temp directory
-    install_dir = os.path.abspath(os.path.join('temp', name))
-    print(f"Installing {name} to {install_dir}")
+        # Download the zip if needed
+        if not os.path.exists(file_name):
+            print(f"Downloading {name} from {installer_link}")
 
-    with zipfile.ZipFile(file_name, 'r') as dep_zip:
-        dep_zip.extractall(install_dir)
+            urllib.request.urlretrieve(installer_link, file_name)
 
-    print(f"Successfully installed {name}") 
+            print(f"Download of {name} complete => {os.path.abspath(file_name)}")
+
+        # We will unzip the package into the local temp directory
+        install_dir = os.path.abspath(os.path.join(temp_dir, name))
+        print(f"Installing {name} to {install_dir}")
+
+        with zipfile.ZipFile(file_name, 'r') as dep_zip:
+            dep_zip.extractall(install_dir)
+
+        print(f"Successfully installed {name}") 
+
+finally:
+    os.chdir(current_dir)

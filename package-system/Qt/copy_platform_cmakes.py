@@ -37,3 +37,15 @@ files = glob.iglob(os.path.join(platform_folder, "*.cmake"))
 for file in files:
     print(f"Copying {file} => {platform_install_folder}")
     shutil.copy2(file, platform_install_folder)
+
+# Install additional copyright notices to the package/qt root
+package_qt_root = os.path.join(package_root, "qt")
+additional_copyright_notices = ["QT-NOTICE.TXT",
+                                "LICENSE",
+                                os.path.join("temp","src", "qtfeedback", "LGPL_EXCEPTION.txt")]
+for file in additional_copyright_notices:
+    if not os.path.isfile(file):
+        printf(f"Error: Cannot locate copyright notice file: {file}")
+        sys.exit(1)
+    print(f"Copying {file} => {package_qt_root}")
+    shutil.copy2(file, package_qt_root)

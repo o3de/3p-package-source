@@ -54,5 +54,11 @@ ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     OUTPUT_SUBDIRECTORY platforms
 )
 
+ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
+    FILES
+        ${QT_PATH}/plugins/xcbglintegrations/libqxcb-glx-integration.so
+    OUTPUT_SUBDIRECTORY xcbglintegrations
+)
+
 ly_add_dependencies(3rdParty::Qt::Widgets::Plugins Qt5::DBus)
 ly_add_dependencies(3rdParty::Qt::Widgets::Plugins Qt5::XcbQpa)
