@@ -179,19 +179,16 @@ echo ""
 echo "---------------- Final RPATH update ----------------"
 echo ""
 # The filename of the main python dylib is 'Python'.
-# It is located at ./package/Python.framework/Versions/3.7
-# This, despite just being called 'Python' with no extension is actually the main python 
-# dylib that is required to load if you link your application to the import library for 
-# Python.  The below change of its 'id' (which is what programs link to it will import it as)
-# allows programs linked ot it to work as long the dylib is deployed to the executable,
-# and as long as the executable adds the executable's path to its list of @rpath to search.
-# (Instead of its original which is "@rpath/Versions/3.7/Python" which would require us to
-# copy it to such a subfolder)
+# It is located at ./package/Python.framework/Versions/3.7(symlinked to Current)
+# The original rpath "@rpath/Versions/3.7/Python" is incorrect. When the Python.framework
+# is embedded in an app bundle, any executable/shared library linking to it will need to
+# find it in "@rpath/Python.framework/Versions/Current/Python". The executable will have
+# its rpath set to "<bundle_name>.app/Contents/Frameworks".
 # Because all the python framework libraries already have 2 rpaths, the @loader_path
 # as well as the root of the framework (ie, @loader_path/../../../.. etc), this makes
 # the whole thing work regardless of whether Python is in the same folder as the binary or 
 # whether a python native plugin is being located from the framework in some subfolder.
-install_name_tool -id @rpath/Python $FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.7/Python
+install_name_tool -id @rpath/Python.framework/Versions/Current/Python $FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.7/Python
 
 echo ""
 echo "---------------- rsync package layout into $SCRIPT_DIR/package ----------------"
