@@ -6,8 +6,6 @@
 #
 #
 
-include(CMakeParseArguments)
-
 # You can pull this file into your package build script
 # by copying it to the output folder or by using the following via 
 # pull_and_build_from_git.py (recommended):
@@ -19,8 +17,8 @@ include(CMakeParseArguments)
 # then use include(${CMAKE_CURRENT_LIST_DIR}/o3de_package_utilities.cmake) in your package Find file.
 
 # o3de_import_targets(
-    # NAMESPACE_FROM from_namespac]   <--- optional
-    # NAMESPACE_TO to_namespace       <--- optional
+    # NAMESPACE_FROM from_namespace]   <--- optional
+    # NAMESPACE_TO to_namespace        <--- optional
     # COMPONENTS component component component ...) <--- mandatory
 # For each component in the list of COMPONENTS, 
 #     This function will change the includes of target ${NAMESPACE_FROM}::${component} to
@@ -35,7 +33,7 @@ include(CMakeParseArguments)
 #                "Release" -> "Release"
 #                "RelWithDebInfo" -> "Release"
 #     Finally, if NAMESPACE_TO is specified, it will create an alias from
-#     {NAMESPACE_FROM}::${component} to ${NAMESPACE_TO}::${component}.
+#     {NAMESPACE_FROM}::${component} to ${NAMESPACE_TO}::${component} (even if NAMESPACE_FROM is not specified)
 #     NAMESPACE_TO is usually "3rdParty" for O3DE.
 
 function(o3de_import_targets)
@@ -65,6 +63,7 @@ function(o3de_import_targets)
     endif()
 
     foreach(component IN LISTS _o3de_import_targets_COMPONENTS)
+        # Note: from_namespace_prefix is either unset, or contains the namespace with :: appended
         set(component_target_name ${from_namespace_prefix}${component})
         if(TARGET ${component_target_name})
 
@@ -77,9 +76,12 @@ function(o3de_import_targets)
                 target_include_directories(${component_target_name} SYSTEM INTERFACE ${system_includes})
             endif()
 
-            # Alias the target in the new namespace:
-            if (to_namespace_prefix AND from_namespace_prefix AND NOT "${to_namespace_prefix}" STREQUAL "${from_namespace_prefix}")
-                add_library(${to_namespace_prefix}${component} ALIAS ${component_target_name})
+            # Alias the target in the new namespace if one was specified
+            if (to_namespace_prefix)
+                set(target_alias_name ${to_namespace_prefix}${component})
+                if(NOT "${target_alias_name}" STREQUAL "${component_target_name}")
+                    add_library(${target_alias_name} ALIAS ${component_target_name})
+                endif()
             endif()
 
             # get the list of imported configurations:
@@ -94,11 +96,18 @@ function(o3de_import_targets)
                 string(TOUPPER ${conf} UCONF)
                 if (${UCONF} IN_LIST imported_configs_on_target)
                     # if the imported target actually has a config with the same name, then use that config:
-                    set_target_properties(${component_target_name} PROPERTIES MAP_IMPORTED_CONFIG_${UCONF} ${UCONF})
+                    # the semicolon at the end is not a typo, it maps as a fallback to the suffixless version of
+                    # the IMPORTED_LOCATION property.
+                    set_target_properties(${component_target_name} PROPERTIES MAP_IMPORTED_CONFIG_${UCONF} "${UCONF};")
                 else() 
-                    # there is no such config on the imported target, we default to RELEASE.
+                    # if we get here, either there is no imported configs on target, or the imported configs on the
+                    # target does not include the one in our current project.  For example, you could be looking
+                    # at a library that has "DEBUG", "MINSIZEREL", "RELWITHDEBINFO" and "RELEASE" but not "PROFILE".
+                    # in this case, give it a series of fallbacks it can use from preferred to less preferred.
+                    # The blank one at the end is not a typo, it maps to the suffix-less version of IMPORTED_LOCATION,
+                    # which will allow this script to work to fixup targets even when not loaded via the config system.
                     set_target_properties(${component_target_name} PROPERTIES 
-                                            MAP_IMPORTED_CONFIG_${UCONF} RELEASE)
+                                            MAP_IMPORTED_CONFIG_${UCONF} "RELWITHDEBINFO;MINSIZEREL;RELEASE;")
                 endif()
             endforeach()
         else()

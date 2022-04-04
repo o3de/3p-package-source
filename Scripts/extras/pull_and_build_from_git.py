@@ -618,12 +618,12 @@ class BuildInfo(object):
                     cmakelists_folder = cmakelists_folder / self.package_info.cmake_src_subfolder
 
                 cmake_generate_cmd = [self.cmake_command,
-                                      '-S', str(cmakelists_folder.absolute()),
+                                      '-S', str(cmakelists_folder.resolve()),
                                       '-B', str(self.build_folder.name)]
 
                 if self.package_info.custom_toolchain_file:
                     custom_toolchain_file = self.package_info.custom_toolchain_file
-                    custom_toolchain_file_path = pathlib.Path(custom_toolchain_file).absolute().resolve()
+                    custom_toolchain_file_path = pathlib.Path(custom_toolchain_file).resolve()
                     if not custom_toolchain_file_path.exists():
                         raise BuildError(f"Custom toolchain file specified does not exist: {custom_toolchain_file}\n"
                                          f"Path resolved: {custom_toolchain_file_path} ")

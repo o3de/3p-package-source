@@ -33,7 +33,7 @@ try:
     from botocore.exceptions import BotoCoreError
     from botocore.exceptions import ClientError
     _aws_s3_available = True
-    possible_download_errors = (ClientError, BotoCoreError, ssl.SSLError, URLError, OSError)
+    possible_download_errors = possible_download_errors + (ClientError, BotoCoreError)
 except:
     print("Could not import boto3 (pip install boto3) - downloading from S3 buckets will not function")
     pass
