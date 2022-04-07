@@ -96,22 +96,11 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-ECHO "Copying curl openssl and zlib static .a to %OUT_LIB_PATH%\%BUILD_TYPE%\dependencies"
+ECHO "Copying curl static .a to %OUT_LIB_PATH%\%BUILD_TYPE%\dependencies"
 copy /Y %BLD_PATH%\%BUILD_TYPE%_Static\external-install\curl\lib\*.a %OUT_LIB_PATH%\%BUILD_TYPE%\dependencies\
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "Copying 3rdParty static .a to %OUT_LIB_PATH%\%BUILD_TYPE%\dependencies failed"
     exit /b 1
 )
 
-copy /Y %BLD_PATH%\%BUILD_TYPE%_Static\external-install\openssl\lib\*.a %OUT_LIB_PATH%\%BUILD_TYPE%\dependencies\
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO "Copying 3rdParty static .a to %OUT_LIB_PATH%\%BUILD_TYPE%\dependencies failed"
-    exit /b 1
-)
-
-copy /Y %BLD_PATH%\%BUILD_TYPE%_Static\external-install\zlib\lib\*.a %OUT_LIB_PATH%\%BUILD_TYPE%\dependencies\
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO "Copying 3rdParty static .a to %OUT_LIB_PATH%\%BUILD_TYPE%\dependencies failed"
-    exit /b 1
-)
 GOTO:EOF
