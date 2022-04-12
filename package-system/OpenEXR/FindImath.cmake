@@ -10,55 +10,22 @@ if (TARGET 3rdParty::Imath)
     return()
 endif()
 
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_LIST_DIR}/OpenEXR/lib/cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/o3de_package_utilities.cmake)
 
-find_package(Imath CONFIG)
+o3de_import_existing_config_files(Imath ${CMAKE_CURRENT_LIST_DIR}/OpenEXR/lib/cmake)
 
-set(Imath_COMPONENTS
-    Imath::Imath
-    Imath::ImathConfig
-)
-
-foreach(component ${Imath_COMPONENTS})
-    if(TARGET ${component})
-        # convert the includes to system includes
-        get_target_property(system_includes ${component} INTERFACE_INCLUDE_DIRECTORIES)
-        set_target_properties(${component} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "") # Clear it in case someone refers to it
-        
-        if (COMMAND ly_target_include_system_directories)
-            ly_target_include_system_directories(TARGET ${component} INTERFACE ${system_includes})
-        else()
-            target_include_directories(${component} SYSTEM INTERFACE ${system_includes})
-        endif()
-
-        # Alias the target with 3rdParty prefix
-        add_library(3rdParty::${component} ALIAS ${component})
-
-		# inside the loop where it sets the system includes for each component
-		foreach(conf IN LISTS CMAKE_CONFIGURATION_TYPES)
-			string(TOUPPER ${conf} UCONF)
-			if (${UCONF} STREQUAL "DEBUG" AND ${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-				set_target_properties(${component} PROPERTIES 
-										MAP_IMPORTED_CONFIG_${UCONF} DEBUG)
-			else()
-				set_target_properties(${component} PROPERTIES 
-										MAP_IMPORTED_CONFIG_${UCONF} RELEASE)
-			endif()
-		endforeach()
-    else()
-        message(WARNING "Target not found in Imath: ${component}")
-    endif()
-endforeach()
-
-# create main library alias that O3DE can use to get default dependencies.
-# users can also bind to any of the other components above, but this one gives you most of the functionality
-# you probably want:
-add_library(3rdParty::Imath ALIAS Imath::Imath)
+o3de_import_targets(NAMESPACE_FROM 
+                        Imath
+                    NAMESPACE_TO 
+                        3rdParty
+                    COMPONENTS 
+                        Imath 
+                        ImathConfig)
 
 # if we're not in O3DE, it's also extremely helpful to show a message to logs that indicate that this
 # library was successfully picked up, as opposed to the system one.
 # A good way to know if you're in O3DE or not is that O3DE sets various cache variables before 
 # calling find_package, specifically, LY_VERSION_ENGINE_NAME is always set very early:
 if (NOT LY_VERSION_ENGINE_NAME)
-    message(STATUS "Using the O3DE version of the Imath library (v${Imath_VERSION}) from ${CMAKE_CURRENT_LIST_DIR}")
+    message(STATUS "Using Imath (${Imath_VERSION}) from ${CMAKE_CURRENT_LIST_DIR}")
 endif()
