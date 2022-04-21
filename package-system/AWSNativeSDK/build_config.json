@@ -23,6 +23,12 @@
             ]
          },
          "Android":{
+            "package_version":"1.9.50-rev2",
+            "depends_on_packages": [
+               [ "OpenSSL-1.1.1m-rev1-android", "b11fe493af5d6b03ebbf1a2c97fea443b125e88def5cd1c32b854220b3ad4681", "" ],
+               [ "zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", "" ]
+            ],
+            "patch_file":"AWSNativeSDK-1.9.50-android.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Android",
             "custom_build_cmd": [
                "build_AWSNativeSDK_android.cmd"

@@ -1,0 +1,4 @@
+The O3DE Editor includes components of Qt, http://www.qt-project.org/, that are licensed under Version 3 of the GNU Lesser General Public License.  Source code for the Qt distributions used in O3DE can be found here:
+    https://o3de-legal-prod.s3-us-west-2.amazonaws.com/LicenseConformance/Qt/Src.zip
+
+Qt also includes a number of third party components that are licensed under other license terms; for details see https://doc.qt.io/qt-5/licenses-used-in-qt.html.

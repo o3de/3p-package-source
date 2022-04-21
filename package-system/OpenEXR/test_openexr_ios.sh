@@ -11,13 +11,13 @@ rm -rf temp/build_test
 mkdir temp/build_test
 
 cmake -S test -B temp/build_test -G Xcode \
-    -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake \
     -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS;$PACKAGE_ROOT" || exit 1
 
 cmake --build temp/build_test --parallel --config Release || exit 1
-temp/build_test/Release/test_openexr.app/Contents/MacOS/test_openexr || exit 1
-
 cmake --build temp/build_test --parallel --config Debug || exit 1
-temp/build_test/Debug/test_openexr.app/Contents/MacOS/test_openexr || exit 1
+
+# we can't actually test this by running it without a simulator but at least
+# it can detect linkage or arch problems.
 
 exit 0

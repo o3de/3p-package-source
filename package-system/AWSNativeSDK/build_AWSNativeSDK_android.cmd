@@ -9,6 +9,8 @@ REM
 SET SRC_PATH=temp\src
 SET BLD_PATH=temp\build
 
+set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
+
 IF "%ANDROID_NDK_ROOT%"=="" (
     ECHO "Required envrironment variable ANDROID_NDK_ROOT is missing, please set it to local android ndk directory"
     exit /b 1
@@ -66,7 +68,10 @@ call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
            -DCUSTOM_MEMORY_MANAGEMENT=ON^
            -DCMAKE_INSTALL_BINDIR="bin/%BUILD_TYPE%_%LIB_TYPE%" ^
            -DCMAKE_INSTALL_LIBDIR="lib/%BUILD_TYPE%_%LIB_TYPE%" ^
-           -DCMAKE_INSTALL_PREFIX="%BLD_PATH%/%BUILD_TYPE%_%LIB_TYPE%"
+           -DCMAKE_INSTALL_PREFIX="%BLD_PATH%/%BUILD_TYPE%_%LIB_TYPE%" ^
+           -DANDROID_BUILD_OPENSSL=OFF ^
+           -DANDROID_BUILD_ZLIB=OFF ^
+           -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%"
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "CMake Configure %BUILD_TYPE% %LIB_TYPE% failed"
     exit /b 1

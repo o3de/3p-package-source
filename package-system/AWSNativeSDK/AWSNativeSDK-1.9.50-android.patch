@@ -1,0 +1,24 @@
+diff --git a/android-build/CMakeLists.txt b/android-build/CMakeLists.txt
+index d88f235750..b9c6ad0041 100644
+--- a/android-build/CMakeLists.txt
++++ b/android-build/CMakeLists.txt
+@@ -86,5 +86,6 @@ if(BUILD_CURL)
+         -DBUILD_CURL_EXE=ON
+         -DBUILD_CURL_TESTS=OFF
+         -DCURL_ZLIB=${CURL_USE_ZLIB}
++        -DCMAKE_MODULE_PATH="D:/3p-package-source/package-system/OpenSSL-1.1.1m-rev1-android"
+         )
+ endif()
+diff --git a/cmake/build_external.cmake b/cmake/build_external.cmake
+index f8cfb63232..f8087965e1 100644
+--- a/cmake/build_external.cmake
++++ b/cmake/build_external.cmake
+@@ -65,6 +65,8 @@ if(BUILD_CURL OR BUILD_OPENSSL OR BUILD_ZLIB)
+ 
+         set(LibCrypto_INCLUDE_DIR "${OPENSSL_INCLUDE_DIR}" CACHE INTERNAL "crypto include dir")
+         set(LibCrypto_STATIC_LIBRARY "${OPENSSL_LIBRARY_DIR}/libcrypto.a" CACHE INTERNAL "crypto static library")
++    else()
++        set(OPENSSL_LINKER_FLAGS "-L${OPENSSL_LIBS_DIR}" CACHE INTERNAL "linker flags to find openssl")
+     endif()
+ 
+     # curl
