@@ -43,11 +43,10 @@ import subprocess
 import sys
 import pathlib
 import shutil
-from typing import final
 
 
 openimageio_repository_url = 'https://github.com/OpenImageIO/oiio.git'
-openimageio_repository_tag = 'v2.3.10.1'
+openimageio_repository_tag = 'v2.3.15.0'
 
 opencolorio_repository_url='https://github.com/AcademySoftwareFoundation/OpenColorIO.git'
 opencolorio_repository_tag='v2.1.0' # officially, oiio uses 'v2.0.1'
@@ -74,7 +73,7 @@ dependencies = {
     # dependencies format:
     # platformname : 
     #          package_short_name : (packagename,  hashe)
-    'darwin' : 
+    'darwin' :
         {
             'zlib' :     ('zlib-1.2.11-rev5-mac',              'b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096'),
             'openexr' :  ('OpenEXR-3.1.3-rev2-mac',            'af8163d3a92ebf8833ebf61589c5f82ba48d8b5fe42e55693ed6248e540609ef'),
@@ -83,6 +82,16 @@ dependencies = {
             'libpng' :   ('png-1.6.37-rev2-mac',               '515252226a6958c459f53d8598d80ec4f90df33d2f1637104fd1a636f4962f07'),
             'expat' :    ('expat-2.4.2-rev2-mac',              '70f195977a17b08a4dc8687400fd7f2589e3b414d4961b562129166965b6f658'),
             'freetype' : ('freetype-2.11.1-rev1-mac',          'b66107d3499f2e9c072bd88db26e0e5c1b8013128699393c6a8495afca3d2548')
+        },
+    'windows' :
+        {
+            'zlib' :     ('zlib-1.2.11-rev5-windows',          '8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd'),
+            'openexr' :  ('OpenEXR-3.1.3-rev2-windows',        'cf7707193d4b1c3dd9de7a940641d7750522fc1079f47fde145f31052206a6f3'),
+            'python' :   ('python-3.7.12-rev2-windows',        '1173d886f6192f57b9cafb225fe679e2781f4a40a89f4bb31ee81d2b7fcad632'),
+            'tiff' :     ('tiff-4.2.0.15-rev3-windows',        'c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60'),
+            'libpng' :   ('png-1.6.37-rev2-windows',           'e16539a0fff26ac9ef80dd11ef0103eca91745519eacd41d41d96911c173589f'),
+            'expat' :    ('expat-2.4.2-rev2-windows',          '748d08f21f5339757059a7887e72b52d15e954c549245c638b0b05bd5961e307'),
+            'freetype' : ('freetype-2.11.1-rev1-windows',      '861d059a5542cb8f58a5157f411eee2e78f69ac72e45117227ebe400efe49f61')
         }
 }
 
@@ -200,15 +209,26 @@ print("\n----------------------------- FETCH Dependencies ----------------------
 get_dependencies(dependencies[args.platform])
 
 # we can re-use this path string (semicolon seperated list of folders) for all finds.
+# use posix paths here so that the cmake configure doesn't get confused by different
+# path separators on windows
 module_path_string = ';'.join( [ 
-        f'{get_dependency_path(args.platform, "openexr")}',
-        f'{get_dependency_path(args.platform, "expat")}',
-        f'{get_dependency_path(args.platform, "zlib")}',
-        f'{get_dependency_path(args.platform, "tiff")}',
-        f'{get_dependency_path(args.platform, "libpng")}',
-        f'{get_dependency_path(args.platform, "freetype")}',
+        f'{get_dependency_path(args.platform, "openexr").as_posix()}',
+        f'{get_dependency_path(args.platform, "expat").as_posix()}',
+        f'{get_dependency_path(args.platform, "zlib").as_posix()}',
+        f'{get_dependency_path(args.platform, "tiff").as_posix()}',
+        f'{get_dependency_path(args.platform, "libpng").as_posix()}',
+        f'{get_dependency_path(args.platform, "freetype").as_posix()}',
         # add a custom path for our custom find modules:
 ])
+
+# Our python dependency needs to be on the PATH on Windows,
+# or else one of the sub-dependencies (pystring) will fail
+# to find python even with the python build arguments
+# that we setup further down
+python_root = get_dependency_path(args.platform, "python")
+if args.platform == "windows":
+    python_root /= "python"
+    os.environ["PATH"] = f"{str(python_root.absolute().resolve())};{os.environ['PATH']}"
 
 # building opencolorIO is a function becuase we call it twice
 # once before we have OpenImageIO built, and once again with that dependency ready
@@ -221,14 +241,12 @@ def BuildOpenColorIO(module_paths_to_use):
 
     opencolorio_configure_command = [ 
                 'cmake',
-                '-G', 'Ninja',
                 f'-S',
                 f'{source_folder_path / "opencolorio"}',
                 f'-B',
                 f'{opencolorio_build_folder}',
                 f'-Dexpat_STATIC_LIBRARY=ON',
                 f'-DCMAKE_INSTALL_PREFIX={ocio_install_path}',
-                f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}',
                 f'-DCMAKE_BUILD_TYPE=Release',
                 f'-DBUILD_SHARED_LIBS=OFF',
                 f'-DCMAKE_CXX_STANDARD=17',
@@ -239,11 +257,39 @@ def BuildOpenColorIO(module_paths_to_use):
                 f'-DOCIO_BUILD_PYTHON=ON',
                 f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
                 f'-DOCIO_BUILD_DOCS=OFF',   # <---- TODO: we have to fix this maybe
-                f'-DPython_ROOT={get_dependency_path(args.platform, "python") / "Python.framework/Versions/3.7"}',
-                f'-DPython_EXECUTABLE={get_dependency_path(args.platform, "python") / "Python.framework/Versions/3.7/bin/Python3"}',
                 f'-DCMAKE_MODULE_PATH={module_paths_to_use}',
                 
     ]
+
+    if args.platform == "darwin":
+        opencolorio_configure_command += [
+            '-G', 'Ninja',
+            f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
+        ]
+
+    # Add python-specific configure args
+    # windows expects different args than darwin/linux
+    python_root = get_dependency_path(args.platform, "python")
+    if args.platform == "windows":
+        python_root /= "python"
+        python_lib = python_root / "libs" / "python37.lib"
+        python_include = python_root / "include"
+        python_exe = python_root / "python.exe"
+
+        opencolorio_configure_command += [
+            f'-DPython_LIBRARY={python_lib}',
+            f'-DPython_INCLUDE_DIR={python_include}',
+            f'-DPython_EXECUTABLE={python_exe}'
+        ]
+    else:
+        python_root /= "Python.framework/Versions/3.7"
+        python_exe = python_root / "bin/Python3"
+
+        opencolorio_configure_command += [
+            f'-DPython_ROOT={python_root}',
+            f'-DPython_EXECUTABLE={python_exe}'
+        ]
+
     exec_and_exit_if_failed(opencolorio_configure_command)
 
     opencolorio_build_command = [
@@ -278,7 +324,7 @@ def BuildOpenColorIO(module_paths_to_use):
 
 if not SKIP_OPENCOLORIO:
     print("\n----------------------------- BUILD OpenColorIO ------------------------------")
-    
+
     BuildOpenColorIO(module_path_string)
 # the final install of OpenColorIO looks like this
 # (install folder)
