@@ -356,10 +356,18 @@ if not SKIP_BOOST:
 
     clone_repo(boost_repository_url, boost_repository_tag, source_folder_path / 'boost')
 
-    exec_and_exit_if_failed(['./bootstrap.sh --with-libraries=filesystem,atomic,thread,system,headers,date_time,chrono'], 
+    # Use the right bootstrap script for windows/*nix
+    if args.platform == "windows":
+        bootstrap_script = "bootstrap.bat"
+        build_b2 = "b2.exe"
+    else:
+        bootstrap_script = "./bootstrap.sh"
+        build_b2 = "./b2"
+
+    exec_and_exit_if_failed([bootstrap_script, '--with-libraries=filesystem,atomic,thread,system,headers,date_time,chrono'],
                             cwd=source_folder_path / 'boost', shell=True)
 
-    boost_build_command = ['./b2',
+    boost_build_command = [build_b2,
                             f'--build-dir={boost_build_folder}',
                             f'link=static', 
                             f'threading=multi', 
@@ -368,22 +376,22 @@ if not SKIP_BOOST:
                             f'install',
                             f'visibility=hidden',
                             f'-j', '12']
-    
+
     # on non-windows, make sure that the same visibility is set for building the library
     # as will be likely set for applications where it is used as a dependency.
-    if sys.platform.lower() != 'windows':
+    if args.platform.lower() != 'windows':
         print("(Using hidden visibility by default)")
         boost_build_command.append('cxxflags=-fvisibility=hidden')
         boost_build_command.append('cxxflags=-fvisibility-inlines-hidden')
 
-    exec_and_exit_if_failed(boost_build_command, cwd=source_folder_path / 'boost')
+    exec_and_exit_if_failed(boost_build_command, cwd=source_folder_path / 'boost', shell=True)
 
     # boost is now built, and lives in temp/bld/boost/output (which contains the usual lib, include, etc)
 
 if not SKIP_LIBJPEGTURBO:
     print("\n---------------------------- BUILD libJPEGTurbo ------------------------------")
     clone_repo(libjpegturbo_repository_url, libjpegturbo_repository_tag, source_folder_path / 'libjpegturbo')
-    
+
     libjpegturbo_build_path = build_folder_path / 'libjpegturbo_build'
     if libjpegturbo_build_path.exists():
         shutil.rmtree(str(libjpegturbo_build_path.resolve()), ignore_errors=True)
