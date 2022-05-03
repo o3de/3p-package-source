@@ -398,13 +398,11 @@ if not SKIP_LIBJPEGTURBO:
 
     libjpegturbo_configure_command = [ 
         'cmake',
-        '-G', 'Ninja',
         f'-S',
         f'{source_folder_path / "libjpegturbo"}',
         f'-B',
         libjpegturbo_build_path,
         f'-DCMAKE_INSTALL_PREFIX={libjpegturbo_install_path}',
-        f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}',
         f'-DCMAKE_BUILD_TYPE=Release',
         f'-DBUILD_SHARED_LIBS=OFF',
         f'-DENABLE_SHARED=OFF',
@@ -415,6 +413,12 @@ if not SKIP_LIBJPEGTURBO:
         f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
         f'-DCMAKE_MODULE_PATH={module_path_string}'
     ]
+
+    if args.platform == "darwin":
+        libjpegturbo_configure_command += [
+            '-G', 'Ninja',
+            f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
+        ]
 
     exec_and_exit_if_failed(libjpegturbo_configure_command)
 
@@ -433,7 +437,7 @@ if not SKIP_LIBJPEGTURBO:
 
 # add our custom find files here, not earlier - we only want to use these custom find files
 # in compiling OpenImageIO and etc.
-module_path_string_with_custom_find_files = module_path_string + f';{script_folder / "custom_find_files"}'
+module_path_string_with_custom_find_files = module_path_string + f';{(script_folder / "custom_find_files").as_posix()}'
 
 if not SKIP_OPENIMAGEIO:
     print("\n----------------------------- BUILD OpenImageIO ------------------------------")
@@ -564,7 +568,7 @@ shutil.copy2(src=private_deps_folder / 'LibJPEGTurbo' / 'share' / 'doc' / 'libjp
 
 print("\n----------------------------- Test package image -----------------------------")
     
-module_path_string_with_package_folder = module_path_string + f';{final_package_image_root}'
+module_path_string_with_package_folder = module_path_string + f';{final_package_image_root.as_posix()}'
 
 test_build_folder = build_folder_path / 'test_openimageio'
 
