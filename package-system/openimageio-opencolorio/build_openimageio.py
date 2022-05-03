@@ -309,6 +309,10 @@ def BuildOpenColorIO(module_paths_to_use):
     # pystring::pystring
     # yaml-cpp (note, no namespace!)
 
+    yaml_lib = "yaml-cpp"
+    if args.platform == "windows":
+        yaml_lib = "libyaml-cppmd"
+
     ocio_private_library_build_path = build_folder_path / 'opencolorio_build' / 'ext' / 'dist' / 'lib'
     ocio_private_libary_source_path = build_folder_path / 'opencolorio_build' / 'ext' / 'build'
     pystring_source_path =  ocio_private_libary_source_path / 'pystring' / 'src' / 'pystring_install'
@@ -318,7 +322,7 @@ def BuildOpenColorIO(module_paths_to_use):
     os.makedirs(pystring_install_path / 'lib', exist_ok=True)
     os.makedirs(yamlcpp_install_path  / 'lib', exist_ok=True)
     shutil.copy2(ocio_private_library_build_path / f'{lib_prefix}pystring{lib_suffix}', pystring_install_path / 'lib' / f'{lib_prefix}pystring{lib_suffix}', follow_symlinks=False)
-    shutil.copy2(ocio_private_library_build_path / f'{lib_prefix}yaml-cpp{lib_suffix}', yamlcpp_install_path /  'lib' / f'{lib_prefix}yaml-cpp{lib_suffix}', follow_symlinks=False)
+    shutil.copy2(ocio_private_library_build_path / f'{lib_prefix}{yaml_lib}{lib_suffix}', yamlcpp_install_path /  'lib' / f'{lib_prefix}{yaml_lib}{lib_suffix}', follow_symlinks=False)
     shutil.copy2(pystring_source_path / 'LICENSE', pystring_install_path / 'LICENSE', follow_symlinks=False)
     shutil.copy2(yamlcpp_source_path  / 'LICENSE', yamlcpp_install_path  / 'LICENSE', follow_symlinks=False)
 
