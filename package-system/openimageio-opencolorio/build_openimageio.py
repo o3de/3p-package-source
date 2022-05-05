@@ -103,6 +103,7 @@ repo_root_path = script_folder.parent.parent
 general_scripts_path = repo_root_path / 'Scripts' / 'extras'
 dependencies_folder_path = (temp_folder_path / 'dependencies').absolute().resolve()
 ocio_install_path = temp_folder_path / 'ocio_install'
+yamlcpp_install_path =  temp_folder_path / 'yaml-cpp_install'
 boost_install_path = temp_folder_path / 'boost_install'
 oiio_install_path = temp_folder_path / 'oiio_install'
 libjpegturbo_install_path = temp_folder_path / 'libjpegturbo_install'
@@ -318,7 +319,6 @@ def BuildOpenColorIO(module_paths_to_use):
     pystring_source_path =  ocio_private_libary_source_path / 'pystring' / 'src' / 'pystring_install'
     yamlcpp_source_path =   ocio_private_libary_source_path / 'yaml-cpp' / 'src' / 'yaml-cpp_install'
     pystring_install_path = temp_folder_path / 'pystring_install'
-    yamlcpp_install_path =  temp_folder_path / 'yaml-cpp_install'
     os.makedirs(pystring_install_path / 'lib', exist_ok=True)
     os.makedirs(yamlcpp_install_path  / 'lib', exist_ok=True)
     shutil.copy2(ocio_private_library_build_path / f'{lib_prefix}pystring{lib_suffix}', pystring_install_path / 'lib' / f'{lib_prefix}pystring{lib_suffix}', follow_symlinks=False)
@@ -443,12 +443,12 @@ if not SKIP_OPENIMAGEIO:
     print("\n----------------------------- BUILD OpenImageIO ------------------------------")
 
     clone_repo(openimageio_repository_url, openimageio_repository_tag, source_folder_path / 'openimageio')
-    
+
     openimageio_build_folder = build_folder_path / 'openimageio_build'
     if openimageio_build_folder.exists():
         shutil.rmtree(str(openimageio_build_folder.resolve()), ignore_errors=True)
 
-    # openimageio looks for OPenColorIO in a way that is not compatible with generated configs.
+    # openimageio looks for OpenColorIO in a way that is not compatible with generated configs.
     # remove its find file, allow it to just use the OpenColorIO_ROOT:
     os.remove(source_folder_path / 'openimageio' / 'src' / 'cmake' / 'modules' / 'FindOpenColorIO.cmake' )
  
@@ -458,7 +458,6 @@ if not SKIP_OPENIMAGEIO:
 
     openimageio_configure_command = [ 
         'cmake',
-        '-G', 'Ninja',
         f'-S',
         f'{source_folder_path / "openimageio"}',
         f'-B',
@@ -466,9 +465,9 @@ if not SKIP_OPENIMAGEIO:
         f'-DUSE_PYTHON=ON',
         f'-DBoost_ROOT={boost_install_path}',
         f'-Dpybind11_ROOT={temp_folder_path / "bld/opencolorio_build/ext/dist"}',  #use pybind from the opencolorio build
+        f'-DJPEG_ROOT={libjpegturbo_install_path}',
         f'-DJPEGTurbo_ROOT={libjpegturbo_install_path}',
         f'-DCMAKE_INSTALL_PREFIX={oiio_install_path}',
-        f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}',
         f'-DPNG_ROOT={get_dependency_path(args.platform, "libpng") / "libpng"}',
         f'-DCMAKE_BUILD_TYPE=Release',
         f'-DBUILD_SHARED_LIBS=OFF',
@@ -480,11 +479,45 @@ if not SKIP_OPENIMAGEIO:
         f'-DUSE_OpenGL=OFF',
         f'-DUSE_Qt5=OFF',
         f'-DUSE_BZip2=OFF',
-        f'-DPython_ROOT={get_dependency_path(args.platform, "python") / "Python.framework/Versions/3.7"}',
-        f'-DPython_EXECUTABLE={get_dependency_path(args.platform, "python") / "Python.framework/Versions/3.7/bin/Python3"}',
         f'-DCMAKE_MODULE_PATH={module_path_string_with_custom_find_files}',
         f'-DVERBOSE=ON' # reveals problems with library inclusion
     ]
+
+    if args.platform == "darwin":
+        openimageio_configure_command += [
+            '-G', 'Ninja',
+            f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
+        ]
+    elif args.platform == "windows":
+        # TODO: On windows I had to add this or I got a linker error: 'yaml_cpp_LIBRARY-NOTFOUND.obj'
+        # Do we need to do this on other platforms as well, or do the other platforms find it a different way?
+        openimageio_configure_command += [
+            #f'-Dyaml_cpp_LIBRARY={(yamlcpp_install_path / "lib" / "libyaml-cppmd.lib").as_posix()}'
+            f'-Dyaml_cpp_LIBRARY={yamlcpp_install_path / "lib" / "libyaml-cppmd.lib"}'
+        ]
+
+    # Add python-specific configure args
+    # windows expects different args than darwin/linux
+    python_root = get_dependency_path(args.platform, "python")
+    if args.platform == "windows":
+        python_root /= "python"
+        python_lib = python_root / "libs" / "python37.lib"
+        python_include = python_root / "include"
+        python_exe = python_root / "python.exe"
+
+        openimageio_configure_command += [
+            f'-DPython_LIBRARY={python_lib}',
+            f'-DPython_INCLUDE_DIR={python_include}',
+            f'-DPython_EXECUTABLE={python_exe}'
+        ]
+    else:
+        python_root /= "Python.framework/Versions/3.7"
+        python_exe = python_root / "bin/Python3"
+
+        openimageio_configure_command += [
+            f'-DPython_ROOT={python_root}',
+            f'-DPython_EXECUTABLE={python_exe}'
+        ]
 
     exec_and_exit_if_failed(openimageio_configure_command)
 
