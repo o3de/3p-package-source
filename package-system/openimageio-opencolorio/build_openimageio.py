@@ -267,6 +267,11 @@ def BuildOpenColorIO(module_paths_to_use):
             '-G', 'Ninja',
             f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
         ]
+    elif args.platform == "windows":
+        # Without this on windows we get a linker error: png_LIBRARY-NOTFOUND
+        opencolorio_configure_command += [
+            f'-Dpng_LIBRARY={get_dependency_path(args.platform, "libpng") / "png" / "lib" / "libpng16_static.lib"}'
+        ]
 
     # Add python-specific configure args
     # windows expects different args than darwin/linux
@@ -600,7 +605,7 @@ shutil.copy2(src=source_folder_path / 'boost' / 'README.md', dst=private_deps_fo
 shutil.copy2(src=private_deps_folder / 'LibJPEGTurbo' / 'share' / 'doc' / 'libjpeg-turbo' / 'LICENSE.md', dst=private_deps_folder / 'LibJPEGTurbo' / 'LICENSE.md')
 
 print("\n----------------------------- Test package image -----------------------------")
-    
+
 module_path_string_with_package_folder = module_path_string + f';{final_package_image_root.as_posix()}'
 
 test_build_folder = build_folder_path / 'test_openimageio'
