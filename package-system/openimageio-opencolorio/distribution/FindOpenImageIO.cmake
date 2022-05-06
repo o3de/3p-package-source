@@ -70,7 +70,7 @@ endif()
 set(OpenImageIO_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenImageIO/include)
 set(OpenImageIO_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenImageIO/lib)
 set(OpenImageIO_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenImageIO/bin)
-set(OpenImageIO_VERSION "4.2.0.15")
+set(OpenImageIO_VERSION "2.3.12.0")
 set(OpenImageIO_FOUND True)
 
 add_library(OpenImageIO::OpenImageIO_Util STATIC IMPORTED GLOBAL)
@@ -81,6 +81,12 @@ add_library(OpenImageIO::OpenImageIO STATIC IMPORTED GLOBAL)
 set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
     INTERFACE_COMPILE_DEFINITIONS "OIIO_STATIC_DEFINE=1"
     IMPORTED_LOCATION ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${CMAKE_STATIC_LIBRARY_SUFFIX})
+
+# The Boost and LibJPEGTurbo libs have special suffixes on windows
+if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+    set(_boost_LIB_SUFFIX "-vc142-mt-x64-1_76")
+    set(_jpegTurbo_LIB_SUFFIX "-static")
+endif()
 
 target_link_libraries(OpenImageIO::OpenImageIO INTERFACE 
     expat::expat
@@ -95,14 +101,14 @@ target_link_libraries(OpenImageIO::OpenImageIO INTERFACE
     ZLIB::ZLIB
     Freetype::Freetype
     # private dependencies that we intentionally DO NOT WANT to create friendly targets for:
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_atomic.a
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_chrono.a
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_date_time.a
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_filesystem.a
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_system.a
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_thread.a
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/LibJPEGTurbo/lib/libturbojpeg.a
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/LibJPEGTurbo/lib/libjpeg.a
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_atomic${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_chrono${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_date_time${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_filesystem${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_system${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_thread${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/LibJPEGTurbo/lib/${CMAKE_STATIC_LIBRARY_PREFIX}turbojpeg${_jpegTurbo_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/LibJPEGTurbo/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jpeg${_jpegTurbo_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
     "-framework Carbon"
     "-framework IOKit"
 )

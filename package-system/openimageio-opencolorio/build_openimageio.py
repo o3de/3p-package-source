@@ -579,17 +579,18 @@ print("Cleaning unnecessary/private files")
 # and the OpenImageIO library doesn't expose any boost usage in its public API, so we can remove all the headers.
 # note that we delete the cmake and pkgconfig files since they contain absolute paths to the machine
 # that they were built on, and won't be useful anyway
+# Ignore errors when removing the pkgconfig folders since they won't be present on windows
 shutil.rmtree(path=private_deps_folder / 'Boost' / 'include')
 shutil.rmtree(path=private_deps_folder / 'Boost' / 'lib' / 'cmake')
 shutil.rmtree(path=private_deps_folder / 'LibJPEGTurbo' / 'include')
 shutil.rmtree(path=private_deps_folder / 'LibJPEGTurbo' / 'bin')
 shutil.rmtree(path=private_deps_folder / 'LibJPEGTurbo' / 'lib' / 'cmake')
-shutil.rmtree(path=private_deps_folder / 'LibJPEGTurbo' / 'lib' / 'pkgconfig')
-shutil.rmtree(path=final_package_image_root / 'OpenColorIO' / 'lib' / 'pkgconfig')
+shutil.rmtree(path=private_deps_folder / 'LibJPEGTurbo' / 'lib' / 'pkgconfig', ignore_errors=True)
+shutil.rmtree(path=final_package_image_root / 'OpenColorIO' / 'lib' / 'pkgconfig', ignore_errors=True)
 shutil.rmtree(path=final_package_image_root / 'OpenColorIO' / 'lib' / 'cmake')
 shutil.rmtree(path=final_package_image_root / 'OpenColorIO' / 'share')
 
-shutil.rmtree(path=final_package_image_root / 'OpenImageIO' / 'lib' / 'pkgconfig')
+shutil.rmtree(path=final_package_image_root / 'OpenImageIO' / 'lib' / 'pkgconfig', ignore_errors=True)
 shutil.rmtree(path=final_package_image_root / 'OpenImageIO' / 'lib' / 'cmake')
 
 print("Copying License and package files")
@@ -615,17 +616,21 @@ if test_build_folder.exists():
 
 test_configure_command = [ 
     'cmake',
-    '-G', 'Ninja',
     f'-S',
     f'{script_folder / "test"}',
     f'-B',
     test_build_folder,
-    f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}',
     f'-DCMAKE_BUILD_TYPE=Release',
     f'-DCMAKE_CXX_STANDARD=17',
     f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
     f'-DCMAKE_MODULE_PATH={module_path_string_with_package_folder}',
 ]
+
+if args.platform == "darwin":
+    test_configure_command += [
+        '-G', 'Ninja',
+        f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
+    ]
 
 exec_and_exit_if_failed(test_configure_command)
 
@@ -641,8 +646,13 @@ test_build_command = [
 exec_and_exit_if_failed(test_build_command)
 
 test_executable_path = ''
-if platform.system().lower() == 'darwin':
+if args.platform == 'darwin':
     test_executable_path = test_build_folder / 'test_OpenImageIO.app' / 'Contents' / 'MacOS' / 'test_OpenImageIO'
+elif args.platform == 'windows':
+    test_executable_path = test_build_folder / 'Release' / 'test_OpenImageIO.exe'
+else:
+    # TODO: Make sure this works on Linux
+    test_executable_path = test_build_folder / 'Release' / 'test_OpenImageIO'
 
 
 test_exec_command = [
