@@ -46,10 +46,10 @@ import shutil
 
 
 openimageio_repository_url = 'https://github.com/OpenImageIO/oiio.git'
-openimageio_repository_tag = 'v2.3.15.0'
+openimageio_repository_tag = 'v2.3.12.0'
 
 opencolorio_repository_url='https://github.com/AcademySoftwareFoundation/OpenColorIO.git'
-opencolorio_repository_tag='v2.1.0' # officially, oiio uses 'v2.0.1'
+opencolorio_repository_tag='v2.1.1'
 
 boost_repository_url = 'https://github.com/boostorg/boost.git'
 boost_repository_tag = 'boost-1.76.0' 
