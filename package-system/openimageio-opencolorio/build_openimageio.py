@@ -37,6 +37,7 @@ that there is no patent danger.
 '''
 
 import argparse
+import glob
 import os
 import platform
 import subprocess
@@ -107,6 +108,7 @@ yamlcpp_install_path =  temp_folder_path / 'yaml-cpp_install'
 boost_install_path = temp_folder_path / 'boost_install'
 oiio_install_path = temp_folder_path / 'oiio_install'
 libjpegturbo_install_path = temp_folder_path / 'libjpegturbo_install'
+test_script_folder = script_folder / 'test'
 final_package_image_root = temp_folder_path / 'package'
 
 sys.path.insert(1, str(general_scripts_path.absolute().resolve()) )
@@ -659,7 +661,27 @@ test_exec_command = [
     test_executable_path
 ]
 
-exec_and_exit_if_failed(test_exec_command, cwd=script_folder / 'test')
+exec_and_exit_if_failed(test_exec_command, cwd=test_script_folder)
+
+# Test the OIIO python library
+final_package_site_packages = final_package_image_root / 'OpenImageIO' / 'lib' / 'python3.7' / 'site-packages'
+pyd_path = final_package_site_packages / '*.pyd'
+found_pyds = glob.glob(str(pyd_path))
+if len(found_pyds) != 1:
+    print("Couldn't find OpenImageIO pyd")
+    exit(-1)
+
+# Insert our package folder with the pyd into the sys.path so that the test can
+# import OpenImageIO from it
+# TODO: Will need to update this final site-packages directory based on where we decide to put the pyds in the final package
+# As well as our actual test scripts folder so we can import the tests
+sys.path.insert(1, str(test_script_folder.absolute().resolve()))
+sys.path.insert(1, str(final_package_site_packages.absolute().resolve()))
+from python_tests import test_OpenImageIO
+
+if not test_OpenImageIO():
+    print("OpenImageIO python test failed")
+    exit(-1)
 
 print(f"Build and test complete!  Folder image created in {final_package_image_root}")
 
