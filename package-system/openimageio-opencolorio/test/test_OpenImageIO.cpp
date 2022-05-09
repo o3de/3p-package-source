@@ -12,9 +12,17 @@
 #include <OpenImageIO/imageio.h>
 #include <OpenImageIO/imagebufalgo.h>
 
+// Test include for OpenColorIO as well
+#include <OpenColorIO/OpenColorIO.h>
+
 int main()
 {
     using namespace OIIO;
+    namespace OCIO = OCIO_NAMESPACE;
+
+    // Try retrieving the OCIO global config
+    auto config = OCIO::GetCurrentConfig();
+
     printf("All is ok\n");
     const char* filename = "base_Log2-48nits_16_LUT.exr";
     auto inp = ImageInput::open(filename);

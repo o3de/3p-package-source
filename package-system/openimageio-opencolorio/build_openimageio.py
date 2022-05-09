@@ -37,7 +37,6 @@ that there is no patent danger.
 '''
 
 import argparse
-import glob
 import os
 import platform
 import subprocess
@@ -663,24 +662,24 @@ test_exec_command = [
 
 exec_and_exit_if_failed(test_exec_command, cwd=test_script_folder)
 
-# Test the OIIO python library
-final_package_site_packages = final_package_image_root / 'OpenImageIO' / 'lib' / 'python3.7' / 'site-packages'
-pyd_path = final_package_site_packages / '*.pyd'
-found_pyds = glob.glob(str(pyd_path))
-if len(found_pyds) != 1:
-    print("Couldn't find OpenImageIO pyd")
-    exit(-1)
+# Test the OIIO and OCIO python libraries
+oiio_site_packages = final_package_image_root / 'OpenImageIO' / 'lib' / 'python3.7' / 'site-packages'
+ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'site-packages'
 
-# Insert our package folder with the pyd into the sys.path so that the test can
-# import OpenImageIO from it
-# TODO: Will need to update this final site-packages directory based on where we decide to put the pyds in the final package
-# As well as our actual test scripts folder so we can import the tests
+# Insert our site-packages folders with the pyds into the sys.path so that the test can
+# import from them, as well as our actual test scripts folder so we can import the tests
+# TODO: Will need to update these final site-packages directories based on where we decide to put the pyds in the final package
 sys.path.insert(1, str(test_script_folder.absolute().resolve()))
-sys.path.insert(1, str(final_package_site_packages.absolute().resolve()))
-from python_tests import test_OpenImageIO
+sys.path.insert(1, str(oiio_site_packages.absolute().resolve()))
+sys.path.insert(1, str(ocio_site_packages.absolute().resolve()))
+from python_tests import test_OpenImageIO, test_OpenColorIO
 
 if not test_OpenImageIO():
     print("OpenImageIO python test failed")
+    exit(-1)
+
+if not test_OpenColorIO():
+    print("OpenColorIO python test failed")
     exit(-1)
 
 print(f"Build and test complete!  Folder image created in {final_package_image_root}")

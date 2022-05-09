@@ -11,6 +11,7 @@
 import os
 
 import OpenImageIO as oiio
+import PyOpenColorIO as ocio
 
 def test_OpenImageIO():
     print("All is ok")
@@ -57,3 +58,9 @@ def test_OpenImageIO():
 
     # Test success!
     return True
+
+def test_OpenColorIO():
+    # Quick test of the OCIO API to make sure we can retrieve the global config
+    config = ocio.GetCurrentConfig()
+
+    return config is not None
