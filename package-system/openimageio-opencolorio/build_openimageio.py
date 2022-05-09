@@ -684,7 +684,6 @@ if not test_OpenColorIO():
 
 print(f"Build and test complete!  Folder image created in {final_package_image_root}")
 
-# TODO:  Add a test for opencolorio to prove it works without other deps.
 # TODO:  Figure out how the deployment of Python PYDs work (mac, linux, windows)
 # TODO:  Extract BOOST and build it for other 3p projects.  VFX PLATFORM is boost 1.76
 # TODO:  Update Pybind11 - need at least the version this is looking for
