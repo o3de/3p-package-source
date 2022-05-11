@@ -37,6 +37,7 @@ that there is no patent danger.
 '''
 
 import argparse
+import json
 import os
 import platform
 import subprocess
@@ -594,8 +595,21 @@ shutil.rmtree(path=final_package_image_root / 'OpenColorIO' / 'share')
 shutil.rmtree(path=final_package_image_root / 'OpenImageIO' / 'lib' / 'pkgconfig', ignore_errors=True)
 shutil.rmtree(path=final_package_image_root / 'OpenImageIO' / 'lib' / 'cmake')
 
+# Generate our PackageInfo.json dynamically for the platform, and pretty
+# print the JSON so that it's human readable
+print("Generating PackageInfo.json")
+package_info = {
+    "PackageName" : f"openimageio-opencolorio-2.3.12.0-{args.platform.lower()}",
+    "URL"         : "https://github.com/OpenImageIO/oiio and https://opencolorio.org/",
+    "License"     : "BSD-3-Clause",
+    "LicenseFile" : "LICENSE.TXT"
+}
+package_info_file = open(final_package_image_root / 'PackageInfo.json', "w")
+pretty_json = json.dumps(package_info, indent=4)
+package_info_file.write(pretty_json)
+package_info_file.close()
+
 print("Copying License and package files")
-shutil.copy2(src=script_folder / 'distribution' / 'PackageInfo.json', dst=final_package_image_root / 'PackageInfo.json')
 shutil.copy2(src=script_folder / 'distribution' / 'LICENSE.TXT', dst=final_package_image_root / 'LICENSE.TXT')
 # note that we're copying the distribution license, ie, the one that goes with the package, not the
 # license thats in THIS repo, to the root of the built package.
