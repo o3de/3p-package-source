@@ -29,6 +29,7 @@
         },
         "Darwin": {
             "Mac": {
+                "cmake_find_source": "FindQt.cmake.mac",
                 "package_version": "5.15.2-rev8",
                 "patch_file": "qt-image-format.patch",
                 "depends_on_packages": [
