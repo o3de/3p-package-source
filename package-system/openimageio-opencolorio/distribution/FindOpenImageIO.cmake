@@ -123,6 +123,38 @@ else()
     target_include_directories(OpenImageIO::OpenImageIO SYSTEM INTERFACE ${OpenImageIO_INCLUDE_DIR})
 endif()
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(OpenImageIO_RUNTIME_DEPENDENCIES
+        ${OpenImageIO_BIN_DIR}/concrt140.dll
+        ${OpenImageIO_BIN_DIR}/msvcp140.dll
+        ${OpenImageIO_BIN_DIR}/msvcp140_1.dll
+        ${OpenImageIO_BIN_DIR}/msvcp140_2.dll
+        ${OpenImageIO_BIN_DIR}/msvcp140_atomic_wait.dll
+        ${OpenImageIO_BIN_DIR}/msvcp140_codecvt_ids.dll
+        ${OpenImageIO_BIN_DIR}/vcruntime140.dll
+        ${OpenImageIO_BIN_DIR}/vcruntime140_1.dll
+
+        ${OpenImageIO_BIN_DIR}/iconvert.exe
+        ${OpenImageIO_BIN_DIR}/idiff.exe
+        ${OpenImageIO_BIN_DIR}/igrep.exe
+        ${OpenImageIO_BIN_DIR}/iinfo.exe
+        ${OpenImageIO_BIN_DIR}/maketx.exe
+        ${OpenImageIO_BIN_DIR}/oiiotool.exe
+
+        ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.cp37-win_amd64.pyd
+    )
+else()
+    # TODO: Confirm the .pyd path on darwin/linux
+    set(OpenImageIO_RUNTIME_DEPENDENCIES
+        ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.pyd
+    )
+endif()
+
+# Make sure our runtime dependencies get copied (e.g. the .pyd files)
+if (COMMAND ly_add_target_files)
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO FILES ${OpenImageIO_RUNTIME_DEPENDENCIES})
+endif()
+
 #only windows ships with debug libraries:
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
     set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES 
