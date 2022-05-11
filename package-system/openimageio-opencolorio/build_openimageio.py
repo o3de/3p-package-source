@@ -668,7 +668,6 @@ ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'site-pa
 
 # Insert our site-packages folders with the pyds into the sys.path so that the test can
 # import from them, as well as our actual test scripts folder so we can import the tests
-# TODO: Will need to update these final site-packages directories based on where we decide to put the pyds in the final package
 sys.path.insert(1, str(test_script_folder.absolute().resolve()))
 sys.path.insert(1, str(oiio_site_packages.absolute().resolve()))
 sys.path.insert(1, str(ocio_site_packages.absolute().resolve()))
@@ -684,7 +683,6 @@ if not test_OpenColorIO():
 
 print(f"Build and test complete!  Folder image created in {final_package_image_root}")
 
-# TODO:  Figure out how the deployment of Python PYDs work (mac, linux, windows)
 # TODO:  Extract BOOST and build it for other 3p projects.  VFX PLATFORM is boost 1.76
 # TODO:  Update Pybind11 - need at least the version this is looking for
 # TODO:  OPenEXR Mac OS version update to minos!
