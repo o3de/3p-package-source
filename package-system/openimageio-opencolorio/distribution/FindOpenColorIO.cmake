@@ -56,6 +56,32 @@ else()
     target_include_directories(OpenColorIO::OpenColorIO SYSTEM INTERFACE ${OpenColorIO_INCLUDE_DIR})
 endif()
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(OpenColorIO_RUNTIME_DEPENDENCIES
+        ${OpenColorIO_BIN_DIR}/ociobakelut.exe
+        ${OpenColorIO_BIN_DIR}/ociocheck.exe
+        ${OpenColorIO_BIN_DIR}/ociochecklut.exe
+        ${OpenColorIO_BIN_DIR}/ocioconvert.exe
+        ${OpenColorIO_BIN_DIR}/ociolutimage.exe
+        ${OpenColorIO_BIN_DIR}/ociomakeclf.exe
+        ${OpenColorIO_BIN_DIR}/ocioperf.exe
+        ${OpenColorIO_BIN_DIR}/ociowrite.exe
+
+        ${OpenColorIO_LIB_DIR}/site-packages/PyOpenColorIO.pyd
+    )
+else()
+    # TODO: Do darwin/linux have any ocio executables we need to add?
+    #   If so, do we actually need to add them as targets? If not, we can just
+    #   have a single .pyd as the runtime dependency that would be the same on all platforms
+    set(OpenColorIO_RUNTIME_DEPENDENCIES
+        ${OpenColorIO_LIB_DIR}/site-packages/PyOpenColorIO.pyd
+    )
+endif()
+
+if (COMMAND ly_add_target_files)
+    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO FILES ${OpenColorIO_RUNTIME_DEPENDENCIES})
+endif()
+
 # alias the OpenColorIO library to the O3DE 3rdParty library
 add_library(3rdParty::OpenColorIO ALIAS OpenColorIO::OpenColorIO)
 
