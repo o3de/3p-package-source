@@ -2,7 +2,7 @@
    "git_url":"https://github.com/KhronosGroup/OpenXR-SDK.git",
    "git_tag":"release-1.0.22",
    "package_name":"OpenXR",
-   "package_version":"1.0.22-rev1",
+   "package_version":"1.0.22-rev2",
    "package_url":"https://www.khronos.org/openxr/",
    "package_license":"Apache-2.0",
    "package_license_file":"LICENSE",
@@ -55,7 +55,8 @@
             ],
             "cmake_generate_args": [
                "-G",
-               "\"Ninja Multi-Config\""
+               "\"Ninja Multi-Config\"",
+               "-DBUILD_WITH_STD_FILESYSTEM=OFF"
             ],
             "custom_test_cmd" : [
            ]
