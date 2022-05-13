@@ -45,7 +45,7 @@ additional_copyright_notices = ["QT-NOTICE.TXT",
                                 os.path.join("temp","src", "qtfeedback", "LGPL_EXCEPTION.txt")]
 for file in additional_copyright_notices:
     if not os.path.isfile(file):
-        printf(f"Error: Cannot locate copyright notice file: {file}")
+        print(f"Error: Cannot locate copyright notice file: {file}")
         sys.exit(1)
     print(f"Copying {file} => {package_qt_root}")
     shutil.copy2(file, package_qt_root)
