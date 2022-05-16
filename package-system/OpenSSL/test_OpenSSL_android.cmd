@@ -11,13 +11,12 @@ mkdir temp\build_test
 
 @rem CMAKE demands forward slashes but PACKAGE_ROOT is in native path:
 set "PACKAGE_ROOT=%PACKAGE_ROOT:\=/%"
-set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 
 cmake -S test -B temp/build_test ^
     -G Ninja ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake ^
-    -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%;%PACKAGE_ROOT%" || exit /b 1
+    -DCMAKE_MODULE_PATH="%PACKAGE_ROOT%" || exit /b 1
 
 cmake --build temp/build_test --parallel || exit /b 1
 
