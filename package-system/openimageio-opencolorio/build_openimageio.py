@@ -496,10 +496,8 @@ if not SKIP_OPENIMAGEIO:
             f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
         ]
     elif args.platform == "windows":
-        # TODO: On windows I had to add this or I got a linker error: 'yaml_cpp_LIBRARY-NOTFOUND.obj'
-        # Do we need to do this on other platforms as well, or do the other platforms find it a different way?
+        # Without this on windows we get a linker error: yaml_cpp_LIBRARY-NOTFOUND
         openimageio_configure_command += [
-            #f'-Dyaml_cpp_LIBRARY={(yamlcpp_install_path / "lib" / "libyaml-cppmd.lib").as_posix()}'
             f'-Dyaml_cpp_LIBRARY={yamlcpp_install_path / "lib" / "libyaml-cppmd.lib"}'
         ]
 
@@ -696,10 +694,3 @@ if not test_OpenColorIO():
     exit(-1)
 
 print(f"Build and test complete!  Folder image created in {final_package_image_root}")
-
-# TODO:  Extract BOOST and build it for other 3p projects.  VFX PLATFORM is boost 1.76
-# TODO:  Update Pybind11 - need at least the version this is looking for
-# TODO:  OPenEXR Mac OS version update to minos!
-
-# TODO:  Does more than 1 package depend on Boost? yes, potentially
-# TODO:  Does more than 1 package depend on yaml-cpp?  Yes, potentially
