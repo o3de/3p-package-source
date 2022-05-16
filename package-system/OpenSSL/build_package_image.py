@@ -91,7 +91,7 @@ def main():
         )
     # now test the package, it will be in outputDir
     customEnviron = os.environ.copy()
-    customEnviron["PACKAGE_ROOT"] = outputDir
+    customEnviron["PACKAGE_ROOT"] = str(outputDir.resolve())
     scriptpath = testScriptForPlatform[args.platformName].resolve()
     cwdpath = opensslPackageSourceDir.resolve()
     print(f'Running test script "{scriptpath}" with package "{outputDir}" with cwd "{cwdpath}"')

@@ -1,0 +1,5 @@
+
+# In the case of OpenSSL, we're downloading a unix (Linefeed only, not CR/LF) tar.gz
+# and unzipping it.  This means that the patch should also be lf, not crlf
+
+*.patch text eol=lf
