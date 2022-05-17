@@ -165,7 +165,7 @@ def get_dependency_path(platform, depname):
 
 parser = argparse.ArgumentParser(description='Builds this package')
 parser.add_argument('--platform', default=platform.system().lower(), required=False, help=f'Platform to build (defaults to \"{platform.system().lower()}\")')
-parser.add_argument('--clean',    default=False,                     required=False, help=f'Complete clean build, if true, will delete entire temp and refetch dependencies')
+parser.add_argument('--clean',    action='store_true',               required=False, help=f'Complete clean build, if true, will delete entire temp and refetch dependencies')
 
 args = parser.parse_args()
 if args.platform not in dependencies.keys():
