@@ -29,6 +29,7 @@ class VcpkgBuilder(object):
         self._vcpkgDir = vcpkgDir
         self._triplet = VcpkgBuilder.tripletForPlatform(targetPlatform, static)
         self._customTripletsDir = Path(__file__).resolve().parents[1] / 'vcpkg/triplets'
+        self._customEnviron = os.environ.copy()
 
         if targetPlatform == 'android' and 'ANDROID_NDK_HOME' not in os.environ:
             # Copy some of the logic from vcpkg's android ndk detection, and see if we can print a warning early
@@ -43,6 +44,15 @@ class VcpkgBuilder(object):
             if not androidNdkFound:
                 raise RuntimeError('Unable to find the Android NDK. '
                     'Please set the ANDROID_NDK_HOME environment variable to the root of the Android NDK')
+        
+        if targetPlatform == 'mac':
+            # set default env vars that control minos version.  Change this if you change the toolchain files.
+            # ideally we'd put this in triplet files, but it turns out VCPKG triplets like the minos version
+            # don't acutally work in the case where the target is built using existing makefiles instead of
+            # CMake (ie, packages like OpenSSL1.1.1x)
+            self._customEnviron["MACOSX_DEPLOYMENT_TARGET"] = "11.0"
+        elif targetPlatform == 'ios':
+            self._customEnviron["IPHONEOS_DEPLOYMENT_TARGET"] = "14.0"
 
     @staticmethod
     def tripletForPlatform(platformName: str, static: bool):
@@ -89,6 +99,34 @@ class VcpkgBuilder(object):
             'Linux': 'linux',
         }
         return platformMap[platform.system()]
+
+    @staticmethod
+    def deleteFolder(folder):
+        """
+        Use the system's remove folder command instead of os.rmdir().
+        This function does various checks before trying, to avoid having to do those
+        checks over and over in code.
+        """
+        # wrap it up in a Path so that if a string is passed in, this still works.
+        path_folder = pathlib.Path(folder).resolve(strict=False)
+        if path_folder.is_file():
+            raise Exception(f"deleteFolder: Expected a folder, but found a file: {path_folder}.  Continuing may be unsafe.")
+        if not path_folder.is_dir():
+            print(f'deleteFolder:  Folder is already not present: {path_folder}')
+            return
+        
+        if platform.system() == 'Windows':
+            call_result = subprocess.run(' '.join(['rmdir', '/Q', '/S', str(path_folder)]),
+                                        shell=True,
+                                        capture_output=True,
+                                        cwd=str(path_folder.parent.resolve()))
+        else:
+            call_result = subprocess.run(' '.join(['rm', '-rf', str(path_folder)]),
+                                        shell=True,
+                                        capture_output=True,
+                                        cwd=str(path_folder.parent.resolve()))
+        if call_result.returncode != 0:
+            raise Exception(f"deleteFolder: Unable to delete folder {str(path_folder)}: {str(call_result.stderr.decode())}")
 
     @property
     def customTripletsDir(self):
@@ -148,7 +186,7 @@ class VcpkgBuilder(object):
 
     def patch(self, patchFile: pathlib.Path):
         subprocess.check_output(
-            ['git', 'apply', '--whitespace=fix', str(patchFile)],
+            ['git', 'apply', '--whitespace=fix', '--verbose',  str(patchFile)],
             cwd=self.vcpkgDir,
         )
 
@@ -157,7 +195,8 @@ class VcpkgBuilder(object):
 
         subprocess.check_call(
             [str(self.vcpkgDir / 'vcpkg'), 'install', f'{self.portName}:{self.triplet}', '--no-binarycaching', f'--overlay-triplets={self.customTripletsDir}'],
-            cwd=self.vcpkgDir,
+            cwd=self.vcpkgDir, 
+            env=self._customEnviron
         )
 
     def remove(self):

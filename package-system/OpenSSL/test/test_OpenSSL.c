@@ -24,7 +24,7 @@ int main()
         return 1;
     }
 
-    if (strcmp(OPENSSL_VERSION_TEXT, "OpenSSL 1.1.1m  14 Dec 2021") != 0)
+    if (strcmp(OPENSSL_VERSION_TEXT, "OpenSSL 1.1.1o  3 May 2022") != 0)
     {
         printf("FAILURE! OpenSSL OPENSSL_VERSION_TEXT returned invalid text (%s)!\n", OPENSSL_VERSION_TEXT);
         return 1;

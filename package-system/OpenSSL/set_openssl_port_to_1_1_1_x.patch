@@ -1,0 +1,31 @@
+diff --git a/ports/openssl/portfile.cmake b/ports/openssl/portfile.cmake
+index 12142f8..791caf1 100644
+--- a/ports/openssl/portfile.cmake
++++ b/ports/openssl/portfile.cmake
+@@ -2,12 +2,12 @@ if(EXISTS "${CURRENT_INSTALLED_DIR}/include/openssl/ssl.h")
+     message(FATAL_ERROR "Can't build openssl if libressl/boringssl is installed. Please remove libressl/boringssl, and try install openssl again if you need it.")
+ endif()
+ 
+-set(OPENSSL_VERSION 1.1.1m)
++set(OPENSSL_VERSION 1.1.1o)
+ vcpkg_download_distfile(
+     ARCHIVE
+     URLS "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" "https://www.openssl.org/source/old/1.1.1/openssl-${OPENSSL_VERSION}.tar.gz"
+     FILENAME "openssl-${OPENSSL_VERSION}.tar.gz"
+-    SHA512 ba0ef99b321546c13385966e4a607734df38b96f6ed45c4c67063a5f8d1482986855279797a6920d9f86c2ec31ce3e104dcc62c37328caacdd78aec59aa66156
++    SHA512 75b2f1499cb4640229eb6cd35d85cbff2e19db17b959ac4d04b60f1b395b73567f9003521452a0fcfeea9b31b26de0a7bccf476ecf9caae02298f3647cfb7e23
+ )
+ 
+ vcpkg_find_acquire_program(PERL)
+diff --git a/ports/openssl/vcpkg.json b/ports/openssl/vcpkg.json
+index 516fc53..24f5696 100644
+--- a/ports/openssl/vcpkg.json
++++ b/ports/openssl/vcpkg.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "openssl",
+-  "version-string": "1.1.1m",
++  "version-string": "1.1.1o",
+   "port-version": 2,
+   "description": "OpenSSL is an open source project that provides a robust, commercial-grade, and full-featured toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols. It is also a general-purpose cryptography library.",
+   "homepage": "https://www.openssl.org",
