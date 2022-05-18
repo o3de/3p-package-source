@@ -291,7 +291,6 @@ def BuildOpenColorIO(module_paths_to_use):
         ]
 
     # Add python-specific configure args
-    # windows expects different args than darwin/linux
     python_root = get_dependency_path(args.platform, "python")
     if args.platform == "windows":
         python_root /= "python"
@@ -304,9 +303,17 @@ def BuildOpenColorIO(module_paths_to_use):
             f'-DPython_INCLUDE_DIR={python_include}',
             f'-DPython_EXECUTABLE={python_exe}'
         ]
-    else:
+    elif args.platform == "darwin":
         python_root /= "Python.framework/Versions/3.7"
         python_exe = python_root / "bin/Python3"
+
+        opencolorio_configure_command += [
+            f'-DPython_ROOT={python_root}',
+            f'-DPython_EXECUTABLE={python_exe}'
+        ]
+    else: # linux
+        python_root /= "python"
+        python_exe = python_root / "bin/python3"
 
         opencolorio_configure_command += [
             f'-DPython_ROOT={python_root}',
@@ -527,7 +534,6 @@ if not SKIP_OPENIMAGEIO:
         ]
 
     # Add python-specific configure args
-    # windows expects different args than darwin/linux
     python_root = get_dependency_path(args.platform, "python")
     if args.platform == "windows":
         python_root /= "python"
@@ -540,11 +546,19 @@ if not SKIP_OPENIMAGEIO:
             f'-DPython_INCLUDE_DIR={python_include}',
             f'-DPython_EXECUTABLE={python_exe}'
         ]
-    else:
+    elif args.platform == "darwin":
         python_root /= "Python.framework/Versions/3.7"
         python_exe = python_root / "bin/Python3"
 
-        openimageio_configure_command += [
+        opencolorio_configure_command += [
+            f'-DPython_ROOT={python_root}',
+            f'-DPython_EXECUTABLE={python_exe}'
+        ]
+    else: # linux
+        python_root /= "python"
+        python_exe = python_root / "bin/python3"
+
+        opencolorio_configure_command += [
             f'-DPython_ROOT={python_root}',
             f'-DPython_EXECUTABLE={python_exe}'
         ]
