@@ -713,8 +713,7 @@ if args.platform == 'darwin':
 elif args.platform == 'windows':
     test_executable_path = test_build_folder / 'Release' / 'test_OpenImageIO.exe'
 else:
-    # TODO: Make sure this works on Linux
-    test_executable_path = test_build_folder / 'Release' / 'test_OpenImageIO'
+    test_executable_path = test_build_folder / 'test_OpenImageIO'
 
 
 test_exec_command = [
