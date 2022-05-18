@@ -137,6 +137,8 @@ def exec_and_exit_if_failed(invoke_params, cwd=script_folder, shell=False):
     print(f'       CWD: {cwd}')
     print(f'     SHELL: {shell}')
     print('Output:')
+    if shell: # for shell invocations, join it all
+        invoke_params = [friendly_args]
     result_value = subprocess.run(invoke_params, shell=shell, cwd=cwd)
     if result_value.returncode != 0:
         print(f"Exec: Failed with return code {result_value}")
