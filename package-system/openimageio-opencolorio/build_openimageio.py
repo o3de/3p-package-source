@@ -77,7 +77,7 @@ dependencies = {
     'darwin' :
         {
             'zlib' :     ('zlib-1.2.11-rev5-mac',              'b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096'),
-            'openexr' :  ('OpenEXR-3.1.3-rev2-mac',            'af8163d3a92ebf8833ebf61589c5f82ba48d8b5fe42e55693ed6248e540609ef'),
+            'openexr' :  ('OpenEXR-3.1.3-rev4-mac',            '927b8ca6cc5815fa8ee4efe6ea2845487cba2540f7958d537692e7c9481a68fc'),
             'python' :   ('python-3.7.12-rev2-darwin',         'ee4b77a907e08e3f3e6a08ea6418e8c083c78c20d264b4bc055e50d0db512001'),
             'tiff' :     ('tiff-4.2.0.15-rev3-mac',            'c2615ccdadcc0e1d6c5ed61e5965c4d3a82193d206591b79b805c3b3ff35a4bf'),
             'libpng' :   ('png-1.6.37-rev2-mac',               '515252226a6958c459f53d8598d80ec4f90df33d2f1637104fd1a636f4962f07'),
@@ -87,7 +87,7 @@ dependencies = {
     'windows' :
         {
             'zlib' :     ('zlib-1.2.11-rev5-windows',          '8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd'),
-            'openexr' :  ('OpenEXR-3.1.3-rev2-windows',        'cf7707193d4b1c3dd9de7a940641d7750522fc1079f47fde145f31052206a6f3'),
+            'openexr' :  ('OpenEXR-3.1.3-rev4-windows',        'c850268e849171751cdaefdab1952333ac38afbb771b999e99d67f9761706d98'),
             'python' :   ('python-3.7.12-rev2-windows',        '1173d886f6192f57b9cafb225fe679e2781f4a40a89f4bb31ee81d2b7fcad632'),
             'tiff' :     ('tiff-4.2.0.15-rev3-windows',        'c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60'),
             'libpng' :   ('png-1.6.37-rev2-windows',           'e16539a0fff26ac9ef80dd11ef0103eca91745519eacd41d41d96911c173589f'),
@@ -97,7 +97,7 @@ dependencies = {
     'linux' :
         {
             'zlib' :     ('zlib-1.2.11-rev5-linux',            '9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc'),
-            'openexr' :  ('OpenEXR-3.1.3-rev2-linux',          'd6f5fb9b40ccd636537fe69154f4737742eb9e14edf11218644d0a55df87b046'),
+            'openexr' :  ('OpenEXR-3.1.3-rev4-linux',          'fcbac68cfb4e3b694580bc3741443e111aced5f08fde21a92e0c768e8803c7af'),
             'python' :   ('python-3.7.12-rev2-linux',          '04ae255f22a6f0529cf07108aef68f8aee8c76cd551dde70f1c90731ebf0b7b4'),
             'tiff' :     ('tiff-4.2.0.15-rev3-linux',          '2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a'),
             'libpng' :   ('png-1.6.37-rev2-linux',             '5c82945a1648905a5c4c5cee30dfb53a01618da1bf58d489610636c7ade5adf5'),
