@@ -74,7 +74,7 @@
         "OpenSSL-1.1.1b-rev2-mac": "package-system/OpenSSL-mac",
         "OpenSSL-1.1.1b-rev2-ios": "package-system/OpenSSL-ios",
         "OpenEXR-3.1.3-rev2-mac": "package-system/OpenEXR-mac",
-        "openimageio-opencolorio-2.3.12.0-mac": "package-system/openimageio-opencolorio-mac",
+        "openimageio-opencolorio-2.3.12.0-mac": "package-system/openimageio-opencolorio/temp/package-darwin",
         "tiff-4.2.0.15-rev3-mac": "package-system/tiff-mac",
         "tiff-4.2.0.15-rev3-ios": "package-system/tiff-ios",
         "python-3.7.12-rev2-darwin": "package-system/python/darwin_x64/package",
