@@ -413,7 +413,9 @@ if not SKIP_BOOST:
     if args.platform.lower() != 'windows':
         print("(Using hidden visibility by default)")
         boost_build_command += ['cflags=-fPIC',
-            'cxxflags=-fvisibility=hidden -fvisibility-inlines-hidden -fPIC'
+            'cxxflags=-fvisibility=hidden',
+            'cxxflags=-fvisibility-inlines-hidden',
+            'cxxflags=-fPIC'
         ]
 
     exec_and_exit_if_failed(boost_build_command, cwd=source_folder_path / 'boost', shell=True)
