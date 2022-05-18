@@ -277,8 +277,8 @@ def BuildOpenColorIO(module_paths_to_use):
     # We want to use ninja on both darwin and linux
     if args.platform != "windows":
         opencolorio_configure_command += [
-                '-G', 'Ninja'
-            ]
+            '-G', 'Ninja'
+        ]
 
     if args.platform == "darwin":
         opencolorio_configure_command += [
@@ -410,8 +410,9 @@ if not SKIP_BOOST:
     # as will be likely set for applications where it is used as a dependency.
     if args.platform.lower() != 'windows':
         print("(Using hidden visibility by default)")
-        boost_build_command.append('cxxflags=-fvisibility=hidden')
-        boost_build_command.append('cxxflags=-fvisibility-inlines-hidden')
+        boost_build_command += ['cflags=-fPIC',
+            'cxxflags=-fvisibility=hidden -fvisibility-inlines-hidden -fPIC'
+        ]
 
     exec_and_exit_if_failed(boost_build_command, cwd=source_folder_path / 'boost', shell=True)
 
@@ -446,8 +447,8 @@ if not SKIP_LIBJPEGTURBO:
     # We want to use ninja on both darwin and linux
     if args.platform != "windows":
         libjpegturbo_configure_command += [
-                '-G', 'Ninja'
-            ]
+            '-G', 'Ninja'
+        ]
 
     if args.platform == "darwin":
         libjpegturbo_configure_command += [
@@ -520,8 +521,8 @@ if not SKIP_OPENIMAGEIO:
     # We want to use ninja on both darwin and linux
     if args.platform != "windows":
         openimageio_configure_command += [
-                '-G', 'Ninja'
-            ]
+            '-G', 'Ninja'
+        ]
 
     if args.platform == "darwin":
         openimageio_configure_command += [
@@ -681,8 +682,8 @@ test_configure_command = [
 # We want to use ninja on both darwin and linux
 if args.platform != "windows":
     test_configure_command += [
-            '-G', 'Ninja'
-        ]
+        '-G', 'Ninja'
+    ]
 
 if args.platform == "darwin":
     test_configure_command += [
