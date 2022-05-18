@@ -115,6 +115,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 target_link_libraries(OpenImageIO::OpenImageIO INTERFACE
     "-framework Carbon"
     "-framework IOKit"
+)
 endif()
 
 if (COMMAND ly_target_include_system_directories)
