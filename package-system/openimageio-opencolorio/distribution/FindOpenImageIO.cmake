@@ -100,6 +100,7 @@ target_link_libraries(OpenImageIO::OpenImageIO INTERFACE
     OpenEXR::OpenEXRUtil
     ZLIB::ZLIB
     Freetype::Freetype
+    ${CMAKE_DL_LIBS}
     # private dependencies that we intentionally DO NOT WANT to create friendly targets for:
     ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_atomic${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
     ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_chrono${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
