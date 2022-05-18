@@ -17,6 +17,13 @@ if (NOT TARGET Imath::Imath)
     find_package(Imath REQUIRED MODULE)
 endif()
 
+if (NOT TARGET expat::expat)
+    if (COMMAND ly_download_associated_package)
+        ly_download_associated_package(expat)
+    endif()
+    find_package(expat REQUIRED MODULE)
+endif()
+
 set(OpenColorIO_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenColorIO/include)
 set(OpenColorIO_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenColorIO/lib)
 set(OpenColorIO_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenColorIO/bin)
@@ -41,6 +48,7 @@ endif()
 
 target_link_libraries(OpenColorIO::OpenColorIO INTERFACE 
     Imath::Imath
+    expat::expat
     # private dependencies that we intentionally DO NOT WANT to create friendly targets for:
     ${CMAKE_CURRENT_LIST_DIR}/privatedeps/pystring/lib/${CMAKE_STATIC_LIBRARY_PREFIX}pystring${CMAKE_STATIC_LIBRARY_SUFFIX}
     ${CMAKE_CURRENT_LIST_DIR}/privatedeps/yaml-cpp/lib/libyaml-cpp${_yaml-cpp_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
