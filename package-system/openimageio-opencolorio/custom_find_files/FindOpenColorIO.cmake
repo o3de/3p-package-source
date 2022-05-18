@@ -35,6 +35,7 @@ find_package(OpenColorIO CONFIG REQUIRED)
 # sampleicc and utils::strings are set as deps but only need to exist to satisfy cmake:
 add_library(sampleicc::sampleicc INTERFACE IMPORTED GLOBAL)
 add_library(utils::strings INTERFACE IMPORTED GLOBAL)
+add_library(utils::from_chars INTERFACE IMPORTED GLOBAL)
 
 # the following is expected to pick up O3DE's expat.
 find_package(expat 2.2.8 REQUIRED)
