@@ -109,9 +109,13 @@ target_link_libraries(OpenImageIO::OpenImageIO INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_thread${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
     ${CMAKE_CURRENT_LIST_DIR}/privatedeps/LibJPEGTurbo/lib/${CMAKE_STATIC_LIBRARY_PREFIX}turbojpeg${_jpegTurbo_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
     ${CMAKE_CURRENT_LIST_DIR}/privatedeps/LibJPEGTurbo/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jpeg${_jpegTurbo_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+target_link_libraries(OpenImageIO::OpenImageIO INTERFACE
     "-framework Carbon"
     "-framework IOKit"
-)
+endif()
 
 if (COMMAND ly_target_include_system_directories)
     # O3DE has an extension to fix system directory includes until CMake
