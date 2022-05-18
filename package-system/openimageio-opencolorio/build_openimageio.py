@@ -550,7 +550,7 @@ if not SKIP_OPENIMAGEIO:
         python_root /= "Python.framework/Versions/3.7"
         python_exe = python_root / "bin/Python3"
 
-        opencolorio_configure_command += [
+        openimageio_configure_command += [
             f'-DPython_ROOT={python_root}',
             f'-DPython_EXECUTABLE={python_exe}'
         ]
@@ -558,7 +558,7 @@ if not SKIP_OPENIMAGEIO:
         python_root /= "python"
         python_exe = python_root / "bin/python3"
 
-        opencolorio_configure_command += [
+        openimageio_configure_command += [
             f'-DPython_ROOT={python_root}',
             f'-DPython_EXECUTABLE={python_exe}'
         ]
