@@ -724,7 +724,10 @@ exec_and_exit_if_failed(test_exec_command, cwd=test_script_folder)
 
 # Test the OIIO and OCIO python libraries
 oiio_site_packages = final_package_image_root / 'OpenImageIO' / 'lib' / 'python3.7' / 'site-packages'
-ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'site-packages'
+if args.platform == 'windows':
+    ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'site-packages'
+else:
+    ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'python3.7' / 'site-packages'
 
 # Insert our site-packages folders with the pyds into the sys.path so that the test can
 # import from them, as well as our actual test scripts folder so we can import the tests
