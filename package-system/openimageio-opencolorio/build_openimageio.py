@@ -93,6 +93,16 @@ dependencies = {
             'libpng' :   ('png-1.6.37-rev2-windows',           'e16539a0fff26ac9ef80dd11ef0103eca91745519eacd41d41d96911c173589f'),
             'expat' :    ('expat-2.4.2-rev2-windows',          '748d08f21f5339757059a7887e72b52d15e954c549245c638b0b05bd5961e307'),
             'freetype' : ('freetype-2.11.1-rev1-windows',      '861d059a5542cb8f58a5157f411eee2e78f69ac72e45117227ebe400efe49f61')
+        },
+    'linux' :
+        {
+            'zlib' :     ('zlib-1.2.11-rev5-linux',            '9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc'),
+            'openexr' :  ('OpenEXR-3.1.3-rev2-linux',          'd6f5fb9b40ccd636537fe69154f4737742eb9e14edf11218644d0a55df87b046'),
+            'python' :   ('python-3.7.12-rev2-linux',          '04ae255f22a6f0529cf07108aef68f8aee8c76cd551dde70f1c90731ebf0b7b4'),
+            'tiff' :     ('tiff-4.2.0.15-rev3-linux',          '2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a'),
+            'libpng' :   ('png-1.6.37-rev2-linux',             '5c82945a1648905a5c4c5cee30dfb53a01618da1bf58d489610636c7ade5adf5'),
+            'expat' :    ('expat-2.4.2-rev2-linux',            '755369a919e744b9b3f835d1acc684f02e43987832ad4a1c0b6bbf884e6cd45b'),
+            'freetype' : ('freetype-2.11.1-rev1-linux',        '28bbb850590507eff85154604787881ead6780e6eeee9e71ed09cd1d48d85983')
         }
 }
 
