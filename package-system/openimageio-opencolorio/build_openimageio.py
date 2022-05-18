@@ -119,7 +119,6 @@ boost_install_path = temp_folder_path / 'boost_install'
 oiio_install_path = temp_folder_path / 'oiio_install'
 libjpegturbo_install_path = temp_folder_path / 'libjpegturbo_install'
 test_script_folder = script_folder / 'test'
-final_package_image_root = temp_folder_path / 'package'
 
 sys.path.insert(1, str(general_scripts_path.absolute().resolve()) )
 
@@ -193,6 +192,9 @@ else:
     lib_suffix = '.a'
     lib_prefix = 'lib'
 
+# Determine our final package output path now since we
+# use the platform as a suffix
+final_package_image_root = temp_folder_path / f'package-{args.platform}'
 
 print(f"OpenImageIO / OpenColorIO Build Script")
 print(f"Script folder : {script_folder.relative_to(repo_root_path)}")

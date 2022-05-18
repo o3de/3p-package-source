@@ -56,7 +56,7 @@
         "pyside2-5.15.2-rev2-linux": "package-system/pyside2-linux",
         "OpenEXR-3.1.3-rev4-linux": "package-system/OpenEXR/temp/OpenEXR-linux",
         "OpenXR-1.0.22-rev2-linux": "package-system/OpenXR-linux",
-        "openimageio-opencolorio-2.3.12.0-linux": "package-system/openimageio-opencolorio-linux",
+        "openimageio-opencolorio-2.3.12.0-linux": "package-system/openimageio-opencolorio/temp/package-linux",
         "SPIRVCross-2021.04.29-rev1-linux": "package-system/SPIRVCross-linux",
         "squish-ccr-deb557d-rev1-linux": "package-system/squish-ccr-linux",
         "astc-encoder-3.2-rev2-linux": "package-system/astc-encoder-linux",
