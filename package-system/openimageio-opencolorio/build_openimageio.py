@@ -274,9 +274,14 @@ def BuildOpenColorIO(module_paths_to_use):
                 
     ]
 
+    # We want to use ninja on both darwin and linux
+    if args.platform != "windows":
+        opencolorio_configure_command += [
+                '-G', 'Ninja'
+            ]
+
     if args.platform == "darwin":
         opencolorio_configure_command += [
-            '-G', 'Ninja',
             f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
         ]
     elif args.platform == "windows":
@@ -431,9 +436,14 @@ if not SKIP_LIBJPEGTURBO:
         f'-DCMAKE_MODULE_PATH={module_path_string}'
     ]
 
+    # We want to use ninja on both darwin and linux
+    if args.platform != "windows":
+        libjpegturbo_configure_command += [
+                '-G', 'Ninja'
+            ]
+
     if args.platform == "darwin":
         libjpegturbo_configure_command += [
-            '-G', 'Ninja',
             f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
         ]
 
@@ -500,9 +510,14 @@ if not SKIP_OPENIMAGEIO:
         f'-DVERBOSE=ON' # reveals problems with library inclusion
     ]
 
+    # We want to use ninja on both darwin and linux
+    if args.platform != "windows":
+        openimageio_configure_command += [
+                '-G', 'Ninja'
+            ]
+
     if args.platform == "darwin":
         openimageio_configure_command += [
-            '-G', 'Ninja',
             f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
         ]
     elif args.platform == "windows":
@@ -649,9 +664,14 @@ test_configure_command = [
     f'-DCMAKE_MODULE_PATH={module_path_string_with_package_folder}',
 ]
 
+# We want to use ninja on both darwin and linux
+if args.platform != "windows":
+    test_configure_command += [
+            '-G', 'Ninja'
+        ]
+
 if args.platform == "darwin":
     test_configure_command += [
-        '-G', 'Ninja',
         f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
     ]
 
