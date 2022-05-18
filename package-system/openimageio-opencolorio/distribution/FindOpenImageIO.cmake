@@ -135,8 +135,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.cpython-37m-x86_64-linux-gnu.so)
 else() # Darwin
-    # TODO: Find the right so path on darwin
-    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.REPLACEME.so)
+    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.cpython-37m-darwin.so)
 endif()
 
 set(OpenImageIO_RUNTIME_DEPENDENCIES
