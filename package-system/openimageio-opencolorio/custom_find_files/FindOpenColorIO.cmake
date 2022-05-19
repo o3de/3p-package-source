@@ -54,8 +54,8 @@ set_target_properties(yaml-cpp PROPERTIES IMPORTED_LOCATION ${yaml_cpp_LIBRARY}
 
 # On Windows only, we need to make sure that this is built statically
 # and anything linking against OpenColorIO will link statically as well
-if(WIN32)
-    target_compile_definitions(OpenColorIO::OpenColorIOHeaders
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    target_compile_definitions(OpenColorIO::OpenColorIO
         INTERFACE
             OpenColorIO_SKIP_IMPORTS
     )
