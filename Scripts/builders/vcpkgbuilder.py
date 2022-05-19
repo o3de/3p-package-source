@@ -31,20 +31,13 @@ class VcpkgBuilder(object):
         self._customTripletsDir = Path(__file__).resolve().parents[1] / 'vcpkg/triplets'
         self._customEnviron = os.environ.copy()
 
-        if targetPlatform == 'android' and 'ANDROID_NDK_HOME' not in os.environ:
-            # Copy some of the logic from vcpkg's android ndk detection, and see if we can print a warning early
-            if 'ProgramData' in os.environ:
-                androidNdkFound = (pathlib.Path(os.environ['ProgramData']) / 'Microsoft/AndroidNDK64/android-ndk-r13b/').exists()
-            else:
-                androidNdkFound = False
-            if not androidNdkFound and 'ProgramFiles(x86)' in os.environ:
-                # Use Xamarin default installation folder
-                androidNdkFound = (pathlib.Path(os.environ['ProgramFiles(x86)']) / 'Android/android-sdk/ndk-bundle').exists()
-
-            if not androidNdkFound:
+        if targetPlatform == 'android':
+            if 'ANDROID_NDK_HOME' not in os.environ:
                 raise RuntimeError('Unable to find the Android NDK. '
                     'Please set the ANDROID_NDK_HOME environment variable to the root of the Android NDK')
-        
+            ANDROID_NDK_HOME = os.environ["ANDROID_NDK_HOME"]
+            print(f"ANDROID_NDK_HOME ='{ANDROID_NDK_HOME}'")
+
         if targetPlatform == 'mac':
             # set default env vars that control minos version.  Change this if you change the toolchain files.
             # ideally we'd put this in triplet files, but it turns out VCPKG triplets like the minos version

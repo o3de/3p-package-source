@@ -47,6 +47,13 @@ def main():
         'windows': True,
     }
 
+    revisionForPlatform = {
+        'android': 'rev2',
+        'mac': 'rev1',
+        'ios': 'rev1',
+        'windows': 'rev1'
+    }
+
     testScriptForPlatform = {
         'android' : opensslPackageSourceDir / 'test_OpenSSL_android.cmd',
         'mac' : opensslPackageSourceDir / 'test_OpenSSL_mac.sh',
@@ -69,10 +76,12 @@ def main():
                 next(builder.vcpkgDir.glob(f'buildtrees/openssl/{builder.triplet}-rel/**/LICENSE')): outputDir / builder.packageName / 'LICENSE',
             })
 
+        revisionName = revisionForPlatform[args.platformName]
+
         builder.writePackageInfoFile(
             outputDir,
             settings={
-                'PackageName': f'OpenSSL-1.1.1o-rev1-{args.platformName}',
+                'PackageName': f'OpenSSL-1.1.1o-{revisionName}-{args.platformName}',
                 'URL': 'https://github.com/openssl/openssl',
                 'License': 'OpenSSL',
                 'LicenseFile': 'OpenSSL/LICENSE'
