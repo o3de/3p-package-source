@@ -183,6 +183,14 @@ if args.platform not in dependencies.keys():
     print(f"Platform {args.platform} not in the list of supported dependency platforms {dependencies.keys()}")
     sys.exit(1)
 
+# We build the python bindings for OpenImageIO and OpenColorIO against our
+# python-3.7.12 dependency, so if a different version of python runs this build
+# script, the test at the end which attempts to import the built python bindings
+# will fail, so we need to make sure the same version of python is running
+# this build script.
+if not sys.version.startswith('3.7.12'):
+    sys.exit(1)
+
 # Make sure the system has the nasm library installed before proceeding (linux/darwin only)
 if args.platform != "windows":
     result = exec_and_exit_if_failed(['nasm', '-v'])
