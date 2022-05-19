@@ -17,11 +17,8 @@ message(STATUS "Using the internal FindOpenImageIO.cmake build file")
 
 find_package(ZLIB MODULE REQUIRED)
 find_package(OpenEXR MODULE REQUIRED)
-# PNG::PNG - use the one from O3DE 3p
-find_library(png_LIBRARY NAMES png libpng HINTS ${CMAKE_CURRENT_LIST_DIR}/../temp/dependencies/libpng-1.6.37-mac/libpng PATH_SUFFIXES lib64 lib)
-add_library(PNG::PNG UNKNOWN IMPORTED GLOBAL)
-set_target_properties(PNG::PNG PROPERTIES IMPORTED_LOCATION ${png_LIBRARY}
-)
+find_package(PNG MODULE REQUIRED)
+
 # where opencolorio itself was installed
 set(OPENIMAGEIO_INSTALL_DIR ${CMAKE_CURRENT_LIST_DIR}/../temp/oiio_install)
 
