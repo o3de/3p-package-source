@@ -188,7 +188,9 @@ if args.platform not in dependencies.keys():
 # script, the test at the end which attempts to import the built python bindings
 # will fail, so we need to make sure the same version of python is running
 # this build script.
-if not sys.version.startswith('3.7.12'):
+expected_python_version = '3.7.12'
+if not sys.version.startswith(expected_python_version):
+    print(f"Error: Build script needs to be run with python version {expected_python_version}, current version is {sys.version}")
     sys.exit(1)
 
 # Make sure the system has the nasm library installed before proceeding (linux/darwin only)
