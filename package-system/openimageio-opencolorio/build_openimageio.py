@@ -193,15 +193,17 @@ if not sys.version.startswith(expected_python_version):
     print(f"Error: Build script needs to be run with python version {expected_python_version}, current version is {sys.version}")
     sys.exit(1)
 
-# Make sure the system has the nasm library installed before proceeding (linux/darwin only)
-if args.platform != "windows":
-    result = exec_and_exit_if_failed(['nasm', '-v'])
-    if result != 0:
-        print("Missing nasm install on system")
-        if args.platform == "darwin":
-            print("Please run: 'brew install nasm' and then try build again")
-        else:
-            print("Please run: 'apt install nasm' and then try build again")
+# Make sure the system has the nasm library installed before proceeding
+result = exec_and_exit_if_failed(['nasm', '-v'])
+if result != 0:
+    print("Missing nasm install on system")
+    if args.platform == "darwin":
+        print("Please run: 'brew install nasm' and then run the build again")
+    elif args.platform == "linux":
+        print("Please use your linux package manager to install the nasm package and then run the build again")
+    else: # windows
+        print("Please run: 'winget install nasm' or install from https://www.nasm.us/")
+        print("NOTE: Neither install will add the folder to your PATH, so you will need to add to your PATH manually")
 
 # similar to CMAKE, we define these as blank or filled depending on platform.
 lib_prefix = ''
