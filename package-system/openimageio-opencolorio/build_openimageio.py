@@ -190,7 +190,7 @@ if args.platform != "windows":
         print("Missing nasm install on system")
         if args.platform == "darwin":
             print("Please run: 'brew install nasm' and then try build again")
-        else
+        else:
             print("Please run: 'apt install nasm' and then try build again")
 
 # similar to CMAKE, we define these as blank or filled depending on platform.
