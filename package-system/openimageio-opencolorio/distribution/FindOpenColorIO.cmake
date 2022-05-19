@@ -43,6 +43,13 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
 
     # On Windows the yaml lib is built with an extra "md" suffix
     set(_yaml-cpp_LIB_SUFFIX "md")
+
+    # On Windows only, we need to make sure that this is built statically
+    # and anything linking against OpenColorIO will link statically as well
+    target_compile_definitions(OpenColorIO::OpenColorIO
+        INTERFACE
+            OpenColorIO_SKIP_IMPORTS
+    )
 endif()
 
 
