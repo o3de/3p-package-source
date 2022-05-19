@@ -183,6 +183,15 @@ if args.platform not in dependencies.keys():
     print(f"Platform {args.platform} not in the list of supported dependency platforms {dependencies.keys()}")
     sys.exit(1)
 
+# Make sure the system has the nasm library installed before proceeding (linux/darwin only)
+if args.platform != "windows":
+    result = exec_and_exit_if_failed(['nasm', '-v'])
+    if result != 0:
+        print("Missing nasm install on system")
+        if args.platform == "darwin":
+            print("Please run: 'brew install nasm' and then try build again")
+        else
+            print("Please run: 'apt install nasm' and then try build again")
 
 # similar to CMAKE, we define these as blank or filled depending on platform.
 lib_prefix = ''
