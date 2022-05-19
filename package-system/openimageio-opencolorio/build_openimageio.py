@@ -651,8 +651,11 @@ shutil.rmtree(path=final_package_image_root / 'OpenImageIO' / 'lib' / 'cmake')
 # Generate our PackageInfo.json dynamically for the platform, and pretty
 # print the JSON so that it's human readable
 print("Generating PackageInfo.json")
+platform_name = args.platform.lower()
+if platform_name == "darwin":
+    platform_name = "mac" # Our convention in the package list is to use mac
 package_info = {
-    "PackageName" : f"openimageio-opencolorio-2.3.12.0-{args.platform.lower()}",
+    "PackageName" : f"openimageio-opencolorio-2.3.12.0-{platform_name}",
     "URL"         : "https://github.com/OpenImageIO/oiio and https://opencolorio.org/",
     "License"     : "BSD-3-Clause",
     "LicenseFile" : "LICENSE.TXT"
