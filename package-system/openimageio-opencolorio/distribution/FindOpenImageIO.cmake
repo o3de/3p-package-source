@@ -83,8 +83,18 @@ set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
     IMPORTED_LOCATION ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 # The Boost and LibJPEGTurbo libs have special suffixes on windows
+# Also look if we need to expose our debug libraries on windows
+# if the CMAKE_BUILD_TYPE has been set to Debug
+set(_OIIO_DEBUG_POSTFIX "")
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-    set(_boost_LIB_SUFFIX "-vc142-mt-x64-1_76")
+    set(_boost_DEBUG_TAG "")
+    if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+        set(_OIIO_DEBUG_POSTFIX "_d")
+        set(_boost_DEBUG_TAG "-gd")
+    endif()
+
+    # Boost has their own special debug lib tagging we need to account for
+    set(_boost_LIB_SUFFIX "-vc142-mt${_boost_DEBUG_TAG}-x64-1_76")
     set(_jpegTurbo_LIB_SUFFIX "-static")
 endif()
 
@@ -157,9 +167,9 @@ endif()
 #only windows ships with debug libraries:
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
     set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES 
-        IMPORTED_LOCATION_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util${CMAKE_STATIC_LIBRARY_SUFFIX})
+        IMPORTED_LOCATION_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util${_OIIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
     set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
-        IMPORTED_LOCATION_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${CMAKE_STATIC_LIBRARY_SUFFIX})
+        IMPORTED_LOCATION_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${_OIIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
 endif()
 
 # alias the OpenImageIO library to the O3DE 3rdParty library

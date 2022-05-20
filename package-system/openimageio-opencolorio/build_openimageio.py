@@ -765,6 +765,58 @@ shutil.copy2(src=private_deps_folder / 'LibJPEGTurbo' / 'share' / 'doc' / 'libjp
 
 print("\n----------------------------- Test package image -----------------------------")
 
+def TestOpenImageIO(release=True):
+    build_type = 'Release' if release else 'Debug'
+    test_configure_command = [
+        'cmake',
+        f'-S',
+        f'{script_folder / "test"}',
+        f'-B',
+        test_build_folder,
+        f'-DCMAKE_BUILD_TYPE={build_type}',
+        f'-DCMAKE_CXX_STANDARD=17',
+        f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
+        f'-DCMAKE_MODULE_PATH={module_path_string_with_package_folder}',
+    ]
+
+    # We want to use ninja on both darwin and linux
+    if args.platform != "windows":
+        test_configure_command += [
+            '-G', 'Ninja'
+        ]
+
+    if args.platform == "darwin":
+        test_configure_command += [
+            f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
+        ]
+
+    exec_and_exit_if_failed(test_configure_command)
+
+    test_build_command = [
+        f'cmake',
+        f'--build',
+        test_build_folder,
+        f'--parallel',
+        f'--config',
+        f'{build_type}',
+    ]
+
+    exec_and_exit_if_failed(test_build_command)
+
+    test_executable_path = ''
+    if args.platform == 'darwin':
+        test_executable_path = test_build_folder / 'test_OpenImageIO.app' / 'Contents' / 'MacOS' / 'test_OpenImageIO'
+    elif args.platform == 'windows':
+        test_executable_path = test_build_folder / f'{build_type}' / 'test_OpenImageIO.exe'
+    else:
+        test_executable_path = test_build_folder / 'test_OpenImageIO'
+
+    test_exec_command = [
+        test_executable_path
+    ]
+
+    exec_and_exit_if_failed(test_exec_command, cwd=test_script_folder)
+
 module_path_string_with_package_folder = module_path_string + f';{final_package_image_root.as_posix()}'
 
 test_build_folder = build_folder_path / 'test_openimageio'
@@ -772,56 +824,14 @@ test_build_folder = build_folder_path / 'test_openimageio'
 if test_build_folder.exists():
     shutil.rmtree(str(test_build_folder.resolve()), ignore_errors=True)
 
-test_configure_command = [ 
-    'cmake',
-    f'-S',
-    f'{script_folder / "test"}',
-    f'-B',
-    test_build_folder,
-    f'-DCMAKE_BUILD_TYPE=Release',
-    f'-DCMAKE_CXX_STANDARD=17',
-    f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
-    f'-DCMAKE_MODULE_PATH={module_path_string_with_package_folder}',
-]
+# Test the release build
+print("\n----------------------------- Test package image - Release -----------------------------")
+TestOpenImageIO()
 
-# We want to use ninja on both darwin and linux
-if args.platform != "windows":
-    test_configure_command += [
-        '-G', 'Ninja'
-    ]
-
-if args.platform == "darwin":
-    test_configure_command += [
-        f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
-    ]
-
-exec_and_exit_if_failed(test_configure_command)
-
-test_build_command = [
-        f'cmake',
-        f'--build',
-        test_build_folder,
-        f'--parallel',
-        f'--config',
-        f'Release',
-    ]
-
-exec_and_exit_if_failed(test_build_command)
-
-test_executable_path = ''
-if args.platform == 'darwin':
-    test_executable_path = test_build_folder / 'test_OpenImageIO.app' / 'Contents' / 'MacOS' / 'test_OpenImageIO'
-elif args.platform == 'windows':
-    test_executable_path = test_build_folder / 'Release' / 'test_OpenImageIO.exe'
-else:
-    test_executable_path = test_build_folder / 'test_OpenImageIO'
-
-
-test_exec_command = [
-    test_executable_path
-]
-
-exec_and_exit_if_failed(test_exec_command, cwd=test_script_folder)
+# Test the debug build (windows only)
+if args.platform == "windows":
+    print("\n----------------------------- Test package image - Debug -----------------------------")
+    TestOpenImageIO(release=False)
 
 # Test the OIIO and OCIO python libraries
 oiio_site_packages = final_package_image_root / 'OpenImageIO' / 'lib' / 'python3.7' / 'site-packages'

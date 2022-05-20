@@ -37,9 +37,14 @@ set_target_properties(OpenColorIO::OpenColorIO PROPERTIES
 )
 
 # windows has Debug libraries available.
+set(_OCIO_DEBUG_POSTFIX "")
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+    if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+        set(_OCIO_DEBUG_POSTFIX "d")
+    endif()
+
     set_target_properties(OpenColorIO::OpenColorIO PROPERTIES 
-    IMPORTED_LOCATION_DEBUG ${OpenColorIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenColorIO${CMAKE_STATIC_LIBRARY_SUFFIX})
+    IMPORTED_LOCATION_DEBUG ${OpenColorIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenColorIO${_OCIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
     # On Windows the yaml lib is built with an extra "md" suffix
     set(_yaml-cpp_LIB_SUFFIX "md")
@@ -57,8 +62,8 @@ target_link_libraries(OpenColorIO::OpenColorIO INTERFACE
     Imath::Imath
     expat::expat
     # private dependencies that we intentionally DO NOT WANT to create friendly targets for:
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/pystring/lib/${CMAKE_STATIC_LIBRARY_PREFIX}pystring${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/yaml-cpp/lib/libyaml-cpp${_yaml-cpp_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/pystring/lib/${CMAKE_STATIC_LIBRARY_PREFIX}pystring${_OCIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/yaml-cpp/lib/libyaml-cpp${_yaml-cpp_LIB_SUFFIX}${_OCIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
 
 if (COMMAND ly_target_include_system_directories)
