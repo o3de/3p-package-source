@@ -270,12 +270,16 @@ if args.platform == "windows":
 
 # building opencolorIO is a function becuase we call it twice
 # once before we have OpenImageIO built, and once again with that dependency ready
-def BuildOpenColorIO(module_paths_to_use):
-    clone_repo(opencolorio_repository_url, opencolorio_repository_tag, source_folder_path / 'opencolorio')
+def BuildOpenColorIO(module_paths_to_use, release=True):
     opencolorio_build_folder = build_folder_path / 'opencolorio_build'
 
-    if opencolorio_build_folder.exists():
+    if release and opencolorio_build_folder.exists():
         shutil.rmtree(str(opencolorio_build_folder.resolve()), ignore_errors=True)
+
+    build_type = 'Release' if release else 'Debug'
+
+    # Only build the python bindings in Release
+    build_python = 'ON' if release else 'OFF'
 
     opencolorio_configure_command = [ 
                 'cmake',
@@ -285,14 +289,14 @@ def BuildOpenColorIO(module_paths_to_use):
                 f'{opencolorio_build_folder}',
                 f'-Dexpat_STATIC_LIBRARY=ON',
                 f'-DCMAKE_INSTALL_PREFIX={ocio_install_path}',
-                f'-DCMAKE_BUILD_TYPE=Release',
+                f'-DCMAKE_BUILD_TYPE={build_type}',
                 f'-DBUILD_SHARED_LIBS=OFF',
                 f'-DCMAKE_CXX_STANDARD=17',
                 f'-DOCIO_BUILD_APPS=ON',
                 f'-DOCIO_BUILD_OPENFX=OFF',
                 f'-DOCIO_BUILD_TESTS=OFF',
                 f'-DOCIO_BUILD_GPU_TESTS=OFF',
-                f'-DOCIO_BUILD_PYTHON=ON',
+                f'-DOCIO_BUILD_PYTHON={build_python}',
                 f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
                 f'-DOCIO_BUILD_DOCS=OFF',   # <---- TODO: we have to fix this maybe
                 f'-DCMAKE_MODULE_PATH={module_paths_to_use}',
@@ -313,6 +317,13 @@ def BuildOpenColorIO(module_paths_to_use):
         # Without this on windows we get a linker error: png_LIBRARY-NOTFOUND
         opencolorio_configure_command += [
             f'-Dpng_LIBRARY={get_dependency_path(args.platform, "libpng") / "png" / "lib" / "libpng16_static.lib"}'
+        ]
+
+    # Make sure our debug targets get a debug postfix, since by default
+    # the OCIO build has the same output target names for release/debug
+    if not release:
+        opencolorio_configure_command += [
+            '-DCMAKE_DEBUG_POSTFIX=d'
         ]
 
     # Add python-specific configure args
@@ -353,7 +364,7 @@ def BuildOpenColorIO(module_paths_to_use):
         f'{opencolorio_build_folder}',
         f'--parallel',
         f'--config',
-        f'Release',
+        f'{build_type}',
         f'--target',
         f'install'
     ]
@@ -367,6 +378,8 @@ def BuildOpenColorIO(module_paths_to_use):
     yaml_lib = "yaml-cpp"
     if args.platform == "windows":
         yaml_lib = "libyaml-cppmd"
+        if not release:
+            yaml_lib += "d"
 
     ocio_private_library_build_path = build_folder_path / 'opencolorio_build' / 'ext' / 'dist' / 'lib'
     ocio_private_libary_source_path = build_folder_path / 'opencolorio_build' / 'ext' / 'build'
@@ -383,7 +396,13 @@ def BuildOpenColorIO(module_paths_to_use):
 if not SKIP_OPENCOLORIO:
     print("\n----------------------------- BUILD OpenColorIO ------------------------------")
 
+    clone_repo(opencolorio_repository_url, opencolorio_repository_tag, source_folder_path / 'opencolorio')
     BuildOpenColorIO(module_path_string)
+
+    # On windows only, we also need to do a debug build
+    if args.platform == "windows":
+        print("\n----------------------------- BUILD OpenColorIO - Debug ------------------------------")
+        BuildOpenColorIO(module_path_string, release=False)
 # the final install of OpenColorIO looks like this
 # (install folder)
 #       - bin
