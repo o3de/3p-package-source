@@ -113,10 +113,13 @@ source_folder_path = temp_folder_path / source_folder_name
 repo_root_path = script_folder.parent.parent
 general_scripts_path = repo_root_path / 'Scripts' / 'extras'
 dependencies_folder_path = (temp_folder_path / 'dependencies').absolute().resolve()
+opencolorio_build_folder = build_folder_path / 'opencolorio_build'
 ocio_install_path = temp_folder_path / 'ocio_install'
 pystring_install_path = temp_folder_path / 'pystring_install'
 yamlcpp_install_path =  temp_folder_path / 'yaml-cpp_install'
+boost_build_folder = build_folder_path / 'boost'
 boost_install_path = temp_folder_path / 'boost_install'
+openimageio_build_folder = build_folder_path / 'openimageio_build'
 oiio_install_path = temp_folder_path / 'oiio_install'
 libjpegturbo_install_path = temp_folder_path / 'libjpegturbo_install'
 test_script_folder = script_folder / 'test'
@@ -272,11 +275,6 @@ if args.platform == "windows":
 # building opencolorIO is a function becuase we call it twice
 # once before we have OpenImageIO built, and once again with that dependency ready
 def BuildOpenColorIO(module_paths_to_use, release=True):
-    opencolorio_build_folder = build_folder_path / 'opencolorio_build'
-
-    if release and opencolorio_build_folder.exists():
-        shutil.rmtree(str(opencolorio_build_folder.resolve()), ignore_errors=True)
-
     build_type = 'Release' if release else 'Debug'
 
     # Only build the python bindings in Release
@@ -400,6 +398,9 @@ if not SKIP_OPENCOLORIO:
 
     clone_repo(opencolorio_repository_url, opencolorio_repository_tag, source_folder_path / 'opencolorio')
 
+    if opencolorio_build_folder.exists():
+        shutil.rmtree(str(opencolorio_build_folder.resolve()), ignore_errors=True)
+
     # On windows only, we also need to do a debug build
     # We do the debug build before the release because the
     # executables use the same name so get overwritten, and
@@ -429,10 +430,6 @@ if not SKIP_OPENCOLORIO:
 # then we can circle back into openColorIO and make any apps it was missing.
 
 def BuildBoost(release=True):
-    boost_build_folder = build_folder_path / 'boost'
-    if release and boost_build_folder.exists():
-        shutil.rmtree(str(boost_build_folder.resolve()), ignore_errors=True)
-
     # Use the right bootstrap script for windows/*nix
     if args.platform == "windows":
         bootstrap_script = "bootstrap.bat"
@@ -470,6 +467,9 @@ def BuildBoost(release=True):
 if not SKIP_BOOST:
     print("\n-------------------------------- BUILD BOOST ---------------------------------")
     clone_repo(boost_repository_url, boost_repository_tag, source_folder_path / 'boost')
+
+    if boost_build_folder.exists():
+        shutil.rmtree(str(boost_build_folder.resolve()), ignore_errors=True)
 
     BuildBoost()
 
@@ -537,17 +537,6 @@ if not SKIP_LIBJPEGTURBO:
 module_path_string_with_custom_find_files = module_path_string + f';{(script_folder / "custom_find_files").as_posix()}'
 
 def BuildOpenImageIO(release=True):
-    openimageio_build_folder = build_folder_path / 'openimageio_build'
-    if release and openimageio_build_folder.exists():
-        shutil.rmtree(str(openimageio_build_folder.resolve()), ignore_errors=True)
-
-    # note that we have to clear the install folder for this to actually work as 
-    # otherwise it might try to add RPATHS to existing files.
-    # We don't want to clear it on debug build though so we don't delete
-    # the release install
-    if release:
-        shutil.rmtree(oiio_install_path, ignore_errors=True)
-
     build_type = 'Release' if release else 'Debug'
 
     # Only build the python bindings in Release
@@ -653,6 +642,16 @@ if not SKIP_OPENIMAGEIO:
 
     clone_repo(openimageio_repository_url, openimageio_repository_tag, source_folder_path / 'openimageio')
 
+    if openimageio_build_folder.exists():
+        shutil.rmtree(str(openimageio_build_folder.resolve()), ignore_errors=True)
+
+    # note that we have to clear the install folder for this to actually work as
+    # otherwise it might try to add RPATHS to existing files.
+    # We don't want to clear it on debug build though so we don't delete
+    # the release install
+    if oiio_install_path.exists():
+        shutil.rmtree(oiio_install_path, ignore_errors=True)
+
     # openimageio looks for OpenColorIO in a way that is not compatible with generated configs.
     # remove its find file, allow it to just use the OpenColorIO_ROOT:
     os.remove(source_folder_path / 'openimageio' / 'src' / 'cmake' / 'modules' / 'FindOpenColorIO.cmake' )
@@ -671,7 +670,21 @@ if not SKIP_OPENIMAGEIO:
 # ----------------- BUILD OpenColorIO again but this time with OpenImageIO support ----------------
 if not SKIP_OPENCOLORIO_WITH_OPENIMAGEIO:
     print("\n------------------ BUILD OpenColorIO with OpenImageIO support ----------------")
+
+    if opencolorio_build_folder.exists():
+        shutil.rmtree(str(opencolorio_build_folder.resolve()), ignore_errors=True)
+
+    # On windows only, we also need to do a debug build
+    # We do the debug build before the release because the
+    # executables use the same name so get overwritten, and
+    # we want the release ones to ship
+    if args.platform == "windows":
+        print("\n------------------ BUILD OpenColorIO with OpenImageIO support - Debug ----------------")
+        BuildOpenColorIO(module_path_string_with_custom_find_files, release=False)
+
+    print("\n------------------ BUILD OpenColorIO with OpenImageIO support - Debug ----------------")
     BuildOpenColorIO(module_path_string_with_custom_find_files)
+
 # -------------------------------- Make final installation image --------------------------------------
 # note that we will have to include static libs for things like boost, other deps.
 # and make a FIND FILE that declares openimageio depending on opencolorio
