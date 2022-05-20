@@ -114,6 +114,7 @@ repo_root_path = script_folder.parent.parent
 general_scripts_path = repo_root_path / 'Scripts' / 'extras'
 dependencies_folder_path = (temp_folder_path / 'dependencies').absolute().resolve()
 ocio_install_path = temp_folder_path / 'ocio_install'
+pystring_install_path = temp_folder_path / 'pystring_install'
 yamlcpp_install_path =  temp_folder_path / 'yaml-cpp_install'
 boost_install_path = temp_folder_path / 'boost_install'
 oiio_install_path = temp_folder_path / 'oiio_install'
@@ -321,9 +322,11 @@ def BuildOpenColorIO(module_paths_to_use, release=True):
 
     # Make sure our debug targets get a debug postfix, since by default
     # the OCIO build has the same output target names for release/debug
+    debug_postfix = ""
     if not release:
+        debug_postfix = "d"
         opencolorio_configure_command += [
-            '-DCMAKE_DEBUG_POSTFIX=d'
+            f'-DCMAKE_DEBUG_POSTFIX={debug_postfix}'
         ]
 
     # Add python-specific configure args
@@ -378,18 +381,17 @@ def BuildOpenColorIO(module_paths_to_use, release=True):
     yaml_lib = "yaml-cpp"
     if args.platform == "windows":
         yaml_lib = "libyaml-cppmd"
-        if not release:
-            yaml_lib += "d"
 
     ocio_private_library_build_path = build_folder_path / 'opencolorio_build' / 'ext' / 'dist' / 'lib'
     ocio_private_libary_source_path = build_folder_path / 'opencolorio_build' / 'ext' / 'build'
     pystring_source_path =  ocio_private_libary_source_path / 'pystring' / 'src' / 'pystring_install'
     yamlcpp_source_path =   ocio_private_libary_source_path / 'yaml-cpp' / 'src' / 'yaml-cpp_install'
-    pystring_install_path = temp_folder_path / 'pystring_install'
     os.makedirs(pystring_install_path / 'lib', exist_ok=True)
     os.makedirs(yamlcpp_install_path  / 'lib', exist_ok=True)
-    shutil.copy2(ocio_private_library_build_path / f'{lib_prefix}pystring{lib_suffix}', pystring_install_path / 'lib' / f'{lib_prefix}pystring{lib_suffix}', follow_symlinks=False)
-    shutil.copy2(ocio_private_library_build_path / f'{lib_prefix}{yaml_lib}{lib_suffix}', yamlcpp_install_path /  'lib' / f'{lib_prefix}{yaml_lib}{lib_suffix}', follow_symlinks=False)
+    # The pystring lib ignores the CMAKE_DEBUG_POSTFIX, so the source will have the same name as the release,
+    # but we need to differentiate when we copy it to the install path
+    shutil.copy2(ocio_private_library_build_path / f'{lib_prefix}pystring{lib_suffix}', pystring_install_path / 'lib' / f'{lib_prefix}pystring{debug_postfix}{lib_suffix}', follow_symlinks=False)
+    shutil.copy2(ocio_private_library_build_path / f'{lib_prefix}{yaml_lib}{debug_postfix}{lib_suffix}', yamlcpp_install_path /  'lib' / f'{lib_prefix}{yaml_lib}{debug_postfix}{lib_suffix}', follow_symlinks=False)
     shutil.copy2(pystring_source_path / 'LICENSE', pystring_install_path / 'LICENSE', follow_symlinks=False)
     shutil.copy2(yamlcpp_source_path  / 'LICENSE', yamlcpp_install_path  / 'LICENSE', follow_symlinks=False)
 
@@ -397,12 +399,17 @@ if not SKIP_OPENCOLORIO:
     print("\n----------------------------- BUILD OpenColorIO ------------------------------")
 
     clone_repo(opencolorio_repository_url, opencolorio_repository_tag, source_folder_path / 'opencolorio')
-    BuildOpenColorIO(module_path_string)
 
     # On windows only, we also need to do a debug build
+    # We do the debug build before the release because the
+    # executables use the same name so get overwritten, and
+    # we want the release ones to ship
     if args.platform == "windows":
         print("\n----------------------------- BUILD OpenColorIO - Debug ------------------------------")
         BuildOpenColorIO(module_path_string, release=False)
+
+    print("\n----------------------------- BUILD OpenColorIO - Release ------------------------------")
+    BuildOpenColorIO(module_path_string)
 # the final install of OpenColorIO looks like this
 # (install folder)
 #       - bin
@@ -592,7 +599,8 @@ def BuildOpenImageIO(release=True):
     elif args.platform == "windows":
         # Without this on windows we get a linker error: yaml_cpp_LIBRARY-NOTFOUND
         openimageio_configure_command += [
-            f'-Dyaml_cpp_LIBRARY={yamlcpp_install_path / "lib" / f"libyaml-cppmd{debug_suffix}.lib"}'
+            f'-Dyaml_cpp_LIBRARY={yamlcpp_install_path / "lib" / f"libyaml-cppmd{debug_suffix}.lib"}',
+            f'-Dpystring_LIBRARY={pystring_install_path / "lib" / f"pystring{debug_suffix}.lib"}'
         ]
 
     # Add python-specific configure args
@@ -649,12 +657,16 @@ if not SKIP_OPENIMAGEIO:
     # remove its find file, allow it to just use the OpenColorIO_ROOT:
     os.remove(source_folder_path / 'openimageio' / 'src' / 'cmake' / 'modules' / 'FindOpenColorIO.cmake' )
 
-    BuildOpenImageIO()
-
     # On windows only, we also need to do a debug build
+    # We do the debug build before the release because the
+    # executables use the same name so get overwritten, and
+    # we want the release ones to ship
     if args.platform == "windows":
         print("\n----------------------------- BUILD OpenImageIO - Debug ------------------------------")
         BuildOpenImageIO(release=False)
+
+    print("\n----------------------------- BUILD OpenImageIO - Release ------------------------------")
+    BuildOpenImageIO()
 
 # ----------------- BUILD OpenColorIO again but this time with OpenImageIO support ----------------
 if not SKIP_OPENCOLORIO_WITH_OPENIMAGEIO:
