@@ -401,14 +401,11 @@ if not SKIP_OPENCOLORIO:
 
 # now that we have openColorIO we can make openImageIO which uses it
 # then we can circle back into openColorIO and make any apps it was missing.
-if not SKIP_BOOST:
-    print("\n-------------------------------- BUILD BOOST ---------------------------------")
 
+def BuildBoost(release=True):
     boost_build_folder = build_folder_path / 'boost'
-    if boost_build_folder.exists():
+    if release and boost_build_folder.exists():
         shutil.rmtree(str(boost_build_folder.resolve()), ignore_errors=True)
-
-    clone_repo(boost_repository_url, boost_repository_tag, source_folder_path / 'boost')
 
     # Use the right bootstrap script for windows/*nix
     if args.platform == "windows":
@@ -421,12 +418,13 @@ if not SKIP_BOOST:
     exec_and_exit_if_failed([bootstrap_script, '--with-libraries=filesystem,atomic,thread,system,headers,date_time,chrono'],
                             cwd=source_folder_path / 'boost', shell=True)
 
+    build_type = 'release' if release else 'debug'
     boost_build_command = [build_b2,
                             f'--build-dir={boost_build_folder}',
                             f'link=static', 
                             f'threading=multi', 
                             f'--prefix={boost_install_path}', 
-                            f'release',
+                            f'{build_type}',
                             f'install',
                             f'visibility=hidden',
                             f'-j', '12']
@@ -443,7 +441,18 @@ if not SKIP_BOOST:
 
     exec_and_exit_if_failed(boost_build_command, cwd=source_folder_path / 'boost', shell=True)
 
-    # boost is now built, and lives in temp/bld/boost/output (which contains the usual lib, include, etc)
+if not SKIP_BOOST:
+    print("\n-------------------------------- BUILD BOOST ---------------------------------")
+    clone_repo(boost_repository_url, boost_repository_tag, source_folder_path / 'boost')
+
+    BuildBoost()
+
+    # On windows only, we also need to do a debug build
+    if args.platform == "windows":
+        print("\n-------------------------------- BUILD BOOST - Debug ---------------------------------")
+        BuildBoost(release=False)
+
+# boost is now built, and lives in temp/boost_install (which contains the usual lib, include, etc)
 
 if not SKIP_LIBJPEGTURBO:
     print("\n---------------------------- BUILD libJPEGTurbo ------------------------------")
@@ -466,7 +475,7 @@ if not SKIP_LIBJPEGTURBO:
         f'-DWITH_JAVA=0',
         f'-DCMAKE_POSITION_INDEPENDENT_CODE=ON',
         f'-DCMAKE_CXX_STANDARD=17',
-        f'-DPYTHON_VERSION=3.7.12',
+        f'-DPYTHON_VERSION={expected_python_version}',
         f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
         f'-DCMAKE_MODULE_PATH={module_path_string}'
     ]
@@ -534,7 +543,7 @@ if not SKIP_OPENIMAGEIO:
         f'-DCMAKE_BUILD_TYPE=Release',
         f'-DBUILD_SHARED_LIBS=OFF',
         f'-DCMAKE_CXX_STANDARD=17',
-        f'-DPYTHON_VERSION=3.7.12',
+        f'-DPYTHON_VERSION={expected_python_version}',
         f'-DOIIO_BUILD_TESTS=OFF',
         f'-DLINKSTATIC=ON',
         f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
