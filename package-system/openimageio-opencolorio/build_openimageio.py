@@ -529,22 +529,22 @@ if not SKIP_LIBJPEGTURBO:
 # in compiling OpenImageIO and etc.
 module_path_string_with_custom_find_files = module_path_string + f';{(script_folder / "custom_find_files").as_posix()}'
 
-if not SKIP_OPENIMAGEIO:
-    print("\n----------------------------- BUILD OpenImageIO ------------------------------")
-
-    clone_repo(openimageio_repository_url, openimageio_repository_tag, source_folder_path / 'openimageio')
-
+def BuildOpenImageIO(release=True):
     openimageio_build_folder = build_folder_path / 'openimageio_build'
-    if openimageio_build_folder.exists():
+    if release and openimageio_build_folder.exists():
         shutil.rmtree(str(openimageio_build_folder.resolve()), ignore_errors=True)
 
-    # openimageio looks for OpenColorIO in a way that is not compatible with generated configs.
-    # remove its find file, allow it to just use the OpenColorIO_ROOT:
-    os.remove(source_folder_path / 'openimageio' / 'src' / 'cmake' / 'modules' / 'FindOpenColorIO.cmake' )
- 
     # note that we have to clear the install folder for this to actually work as 
     # otherwise it might try to add RPATHS to existing files.
-    shutil.rmtree(oiio_install_path, ignore_errors=True)
+    # We don't want to clear it on debug build though so we don't delete
+    # the release install
+    if release:
+        shutil.rmtree(oiio_install_path, ignore_errors=True)
+
+    build_type = 'Release' if release else 'Debug'
+
+    # Only build the python bindings in Release
+    build_python = 'ON' if release else 'OFF'
 
     openimageio_configure_command = [ 
         'cmake',
@@ -552,14 +552,14 @@ if not SKIP_OPENIMAGEIO:
         f'{source_folder_path / "openimageio"}',
         f'-B',
         openimageio_build_folder,
-        f'-DUSE_PYTHON=ON',
+        f'-DUSE_PYTHON={build_python}',
         f'-DBoost_ROOT={boost_install_path}',
         f'-Dpybind11_ROOT={temp_folder_path / "bld/opencolorio_build/ext/dist"}',  #use pybind from the opencolorio build
         f'-DJPEG_ROOT={libjpegturbo_install_path}',
         f'-DJPEGTurbo_ROOT={libjpegturbo_install_path}',
         f'-DCMAKE_INSTALL_PREFIX={oiio_install_path}',
         f'-DPNG_ROOT={get_dependency_path(args.platform, "libpng") / "libpng"}',
-        f'-DCMAKE_BUILD_TYPE=Release',
+        f'-DCMAKE_BUILD_TYPE={build_type}',
         f'-DBUILD_SHARED_LIBS=OFF',
         f'-DCMAKE_CXX_STANDARD=17',
         f'-DPYTHON_VERSION={expected_python_version}',
@@ -572,6 +572,12 @@ if not SKIP_OPENIMAGEIO:
         f'-DCMAKE_MODULE_PATH={module_path_string_with_custom_find_files}',
         f'-DVERBOSE=ON' # reveals problems with library inclusion
     ]
+
+    # Make sure our debug targets get a debug postfix, since by default
+    # the OCIO build has the same output target names for release/debug
+    debug_suffix = ""
+    if not release:
+        debug_suffix = "d"
 
     # We want to use ninja on both darwin and linux
     if args.platform != "windows":
@@ -586,7 +592,7 @@ if not SKIP_OPENIMAGEIO:
     elif args.platform == "windows":
         # Without this on windows we get a linker error: yaml_cpp_LIBRARY-NOTFOUND
         openimageio_configure_command += [
-            f'-Dyaml_cpp_LIBRARY={yamlcpp_install_path / "lib" / "libyaml-cppmd.lib"}'
+            f'-Dyaml_cpp_LIBRARY={yamlcpp_install_path / "lib" / f"libyaml-cppmd{debug_suffix}.lib"}'
         ]
 
     # Add python-specific configure args
@@ -627,12 +633,28 @@ if not SKIP_OPENIMAGEIO:
             openimageio_build_folder,
             f'--parallel',
             f'--config',
-            f'Release',
+            f'{build_type}',
             f'--target',
             f'install'
         ]
 
     exec_and_exit_if_failed(openimageio_build_command)
+
+if not SKIP_OPENIMAGEIO:
+    print("\n----------------------------- BUILD OpenImageIO ------------------------------")
+
+    clone_repo(openimageio_repository_url, openimageio_repository_tag, source_folder_path / 'openimageio')
+
+    # openimageio looks for OpenColorIO in a way that is not compatible with generated configs.
+    # remove its find file, allow it to just use the OpenColorIO_ROOT:
+    os.remove(source_folder_path / 'openimageio' / 'src' / 'cmake' / 'modules' / 'FindOpenColorIO.cmake' )
+
+    BuildOpenImageIO()
+
+    # On windows only, we also need to do a debug build
+    if args.platform == "windows":
+        print("\n----------------------------- BUILD OpenImageIO - Debug ------------------------------")
+        BuildOpenImageIO(release=False)
 
 # ----------------- BUILD OpenColorIO again but this time with OpenImageIO support ----------------
 if not SKIP_OPENCOLORIO_WITH_OPENIMAGEIO:
