@@ -438,15 +438,22 @@ def BuildBoost(release=True):
         bootstrap_script = "./bootstrap.sh"
         build_b2 = "./b2"
 
-    exec_and_exit_if_failed([bootstrap_script, '--with-libraries=filesystem,atomic,thread,system,headers,date_time,chrono'],
+    exec_and_exit_if_failed([bootstrap_script],
                             cwd=source_folder_path / 'boost', shell=True)
 
     build_type = 'release' if release else 'debug'
     boost_build_command = [build_b2,
                             f'--build-dir={boost_build_folder}',
-                            f'link=static', 
-                            f'threading=multi', 
-                            f'--prefix={boost_install_path}', 
+                            '--with-filesystem',
+                            '--with-atomic',
+                            '--with-thread',
+                            '--with-system',
+                            '--with-headers',
+                            '--with-date_time',
+                            '--with-chrono',
+                            f'link=static',
+                            f'threading=multi',
+                            f'--prefix={boost_install_path}',
                             f'{build_type}',
                             f'install',
                             f'visibility=hidden',
