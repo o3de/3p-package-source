@@ -39,7 +39,7 @@ set_target_properties(OpenColorIO::OpenColorIO PROPERTIES
 # windows has Debug libraries available.
 set(_OCIO_DEBUG_POSTFIX "")
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-    if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL Debug)
         set(_OCIO_DEBUG_POSTFIX "d")
     endif()
 
@@ -84,7 +84,7 @@ else()
     set(OpenColorPythonBindings ${OpenColorIO_LIB_DIR}/python3.7/site-packages/PyOpenColorIO.so)
 endif()
 
-set(OpenColorIO_RUNTIME_DEPENDENCIES
+set(OpenColorIO_TOOLS_BINARIES
     ${OpenColorIO_BIN_DIR}/ociobakelut${CMAKE_EXECUTABLE_SUFFIX}
     ${OpenColorIO_BIN_DIR}/ociocheck${CMAKE_EXECUTABLE_SUFFIX}
     ${OpenColorIO_BIN_DIR}/ociochecklut${CMAKE_EXECUTABLE_SUFFIX}
@@ -93,16 +93,19 @@ set(OpenColorIO_RUNTIME_DEPENDENCIES
     ${OpenColorIO_BIN_DIR}/ociomakeclf${CMAKE_EXECUTABLE_SUFFIX}
     ${OpenColorIO_BIN_DIR}/ocioperf${CMAKE_EXECUTABLE_SUFFIX}
     ${OpenColorIO_BIN_DIR}/ociowrite${CMAKE_EXECUTABLE_SUFFIX}
-
-    ${OpenColorPythonBindings}
 )
 
+add_library(OpenColorIO::OpenColorIO::Tools::Binaries INTERFACE IMPORTED GLOBAL)
+add_library(OpenColorIO::OpenColorIO::Tools::PythonPlugins INTERFACE IMPORTED GLOBAL)
 if (COMMAND ly_add_target_files)
-    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO FILES ${OpenColorIO_RUNTIME_DEPENDENCIES})
+    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO::Tools::Binaries FILES ${OpenColorIO_TOOLS_BINARIES})
+    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO::Tools::PythonPlugins FILES ${OpenColorPythonBindings})
 endif()
 
 # alias the OpenColorIO library to the O3DE 3rdParty library
 add_library(3rdParty::OpenColorIO ALIAS OpenColorIO::OpenColorIO)
+add_library(3rdParty::OpenColorIO::Tools::Binaries ALIAS OpenColorIO::OpenColorIO::Tools::Binaries)
+add_library(3rdParty::OpenColorIO::Tools::PythonPlugins ALIAS OpenColorIO::OpenColorIO::Tools::PythonPlugins)
 
 # if we're NOT in O3DE, it's also useful to show a message indicating that this
 # library was successfully picked up, as opposed to the system one.
