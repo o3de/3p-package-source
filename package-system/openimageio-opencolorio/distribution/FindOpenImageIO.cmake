@@ -88,7 +88,7 @@ set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
 set(_OIIO_DEBUG_POSTFIX "")
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
     set(_boost_DEBUG_TAG "")
-    if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL Debug)
         set(_OIIO_DEBUG_POSTFIX "_d")
         set(_boost_DEBUG_TAG "-gd")
     endif()
@@ -148,20 +148,20 @@ else() # Darwin
     set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.cpython-37m-darwin.so)
 endif()
 
-set(OpenImageIO_RUNTIME_DEPENDENCIES
+set(OpenImageIO_TOOLS_BINARIES
     ${OpenImageIO_BIN_DIR}/iconvert${CMAKE_EXECUTABLE_SUFFIX}
     ${OpenImageIO_BIN_DIR}/idiff${CMAKE_EXECUTABLE_SUFFIX}
     ${OpenImageIO_BIN_DIR}/igrep${CMAKE_EXECUTABLE_SUFFIX}
     ${OpenImageIO_BIN_DIR}/iinfo${CMAKE_EXECUTABLE_SUFFIX}
     ${OpenImageIO_BIN_DIR}/maketx${CMAKE_EXECUTABLE_SUFFIX}
     ${OpenImageIO_BIN_DIR}/oiiotool${CMAKE_EXECUTABLE_SUFFIX}
-
-    ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.cp37-win_amd64.pyd
 )
 
-# Make sure our runtime dependencies get copied (e.g. the .pyd files)
+add_library(OpenImageIO::OpenImageIO::Tools::Binaries INTERFACE IMPORTED GLOBAL)
+add_library(OpenImageIO::OpenImageIO::Tools::PythonPlugins INTERFACE IMPORTED GLOBAL)
 if (COMMAND ly_add_target_files)
-    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO FILES ${OpenImageIO_RUNTIME_DEPENDENCIES})
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::Binaries FILES ${OpenImageIO_TOOLS_BINARIES})
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::PythonPlugins FILES ${OpenImageIOPythonBindings})
 endif()
 
 #only windows ships with debug libraries:
@@ -175,6 +175,8 @@ endif()
 # alias the OpenImageIO library to the O3DE 3rdParty library
 add_library(3rdParty::OpenImageIO ALIAS OpenImageIO::OpenImageIO)
 add_library(3rdParty::OpenImageIO_Util ALIAS OpenImageIO::OpenImageIO_Util)
+add_library(3rdParty::OpenImageIO::Tools::Binaries ALIAS OpenImageIO::OpenImageIO::Tools::Binaries)
+add_library(3rdParty::OpenImageIO::Tools::PythonPlugins ALIAS OpenImageIO::OpenImageIO::Tools::PythonPlugins)
 
 # if we're NOT in O3DE, it's also useful to show a message indicating that this
 # library was successfully picked up, as opposed to the system one.
