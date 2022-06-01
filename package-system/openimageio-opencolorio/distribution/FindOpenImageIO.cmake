@@ -73,8 +73,15 @@ set(OpenImageIO_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenImageIO/bin)
 set(OpenImageIO_VERSION "2.3.12.0")
 set(OpenImageIO_FOUND True)
 
-set(OpenImageIO_Util_SHARED_LIB ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util${CMAKE_SHARED_LIBRARY_SUFFIX})
-set(OpenImageIO_SHARED_LIB ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO${CMAKE_SHARED_LIBRARY_SUFFIX})
+# On Windows, the shared libraries are under the bin directory,
+# but on Linux/Darwin they are still under the lib directory
+if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+    set(OpenImageIO_SHARED_LIB_DIR ${OpenImageIO_BIN_DIR})
+else()
+    set(OpenImageIO_SHARED_LIB_DIR ${OpenImageIO_LIB_DIR})
+endif()
+set(OpenImageIO_Util_SHARED_LIB ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(OpenImageIO_SHARED_LIB ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 add_library(OpenImageIO::OpenImageIO_Util SHARED IMPORTED GLOBAL)
 set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES 

@@ -30,7 +30,17 @@ set(OpenColorIO_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenColorIO/bin)
 set(OpenColorIO_FOUND True)
 set(OpenColorIO_VERSION "2.1.1")
 
-set(OpenColorIO_SHARED_LIB ${OpenColorIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenColorIO_2_1${CMAKE_SHARED_LIBRARY_SUFFIX})
+# On Windows, the shared libraries are under the bin directory,
+# but on Linux/Darwin they are still under the lib directory
+# Also, on Windows only the OpenColorIO library has a version suffix
+if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+    set(OpenColorIO_SHARED_LIB_DIR ${OpenColorIO_BIN_DIR})
+    set(_OCIO_VERSION_SUFFIX "_2_1")
+else()
+    set(OpenColorIO_SHARED_LIB_DIR ${OpenColorIO_LIB_DIR})
+    set(_OCIO_VERSION_SUFFIX "")
+endif()
+set(OpenColorIO_SHARED_LIB ${OpenColorIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenColorIO${_OCIO_VERSION_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 add_library(OpenColorIO::OpenColorIO SHARED IMPORTED GLOBAL)
 set_target_properties(OpenColorIO::OpenColorIO PROPERTIES

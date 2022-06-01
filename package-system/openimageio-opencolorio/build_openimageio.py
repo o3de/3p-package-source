@@ -568,6 +568,7 @@ def BuildOpenImageIO(release=True):
         f'-DCMAKE_CXX_STANDARD=17',
         f'-DPYTHON_VERSION={expected_python_version}',
         f'-DOIIO_BUILD_TESTS=OFF',
+        f'-DBUILD_TESTING=OFF',
         f'-DLINKSTATIC=ON',
         f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
         f'-DUSE_OpenGL=OFF',
@@ -844,9 +845,20 @@ def TestOpenImageIO(release=True):
     if not release:
         ocio_debug = 'd'
         oiio_debug = '_d'
-    shutil.copy2(src=final_package_image_root / 'OpenColorIO' / 'bin' / f'{lib_prefix}OpenColorIO{ocio_debug}_2_1{shared_lib_suffix}', dst=test_executable_dir)
-    shutil.copy2(src=final_package_image_root / 'OpenImageIO' / 'bin' / f'{lib_prefix}OpenImageIO{oiio_debug}{shared_lib_suffix}', dst=test_executable_dir)
-    shutil.copy2(src=final_package_image_root / 'OpenImageIO' / 'bin' / f'{lib_prefix}OpenImageIO_Util{oiio_debug}{shared_lib_suffix}', dst=test_executable_dir)
+
+    # On Windows only, the OpenColorIO library has a version suffix
+    # Also, on Windows the shared libraries are in the 'bin' directory,
+    # but on Linux/Darwin they're in the 'lib' directory
+    if args.platform == 'windows':
+        ocio_version_suffix = '_2_1'
+        shared_lib_dir = 'bin'
+    else:
+        ocio_version_suffix = ''
+        shared_lib_dir = 'lib'
+
+    shutil.copy2(src=final_package_image_root / 'OpenColorIO' / shared_lib_dir / f'{lib_prefix}OpenColorIO{ocio_debug}{ocio_version_suffix}{shared_lib_suffix}', dst=test_executable_dir)
+    shutil.copy2(src=final_package_image_root / 'OpenImageIO' / shared_lib_dir / f'{lib_prefix}OpenImageIO{oiio_debug}{shared_lib_suffix}', dst=test_executable_dir)
+    shutil.copy2(src=final_package_image_root / 'OpenImageIO' / shared_lib_dir / f'{lib_prefix}OpenImageIO_Util{oiio_debug}{shared_lib_suffix}', dst=test_executable_dir)
 
     exec_and_exit_if_failed(test_exec_command, cwd=test_script_folder)
 
