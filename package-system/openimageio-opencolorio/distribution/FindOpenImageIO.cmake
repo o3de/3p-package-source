@@ -73,53 +73,21 @@ set(OpenImageIO_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenImageIO/bin)
 set(OpenImageIO_VERSION "2.3.12.0")
 set(OpenImageIO_FOUND True)
 
-add_library(OpenImageIO::OpenImageIO_Util STATIC IMPORTED GLOBAL)
+set(OpenImageIO_Util_SHARED_LIB ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(OpenImageIO_SHARED_LIB ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO${CMAKE_SHARED_LIBRARY_SUFFIX})
+
+add_library(OpenImageIO::OpenImageIO_Util SHARED IMPORTED GLOBAL)
 set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES 
-    IMPORTED_LOCATION ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util${CMAKE_STATIC_LIBRARY_SUFFIX})
+    IMPORTED_LOCATION ${OpenImageIO_Util_SHARED_LIB})
 
-add_library(OpenImageIO::OpenImageIO STATIC IMPORTED GLOBAL)
+add_library(OpenImageIO::OpenImageIO SHARED IMPORTED GLOBAL)
 set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
-    INTERFACE_COMPILE_DEFINITIONS "OIIO_STATIC_DEFINE=1"
-    IMPORTED_LOCATION ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${CMAKE_STATIC_LIBRARY_SUFFIX})
-
-# The Boost and LibJPEGTurbo libs have special suffixes on windows
-# Also look if we need to expose our debug libraries on windows
-# if the CMAKE_BUILD_TYPE has been set to Debug
-set(_OIIO_DEBUG_POSTFIX "")
-if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-    set(_boost_DEBUG_TAG "")
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL Debug)
-        set(_OIIO_DEBUG_POSTFIX "_d")
-        set(_boost_DEBUG_TAG "-gd")
-    endif()
-
-    # Boost has their own special debug lib tagging we need to account for
-    set(_boost_LIB_SUFFIX "-vc142-mt${_boost_DEBUG_TAG}-x64-1_76")
-    set(_jpegTurbo_LIB_SUFFIX "-static")
-endif()
+    IMPORTED_LOCATION ${OpenImageIO_SHARED_LIB})
 
 target_link_libraries(OpenImageIO::OpenImageIO INTERFACE 
-    expat::expat
     OpenImageIO::OpenImageIO_Util
     OpenColorIO::OpenColorIO
-    Imath::Imath
-    PNG::PNG
-    TIFF::TIFF
-    OpenEXR::OpenEXR
-    OpenEXR::OpenEXRCore
-    OpenEXR::OpenEXRUtil
-    ZLIB::ZLIB
-    Freetype::Freetype
     ${CMAKE_DL_LIBS}
-    # private dependencies that we intentionally DO NOT WANT to create friendly targets for:
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_atomic${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_chrono${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_date_time${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_filesystem${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_system${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/Boost/lib/libboost_thread${_boost_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/LibJPEGTurbo/lib/${CMAKE_STATIC_LIBRARY_PREFIX}turbojpeg${_jpegTurbo_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/LibJPEGTurbo/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jpeg${_jpegTurbo_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
@@ -157,20 +125,62 @@ set(OpenImageIO_TOOLS_BINARIES
     ${OpenImageIO_BIN_DIR}/oiiotool${CMAKE_EXECUTABLE_SUFFIX}
 )
 
+#only windows ships with debug libraries:
+if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+    set(_OIIO_DEBUG_POSTFIX "")
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+        set(_OIIO_DEBUG_POSTFIX "_d")
+        set(OpenImageIO_Util_SHARED_LIB_DEBUG ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util${_OIIO_DEBUG_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
+        set(OpenImageIO_SHARED_LIB_DEBUG ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO${_OIIO_DEBUG_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
+
+        set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES
+            IMPORTED_LOCATION_DEBUG ${OpenImageIO_Util_SHARED_LIB_DEBUG}
+            IMPORTED_IMPLIB_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util${_OIIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+        )
+        set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
+            IMPORTED_LOCATION_DEBUG ${OpenImageIO_SHARED_LIB_DEBUG}
+            IMPORTED_IMPLIB_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${_OIIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+        )
+    endif()
+
+    set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES 
+        IMPORTED_IMPLIB ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util${CMAKE_STATIC_LIBRARY_SUFFIX}
+    )
+    set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
+        IMPORTED_IMPLIB ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${CMAKE_STATIC_LIBRARY_SUFFIX}
+    )
+endif()
+
 add_library(OpenImageIO::OpenImageIO::Tools::Binaries INTERFACE IMPORTED GLOBAL)
 add_library(OpenImageIO::OpenImageIO::Tools::PythonPlugins INTERFACE IMPORTED GLOBAL)
 if (COMMAND ly_add_target_files)
-    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::Binaries FILES ${OpenImageIO_TOOLS_BINARIES})
-    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::PythonPlugins FILES ${OpenImageIOPythonBindings})
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO_Util FILES ${OpenImageIO_Util_SHARED_LIB})
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO FILES ${OpenImageIO_SHARED_LIB})
+
+    if (${CMAKE_SYSTEM_NAME} STREQUAL Windows AND "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+        ly_add_target_files(TARGETS OpenImageIO::OpenImageIO_Util FILES ${OpenImageIO_Util_SHARED_LIB_DEBUG})
+        ly_add_target_files(TARGETS OpenImageIO::OpenImageIO FILES ${OpenImageIO_SHARED_LIB_DEBUG})
+    endif()
+
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::Binaries FILES
+        ${OpenImageIO_TOOLS_BINARIES}
+        ${OpenImageIO_Util_SHARED_LIB}
+        ${OpenImageIO_SHARED_LIB}
+    )
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::PythonPlugins FILES
+        ${OpenImageIOPythonBindings}
+        ${OpenImageIO_Util_SHARED_LIB}
+        ${OpenImageIO_SHARED_LIB}
+    )
 endif()
 
-#only windows ships with debug libraries:
-if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-    set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES 
-        IMPORTED_LOCATION_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util${_OIIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
-    set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
-        IMPORTED_LOCATION_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${_OIIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
-endif()
+# Our OpenImageIO tools also depend on the OpenColorIO runtime (shared library)
+target_link_libraries(OpenImageIO::OpenImageIO::Tools::Binaries INTERFACE
+    OpenColorIO::OpenColorIO::Runtime
+)
+target_link_libraries(OpenImageIO::OpenImageIO::Tools::PythonPlugins INTERFACE
+    OpenColorIO::OpenColorIO::Runtime
+)
 
 # alias the OpenImageIO library to the O3DE 3rdParty library
 add_library(3rdParty::OpenImageIO ALIAS OpenImageIO::OpenImageIO)

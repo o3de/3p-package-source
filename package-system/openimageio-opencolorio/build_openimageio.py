@@ -37,6 +37,7 @@ that there is no patent danger.
 '''
 
 import argparse
+import glob
 import json
 import os
 import platform
@@ -145,7 +146,7 @@ def exec_and_exit_if_failed(invoke_params, cwd=script_folder, shell=False):
     result_value = subprocess.run(invoke_params, shell=shell, cwd=cwd)
     if result_value.returncode != 0:
         print(f"Exec: Failed with return code {result_value}")
-        sys.exit(0)
+        sys.exit(1)
     return result_value.returncode
 
 # only clones the repo if it doesn't exist.  Otherwise cleans it.
@@ -289,7 +290,7 @@ def BuildOpenColorIO(module_paths_to_use, release=True):
                 f'-Dexpat_STATIC_LIBRARY=ON',
                 f'-DCMAKE_INSTALL_PREFIX={ocio_install_path}',
                 f'-DCMAKE_BUILD_TYPE={build_type}',
-                f'-DBUILD_SHARED_LIBS=OFF',
+                f'-DBUILD_SHARED_LIBS=ON',
                 f'-DCMAKE_CXX_STANDARD=17',
                 f'-DOCIO_BUILD_APPS=ON',
                 f'-DOCIO_BUILD_OPENFX=OFF',
@@ -563,7 +564,7 @@ def BuildOpenImageIO(release=True):
         f'-DCMAKE_INSTALL_PREFIX={oiio_install_path}',
         f'-DPNG_ROOT={get_dependency_path(args.platform, "libpng") / "libpng"}',
         f'-DCMAKE_BUILD_TYPE={build_type}',
-        f'-DBUILD_SHARED_LIBS=OFF',
+        f'-DBUILD_SHARED_LIBS=ON',
         f'-DCMAKE_CXX_STANDARD=17',
         f'-DPYTHON_VERSION={expected_python_version}',
         f'-DOIIO_BUILD_TESTS=OFF',
@@ -713,34 +714,30 @@ print("Copying OpenColorIO")
 shutil.copytree(src=ocio_install_path, dst=final_package_image_root / 'OpenColorIO')
 shutil.copy2(src=script_folder / 'distribution' / 'FindOpenColorIO.cmake', dst=final_package_image_root / 'FindOpenColorIO.cmake')
 
-# the following are considered private dependencies, do not depend on them!
-print("Copying LibJPEGTurbo")
-shutil.copytree(src=libjpegturbo_install_path, dst=private_deps_folder / 'LibJPEGTurbo')
-print("Copying Boost")
-shutil.copytree(src=boost_install_path, dst=private_deps_folder / 'Boost')
-print("Copying pystring")
-shutil.copytree(src=temp_folder_path / 'pystring_install', dst=private_deps_folder / 'pystring')
-print("Copying yaml-cpp")
-shutil.copytree(src=temp_folder_path / 'yaml-cpp_install', dst=private_deps_folder / 'yaml-cpp')
-
 print("Cleaning unnecessary/private files")
-# we don't actually want to expose this copy of boost as being something people can use
-# and the OpenImageIO library doesn't expose any boost usage in its public API, so we can remove all the headers.
 # note that we delete the cmake and pkgconfig files since they contain absolute paths to the machine
 # that they were built on, and won't be useful anyway
 # Ignore errors when removing the pkgconfig folders since they won't be present on windows
-shutil.rmtree(path=private_deps_folder / 'Boost' / 'include')
-shutil.rmtree(path=private_deps_folder / 'Boost' / 'lib' / 'cmake')
-shutil.rmtree(path=private_deps_folder / 'LibJPEGTurbo' / 'include')
-shutil.rmtree(path=private_deps_folder / 'LibJPEGTurbo' / 'bin')
-shutil.rmtree(path=private_deps_folder / 'LibJPEGTurbo' / 'lib' / 'cmake')
-shutil.rmtree(path=private_deps_folder / 'LibJPEGTurbo' / 'lib' / 'pkgconfig', ignore_errors=True)
 shutil.rmtree(path=final_package_image_root / 'OpenColorIO' / 'lib' / 'pkgconfig', ignore_errors=True)
 shutil.rmtree(path=final_package_image_root / 'OpenColorIO' / 'lib' / 'cmake')
 shutil.rmtree(path=final_package_image_root / 'OpenColorIO' / 'share')
 
 shutil.rmtree(path=final_package_image_root / 'OpenImageIO' / 'lib' / 'pkgconfig', ignore_errors=True)
 shutil.rmtree(path=final_package_image_root / 'OpenImageIO' / 'lib' / 'cmake')
+
+# Remove the fonts from OpenImageIO since they just bloat the package
+shutil.rmtree(path=final_package_image_root / 'OpenImageIO' / 'share' / 'fonts')
+
+# On Windows only, the OpenImageIO install includes several MSVC runtime dlls we don't want to ship:
+#   concrt, msvc*, and vcruntime*
+# So look through the OpenImageIO package bin directory and remove any dlls that aren't
+# explicitly from the OpenImageIO library itself
+if args.platform == "windows":
+    oiio_dlls = final_package_image_root / 'OpenImageIO' / 'bin' / '*.dll'
+    for file_path in glob.glob(oiio_dlls.as_posix()):
+        file_name = pathlib.Path(file_path).name
+        if not file_name.startswith('OpenImageIO'):
+            os.remove(file_path)
 
 # Generate our PackageInfo.json dynamically for the platform, and pretty
 # print the JSON so that it's human readable
@@ -749,7 +746,7 @@ platform_name = args.platform.lower()
 if platform_name == "darwin":
     platform_name = "mac" # Our convention in the package list is to use mac
 package_info = {
-    "PackageName" : f"openimageio-opencolorio-2.3.12.0-{platform_name}",
+    "PackageName" : f"openimageio-opencolorio-2.3.12.0-rev2-{platform_name}",
     "URL"         : "https://github.com/OpenImageIO/oiio and https://opencolorio.org/",
     "License"     : "BSD-3-Clause",
     "LicenseFile" : "LICENSE.TXT"
@@ -766,11 +763,28 @@ shutil.copy2(src=script_folder / 'distribution' / 'LICENSE.TXT', dst=final_packa
 # we also have to include other license files when the install step for the package doesn't do it themselves
 shutil.copy2(src=source_folder_path / 'opencolorio' / 'LICENSE', dst=final_package_image_root / 'OpenColorIO' / 'LICENSE')
 shutil.copy2(src=source_folder_path / 'opencolorio' / 'THIRD-PARTY.md', dst=final_package_image_root / 'OpenColorIO' / 'THIRD-PARTY.md')
-shutil.copy2(src=source_folder_path / 'boost' / 'LICENSE_1_0.txt', dst=private_deps_folder / 'Boost' / 'LICENSE_1_0.txt')
-shutil.copy2(src=source_folder_path / 'boost' / 'README.md', dst=private_deps_folder / 'Boost' / 'README.md')
-shutil.copy2(src=private_deps_folder / 'LibJPEGTurbo' / 'share' / 'doc' / 'libjpeg-turbo' / 'LICENSE.md', dst=private_deps_folder / 'LibJPEGTurbo' / 'LICENSE.md')
+
+os.makedirs(private_deps_folder / 'Boost', exist_ok=True)
+shutil.copy2(src=source_folder_path / 'boost' / 'LICENSE_1_0.txt', dst=private_deps_folder / 'Boost')
+shutil.copy2(src=source_folder_path / 'boost' / 'README.md', dst=private_deps_folder / 'Boost')
+
+os.makedirs(private_deps_folder / 'LibJPEGTurbo', exist_ok=True)
+shutil.copy2(src=libjpegturbo_install_path / 'share' / 'doc' / 'libjpeg-turbo' / 'LICENSE.md', dst=private_deps_folder / 'LibJPEGTurbo')
+
+os.makedirs(private_deps_folder / 'pystring', exist_ok=True)
+shutil.copy2(src=pystring_install_path / 'LICENSE', dst=private_deps_folder / 'pystring')
+
+os.makedirs(private_deps_folder / 'yaml-cpp', exist_ok=True)
+shutil.copy2(src=yamlcpp_install_path / 'LICENSE', dst=private_deps_folder / 'yaml-cpp')
 
 print("\n----------------------------- Test package image -----------------------------")
+
+if args.platform == 'darwin':
+    shared_lib_suffix = '.dylib'
+elif args.platform == 'windows':
+    shared_lib_suffix = '.dll'
+else: # linux
+    shared_lib_suffix = '.so'
 
 def TestOpenImageIO(release=True):
     build_type = 'Release' if release else 'Debug'
@@ -815,12 +829,24 @@ def TestOpenImageIO(release=True):
         test_executable_path = test_build_folder / 'test_OpenImageIO.app' / 'Contents' / 'MacOS' / 'test_OpenImageIO'
     elif args.platform == 'windows':
         test_executable_path = test_build_folder / f'{build_type}' / 'test_OpenImageIO.exe'
-    else:
+    else: # linux
         test_executable_path = test_build_folder / 'test_OpenImageIO'
 
     test_exec_command = [
         test_executable_path
     ]
+
+    # Manual copy of runtime dependencies (the OCIO/OIIO shared libs) to the
+    # test executable folder so that the executable can run
+    test_executable_dir = test_executable_path.parent
+    ocio_debug = ''
+    oiio_debug = ''
+    if not release:
+        ocio_debug = 'd'
+        oiio_debug = '_d'
+    shutil.copy2(src=final_package_image_root / 'OpenColorIO' / 'bin' / f'{lib_prefix}OpenColorIO{ocio_debug}_2_1{shared_lib_suffix}', dst=test_executable_dir)
+    shutil.copy2(src=final_package_image_root / 'OpenImageIO' / 'bin' / f'{lib_prefix}OpenImageIO{oiio_debug}{shared_lib_suffix}', dst=test_executable_dir)
+    shutil.copy2(src=final_package_image_root / 'OpenImageIO' / 'bin' / f'{lib_prefix}OpenImageIO_Util{oiio_debug}{shared_lib_suffix}', dst=test_executable_dir)
 
     exec_and_exit_if_failed(test_exec_command, cwd=test_script_folder)
 
@@ -852,6 +878,13 @@ else:
 sys.path.insert(1, str(test_script_folder.absolute().resolve()))
 sys.path.insert(1, str(oiio_site_packages.absolute().resolve()))
 sys.path.insert(1, str(ocio_site_packages.absolute().resolve()))
+
+# Also need to add OpenColorIO and OpenImageIO bin directories to the PATH
+# so their shared libs can be found
+ocio_bin = final_package_image_root / 'OpenColorIO' / 'bin'
+oiio_bin = final_package_image_root / 'OpenImageIO' / 'bin'
+os.environ["PATH"] = f"{str(ocio_bin.absolute().resolve())}{os.pathsep}{str(oiio_bin.absolute().resolve())}{os.pathsep}{os.environ['PATH']}"
+
 from python_tests import test_OpenImageIO, test_OpenColorIO
 
 if not test_OpenImageIO():

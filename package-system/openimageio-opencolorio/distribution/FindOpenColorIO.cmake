@@ -30,40 +30,33 @@ set(OpenColorIO_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenColorIO/bin)
 set(OpenColorIO_FOUND True)
 set(OpenColorIO_VERSION "2.1.1")
 
-add_library(OpenColorIO::OpenColorIO STATIC IMPORTED GLOBAL)
-set_target_properties(OpenColorIO::OpenColorIO PROPERTIES 
-    IMPORTED_LOCATION ${OpenColorIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenColorIO${CMAKE_STATIC_LIBRARY_SUFFIX}
-    INTERFACE_COMPILE_DEFINITIONS "OIIO_STATIC_DEFINE=1"
+set(OpenColorIO_SHARED_LIB ${OpenColorIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenColorIO_2_1${CMAKE_SHARED_LIBRARY_SUFFIX})
+
+add_library(OpenColorIO::OpenColorIO SHARED IMPORTED GLOBAL)
+set_target_properties(OpenColorIO::OpenColorIO PROPERTIES
+    IMPORTED_LOCATION ${OpenColorIO_SHARED_LIB}
 )
 
 # windows has Debug libraries available.
-set(_OCIO_DEBUG_POSTFIX "")
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+    set(_OCIO_DEBUG_POSTFIX "")
     if ("${CMAKE_BUILD_TYPE}" STREQUAL Debug)
         set(_OCIO_DEBUG_POSTFIX "d")
+        set(OpenColorIO_SHARED_LIB_DEBUG ${OpenColorIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenColorIO${_OCIO_DEBUG_POSTFIX}_2_1${CMAKE_SHARED_LIBRARY_SUFFIX})
+
+        set_target_properties(OpenColorIO::OpenColorIO PROPERTIES
+            IMPORTED_LOCATION_DEBUG ${OpenColorIO_SHARED_LIB_DEBUG}
+            IMPORTED_IMPLIB_DEBUG ${OpenColorIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenColorIO${_OCIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+        )
     endif()
 
-    set_target_properties(OpenColorIO::OpenColorIO PROPERTIES 
-    IMPORTED_LOCATION_DEBUG ${OpenColorIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenColorIO${_OCIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
-
-    # On Windows the yaml lib is built with an extra "md" suffix
-    set(_yaml-cpp_LIB_SUFFIX "md")
-
-    # On Windows only, we need to make sure that this is built statically
-    # and anything linking against OpenColorIO will link statically as well
-    target_compile_definitions(OpenColorIO::OpenColorIO
-        INTERFACE
-            OpenColorIO_SKIP_IMPORTS
+    set_target_properties(OpenColorIO::OpenColorIO PROPERTIES
+        IMPORTED_IMPLIB ${OpenColorIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenColorIO${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
 endif()
 
-
 target_link_libraries(OpenColorIO::OpenColorIO INTERFACE 
     Imath::Imath
-    expat::expat
-    # private dependencies that we intentionally DO NOT WANT to create friendly targets for:
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/pystring/lib/${CMAKE_STATIC_LIBRARY_PREFIX}pystring${_OCIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${CMAKE_CURRENT_LIST_DIR}/privatedeps/yaml-cpp/lib/libyaml-cpp${_yaml-cpp_LIB_SUFFIX}${_OCIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
 
 if (COMMAND ly_target_include_system_directories)
@@ -95,15 +88,38 @@ set(OpenColorIO_TOOLS_BINARIES
     ${OpenColorIO_BIN_DIR}/ociowrite${CMAKE_EXECUTABLE_SUFFIX}
 )
 
+add_library(OpenColorIO::OpenColorIO::Runtime INTERFACE IMPORTED GLOBAL)
 add_library(OpenColorIO::OpenColorIO::Tools::Binaries INTERFACE IMPORTED GLOBAL)
 add_library(OpenColorIO::OpenColorIO::Tools::PythonPlugins INTERFACE IMPORTED GLOBAL)
 if (COMMAND ly_add_target_files)
-    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO::Tools::Binaries FILES ${OpenColorIO_TOOLS_BINARIES})
-    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO::Tools::PythonPlugins FILES ${OpenColorPythonBindings})
+    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO FILES ${OpenColorIO_SHARED_LIB})
+
+    if (${CMAKE_SYSTEM_NAME} STREQUAL Windows AND "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+        ly_add_target_files(TARGETS OpenColorIO::OpenColorIO FILES ${OpenColorIO_SHARED_LIB_DEBUG})
+    endif()
+
+    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO::Runtime FILES
+        ${OpenColorIO_SHARED_LIB}
+    )
+    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO::Tools::Binaries FILES
+        ${OpenColorIO_TOOLS_BINARIES}
+    )
+    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO::Tools::PythonPlugins FILES
+        ${OpenColorPythonBindings}
+    )
 endif()
+
+# Make sure our tools get the runtime dependency (shared library)
+target_link_libraries(OpenColorIO::OpenColorIO::Tools::Binaries INTERFACE
+    OpenColorIO::OpenColorIO::Runtime
+)
+target_link_libraries(OpenColorIO::OpenColorIO::Tools::PythonPlugins INTERFACE
+    OpenColorIO::OpenColorIO::Runtime
+)
 
 # alias the OpenColorIO library to the O3DE 3rdParty library
 add_library(3rdParty::OpenColorIO ALIAS OpenColorIO::OpenColorIO)
+add_library(3rdParty::OpenColorIO::Runtime ALIAS OpenColorIO::OpenColorIO::Runtime)
 add_library(3rdParty::OpenColorIO::Tools::Binaries ALIAS OpenColorIO::OpenColorIO::Tools::Binaries)
 add_library(3rdParty::OpenColorIO::Tools::PythonPlugins ALIAS OpenColorIO::OpenColorIO::Tools::PythonPlugins)
 
