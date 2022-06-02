@@ -708,11 +708,11 @@ os.makedirs(final_package_image_root, exist_ok=True)
 os.makedirs(private_deps_folder, exist_ok=True)
 
 print("Copying OpenImageIO")
-shutil.copytree(src=oiio_install_path, dst=final_package_image_root / 'OpenImageIO')
+shutil.copytree(src=oiio_install_path, dst=final_package_image_root / 'OpenImageIO', symlinks=True)
 shutil.copy2(src=script_folder / 'distribution' / 'FindOpenImageIO.cmake', dst=final_package_image_root / 'FindOpenImageIO.cmake')
 
 print("Copying OpenColorIO")
-shutil.copytree(src=ocio_install_path, dst=final_package_image_root / 'OpenColorIO')
+shutil.copytree(src=ocio_install_path, dst=final_package_image_root / 'OpenColorIO', symlinks=True)
 shutil.copy2(src=script_folder / 'distribution' / 'FindOpenColorIO.cmake', dst=final_package_image_root / 'FindOpenColorIO.cmake')
 
 print("Cleaning unnecessary/private files")
