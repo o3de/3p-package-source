@@ -591,10 +591,20 @@ def BuildOpenImageIO(release=True):
         ]
 
     if args.platform == "darwin":
+        # Make sure to use the mac toolchain
+        # Also, we need to set the RPATH to use relative @loader_path, or
+        # else the RPATH will contain absolute paths
         openimageio_configure_command += [
-            f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
+            f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}',
+            f'-DCMAKE_INSTALL_RPATH=@loader_path;@loader_path/../..;@loader_path/lib',
         ]
-    elif args.platform == "windows":
+    elif args.platform == "linux":
+        # We need to set the RPATH to use relative $ORIGIN, or
+        # else the RPATH will contain absolute paths
+        openimageio_configure_command += [
+            f'-DCMAKE_INSTALL_RPATH=$ORIGIN;$ORIGIN/../..;$ORIGIN/lib',
+        ]
+    else: # windows
         # Without this on windows we get a linker error: yaml_cpp_LIBRARY-NOTFOUND
         openimageio_configure_command += [
             f'-Dyaml_cpp_LIBRARY={yamlcpp_install_path / "lib" / f"libyaml-cppmd{debug_suffix}.lib"}',
