@@ -1,0 +1,16 @@
+diff --git a/src/libOpenImageIO/CMakeLists.txt b/src/libOpenImageIO/CMakeLists.txt
+index 312ae44..be93f75 100644
+--- a/src/libOpenImageIO/CMakeLists.txt
++++ b/src/libOpenImageIO/CMakeLists.txt
+@@ -121,6 +121,11 @@ endif ()
+ # Propagate C++ minimum to downstream
+ target_compile_features (OpenImageIO PUBLIC cxx_std_14)
+ 
++find_package (Threads)
++if (CMAKE_USE_PTHREADS_INIT)
++    target_link_libraries(OpenImageIO INTERFACE ${CMAKE_THREAD_LIBS_INIT})
++endif ()
++
+ target_link_libraries (OpenImageIO
+         PUBLIC
+             OpenImageIO_Util

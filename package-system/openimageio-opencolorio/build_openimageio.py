@@ -153,8 +153,10 @@ def exec_and_exit_if_failed(invoke_params, cwd=script_folder, shell=False):
 def clone_repo(url, tag, dest_folder):
     if pathlib.Path(dest_folder).exists():
         print(f"Not re-cloning {url} to {dest_folder} becuase it already exists (use --clean to clean fully)")
+        exec_and_exit_if_failed(['git', 'fetch'], cwd=dest_folder)
         exec_and_exit_if_failed(['git', 'clean', '-f'], cwd=dest_folder)
         exec_and_exit_if_failed(['git', 'restore', '.'], cwd=dest_folder)
+        exec_and_exit_if_failed(['git', 'reset', '--hard', tag], cwd=dest_folder)
     else:
         exec_and_exit_if_failed(['git', 'clone', '--depth=1', '--single-branch', '--depth=1', '--recursive',
               '-b', tag,   
@@ -659,7 +661,8 @@ def BuildOpenImageIO(release=True):
 if not SKIP_OPENIMAGEIO:
     print("\n----------------------------- BUILD OpenImageIO ------------------------------")
 
-    clone_repo(openimageio_repository_url, openimageio_repository_tag, source_folder_path / 'openimageio')
+    oiio_source_path = source_folder_path / 'openimageio'
+    clone_repo(openimageio_repository_url, openimageio_repository_tag, oiio_source_path)
 
     if openimageio_build_folder.exists():
         shutil.rmtree(str(openimageio_build_folder.resolve()), ignore_errors=True)
@@ -673,7 +676,22 @@ if not SKIP_OPENIMAGEIO:
 
     # openimageio looks for OpenColorIO in a way that is not compatible with generated configs.
     # remove its find file, allow it to just use the OpenColorIO_ROOT:
-    os.remove(source_folder_path / 'openimageio' / 'src' / 'cmake' / 'modules' / 'FindOpenColorIO.cmake' )
+    os.remove(oiio_source_path / 'src' / 'cmake' / 'modules' / 'FindOpenColorIO.cmake' )
+
+    # The OIIO cmake sets CMAKE_INSTALL_RPATH_USE_LINK_PATH to TRUE, which will
+    # cause anything in the link path to be appended to the RPATH, which results
+    # in absolute paths to boost and other dependencies that we dont' want in there
+    # so we need to patch it to prevent that
+    patch_file_path = script_folder / 'disable_rpath_use_link_path.patch'
+    patch_cmd = ['git', 'apply', '--ignore-whitespace', str(patch_file_path.absolute())]
+    exec_and_exit_if_failed(patch_cmd, cwd=oiio_source_path)
+
+    # On Linux only, we need to also patch to make sure the pthreads is linked
+    # appropriately, otherwise specifically the testtex executable will fail to link
+    if args.platform == "linux":
+        pthread_patch_file_path = script_folder / 'linux_pthreads_fix.patch'
+        pthread_patch_cmd = ['git', 'apply', '--ignore-whitespace', str(pthread_patch_file_path.absolute())]
+        exec_and_exit_if_failed(pthread_patch_cmd, cwd=oiio_source_path)
 
     # On windows only, we also need to do a debug build
     # We do the debug build before the release because the
@@ -797,6 +815,7 @@ elif args.platform == 'windows':
 else: # linux
     shared_lib_suffix = '.so'
 
+test_shared_libs_dir = None
 def TestOpenImageIO(release=True):
     build_type = 'Release' if release else 'Debug'
     test_configure_command = [
@@ -866,9 +885,21 @@ def TestOpenImageIO(release=True):
         ocio_version_suffix = ''
         shared_lib_dir = 'lib'
 
-    shutil.copy2(src=final_package_image_root / 'OpenColorIO' / shared_lib_dir / f'{lib_prefix}OpenColorIO{ocio_debug}{ocio_version_suffix}{shared_lib_suffix}', dst=test_executable_dir)
-    shutil.copy2(src=final_package_image_root / 'OpenImageIO' / shared_lib_dir / f'{lib_prefix}OpenImageIO{oiio_debug}{shared_lib_suffix}', dst=test_executable_dir)
-    shutil.copy2(src=final_package_image_root / 'OpenImageIO' / shared_lib_dir / f'{lib_prefix}OpenImageIO_Util{oiio_debug}{shared_lib_suffix}', dst=test_executable_dir)
+    ocio_lib = final_package_image_root / 'OpenColorIO' / shared_lib_dir / f'{lib_prefix}OpenColorIO{ocio_debug}{ocio_version_suffix}{shared_lib_suffix}*'
+    oiio_lib = final_package_image_root / 'OpenImageIO' / shared_lib_dir / f'{lib_prefix}OpenImageIO{oiio_debug}{shared_lib_suffix}*'
+    oiio_util_lib = final_package_image_root / 'OpenImageIO' / shared_lib_dir / f'{lib_prefix}OpenImageIO_Util{oiio_debug}{shared_lib_suffix}*'
+
+    # Copy all of the OIIO and OCIO shared libs into the test directory to simulate
+    # being copied as runtime dependencies
+    for shared_lib in [ocio_lib, oiio_lib, oiio_util_lib]:
+        for file_path in glob.glob(shared_lib.as_posix()):
+            shutil.copy2(src=file_path, dst=test_executable_dir, follow_symlinks=False)
+
+    # For the release build only, we will re-use this test_executable_dir to
+    # test the python bindings later since we've already copied the shared libs into it
+    if release:
+        global test_shared_libs_dir
+        test_shared_libs_dir = test_executable_dir
 
     exec_and_exit_if_failed(test_exec_command, cwd=test_script_folder)
 
@@ -895,17 +926,17 @@ if args.platform == 'windows':
 else:
     ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'python3.7' / 'site-packages'
 
-# Insert our site-packages folders with the pyds into the sys.path so that the test can
-# import from them, as well as our actual test scripts folder so we can import the tests
-sys.path.insert(1, str(test_script_folder.absolute().resolve()))
-sys.path.insert(1, str(oiio_site_packages.absolute().resolve()))
-sys.path.insert(1, str(ocio_site_packages.absolute().resolve()))
+# Copy our site-packages pyd's for OIIO/OCIO into our test directory where
+# we've already copied all the OIIO/OCIO shared libraries to simulate
+# them being copied to the bin directory as runtime dependencies
+for site_packages_dir in [oiio_site_packages, ocio_site_packages]:
+    for file_path in glob.glob((site_packages_dir / '*.*').as_posix()):
+        shutil.copy2(src=file_path, dst=test_shared_libs_dir)
 
-# Also need to add OpenColorIO and OpenImageIO bin directories to the PATH
-# so their shared libs can be found
-ocio_bin = final_package_image_root / 'OpenColorIO' / 'bin'
-oiio_bin = final_package_image_root / 'OpenImageIO' / 'bin'
-os.environ["PATH"] = f"{str(ocio_bin.absolute().resolve())}{os.pathsep}{str(oiio_bin.absolute().resolve())}{os.pathsep}{os.environ['PATH']}"
+# Insert our test scripts folder into the sys.path so that we can import the tests
+# As well as the test_shared_libs_dir that has the python bindings
+sys.path.insert(1, str(test_script_folder.absolute().resolve()))
+sys.path.insert(1, str(test_shared_libs_dir.absolute().resolve()))
 
 from python_tests import test_OpenImageIO, test_OpenColorIO
 
