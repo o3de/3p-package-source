@@ -91,6 +91,12 @@ add_library(OpenImageIO::OpenImageIO SHARED IMPORTED GLOBAL)
 set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
     IMPORTED_LOCATION ${OpenImageIO_SHARED_LIB})
 
+# Make sure pthreads gets linked properly (typically on linux)
+find_package(Threads)
+if (CMAKE_USE_PTHREADS_INIT)
+    target_link_libraries(OpenImageIO::OpenImageIO INTERFACE ${CMAKE_THREAD_LIBS_INIT})
+endif ()
+
 target_link_libraries(OpenImageIO::OpenImageIO INTERFACE 
     OpenImageIO::OpenImageIO_Util
     OpenColorIO::OpenColorIO
