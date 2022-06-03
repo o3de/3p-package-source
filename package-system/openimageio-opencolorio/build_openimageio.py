@@ -875,23 +875,19 @@ def TestOpenImageIO(release=True):
         ocio_debug = 'd'
         oiio_debug = '_d'
 
-    # On Windows only, the OpenColorIO library has a version suffix
-    # Also, on Windows the shared libraries are in the 'bin' directory,
+    # On Windows the shared libraries are in the 'bin' directory,
     # but on Linux/Darwin they're in the 'lib' directory
     if args.platform == 'windows':
-        ocio_version_suffix = '_2_1'
         shared_lib_dir = 'bin'
     else:
-        ocio_version_suffix = ''
         shared_lib_dir = 'lib'
 
-    ocio_lib = final_package_image_root / 'OpenColorIO' / shared_lib_dir / f'{lib_prefix}OpenColorIO{ocio_debug}{ocio_version_suffix}{shared_lib_suffix}*'
-    oiio_lib = final_package_image_root / 'OpenImageIO' / shared_lib_dir / f'{lib_prefix}OpenImageIO{oiio_debug}{shared_lib_suffix}*'
-    oiio_util_lib = final_package_image_root / 'OpenImageIO' / shared_lib_dir / f'{lib_prefix}OpenImageIO_Util{oiio_debug}{shared_lib_suffix}*'
+    ocio_libs = final_package_image_root / 'OpenColorIO' / shared_lib_dir / f'*{shared_lib_suffix}*'
+    oiio_libs = final_package_image_root / 'OpenImageIO' / shared_lib_dir / f'*{shared_lib_suffix}*'
 
     # Copy all of the OIIO and OCIO shared libs into the test directory to simulate
     # being copied as runtime dependencies
-    for shared_lib in [ocio_lib, oiio_lib, oiio_util_lib]:
+    for shared_lib in [ocio_libs, oiio_libs]:
         for file_path in glob.glob(shared_lib.as_posix()):
             shutil.copy2(src=file_path, dst=test_executable_dir, follow_symlinks=False)
 
