@@ -42,6 +42,25 @@ else()
 endif()
 set(OpenColorIO_SHARED_LIB ${OpenColorIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenColorIO${_OCIO_VERSION_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
 
+# We need to make all the shared libraries available as runtime dependencies
+# On Windows, there's only the single shared library (.dll)
+# On Linux/Darwin, we need to account for all the versioned shared libraries
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(OpenColorIO_SHARED_LIBS ${OpenColorIO_SHARED_LIB})
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set(OpenColorIO_SHARED_LIBS
+        ${OpenColorIO_SHARED_LIB}
+        ${OpenColorIO_SHARED_LIB}.2.1
+        ${OpenColorIO_SHARED_LIB}.2.1.1
+    )
+else() # Darwin
+    set(OpenColorIO_SHARED_LIBS
+        ${OpenColorIO_SHARED_LIB}
+        ${OpenColorIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenColorIO.2.1${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${OpenColorIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenColorIO.2.1.1${CMAKE_SHARED_LIBRARY_SUFFIX}
+    )
+endif()
+
 add_library(OpenColorIO::OpenColorIO SHARED IMPORTED GLOBAL)
 set_target_properties(OpenColorIO::OpenColorIO PROPERTIES
     IMPORTED_LOCATION ${OpenColorIO_SHARED_LIB}
@@ -102,14 +121,14 @@ add_library(OpenColorIO::OpenColorIO::Runtime INTERFACE IMPORTED GLOBAL)
 add_library(OpenColorIO::OpenColorIO::Tools::Binaries INTERFACE IMPORTED GLOBAL)
 add_library(OpenColorIO::OpenColorIO::Tools::PythonPlugins INTERFACE IMPORTED GLOBAL)
 if (COMMAND ly_add_target_files)
-    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO FILES ${OpenColorIO_SHARED_LIB})
+    ly_add_target_files(TARGETS OpenColorIO::OpenColorIO FILES ${OpenColorIO_SHARED_LIBS})
 
     if (${CMAKE_SYSTEM_NAME} STREQUAL Windows AND "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
         ly_add_target_files(TARGETS OpenColorIO::OpenColorIO FILES ${OpenColorIO_SHARED_LIB_DEBUG})
     endif()
 
     ly_add_target_files(TARGETS OpenColorIO::OpenColorIO::Runtime FILES
-        ${OpenColorIO_SHARED_LIB}
+        ${OpenColorIO_SHARED_LIBS}
     )
     ly_add_target_files(TARGETS OpenColorIO::OpenColorIO::Tools::Binaries FILES
         ${OpenColorIO_TOOLS_BINARIES}

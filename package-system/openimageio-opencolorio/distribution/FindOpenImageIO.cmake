@@ -83,6 +83,36 @@ endif()
 set(OpenImageIO_Util_SHARED_LIB ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util${CMAKE_SHARED_LIBRARY_SUFFIX})
 set(OpenImageIO_SHARED_LIB ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO${CMAKE_SHARED_LIBRARY_SUFFIX})
 
+# We need to make all the shared libraries available as runtime dependencies
+# On Windows, there's only the single shared library (.dll)
+# On Linux/Darwin, we need to account for all the versioned shared libraries
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(OpenImageIO_Util_SHARED_LIBS ${OpenImageIO_Util_SHARED_LIB})
+    set(OpenImageIO_SHARED_LIBS ${OpenImageIO_SHARED_LIB})
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set(OpenImageIO_Util_SHARED_LIBS
+        ${OpenImageIO_Util_SHARED_LIB}
+        ${OpenImageIO_Util_SHARED_LIB}.2.3
+        ${OpenImageIO_Util_SHARED_LIB}.2.3.12
+    )
+    set(OpenImageIO_SHARED_LIBS
+        ${OpenImageIO_SHARED_LIB}
+        ${OpenImageIO_SHARED_LIB}.2.3
+        ${OpenImageIO_SHARED_LIB}.2.3.12
+    )
+else() # Darwin
+    set(OpenImageIO_Util_SHARED_LIBS
+        ${OpenImageIO_Util_SHARED_LIB}
+        ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util.2.3${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util.2.3.12${CMAKE_SHARED_LIBRARY_SUFFIX}
+    )
+    set(OpenImageIO_SHARED_LIBS
+        ${OpenImageIO_SHARED_LIB}
+        ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO.2.3${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO.2.3.12${CMAKE_SHARED_LIBRARY_SUFFIX}
+    )
+endif()
+
 add_library(OpenImageIO::OpenImageIO_Util SHARED IMPORTED GLOBAL)
 set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES 
     IMPORTED_LOCATION ${OpenImageIO_Util_SHARED_LIB})
@@ -167,8 +197,8 @@ endif()
 add_library(OpenImageIO::OpenImageIO::Tools::Binaries INTERFACE IMPORTED GLOBAL)
 add_library(OpenImageIO::OpenImageIO::Tools::PythonPlugins INTERFACE IMPORTED GLOBAL)
 if (COMMAND ly_add_target_files)
-    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO_Util FILES ${OpenImageIO_Util_SHARED_LIB})
-    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO FILES ${OpenImageIO_SHARED_LIB})
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO_Util FILES ${OpenImageIO_Util_SHARED_LIBS})
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO FILES ${OpenImageIO_SHARED_LIBS})
 
     if (${CMAKE_SYSTEM_NAME} STREQUAL Windows AND "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
         ly_add_target_files(TARGETS OpenImageIO::OpenImageIO_Util FILES ${OpenImageIO_Util_SHARED_LIB_DEBUG})
@@ -177,13 +207,13 @@ if (COMMAND ly_add_target_files)
 
     ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::Binaries FILES
         ${OpenImageIO_TOOLS_BINARIES}
-        ${OpenImageIO_Util_SHARED_LIB}
-        ${OpenImageIO_SHARED_LIB}
+        ${OpenImageIO_Util_SHARED_LIBS}
+        ${OpenImageIO_SHARED_LIBS}
     )
     ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::PythonPlugins FILES
         ${OpenImageIOPythonBindings}
-        ${OpenImageIO_Util_SHARED_LIB}
-        ${OpenImageIO_SHARED_LIB}
+        ${OpenImageIO_Util_SHARED_LIBS}
+        ${OpenImageIO_SHARED_LIBS}
     )
 endif()
 
