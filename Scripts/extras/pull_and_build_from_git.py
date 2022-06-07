@@ -623,7 +623,7 @@ class BuildInfo(object):
 
                 if self.package_info.custom_toolchain_file:
                     custom_toolchain_file = self.package_info.custom_toolchain_file
-                    custom_toolchain_file_path = pathlib.Path(custom_toolchain_file).resolve()
+                    custom_toolchain_file_path = pathlib.Path(custom_toolchain_file).absolute().resolve()
                     if not custom_toolchain_file_path.exists():
                         raise BuildError(f"Custom toolchain file specified does not exist: {custom_toolchain_file}\n"
                                          f"Path resolved: {custom_toolchain_file_path} ")
