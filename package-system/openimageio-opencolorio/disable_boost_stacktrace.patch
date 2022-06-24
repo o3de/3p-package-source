@@ -1,0 +1,62 @@
+diff --git a/src/include/OpenImageIO/sysutil.h b/src/include/OpenImageIO/sysutil.h
+index 42815b8..03d9d86 100644
+--- a/src/include/OpenImageIO/sysutil.h
++++ b/src/include/OpenImageIO/sysutil.h
+@@ -26,7 +26,7 @@
+ #include <OpenImageIO/string_view.h>
+ 
+ // Allow client software to know if this version has Sysutil::stacktrace().
+-#define OIIO_HAS_STACKTRACE 1
++#define OIIO_HAS_STACKTRACE 0
+ 
+ 
+ 
+diff --git a/src/libutil/sysutil.cpp b/src/libutil/sysutil.cpp
+index 9732df5..223d22a 100644
+--- a/src/libutil/sysutil.cpp
++++ b/src/libutil/sysutil.cpp
+@@ -65,7 +65,7 @@
+ #include <OpenImageIO/ustring.h>
+ 
+ #include <boost/version.hpp>
+-#if BOOST_VERSION >= 106500
++#if 0
+ #    ifndef _GNU_SOURCE
+ #        define _GNU_SOURCE
+ #    endif
+@@ -655,7 +655,7 @@ aligned_free(void* ptr)
+ std::string
+ Sysutil::stacktrace()
+ {
+-#if BOOST_VERSION >= 106500
++#if 0
+     std::stringstream out;
+     out << boost::stacktrace::stacktrace();
+     return out.str();
+@@ -666,7 +666,7 @@ Sysutil::stacktrace()
+ 
+ 
+ 
+-#if BOOST_VERSION >= 106500
++#if 0
+ 
+ static std::string stacktrace_filename;
+ static std::mutex stacktrace_filename_mutex;
+@@ -681,7 +681,7 @@ stacktrace_signal_handler(int signum)
+         else if (stacktrace_filename == "stderr")
+             std::cerr << Sysutil::stacktrace();
+         else {
+-#    if BOOST_VERSION >= 106500
++#    if 0
+             boost::stacktrace::safe_dump_to(stacktrace_filename.c_str());
+ #    endif
+         }
+@@ -696,7 +696,7 @@ stacktrace_signal_handler(int signum)
+ bool
+ Sysutil::setup_crash_stacktrace(string_view filename)
+ {
+-#if BOOST_VERSION >= 106500
++#if 0
+     std::lock_guard<std::mutex> lock(stacktrace_filename_mutex);
+     stacktrace_filename = filename;
+     ::signal(SIGSEGV, &stacktrace_signal_handler);
