@@ -686,9 +686,20 @@ if not SKIP_OPENIMAGEIO:
     patch_cmd = ['git', 'apply', '--ignore-whitespace', str(patch_file_path.absolute())]
     exec_and_exit_if_failed(patch_cmd, cwd=oiio_source_path)
 
+    # On Windows only, there is an issue using the boost stacktace module because it pulls in
+    # the dbgeng.dll, which isn't backwards compatible with different versions of the Windows SDK.
+    # And so unless the user is on the same Windows SDK version as the machine who built the package,
+    # it could crash due to missing symbols. The OpenImageIO build doesn't have a build flag to disable
+    # the stacktrace usage, it only looks to see if a the boost version is >= 106500 and always sets
+    # OIIO_HAS_STACKTRACE to true, so we need to patch the source to prevent boost stacktrace from
+    # being linked against.
+    if args.platform == "windows":
+        disable_stacktrace_patch_file_path = script_folder / 'disable_boost_stacktrace.patch'
+        disable_stacktrace_patch_cmd = ['git', 'apply', '--ignore-whitespace', str(disable_stacktrace_patch_file_path.absolute())]
+        exec_and_exit_if_failed(disable_stacktrace_patch_cmd, cwd=oiio_source_path)
     # On Linux only, we need to also patch to make sure the pthreads is linked
     # appropriately, otherwise specifically the testtex executable will fail to link
-    if args.platform == "linux":
+    elif args.platform == "linux":
         pthread_patch_file_path = script_folder / 'linux_pthreads_fix.patch'
         pthread_patch_cmd = ['git', 'apply', '--ignore-whitespace', str(pthread_patch_file_path.absolute())]
         exec_and_exit_if_failed(pthread_patch_cmd, cwd=oiio_source_path)
@@ -771,11 +782,9 @@ if args.platform == "windows":
 # Generate our PackageInfo.json dynamically for the platform, and pretty
 # print the JSON so that it's human readable
 print("Generating PackageInfo.json")
-platform_name = args.platform.lower()
-if platform_name == "darwin":
-    platform_name = "mac" # Our convention in the package list is to use mac
+package_name = os.environ["O3DE_PACKAGE_NAME"]
 package_info = {
-    "PackageName" : f"openimageio-opencolorio-2.3.12.0-rev2-{platform_name}",
+    "PackageName" : f"{package_name}",
     "URL"         : "https://github.com/OpenImageIO/oiio and https://opencolorio.org/",
     "License"     : "BSD-3-Clause",
     "LicenseFile" : "LICENSE.TXT"
