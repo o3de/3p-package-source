@@ -20,6 +20,8 @@ import subprocess
 import sys
 
 from package_downloader import PackageDownloader
+from archive_downloader import download_and_verify, extract_package
+
 
 SCHEMA_DESCRIPTION = """
 Build Config Description:
@@ -126,6 +128,15 @@ The following keys can only exist at the target platform level as they describe 
     - Otherwise you can use DOWNLOADED_PACKAGE_FOLDERS env var in your custom script and set
     - CMAKE_MODULE_PATH to be that value, yourself.
     - The subfolder can be empty, in which case the root of the package will be used.
+
+* additional_download_packages            : list of archived package files to download and extract for use in any custom build script. The packages will
+                                            be extracted to the working temp folder. The list will be a list of 3-TUPLES of 
+                                            [full_download_url, file hash, hash algorithm] where:
+                                               full_download_url - The full download URL of the package to download
+                                               file hash - The hex-string of the fingerprint to validate the download with. If this is left blank, no validation
+                                                           will be done, instead it will be calculated on the downloaded package and printed to the console.
+                                               hash algorithm - The hash algorithm to use to calculate the file hash.
+
 
 Note about environment variables:
 When custom commands are issued (build, install, and test), the following environment variables will be set
@@ -234,6 +245,7 @@ class PackageInfo(object):
         self.cmake_find_template_custom_indent = _get_value("cmake_find_template_custom_indent", default=1)
         self.additional_src_files = _get_value("additional_src_files", required=False)
         self.depends_on_packages = _get_value("depends_on_packages", required=False)
+        self.additional_download_packages = _get_value("additional_download_packages", required=False)
         self.cmake_src_subfolder = _get_value("cmake_src_subfolder", required=False)
         self.cmake_generate_args_common = _get_value("cmake_generate_args_common", required=False)
         self.cmake_build_args_common = _get_value("cmake_build_args_common", required=False)
@@ -571,8 +583,28 @@ class BuildInfo(object):
         if self.package_info.depends_on_packages:
             for package_name, package_hash, _ in self.package_info.depends_on_packages:
                 temp_packages_folder = self.base_temp_folder
-                if not PackageDownloader.DownloadAndUnpackPackage(package_name, package_hash, str(temp_packages_folder)):
-                    raise BuildError(f"Failed to download a required dependency: {package_name}")
+                if PackageDownloader.ValidateUnpackedPackage(package_name, package_hash, str(temp_packages_folder)):
+                    print(f"Package {package_name} already downloaded")
+                else:
+                    if not PackageDownloader.DownloadAndUnpackPackage(package_name, package_hash, str(temp_packages_folder)):
+                        raise BuildError(f"Failed to download a required dependency: {package_name}")
+
+        # Check if there are any additional package dependencies to download and extract
+        if self.package_info.additional_download_packages:
+            print("Downloading additional packages")
+            for package_url, package_hash, package_algorithm in self.package_info.additional_download_packages:
+                print(f"Retrieving additional package {os.path.basename(package_url)} from {package_url}")
+
+                downloaded_package_file = download_and_verify(src_url=package_url,
+                                                              src_zip_hash=package_hash,
+                                                              src_zip_hash_algorithm=package_algorithm,
+                                                              target_folder=self.base_temp_folder)
+
+                extracted_package_path = extract_package(src_package_file=downloaded_package_file, 
+                                                         target_folder=self.base_temp_folder)
+
+
+
 
 
     def build_and_install_cmake(self):
