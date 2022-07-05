@@ -593,7 +593,7 @@ class BuildInfo(object):
         if self.package_info.additional_download_packages:
             print("Downloading additional packages")
             for package_url, package_hash, package_algorithm in self.package_info.additional_download_packages:
-                print(f"Retrieving additional package {os.path.basename(package_url)} from {package_url}")
+                print(f"Retrieving additional package from {package_url}")
 
                 downloaded_package_file = download_and_verify(src_url=package_url,
                                                               src_zip_hash=package_hash,

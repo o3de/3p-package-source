@@ -124,7 +124,7 @@ def extract_package(src_package_file: str, target_folder:str):
     elif package_ext in ARCHIVE_EXTS_7ZIP:
         try:
             os.makedirs(destination_path, exist_ok=True)
-            subprocess.call(f"7z x -y {src_package_file_abs}", cwd=destination_path)
+            subprocess.call(f['7z', 'x', '-y', '{src_package_file_abs}'], cwd=destination_path)
         except Exception:
             raise RuntimeError(f"Archive file {src_package_file_abs} requires 7Zip to be installed and on the command path. ")
             
@@ -138,11 +138,11 @@ def extract_package(src_package_file: str, target_folder:str):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Download, verify hash, and unpack remote zip file")
-    parser.add_argument('src_url', 
+    parser.add_argument('src-url', 
                         help='The download url of the zip package to download',
                         nargs=1)
     parser.add_argument('--hash-algorithm',
-                        help='The hash algorithm to use to calculate the fingerprint',
+                        help=f'The hash algorithm to use to calculate the fingerprint ({" ".join(SUPPORTED_HASH_ALGORITHMS.keys())}',
                         default='sha256',
                         required=False)
     parser.add_argument('--hash',
