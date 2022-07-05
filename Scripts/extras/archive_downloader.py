@@ -142,7 +142,7 @@ if __name__ == "__main__":
                         help='The download url of the zip package to download',
                         nargs=1)
     parser.add_argument('--hash-algorithm',
-                        help=f'The hash algorithm to use to calculate the fingerprint ({" ".join(SUPPORTED_HASH_ALGORITHMS.keys())}',
+                        help=f'The hash algorithm to use to calculate the fingerprint ({" ".join(SUPPORTED_HASH_ALGORITHMS.keys())})',
                         default='sha256',
                         required=False)
     parser.add_argument('--hash',
