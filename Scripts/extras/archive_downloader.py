@@ -9,11 +9,12 @@
 import argparse
 import hashlib
 import os
+import pathlib
 import platform
 import urllib.request
 import subprocess
-import zipfile
 import sys
+import zipfile
 
 SUPPORTED_HASH_ALGORITHMS = {
     'md5': lambda: hashlib.md5(),
@@ -32,7 +33,7 @@ def hash_file(file_path:str, hash_algorithm:str='md5')->str:
     """
     Calculate a hash based on the input file path and selected hash algorithm and return a hex-string representation of it
 
-    Supported hash algorithms are: md5, sha1, sha224, sha256
+    (Refer to SUPPORTED_HASH_ALGORITHMS for the supported hash algorithms)
 
     :param file_path:       The path to the file to calculate the hash
     :param hash_algorithm:  The desired hash algorith. See 'SUPPORTED_HASH_ALGORITHMS' for the list of algorithms
@@ -68,65 +69,65 @@ def download_and_verify(src_url: str, src_zip_hash:str, src_zip_hash_algorithm:s
     :param target_folder:           The target folder to download the archive file to
     """
 
+    target_folder_path = pathlib.Path(target_folder)
+
     src_filename = os.path.basename(src_url)
-    tgt_filename = os.path.join(target_folder, src_filename)
+    tgt_filename = target_folder_path / src_filename
 
     # If the file has been downloaded, check its hash
     current_hash = None
-    if os.path.isfile(tgt_filename):
-        current_hash = hash_file(file_path=tgt_filename,
+    if tgt_filename.is_file():
+        current_hash = hash_file(file_path=str(tgt_filename),
                                  hash_algorithm=src_zip_hash_algorithm)
         print(f"Current hash of {tgt_filename}:{current_hash}")
 
     if current_hash and current_hash == src_zip_hash:
         print(f"{INDENT}File '{src_filename}' already downloaded to {tgt_filename}, skipping.")
-        return tgt_filename
+        return str(tgt_filename)
 
     print(f"{INDENT}Downloading {src_url}")
-    if os.path.isfile(tgt_filename):
-        os.remove(tgt_filename)
+    tgt_filename.unlink(missing_ok=True)
+
     urllib.request.urlretrieve(src_url, tgt_filename)
 
     # Calculate the downloaded file hash 
-    downloaded_hash = hash_file(file_path=tgt_filename,
+    downloaded_hash = hash_file(file_path=str(tgt_filename),
                                 hash_algorithm=src_zip_hash_algorithm)
     if src_zip_hash and src_zip_hash != downloaded_hash:
         raise RuntimeError(f"Hash {src_zip_hash_algorithm} verification failed for {tgt_filename}")
 
     print(f"{INDENT}Package hash : ({src_zip_hash_algorithm}) {downloaded_hash}")
 
-    return tgt_filename
+    return str(tgt_filename)
 
 def extract_package(src_package_file: str, target_folder:str):
 
-    src_package_file_abs = os.path.realpath(src_package_file)
-    target_folder_abs = os.path.realpath(target_folder)
+    src_package_file_path = pathlib.Path(src_package_file)
+    target_folder_path = pathlib.Path(target_folder)
 
-    if not os.path.isfile(src_package_file_abs):
-        raise FileNotFoundError(f"Package to extract '{src_package_file_abs}'' does not exist.")
+    if not target_folder_path.is_file():
+        raise FileNotFoundError(f"Package to extract '{src_package_file_path}' to does not exist.")
     
-    base_filename = os.path.basename(src_package_file_abs)
+    package_name, package_ext = os.path.splitext(str(src_package_file))
 
-    package_name, package_ext = os.path.splitext(src_package_file_abs)
+    destination_path = target_folder_path / package_name
 
-    destination_path = os.path.join(target_folder_abs, package_name)
-
-    print(f"{INDENT}Extracting {src_package_file_abs} to {destination_path}")
+    print(f"{INDENT}Extracting {src_package_file_path} to {destination_path}")
 
     if package_ext in ARCHIVE_EXTS_ZIP:
         import zipfile
-        with zipfile.ZipFile(src_package_file_abs, 'r') as dep_zip:
+        with zipfile.ZipFile(str(src_package_file_path.resolve()), 'r') as dep_zip:
             dep_zip.extractall(destination_path)
     elif package_ext in ARCHIVE_EXTS_TAR:
         import tarfile
-        with tarfile.open(src_package_file_abs) as tar_file:
+        with tarfile.open(str(src_package_file_path.resolve())) as tar_file:
             tarfile.extractall(destination_path)
     elif package_ext in ARCHIVE_EXTS_7ZIP:
         try:
             os.makedirs(destination_path, exist_ok=True)
             subprocess.call(f['7z', 'x', '-y', '{src_package_file_abs}'], cwd=destination_path)
         except Exception:
-            raise RuntimeError(f"Archive file {src_package_file_abs} requires 7Zip to be installed and on the command path. ")
+            raise RuntimeError(f"Archive file {src_package_file_path} requires 7Zip to be installed and on the command path. ")
             
     else:
         raise RuntimeError(f"Unsupported package extension: {package_ext}")
