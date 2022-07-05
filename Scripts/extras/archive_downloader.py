@@ -105,10 +105,10 @@ def extract_package(src_package_file: str, target_folder:str):
     src_package_file_path = pathlib.Path(src_package_file)
     target_folder_path = pathlib.Path(target_folder)
 
-    if not target_folder_path.is_file():
-        raise FileNotFoundError(f"Package to extract '{src_package_file_path}' to does not exist.")
+    if not src_package_file_path.is_file():
+        raise FileNotFoundError(f"Package to extract '{src_package_file_path}' does not exist.")
     
-    package_name, package_ext = os.path.splitext(str(src_package_file))
+    package_name, package_ext = os.path.splitext(str(src_package_file_path.name))
 
     destination_path = target_folder_path / package_name
 
@@ -125,9 +125,11 @@ def extract_package(src_package_file: str, target_folder:str):
     elif package_ext in ARCHIVE_EXTS_7ZIP:
         try:
             os.makedirs(destination_path, exist_ok=True)
-            subprocess.call(f['7z', 'x', '-y', '{src_package_file_abs}'], cwd=destination_path)
+            subprocess.call(['7z', 'x', '-y', str(src_package_file_path.resolve())], cwd=destination_path)
         except Exception:
             raise RuntimeError(f"Archive file {src_package_file_path} requires 7Zip to be installed and on the command path. ")
+        else:
+            print(f"Extracted to {destination_path}")
             
     else:
         raise RuntimeError(f"Unsupported package extension: {package_ext}")
