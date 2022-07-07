@@ -39,6 +39,56 @@ except:
     pass
 
 class PackageDownloader(): 
+
+    @staticmethod
+    def ComputeHashOfFile(file_path):
+        '''
+        Compute a sha256 hex-encoded hash for the contents of a file represented by file_path
+        '''
+        file_path = os.path.normpath(file_path)
+        hasher = hashlib.sha256()
+        hash_result = None
+        
+        # we don't follow symlinks here, this is strictly to check actual packages.
+        with open(file_path, 'rb') as afile:
+            buf = afile.read()
+            hasher.update(buf)
+            hash_result = hasher.hexdigest()
+    
+        return hash_result
+
+
+    def ValidateUnpackedPackage(package_name, package_hash, folder_target):
+        '''
+        This function will determine the integrity of a download and unpacked package.
+
+        Given a package name, hash, and folder where a package was previously unpacked,
+        this will verify the package's SHA256SUMS integrity file against the files in the
+        folder. In there are any files missing or corrupted, then the function will return
+        False, otherwise it will return True. 
+        '''
+        download_location = pathlib.Path(folder_target)
+        package_unpack_folder = download_location / package_name
+        if not package_unpack_folder.is_dir():
+            return False;
+        sha256_sums_file_path = package_unpack_folder / 'SHA256SUMS'
+        if not sha256_sums_file_path.is_file():
+            return False;
+
+        with sha256_sums_file_path.open() as sha256_sums_file:
+            sha256_sums = sha256_sums_file.readlines()
+            for sha256_sum_line in sha256_sums:
+                sha256_sum, src_file = sha256_sum_line.split(' *')
+                src_file_full_path = package_unpack_folder / src_file.strip()
+                if not src_file_full_path.is_file():
+                    return False
+                computed_hash = PackageDownloader.ComputeHashOfFile(str(src_file_full_path))
+                if computed_hash != sha256_sum:
+                    print(f"Existing package {package_name} not valid ({src_file} sum doesnt match)")
+                    return False
+
+        return True
+
     @staticmethod
     def DownloadAndUnpackPackage(package_name, package_hash, folder_target):
         '''Given a package name, hash, and folder to unzip it into, 
@@ -56,19 +106,6 @@ class PackageDownloader():
             
             Returns True if successful, False otherwise.
          '''
-
-        def ComputeHashOfFile(file_path):
-            file_path = os.path.normpath(file_path)
-            hasher = hashlib.sha256()
-            hash_result = None
-            
-            # we don't follow symlinks here, this is strictly to check actual packages.
-            with open(file_path, 'rb') as afile:
-                buf = afile.read()
-                hasher.update(buf)
-                hash_result = hasher.hexdigest()
-        
-            return hash_result
 
         # make sure a package with that name is not already present:
         server_urls = os.environ.get("LY_PACKAGE_SERVER_URLS", default = "")
@@ -131,7 +168,7 @@ class PackageDownloader():
             try:
                 # validate that the package matches its hash
                 print("    - Checking hash ... ")
-                hash_result = ComputeHashOfFile(str(package_download_name))
+                hash_result = PackageDownloader.ComputeHashOfFile(str(package_download_name))
                 if hash_result != package_hash:
                     print("    - Warning: Hash of package does not match - will not use it")
                     continue
