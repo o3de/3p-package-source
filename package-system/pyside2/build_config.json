@@ -1,0 +1,46 @@
+{
+    "git_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
+    "git_tag": "v5.15.2.1",
+    "package_name": "pyside2",
+    "package_version": "5.15.2-py3.10-qt5.15.1-rev1",
+    "package_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
+    "package_license": "custom",
+    "package_license_file": "pyside2/LICENSE.LGPLv3",
+    "patch_file": "pyside2-5.15.2.1.patch",
+    "cmake_find_target": "Findpyside2.cmake",
+    "Platforms": {
+        "Windows": {
+            "Windows": {
+                "depends_on_packages" :[ 
+                    ["python-3.10.5-rev1-windows", "aec3ae765ea7b55826f67fbed85f38c302d98502cb5deb62fa06e9db911e6e59", ""],
+                    ["qt-5.15.2-rev7-windows", "4343a04130657e740795e50a25ab5fe6e41100fa3c58a212c86bed612dde7775", ""]
+                ],
+                "additional_download_packages":[ 
+                    ["https://download.qt.io/development_releases/prebuilt/libclang/libclang-release_130-based-windows-vs2019_64.7z", "1c7eb369d74ea5ea0580d71ca2b89d16a241294fd6cfc80eae572c646aad850e", "sha256"]
+                ],
+                "cmake_find_source": "Findpyside2.cmake.Windows",
+                "custom_build_cmd": [
+                    "build_windows.bat"
+                ],
+                "custom_install_cmd": [
+                    "package_windows.bat"
+                ]
+            }
+        },
+        "Linux": {
+            "Linux": {
+                "depends_on_packages" :[ 
+                    ["python-3.7.10-rev2-linux", "6b9cf455e6190ec38836194f4454bb9db6bfc6890b4baff185cc5520aa822f05", ""],
+                    ["qt-5.15.2-rev6-linux", "a37bd9989f1e8fe57d94b98cbf9bd5c3caaea740e2f314e5162fa77300551531", ""]
+                ],
+                "cmake_find_source": "Findpyside2.cmake.Linux",
+                "custom_build_cmd": [
+                    "./build_linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./package_linux.sh"
+                ]
+            }
+        }
+    }
+}

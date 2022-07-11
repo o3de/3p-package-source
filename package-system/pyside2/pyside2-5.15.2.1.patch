@@ -1,0 +1,210 @@
+diff --git a/sources/pyside2/libpyside/CMakeLists.txt b/sources/pyside2/libpyside/CMakeLists.txt
+index e31c87eef..a8fdf731a 100644
+--- a/sources/pyside2/libpyside/CMakeLists.txt
++++ b/sources/pyside2/libpyside/CMakeLists.txt
+@@ -1,13 +1,5 @@
+ project(libpyside)
+ 
+-if(${Qt${QT_MAJOR_VERSION}Qml_FOUND})
+-    if(NOT "${Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS}" MATCHES "/QtQml/")
+-        string(REPLACE "/QtCore" "/QtQml" replaceme "${Qt${QT_MAJOR_VERSION}Core_PRIVATE_INCLUDE_DIRS}")
+-        list(APPEND Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS ${replaceme})
+-        list(REMOVE_DUPLICATES Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS)
+-    endif()
+-endif()
+-
+ if(${Qt${QT_MAJOR_VERSION}Quick_FOUND})
+     if(NOT "${Qt${QT_MAJOR_VERSION}Quick_PRIVATE_INCLUDE_DIRS}" MATCHES "/QtQuick/")
+         string(REPLACE "/QtCore" "/QtQuick" replaceme "${Qt${QT_MAJOR_VERSION}Core_PRIVATE_INCLUDE_DIRS}")
+@@ -18,25 +10,9 @@ if(${Qt${QT_MAJOR_VERSION}Quick_FOUND})
+ endif()
+ 
+ set(QML_PRIVATE_API_SUPPORT 0)
+-if(Qt${QT_MAJOR_VERSION}Qml_FOUND)
+-    # Used for registering custom QQuickItem classes defined in Python code.
+-    set(QML_SUPPORT 1)
+-    set(QML_INCLUDES ${Qt${QT_MAJOR_VERSION}Qml_INCLUDE_DIRS})
+-    set(QML_LIBRARIES ${Qt${QT_MAJOR_VERSION}Qml_LIBRARIES})
+-
+-    if(Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS)
+-        # Used for transforming QML exceptions into Python exceptions.
+-        set(QML_PRIVATE_API_SUPPORT 1)
+-        set(QML_INCLUDES ${QML_INCLUDES} ${Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS})
+-    else()
+-        message(WARNING "QML private API include files could not be found, support for catching QML exceptions inside Python code will not work.")
+-    endif()
+-else()
+-    set(QML_SUPPORT 0)
+-    set(QML_PRIVATE_API_SUPPORT 0)
+-    set(QML_INCLUDES "")
+-    set(QML_LIBRARIES "")
+-endif()
++set(QML_SUPPORT 0)
++set(QML_INCLUDES "")
++set(QML_LIBRARIES "")
+ 
+ set(libpyside_SRC
+     dynamicqmetaobject.cpp
+diff --git a/sources/pyside2/libpyside/pyside.cpp b/sources/pyside2/libpyside/pyside.cpp
+index 219b99d48..f33e4f724 100644
+--- a/sources/pyside2/libpyside/pyside.cpp
++++ b/sources/pyside2/libpyside/pyside.cpp
+@@ -414,7 +414,7 @@ static const char invalidatePropertyName[] = "_PySideInvalidatePtr";
+ // class by walking up the meta objects.
+ static const char *typeName(QObject *cppSelf)
+ {
+-    const char *typeName = typeid(*cppSelf).name();
++    const char *typeName = getTypeId(*cppSelf).name();
+     if (!Shiboken::Conversions::getConverter(typeName)) {
+         for (auto metaObject = cppSelf->metaObject(); metaObject; metaObject = metaObject->superClass()) {
+             const char *name = metaObject->className();
+diff --git a/sources/pyside2/libpyside/pyside.h b/sources/pyside2/libpyside/pyside.h
+index c1a298cc8..91e648f47 100644
+--- a/sources/pyside2/libpyside/pyside.h
++++ b/sources/pyside2/libpyside/pyside.h
+@@ -50,12 +50,57 @@
+ 
+ #include <QtCore/QMetaType>
+ #include <QtCore/QHash>
++#include <QtCore/QMetaObject>
++#include <QtCore/QObject>
++
++#include <type_traits>
++#include <typeinfo>
+ 
+ struct SbkObjectType;
+ 
+ namespace PySide
+ {
+ 
++// Analog for std::type_info with the name field, to allow getTypeId to be used in lieu of typeid
++class TypeInfo
++{
++private:
++    const char* m_name = nullptr;
++
++public:
++    explicit TypeInfo(const char* name) : m_name(name) {}
++    const char* name() const { return m_name; }
++};
++
++// getTypeId returns an interface similar to the std::type_info returned by typeid, but will attempt to use
++// Qt's meta-object system for QObject subclasses instead - this allows Shiboken to interop with libraries that
++// are built without RTTI
++template <class T>
++const TypeInfo getTypeId(typename std::enable_if<std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    const char* typeName = T::staticMetaObject.className();
++    return TypeInfo(typeName);
++}
++
++template <class T>
++const TypeInfo getTypeId(typename std::enable_if<!std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    return TypeInfo(typeid(T).name());
++}
++
++template <class T>
++const TypeInfo getTypeId(const T& t, typename std::enable_if<std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    const char* typeName = t.metaObject() ? t.metaObject()->className() : T::staticMetaObject.className();
++    return TypeInfo(typeName);
++}
++
++template <class T>
++const TypeInfo getTypeId(const T& t, typename std::enable_if<!std::is_base_of<QObject, T>::value>::type* = 0)
++{
++    return TypeInfo(typeid(t).name());
++}
++
+ PYSIDE_API void init(PyObject *module);
+ 
+ /**
+diff --git a/sources/shiboken2/CMakeLists.txt b/sources/shiboken2/CMakeLists.txt
+index 3de5d3223..8cc960e99 100644
+--- a/sources/shiboken2/CMakeLists.txt
++++ b/sources/shiboken2/CMakeLists.txt
+@@ -78,7 +78,7 @@ if (NOT PYTHON_EXTENSION_SUFFIX)
+   get_python_extension_suffix()
+ endif()
+ 
+-option(FORCE_LIMITED_API "Enable the limited API." "yes")
++option(FORCE_LIMITED_API "Enable the limited API." ON)
+ set(PYTHON_LIMITED_API 0)
+ 
+ shiboken_check_if_limited_api()
+diff --git a/sources/shiboken2/data/shiboken_helpers.cmake b/sources/shiboken2/data/shiboken_helpers.cmake
+index 5e0c6ea72..1097991c3 100644
+--- a/sources/shiboken2/data/shiboken_helpers.cmake
++++ b/sources/shiboken2/data/shiboken_helpers.cmake
+@@ -298,7 +298,7 @@ macro(shiboken_check_if_limited_api)
+         OUTPUT_VARIABLE PYTHON_LIMITED_LIBRARIES
+         OUTPUT_STRIP_TRAILING_WHITESPACE)
+ 
+-    if(FORCE_LIMITED_API STREQUAL "yes")
++    if(FORCE_LIMITED_API)
+         if (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} GREATER 4)
+             # GREATER_EQUAL is available only from cmake 3.7 on. We mean python 3.5 .
+             set(PYTHON_LIMITED_API 1)
+diff --git a/sources/shiboken2/generator/shiboken2/cppgenerator.cpp b/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
+index 38b596a5f..1aed4286b 100644
+--- a/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
++++ b/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
+@@ -59,7 +59,11 @@ static const char typeNameFunc[] = R"CPP(
+ template <class T>
+ static const char *typeNameOf(const T &t)
+ {
++#ifdef PYSIDE_H
++    const char *typeName =  PySide::getTypeId<T>(t).name();
++#else
+     const char *typeName =  typeid(t).name();
++#endif //PYSIDE_H
+     auto size = std::strlen(typeName);
+ #if defined(Q_CC_MSVC) // MSVC: "class QPaintDevice * __ptr64"
+     if (auto lastStar = strchr(typeName, '*')) {
+diff --git a/sources/shiboken2/libshiboken/pep384impl.cpp b/sources/shiboken2/libshiboken/pep384impl.cpp
+index 66df0fd94..b84c93426 100644
+--- a/sources/shiboken2/libshiboken/pep384impl.cpp
++++ b/sources/shiboken2/libshiboken/pep384impl.cpp
+@@ -751,9 +751,7 @@ _Pep_PrivateMangle(PyObject *self, PyObject *name)
+ #endif // IS_PY2
+     Shiboken::AutoDecRef privateobj(PyObject_GetAttr(
+         reinterpret_cast<PyObject *>(Py_TYPE(self)), Shiboken::PyMagicName::name()));
+-#ifndef Py_LIMITED_API
+-    return _Py_Mangle(privateobj, name);
+-#else
++
+     // PYSIDE-1436: _Py_Mangle is no longer exposed; implement it always.
+     // The rest of this function is our own implementation of _Py_Mangle.
+     // Please compare the original function in compile.c .
+@@ -789,7 +787,7 @@ _Pep_PrivateMangle(PyObject *self, PyObject *name)
+     if (amount > big_stack)
+         free(resbuf);
+     return result;
+-#endif // else Py_LIMITED_API
++
+ }
+ 
+ /*****************************************************************************
+diff --git a/sources/shiboken2/libshiboken/signature/signature_helper.cpp b/sources/shiboken2/libshiboken/signature/signature_helper.cpp
+index 2b360c786..0246ec61d 100644
+--- a/sources/shiboken2/libshiboken/signature/signature_helper.cpp
++++ b/sources/shiboken2/libshiboken/signature/signature_helper.cpp
+@@ -236,7 +236,7 @@ static PyObject *_build_new_entry(PyObject *new_name, PyObject *value)
+     PyObject *new_value = PyDict_Copy(value);
+     PyObject *multi = PyDict_GetItem(value, PyName::multi());
+     if (multi != nullptr && Py_TYPE(multi) == &PyList_Type) {
+-        ssize_t len = PyList_Size(multi);
++        Py_ssize_t len = PyList_Size(multi);
+         AutoDecRef list(PyList_New(len));
+         if (list.isNull())
+             return nullptr;
+@@ -314,7 +314,7 @@ PyObject *_address_to_stringlist(PyObject *numkey)
+      * When needed in `PySide_BuildSignatureProps`, the strings are
+      * finally materialized.
+      */
+-    ssize_t address = PyNumber_AsSsize_t(numkey, PyExc_ValueError);
++    Py_ssize_t address = PyNumber_AsSsize_t(numkey, PyExc_ValueError);
+     if (address == -1 && PyErr_Occurred())
+         return nullptr;
+     char **sig_strings = reinterpret_cast<char **>(address);
