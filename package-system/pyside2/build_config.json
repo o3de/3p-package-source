@@ -30,7 +30,7 @@
         "Linux": {
             "Linux": {
                 "depends_on_packages" :[ 
-                    ["python-3.10.5-rev1-linux", "5f7955cba911f8a8768acccc584e2acc5f8fa80def1a7552097bf81a10cbc42f", ""],
+                    ["python-3.10.5-rev1-linux", "08264c626e6e20eed9686a4722d6034989c658acc32d10f35c7ce571188bceaa", ""],
                     ["qt-5.15.2-rev6-linux", "a37bd9989f1e8fe57d94b98cbf9bd5c3caaea740e2f314e5162fa77300551531", ""]
                 ],
                 "additional_download_packages":[ 

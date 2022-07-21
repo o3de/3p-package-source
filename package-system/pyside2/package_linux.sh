@@ -40,7 +40,7 @@ $TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/libshiboken2.ab
 $TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/python3.10/site-packages/shiboken2/shiboken2.abi3.so
 
 # Add additional files needed for pip install
-cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/
-cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/
+cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.10/site-packages/
+cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.10/site-packages/
 
 exit 0

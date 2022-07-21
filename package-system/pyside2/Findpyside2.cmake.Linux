@@ -15,7 +15,7 @@ add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 
 set(PYSIDE_BASE_PATH ${CMAKE_CURRENT_LIST_DIR}/pyside2)
 
-ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH} pyside2)
+ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.10/site-packages pyside2)
 
 set(${MY_NAME}_RUNTIME_DEPENDENCIES
     ${PYSIDE_BASE_PATH}/lib/libpyside2.abi3.so.5.15.2.1

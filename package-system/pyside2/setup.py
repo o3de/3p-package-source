@@ -9,12 +9,21 @@
 import os
 import platform
 import pathlib
+import sys
 
 from setuptools import setup, find_packages
 from setuptools.command.develop import develop
 from setuptools.command.build_py import build_py
 
-PROJECT_ROOT = pathlib.Path(os.path.dirname(__file__)).parent.parent
+if sys.platform == 'win32':
+    # The library folder structure of windows omits the extra 'python3.10' folder level for the site-packages, so we have to
+    # adjust to where to read the project root based on this file
+    PROJECT_ROOT = pathlib.Path(os.path.dirname(__file__)).parent.parent
+else:
+    PROJECT_ROOT = pathlib.Path(os.path.dirname(__file__)).parent.parent.parent
+
+
+
 README_FILE = PROJECT_ROOT / 'README.md'
 
 PYTHON_64 = platform.architecture()[0] == '64bit'
