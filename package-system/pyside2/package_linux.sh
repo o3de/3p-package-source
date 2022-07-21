@@ -11,29 +11,33 @@
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
 PACKAGE_BASE=$TARGET_INSTALL_ROOT
-
+echo PACKAGE_BASE=$PACKAGE_BASE
 INSTALL_SOURCE=$TEMP_FOLDER/src/pyside3a_install/`ls $TEMP_FOLDER/src/pyside3a_install`
 echo INSTALL_SOURCE=$INSTALL_SOURCE
 
 # Copy the LICENSE and README files
-cp $TEMP_FOLDER/src/LICENSE.* $PACKAGE_BASE/
+echo cp $TEMP_FOLDER/src/LICENSE.FDL $PACKAGE_BASE/
+cp $TEMP_FOLDER/src/LICENSE.FDL $PACKAGE_BASE/
+echo copy $TEMP_FOLDER/src/LICENSE.GPLv3 $PACKAGE_BASE/
+cp $TEMP_FOLDER/src/LICENSE.GPLv3 $PACKAGE_BASE/
+echo copy $TEMP_FOLDER/src/LICENSE.GPLv3-EXCEPT $PACKAGE_BASE/
+cp $TEMP_FOLDER/src/LICENSE.GPLv3-EXCEPT $PACKAGE_BASE/
+echo copy $TEMP_FOLDER/src/LICENSE.LGPLv3 $PACKAGE_BASE/
+cp $TEMP_FOLDER/src/LICENSE.LGPLv3 $PACKAGE_BASE/
+echo copy $TEMP_FOLDER/../LICENSES.txt $PACKAGE_BASE/
+cp $TEMP_FOLDER/../LICENSES.txt $PACKAGE_BASE/
+echo copy $TEMP_FOLDER/src/README.* $PACKAGE_BASE/
 cp $TEMP_FOLDER/src/README.* $PACKAGE_BASE/
 
-# Copy the Pyside2 package, and create major version sylmink
-cp -r $INSTALL_SOURCE/lib/python3.7/site-packages/PySide2 $PACKAGE_BASE
-cp $INSTALL_SOURCE/lib/libpyside2.abi3.so.5.14.2.3 $PACKAGE_BASE/PySide2/
-ln -s libpyside2.abi3.so.5.14.2.3 $PACKAGE_BASE/PySide2/libpyside2.abi3.so.5.14
+cp -r $INSTALL_SOURCE/bin $PACKAGE_BASE
+cp -r $INSTALL_SOURCE/include $PACKAGE_BASE
+cp -r $INSTALL_SOURCE/lib $PACKAGE_BASE
+cp -r $INSTALL_SOURCE/share $PACKAGE_BASE
 
-# Copy the shiboken2 package, and create major version sylmink
-cp -r $INSTALL_SOURCE/lib/python3.7/site-packages/shiboken2 $PACKAGE_BASE
-cp $INSTALL_SOURCE/lib/libshiboken2.abi3.so.5.14.2.3 $PACKAGE_BASE/shiboken2/
-ln -s libshiboken2.abi3.so.5.14.2.3 $PACKAGE_BASE/shiboken2/libshiboken2.abi3.so.5.14
-
-# Patch the Pyside2 shared library to resolve shiboken2
-$TEMP_FOLDER/src/patchelf --set-rpath ../shiboken2:\$ORIGIN $PACKAGE_BASE/PySide2/libpyside2.abi3.so.5.14.2.3
-
-# Patch the shiboken2.abi.so module to resolve the libshiboken at ORIGIN
-$TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/shiboken2/shiboken2.abi3.so
+# RPATH fixes
+$TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
+$TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/libshiboken2.abi3.so.5.15.2.1
+$TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/python3.10/site-packages/shiboken2/shiboken2.abi3.so
 
 # Add additional files needed for pip install
 cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/

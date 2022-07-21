@@ -1,0 +1,39 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ce65750..9626bc4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -6,9 +6,31 @@ if (QUIET_BUILD)
+     set(CMAKE_INSTALL_MESSAGE NEVER)
+ endif()
+ 
+-find_package(Shiboken2 2.0.0 REQUIRED)
+-find_package(Qt5 REQUIRED Core)
+-find_package(PySide2 2.0.0 REQUIRED)
++list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../pyside3a_install/py3.10-qt5.15.1-64bit-release/lib")
++list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/../../pyside3a_install/py3.10-qt5.15.1-64bit-release")
++
++
++find_package(Shiboken2 2.0.0
++             REQUIRED
++             PATHS
++                "${CMAKE_SOURCE_DIR}/../../pyside3a_install/py3.10-qt5.15.1-64bit-release/lib"
++             NO_DEFAULT_PATH
++)
++
++find_package(Qt5
++             REQUIRED
++                Core
++             PATHS
++                "${CMAKE_SOURCE_DIR}/../../../qt-5.15.2-rev6-linux/qt"
++             )
++
++find_package(PySide2 2.0.0
++             REQUIRED
++             PATHS
++                "${CMAKE_SOURCE_DIR}/../../pyside3a_install/py3.10-qt5.15.1-64bit-release"
++             NO_DEFAULT_PATH
++)
++
+ 
+ set(pyside2_tools_MAJOR_VERSION "2")
+ set(pyside2_tools_MINOR_VERSION "0")
