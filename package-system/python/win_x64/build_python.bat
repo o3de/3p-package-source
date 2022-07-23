@@ -82,7 +82,10 @@ if %ERRORLEVEL% NEQ 0 (
 :skip_patch
 
 echo Getting python
+
 call .\PCBuild\find_python.bat
+
+set PythonForBuild=%PYTHON%
 
 echo Getting external libraries
 call .\PCBuild\get_externals.bat
