@@ -48,7 +48,7 @@ import shutil
 
 
 openimageio_repository_url = 'https://github.com/OpenImageIO/oiio.git'
-openimageio_repository_tag = 'v2.3.12.0'
+openimageio_repository_tag = 'v2.3.17.0'
 
 opencolorio_repository_url='https://github.com/AcademySoftwareFoundation/OpenColorIO.git'
 opencolorio_repository_tag='v2.1.1'
@@ -99,7 +99,7 @@ dependencies = {
         {
             'zlib' :     ('zlib-1.2.11-rev5-linux',            '9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc'),
             'openexr' :  ('OpenEXR-3.1.3-rev4-linux',          'fcbac68cfb4e3b694580bc3741443e111aced5f08fde21a92e0c768e8803c7af'),
-            'python' :   ('python-3.7.12-rev2-linux',          '04ae255f22a6f0529cf07108aef68f8aee8c76cd551dde70f1c90731ebf0b7b4'),
+            'python' :   ('python-3.10.5-rev1-linux',          '148938f4261ad488f5b93d29d07fa55d336c7ccfb10c41ab8a88e2ce8d8e2360'),
             'tiff' :     ('tiff-4.2.0.15-rev3-linux',          '2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a'),
             'libpng' :   ('png-1.6.37-rev2-linux',             '5c82945a1648905a5c4c5cee30dfb53a01618da1bf58d489610636c7ade5adf5'),
             'expat' :    ('expat-2.4.2-rev2-linux',            '755369a919e744b9b3f835d1acc684f02e43987832ad4a1c0b6bbf884e6cd45b'),
@@ -185,17 +185,24 @@ parser = argparse.ArgumentParser(description='Builds this package')
 parser.add_argument('--platform', default=platform.system().lower(), required=False, help=f'Platform to build (defaults to \"{platform.system().lower()}\")')
 parser.add_argument('--clean',    action='store_true',               required=False, help=f'Complete clean build, if true, will delete entire temp and refetch dependencies')
 
+if 'O3DE_PACKAGE_NAME' in os.environ:
+    parser.add_argument('--package-name',  default=os.environ["O3DE_PACKAGE_NAME"], help=f"Name of the package to build. Defaults to '{os.environ['O3DE_PACKAGE_NAME']}")
+else:
+    parser.add_argument('--package-name',  required=True, help=f'Name of the package to build.')
+
+
 args = parser.parse_args()
 if args.platform not in dependencies.keys():
     print(f"Platform {args.platform} not in the list of supported dependency platforms {dependencies.keys()}")
     sys.exit(1)
 
+
 # We build the python bindings for OpenImageIO and OpenColorIO against our
-# python-3.7.12 dependency, so if a different version of python runs this build
+# python-3.10.5 dependency, so if a different version of python runs this build
 # script, the test at the end which attempts to import the built python bindings
 # will fail, so we need to make sure the same version of python is running
 # this build script.
-expected_python_version = '3.7.12'
+expected_python_version = '3.10.5'
 if not sys.version.startswith(expected_python_version):
     print(f"Error: Build script needs to be run with python version {expected_python_version}, current version is {sys.version}")
     sys.exit(1)
@@ -552,6 +559,9 @@ def BuildOpenImageIO(release=True):
     # Only build the python bindings in Release
     build_python = 'ON' if release else 'OFF'
 
+    # Only link statically in non-linux environment
+    link_static = "OFF" if platform.system() == 'Linux' else 'ON'
+
     openimageio_configure_command = [ 
         'cmake',
         f'-S',
@@ -571,7 +581,7 @@ def BuildOpenImageIO(release=True):
         f'-DPYTHON_VERSION={expected_python_version}',
         f'-DOIIO_BUILD_TESTS=OFF',
         f'-DBUILD_TESTING=OFF',
-        f'-DLINKSTATIC=ON',
+        f'-DLINKSTATIC={link_static}',
         f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
         f'-DUSE_OpenGL=OFF',
         f'-DUSE_Qt5=OFF',
@@ -782,7 +792,7 @@ if args.platform == "windows":
 # Generate our PackageInfo.json dynamically for the platform, and pretty
 # print the JSON so that it's human readable
 print("Generating PackageInfo.json")
-package_name = os.environ["O3DE_PACKAGE_NAME"]
+package_name = args.package_name
 package_info = {
     "PackageName" : f"{package_name}",
     "URL"         : "https://github.com/OpenImageIO/oiio and https://opencolorio.org/",
@@ -925,11 +935,11 @@ if args.platform == "windows":
     TestOpenImageIO(release=False)
 
 # Test the OIIO and OCIO python libraries
-oiio_site_packages = final_package_image_root / 'OpenImageIO' / 'lib' / 'python3.7' / 'site-packages'
+oiio_site_packages = final_package_image_root / 'OpenImageIO' / 'lib' / 'python3.10' / 'site-packages'
 if args.platform == 'windows':
     ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'site-packages'
 else:
-    ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'python3.7' / 'site-packages'
+    ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'python3.10' / 'site-packages'
 
 # Copy our site-packages pyd's for OIIO/OCIO into our test directory where
 # we've already copied all the OIIO/OCIO shared libraries to simulate
