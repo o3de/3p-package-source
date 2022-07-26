@@ -103,7 +103,7 @@ endif()
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     set(OpenColorPythonBindings ${OpenColorIO_LIB_DIR}/site-packages/PyOpenColorIO.pyd)
 else()
-    set(OpenColorPythonBindings ${OpenColorIO_LIB_DIR}/python3.7/site-packages/PyOpenColorIO.so)
+    set(OpenColorPythonBindings ${OpenColorIO_LIB_DIR}/python3.10/site-packages/PyOpenColorIO.so)
 endif()
 
 set(OpenColorIO_TOOLS_BINARIES
