@@ -99,7 +99,7 @@ dependencies = {
         {
             'zlib' :     ('zlib-1.2.11-rev5-linux',            '9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc'),
             'openexr' :  ('OpenEXR-3.1.3-rev4-linux',          'fcbac68cfb4e3b694580bc3741443e111aced5f08fde21a92e0c768e8803c7af'),
-            'python' :   ('python-3.10.5-rev1-linux',          '148938f4261ad488f5b93d29d07fa55d336c7ccfb10c41ab8a88e2ce8d8e2360'),
+            'python' :   ('python-3.10.5-rev1-linux',          'afcc623855180a873e547be3e47862fc16be783991384739fddce24d28b14408'),
             'tiff' :     ('tiff-4.2.0.15-rev3-linux',          '2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a'),
             'libpng' :   ('png-1.6.37-rev2-linux',             '5c82945a1648905a5c4c5cee30dfb53a01618da1bf58d489610636c7ade5adf5'),
             'expat' :    ('expat-2.4.2-rev2-linux',            '755369a919e744b9b3f835d1acc684f02e43987832ad4a1c0b6bbf884e6cd45b'),
