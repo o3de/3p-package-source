@@ -107,6 +107,49 @@ fi
 popd
 
 
+echo ""
+echo "--------------- Cloning openssl 1.1.1q and building for static version ---------------"
+echo ""
+git clone https://github.com/openssl/openssl.git --branch "OpenSSL_1_1_1q" --depth 1
+if [[ ! -d "openssl" ]]; then
+    echo "Was unable to create libffi dir via git clone."
+    exit 1
+fi
+
+pushd openssl
+
+echo ./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --openssldir=$SCRIPT_DIR/temp/openssl-local/prog
+./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --openssldir=$SCRIPT_DIR/temp/openssl-local/prog LDFLAGS='-Wl,-rpath=\$$ORIGIN'
+
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error building openssl"
+    exit $retVal
+fi
+
+echo make
+make
+if [ $retVal -ne 0 ]; then
+    echo "Error building openssl (build failure)"
+    exit $retVal
+fi
+
+echo make test
+if [ $retVal -ne 0 ]; then
+    echo "Error building openssl (test failure)"
+    exit $retVal
+fi
+
+echo make install
+make install
+if [ $retVal -ne 0 ]; then
+    echo "Error building openssl (install failure)"
+    exit $retVal
+fi
+
+popd
+
+
 cd cpython
 
 echo ""
@@ -114,7 +157,7 @@ echo "--------------- Building cpython from source ---------------"
 echo ""
 
 # Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
-./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib' CPPFLAGS='-I../ffi_lib/include' CFLAGS='-I../ffi_lib/include'
+./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --with-openssl=$SCRIPT_DIR/temp/openssl-local/build --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib' CPPFLAGS='-I../ffi_lib/include' CFLAGS='-I../ffi_lib/include' 
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error running configuring optimized build"
@@ -143,6 +186,7 @@ if [ $retVal -ne 0 ]; then
     exit $retVal
 fi
 
+
 cd $SCRIPT_DIR
 mkdir -p package
 cd package
@@ -154,6 +198,19 @@ cp $SCRIPT_DIR/*.cmake .
 cd $SCRIPT_DIR/package/python/bin
 ln -s python3 python
 cd $SCRIPT_DIR/package
+
+
+# Move the openssl libraries to the local cpython build for portability
+pushd $SCRIPT_DIR/package/python/lib
+cp $SCRIPT_DIR/temp/openssl-local/build/lib/libssl.so.1.1 .
+ln -s libssl.so.1.1 libssl.so.1
+cp $SCRIPT_DIR/temp/openssl-local/build/lib/libcrypto.so.1.1 .
+ln -s libcrypto.so.1.1 libcrypto.so.1
+popd
+
+# Copy the openssl license
+cp $SCRIPT_DIR/temp/openssl/LICENSE $SCRIPT_DIR/package/python/LICENSE.OPENSSL
+
 
 echo ""
 echo "--------------- Upgrading pip ---------------"
@@ -186,14 +243,11 @@ rm -v $SCRIPT_DIR/package/python/lib/python3.7/distutils/command/wininst-*.exe
 echo "Removing out of date pip*.whl"
 rm -v $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/_bundled/pip-*.whl
 
-# echo "Removing pip references from ensurepip"
-#    cat $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py_temp
-#rm $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py
-#mv $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py
-
 echo ""
 echo "--------------- PYTHON WAS BUILT FROM SOURCE ---------------"
 echo ""
+
+
 
 echo "Package has completed building, and is now in $SCRIPT_DIR/package"
 
