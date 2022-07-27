@@ -157,7 +157,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cpython-310-x86_64-linux-gnu.so)
     
 else() # Darwin
-    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.cpython-37m-darwin.so)
+    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cpython-310-darwin.so)
 endif()
 
 set(OpenImageIO_TOOLS_BINARIES
