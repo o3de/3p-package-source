@@ -12,7 +12,7 @@
         "Windows": {
             "Windows": {
                 "depends_on_packages" :[ 
-                    ["python-3.10.5-rev1-windows", "aec3ae765ea7b55826f67fbed85f38c302d98502cb5deb62fa06e9db911e6e59", ""],
+                    ["python-3.10.5-rev1-windows", "c012e7c8fd20e632446d2cd689a9472e4e4495da7534d484d0f1c63840222cbb", ""],
                     ["qt-5.15.2-rev7-windows", "4343a04130657e740795e50a25ab5fe6e41100fa3c58a212c86bed612dde7775", ""]
                 ],
                 "additional_download_packages":[ 

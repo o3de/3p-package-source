@@ -11,8 +11,37 @@ if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
+# Install the pyside2 site-packages into Python
 add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 
 ly_pip_install_local_package_editable(${CMAKE_CURRENT_LIST_DIR}/pyside2/lib/site-packages pyside2)
+
+# In addition to the libraries, create a Pyside2::Tools library that handles the shiboken and pyside2-lupdate executables that are part o
+# of the pyside2 package
+set(${MY_NAME}_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/bin)
+
+set(${MY_NAME}_TOOLS_BINARIES
+    ${${MY_NAME}_BIN_DIR}/pyside2-lupdate${CMAKE_EXECUTABLE_SUFFIX}
+    ${${MY_NAME}_BIN_DIR}/shiboken2${CMAKE_EXECUTABLE_SUFFIX}
+)
+
+set(${MY_NAME}_TOOLS_PYTHON_SCRIPTS
+    ${${MY_NAME}_BIN_DIR}/pyside_tool.py
+    ${${MY_NAME}_BIN_DIR}/shiboken_tool.py
+)
+
+set(${MY_NAME}_TOOLS_DEPENDENCIES
+    ${${MY_NAME}_BIN_DIR}/libclang.dll
+)
+
+add_library(${MY_NAME}::Tools INTERFACE IMPORTED GLOBAL)
+
+ly_add_target_files(TARGETS ${MY_NAME}::Tools FILES
+    ${${MY_NAME}_TOOLS_BINARIES}
+    ${${MY_NAME}_TOOLS_DEPENDENCIES}
+    ${${MY_NAME}_TOOLS_PYTHON_SCRIPTS}
+)
+
+add_library(${TARGET_WITH_NAMESPACE}::Tools ALIAS ${MY_NAME}::Tools)
 
 set(${MY_NAME}_FOUND True)
