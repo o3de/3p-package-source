@@ -34,10 +34,19 @@ cp -r $INSTALL_SOURCE/include $PACKAGE_BASE
 cp -r $INSTALL_SOURCE/lib $PACKAGE_BASE
 cp -r $INSTALL_SOURCE/share $PACKAGE_BASE
 
+# Copy the dependent libclang.so.13 from the downloaded dependent package
+cp $TEMP_FOLDER/libclang-release_130-based-linux-Ubuntu20.04-gcc9.3-x86_64/libclang/lib/libclang.so.13.0.0 $PACKAGE_BASE/bin
+pushd $PACKAGE_BASE/bin
+ln -s libclang.so.13.0.0 libclang.so.13.0
+ln -s libclang.so.13.0.0 libclang.so.13
+popd
+
 # RPATH fixes
 $TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
 $TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/libshiboken2.abi3.so.5.15.2.1
 $TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/python3.10/site-packages/shiboken2/shiboken2.abi3.so
+$TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/bin/shiboken2
+$TEMP_FOLDER/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/bin/pyside2-lupdate
 
 # Add additional files needed for pip install
 cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.10/site-packages/
