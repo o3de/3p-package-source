@@ -29,7 +29,7 @@ set vswhere_location=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer
 echo adding %vswhere_location% to PATH
 set PATH=%vswhere_location%;%PATH%
 
-for /f "tokens=*" %%i in ('vswhere -property installationPath') do set VS2017_LOCATION=%%i
+for /f "tokens=*" %%i in ('vswhere -version [15.0^,16.0^) -property installationPath') do set VS2017_LOCATION=%%i
 
 echo Using Visual Studio: %VS2017_LOCATION%
 
@@ -49,8 +49,8 @@ mkdir %outputdir%
 mkdir %tempdir%
 cd /d %tempdir%
 
-echo Cloning python from git using v3.7.12..
-git clone https://github.com/python/cpython.git --branch "v3.7.12" --depth 1
+echo Cloning python from git using v3.10.5..
+git clone https://github.com/python/cpython.git --branch "v3.10.5" --depth 1
 if %ERRORLEVEL% NEQ 0 (
     echo "Git clone failed"
     exit /B 1
@@ -67,13 +67,25 @@ copy /Y /V libexpat/expat/lib/*.c cpython/Modules/expat/
 
 cd /d %python_src%
 
+
+REM If the patch file 'open3d_python.patch' file exists, then apply the patch
 set patch_file=%ScriptDir%\open3d_python.patch
+IF NOT EXIST %patch_file% goto :skip_patch
+
 echo Applying patch file %patch_file%
 git apply --ignore-whitespace %patch_file%
 if %ERRORLEVEL% NEQ 0 (
     echo "Git apply failed"
     exit /B 1
 )
+
+:skip_patch
+
+echo Getting python
+
+call .\PCBuild\find_python.bat
+
+set PythonForBuild=%PYTHON%
 
 echo Getting external libraries
 call .\PCBuild\get_externals.bat
@@ -106,7 +118,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 cd /d %python_src%
-echo installing PIP... (Based on the cpython v3.7.12)
+echo installing PIP...
 %outputdir%\python\Python.exe  -m ensurepip --root %outputdir%\python --upgrade
 if %ERRORLEVEL% NEQ 0 (
   echo Failed to ensure pip is present.
@@ -114,9 +126,6 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo upgrading PIP... 
 %outputdir%\python\Python.exe -m pip install --target %outputdir%\python\Lib\site-packages --upgrade pip 
-
-rem Now that PIP is part of the package, remove the wheel file of the pre-upgrade version from the package
-del /F /Q %outputdir%\python\Lib\ensurepip\_bundled\pip-*.whl
 
 echo copying package metadata and cmake files...
 rem But we do add our own few things...

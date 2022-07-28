@@ -14,7 +14,7 @@ import os
 import platform
 
 folder_names = { #   subfolder     interpreter     build script 
-    'darwin'     : ('darwin_x64' , 'Python.framework/Versions/3.7/bin/python3', 'make-python.sh'),
+    'darwin'     : ('darwin_x64' , 'Python.framework/Versions/3.10/bin/python3', 'make-python.sh'),
     'linux'      : ('linux_x64'  , 'python/bin/python', 'make-python.sh'),
     'windows'    : ('win_x64'    , 'python/python.exe', 'build_python.bat')
 }

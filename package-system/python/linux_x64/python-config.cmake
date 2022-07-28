@@ -24,14 +24,14 @@ endif()
 # Python_Development_FOUND - The platform we are cross compiling for can link to python
 # and a target called 3rdParty::Python that you can use to depend on
 
-set(${MY}_VERSION 3.7.12)
+set(${MY}_VERSION 3.10.5)
 set(${MY}_INTERPRETER_ID    "Python")
 set(${MY}_EXECUTABLE        ${CMAKE_CURRENT_LIST_DIR}/python/bin/python)
 set(${MY}_HOME              ${CMAKE_CURRENT_LIST_DIR}/python)
 set(${MY}_PATHS             ${CMAKE_CURRENT_LIST_DIR}/python/lib
-                            ${CMAKE_CURRENT_LIST_DIR}/python/lib/python3.7
-                            ${CMAKE_CURRENT_LIST_DIR}/python/lib/python3.7/lib-dynload
-                            ${CMAKE_CURRENT_LIST_DIR}/python/lib/python3.7/site-packages) 
+                            ${CMAKE_CURRENT_LIST_DIR}/python/lib/python3.10
+                            ${CMAKE_CURRENT_LIST_DIR}/python/lib/python3.10/lib-dynload
+                            ${CMAKE_CURRENT_LIST_DIR}/python/lib/python3.10/site-packages) 
 
 # only if we're compiling FOR on one of the available platforms, add the target and libraries:
 if (${PAL_PLATFORM_NAME} STREQUAL "Linux" )
@@ -46,12 +46,12 @@ if (${PAL_PLATFORM_NAME} STREQUAL "Linux" )
     # also, because the regular .so is a symlink, we actually skip that and link
     # to the real one, so that there's no conflict between what library we copy
     # and what library we link to.
-    set(${MY}_LIBRARY_DEBUG   ${CMAKE_CURRENT_LIST_DIR}/python/lib/libpython3.7m.so.1.0)
-    set(${MY}_LIBRARY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/python/lib/libpython3.7m.so.1.0)
-    set(${MY}_INCLUDE_DIR     ${CMAKE_CURRENT_LIST_DIR}/python/include/python3.7m)
+    set(${MY}_LIBRARY_DEBUG   ${CMAKE_CURRENT_LIST_DIR}/python/lib/libpython3.10.so.1.0)
+    set(${MY}_LIBRARY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/python/lib/libpython3.10.so.1.0)
+    set(${MY}_INCLUDE_DIR     ${CMAKE_CURRENT_LIST_DIR}/python/include/python3.10)
     # DYLIBS causes things to be copied to the bin folder to satisfy RPATH origin
-    set(${MY}_DYLIBS_DEBUG    ${CMAKE_CURRENT_LIST_DIR}/python/lib/libpython3.7m.so.1.0)
-    set(${MY}_DYLIBS_RELEASE  ${CMAKE_CURRENT_LIST_DIR}/python/lib/libpython3.7m.so.1.0)
+    set(${MY}_DYLIBS_DEBUG    ${CMAKE_CURRENT_LIST_DIR}/python/lib/libpython3.10.so.1.0)
+    set(${MY}_DYLIBS_RELEASE  ${CMAKE_CURRENT_LIST_DIR}/python/lib/libpython3.10.so.1.0)
 
     set(${MY}_COMPILE_DEFINITIONS DEFAULT_LY_PYTHONHOME="${CMAKE_CURRENT_LIST_DIR}/python")
 
