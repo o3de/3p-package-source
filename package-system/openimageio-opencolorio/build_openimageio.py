@@ -559,9 +559,6 @@ def BuildOpenImageIO(release=True):
     # Only build the python bindings in Release
     build_python = 'ON' if release else 'OFF'
 
-    # Only link statically in non-linux environment
-    link_static = "OFF" if platform.system() == 'Linux' else 'ON'
-
     openimageio_configure_command = [ 
         'cmake',
         f'-S',
@@ -581,11 +578,23 @@ def BuildOpenImageIO(release=True):
         f'-DPYTHON_VERSION={expected_python_version}',
         f'-DOIIO_BUILD_TESTS=OFF',
         f'-DBUILD_TESTING=OFF',
-        f'-DLINKSTATIC={link_static}',
+        f'-DLINKSTATIC=ON',
         f'-DCMAKE_CXX_VISIBILITY_PRESET=hidden',
         f'-DUSE_OpenGL=OFF',
         f'-DUSE_Qt5=OFF',
         f'-DUSE_BZip2=OFF',
+        f'-DUSE_FFmpeg=OFF',
+        f'-DUSE_Field3D=OFF',
+        f'-DUSE_DCMTK=OFF',
+        f'-DUSE_Libheif=OFF',
+        f'-DUSE_Libsquish=OFF',
+        f'-DUSE_Nuke=OFF',
+        f'-DUSE_OpenCV=OFF',
+        f'-DUSE_OpenVDB=OFF',
+        f'-DUSE_Ptex=OFF',
+        f'-DUSE_R3DSDK=OFF',
+        f'-DUSE_WebP=OFF',
+        f'-DUSE_TBB=OFF',
         f'-DCMAKE_MODULE_PATH={module_path_string_with_custom_find_files}',
         f'-DVERBOSE=ON' # reveals problems with library inclusion
     ]
