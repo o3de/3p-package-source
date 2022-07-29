@@ -586,6 +586,7 @@ def BuildOpenImageIO(release=True):
         f'-DUSE_FFmpeg=OFF',
         f'-DUSE_Field3D=OFF',
         f'-DUSE_DCMTK=OFF',
+        f'-DUSE_OpenJPEG=OFF',
         f'-DUSE_Libheif=OFF',
         f'-DUSE_Libsquish=OFF',
         f'-DUSE_Nuke=OFF',
