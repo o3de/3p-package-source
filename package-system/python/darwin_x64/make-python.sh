@@ -216,7 +216,7 @@ mv $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/_
 echo ""
 echo "----------------  Cleaning temp folder ----------------"
 echo ""
-# rm -rf $SCRIPT_DIR/temp
+rm -rf $SCRIPT_DIR/temp
 
 echo ""
 echo "DONE! Package layout folder has been created in $SCRIPT_DIR/package"
