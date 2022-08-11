@@ -108,11 +108,11 @@ popd
 
 
 echo ""
-echo "--------------- Cloning openssl 1.1.1q and building for static version ---------------"
+echo "--------------- Cloning openssl 1.1.1q and building it externally ---------------"
 echo ""
 git clone https://github.com/openssl/openssl.git --branch "OpenSSL_1_1_1q" --depth 1
 if [[ ! -d "openssl" ]]; then
-    echo "Was unable to create libffi dir via git clone."
+    echo "Was unable to create openssl dir via git clone."
     exit 1
 fi
 
