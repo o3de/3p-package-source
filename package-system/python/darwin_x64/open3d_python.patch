@@ -1,5 +1,5 @@
 diff --git a/Mac/BuildScript/build-installer.py b/Mac/BuildScript/build-installer.py
-index 4308a20..0217774 100755
+index 4308a20..ec54cfb 100755
 --- a/Mac/BuildScript/build-installer.py
 +++ b/Mac/BuildScript/build-installer.py
 @@ -274,7 +274,7 @@ def library_recipes():
@@ -20,3 +20,65 @@ index 4308a20..0217774 100755
                checksum=tk_checksum,
                patches=tk_patches,
                buildDir="unix",
+@@ -318,6 +318,7 @@ def library_recipes():
+               checksum='ef68674fb47a8b8e741b34e429d86e9d',
+               configure_pre=[
+                     '--disable-dependency-tracking',
++                    '--disable-nls'
+               ]
+               ),
+         ])
+@@ -1005,19 +1006,29 @@ def buildRecipe(recipe, basedir, archList):
+                 configure_args.remove('--disable-shared')
+             configure_args.extend(args)
+ 
+-        if recipe.get('useLDFlags', 1):
+-            configure_args.extend([
+-                "CFLAGS=%s-mmacosx-version-min=%s -arch %s "
+-                            "-I%s/usr/local/include"%(
+-                        recipe.get('extra_cflags', ''),
++        if not recipe.get('suppressCFlags', False):
++            if recipe.get('useLDFlags', 1):
++                configure_args.extend([
++                    "CFLAGS=%s-mmacosx-version-min=%s -arch %s "
++                                "-I%s/usr/local/include"%(
++                            recipe.get('extra_cflags', ''),
++                            DEPTARGET,
++                            ' -arch '.join(archList),
++                            shellQuote(basedir)[1:-1],),
++                    "LDFLAGS=-mmacosx-version-min=%s -L%s/usr/local/lib -arch %s"%(
+                         DEPTARGET,
+-                        ' -arch '.join(archList),
+-                        shellQuote(basedir)[1:-1],),
+-                "LDFLAGS=-mmacosx-version-min=%s -L%s/usr/local/lib -arch %s"%(
+-                    DEPTARGET,
+-                    shellQuote(basedir)[1:-1],
+-                    ' -arch '.join(archList)),
+-            ])
++                        shellQuote(basedir)[1:-1],
++                        ' -arch '.join(archList)),
++                ])
++            else:
++                configure_args.extend([
++                    "CFLAGS=%s-mmacosx-version-min=%s -arch %s "
++                                "-I%s/usr/local/include"%(
++                            recipe.get('extra_cflags', ''),
++                            DEPTARGET,
++                            ' -arch '.join(archList),
++                            shellQuote(basedir)[1:-1],),
++                ])
+         else:
+             configure_args.extend([
+                 "CFLAGS=%s-mmacosx-version-min=%s -arch %s "
+@@ -1540,8 +1551,9 @@ def buildInstaller():
+     pkgroot = os.path.join(outdir, 'Python.mpkg', 'Contents')
+     pkgcontents = os.path.join(pkgroot, 'Packages')
+     os.makedirs(pkgcontents)
+-    for recipe in pkg_recipes():
+-        packageFromRecipe(pkgcontents, recipe)
++
++    #o3de modification:  We don't need packages for our purposes, so we return immediately:
++    return
+ 
+     rsrcDir = os.path.join(pkgroot, 'Resources')
+ 
