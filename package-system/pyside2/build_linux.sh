@@ -10,14 +10,14 @@
 
 
 # Get the python executable from the package dependency
-LOCAL_PYTHON37_BIN=$TEMP_FOLDER/python-3.10.5-rev1-linux/python/bin/python3
+LOCAL_PYTHON3_BIN=$TEMP_FOLDER/python-3.10.5-rev1-linux/python/bin/python3
 
 SCRIPT_PATH=`dirname $0`
 
 
-if [ ! -f "$LOCAL_PYTHON37_BIN" ]
+if [ ! -f "$LOCAL_PYTHON3_BIN" ]
 then
-    echo "Missing 3P dependency of python3.7 $LOCAL_PYTHON37_BIN"
+    echo "Missing 3P dependency of python-3.10.5 $LOCAL_PYTHON3_BIN"
     echo "You will need to build the 3P version of python under the '`readlink -f ../python`'' folder"
     echo "with the following command:"
     echo
@@ -63,12 +63,12 @@ LD_LIBRARY_PATH=$LOCAL_3P_QTBUILD_LIB_PATH/
 export LD_LIBRARY_PATH
 
 # Build shiboken2 library first since it is 
-echo "$LOCAL_PYTHON37_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=shiboken2 --limited-api=yes --skip-modules=Qml,Quick,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer"
-$LOCAL_PYTHON37_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=shiboken2 --limited-api=yes --skip-modules=Qml,Quick,QuickWidgets,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer
+echo "$LOCAL_PYTHON3_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=shiboken2 --limited-api=yes --skip-modules=Qml,Quick,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer"
+$LOCAL_PYTHON3_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=shiboken2 --limited-api=yes --skip-modules=Qml,Quick,QuickWidgets,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer
 
 
-echo "$LOCAL_PYTHON37_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=pyside2 --no-examples --skip-docs --standalone --limited-api=yes --skip-modules=Qml,Quick,QtQuickControls2,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer" --shiboken-config-dir=$TEMP_FOLDER/src/pyside3a_install/py3.10-qt5.15.1-64bit-release/lib/cmake/Shiboken2-5.15.2.1
-$LOCAL_PYTHON37_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=pyside2 --no-examples --skip-docs --standalone  --limited-api=yes --skip-modules=Qml,Quick,QuickWidgets,QtQuickControls2,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer --shiboken-config-dir=$TEMP_FOLDER/src/pyside3a_install/py3.10-qt5.15.1-64bit-release/lib/cmake/Shiboken2-5.15.2.1
+echo "$LOCAL_PYTHON3_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=pyside2 --no-examples --skip-docs --standalone --limited-api=yes --skip-modules=Qml,Quick,QtQuickControls2,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer" --shiboken-config-dir=$TEMP_FOLDER/src/pyside3a_install/py3.10-qt5.15.1-64bit-release/lib/cmake/Shiboken2-5.15.2.1
+$LOCAL_PYTHON3_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=pyside2 --no-examples --skip-docs --standalone  --limited-api=yes --skip-modules=Qml,Quick,QuickWidgets,QtQuickControls2,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer --shiboken-config-dir=$TEMP_FOLDER/src/pyside3a_install/py3.10-qt5.15.1-64bit-release/lib/cmake/Shiboken2-5.15.2.1
 
 popd
 
