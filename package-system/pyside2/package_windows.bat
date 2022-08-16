@@ -38,8 +38,9 @@ copy %TEMP_FOLDER%\src\README.* %PACKAGE_BASE%\
 REM Copy the bin (release) folder 
 mkdir %PACKAGE_BASE%\bin
 robocopy %INSTALL_SOURCE_RELEASE%\bin %PACKAGE_BASE%\bin *.* /E
-REM Copy over libclang
+REM Copy over libclang and its license file
 copy %TEMP_FOLDER%\libclang-release_130-based-windows-vs2019_64\libclang\bin\libclang.dll %PACKAGE_BASE%\bin\
+copy %TEMP_FOLDER%\libclang-release_130-based-windows-vs2019_64\libclang\include\llvm\Support\LICENSE.TXT %PACKAGE_BASE%\LICENSE.LIBCLANG.TXT
 
 REM Copy the include (release) folder
 mkdir %PACKAGE_BASE%\include
