@@ -10,7 +10,7 @@
 
 
 # Get the python executable from the package dependency
-LOCAL_PYTHON3_BIN=$TEMP_FOLDER/python-3.10.5-rev1-linux/python/bin/python3
+LOCAL_PYTHON3_BIN=$TEMP_FOLDER/python-3.10.5-rev2-linux/python/bin/python3
 
 SCRIPT_PATH=`dirname $0`
 

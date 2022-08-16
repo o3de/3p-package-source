@@ -2,7 +2,7 @@
     "git_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
     "git_tag": "v5.15.2.1",
     "package_name": "pyside2",
-    "package_version": "5.15.2.1-py3.10-rev2",
+    "package_version": "5.15.2.1-py3.10-rev3",
     "package_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
     "package_license": "custom",
     "package_license_file": "pyside2/LICENSE.LGPLv3",
@@ -30,7 +30,7 @@
         "Linux": {
             "Linux": {
                 "depends_on_packages" :[ 
-                    ["python-3.10.5-rev1-linux", "afcc623855180a873e547be3e47862fc16be783991384739fddce24d28b14408", ""],
+                    ["python-3.10.5-rev2-linux", "eda1fdc9129fb70df2d63bd21d0876c83c4f7021864f22c85850f4a8ff8cf1bf", ""],
                     ["qt-5.15.2-rev6-linux", "a37bd9989f1e8fe57d94b98cbf9bd5c3caaea740e2f314e5162fa77300551531", ""]
                 ],
                 "additional_download_packages":[ 
