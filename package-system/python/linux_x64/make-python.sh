@@ -118,8 +118,8 @@ fi
 
 pushd openssl
 
-echo ./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --openssldir=$SCRIPT_DIR/temp/openssl-local/prog
-./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --openssldir=$SCRIPT_DIR/temp/openssl-local/prog LDFLAGS='-Wl,-rpath=\$$ORIGIN'
+echo ./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN'
+./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN'
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
