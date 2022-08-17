@@ -79,7 +79,7 @@ dependencies = {
         {
             'zlib' :     ('zlib-1.2.11-rev5-mac',              'b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096'),
             'openexr' :  ('OpenEXR-3.1.3-rev4-mac',            '927b8ca6cc5815fa8ee4efe6ea2845487cba2540f7958d537692e7c9481a68fc'),
-            'python' :   ('python-3.10.5-rev1-darwin',         '6dd96d2d8cea3e9eb54eb02cf38f62b0a603eba620b2e99d67a56d8f3fd1c2aa'),
+            'python' :   ('python-3.10.5-rev2-darwin',         '46d7c74c64bf639279c53a68ff958d9955e01e08d293524958eb7ea7cac9c4c5'),
             'tiff' :     ('tiff-4.2.0.15-rev3-mac',            'c2615ccdadcc0e1d6c5ed61e5965c4d3a82193d206591b79b805c3b3ff35a4bf'),
             'libpng' :   ('png-1.6.37-rev2-mac',               '515252226a6958c459f53d8598d80ec4f90df33d2f1637104fd1a636f4962f07'),
             'expat' :    ('expat-2.4.2-rev2-mac',              '70f195977a17b08a4dc8687400fd7f2589e3b414d4961b562129166965b6f658'),
