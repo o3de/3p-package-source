@@ -86,7 +86,8 @@ def download_and_verify(src_url: str, src_zip_hash:str, src_zip_hash_algorithm:s
         return str(tgt_filename)
 
     print(f"{INDENT}Downloading {src_url}")
-    tgt_filename.unlink(missing_ok=True)
+    if tgt_filename.exists():
+        tgt_filename.unlink()
 
     urllib.request.urlretrieve(src_url, tgt_filename)
 
@@ -94,7 +95,7 @@ def download_and_verify(src_url: str, src_zip_hash:str, src_zip_hash_algorithm:s
     downloaded_hash = hash_file(file_path=str(tgt_filename),
                                 hash_algorithm=src_zip_hash_algorithm)
     if src_zip_hash and src_zip_hash != downloaded_hash:
-        raise RuntimeError(f"Hash {src_zip_hash_algorithm} verification failed for {tgt_filename}")
+        raise RuntimeError(f"Hash {src_zip_hash_algorithm} verification failed for {tgt_filename} (downloaded hash: {downloaded_hash}")
 
     print(f"{INDENT}Package hash : ({src_zip_hash_algorithm}) {downloaded_hash}")
 
