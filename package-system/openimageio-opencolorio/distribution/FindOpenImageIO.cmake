@@ -70,7 +70,7 @@ endif()
 set(OpenImageIO_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenImageIO/include)
 set(OpenImageIO_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenImageIO/lib)
 set(OpenImageIO_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/OpenImageIO/bin)
-set(OpenImageIO_VERSION "2.3.12.0")
+set(OpenImageIO_VERSION "2.3.17.0")
 set(OpenImageIO_FOUND True)
 
 # On Windows, the shared libraries are under the bin directory,
@@ -93,23 +93,23 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(OpenImageIO_Util_SHARED_LIBS
         ${OpenImageIO_Util_SHARED_LIB}
         ${OpenImageIO_Util_SHARED_LIB}.2.3
-        ${OpenImageIO_Util_SHARED_LIB}.2.3.12
+        ${OpenImageIO_Util_SHARED_LIB}.2.3.17
     )
     set(OpenImageIO_SHARED_LIBS
         ${OpenImageIO_SHARED_LIB}
         ${OpenImageIO_SHARED_LIB}.2.3
-        ${OpenImageIO_SHARED_LIB}.2.3.12
+        ${OpenImageIO_SHARED_LIB}.2.3.17
     )
 else() # Darwin
     set(OpenImageIO_Util_SHARED_LIBS
         ${OpenImageIO_Util_SHARED_LIB}
         ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util.2.3${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util.2.3.12${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util.2.3.17${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
     set(OpenImageIO_SHARED_LIBS
         ${OpenImageIO_SHARED_LIB}
         ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO.2.3${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO.2.3.12${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${OpenImageIO_SHARED_LIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO.2.3.17${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
 endif()
 
@@ -152,11 +152,12 @@ endif()
 
 # Find the right python binding per platform
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.cp37-win_amd64.pyd)
+    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cp310-win_amd64.pyd)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.cpython-37m-x86_64-linux-gnu.so)
+    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cpython-310-x86_64-linux-gnu.so)
+    
 else() # Darwin
-    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.7/site-packages/OpenImageIO.cpython-37m-darwin.so)
+    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cpython-310-darwin.so)
 endif()
 
 set(OpenImageIO_TOOLS_BINARIES
