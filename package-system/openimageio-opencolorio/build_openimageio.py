@@ -48,7 +48,7 @@ import shutil
 
 
 openimageio_repository_url = 'https://github.com/OpenImageIO/oiio.git'
-openimageio_repository_tag = 'v2.3.12.0'
+openimageio_repository_tag = 'v2.3.17.0'
 
 opencolorio_repository_url='https://github.com/AcademySoftwareFoundation/OpenColorIO.git'
 opencolorio_repository_tag='v2.1.1'
@@ -79,7 +79,7 @@ dependencies = {
         {
             'zlib' :     ('zlib-1.2.11-rev5-mac',              'b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096'),
             'openexr' :  ('OpenEXR-3.1.3-rev4-mac',            '927b8ca6cc5815fa8ee4efe6ea2845487cba2540f7958d537692e7c9481a68fc'),
-            'python' :   ('python-3.7.12-rev2-darwin',         'ee4b77a907e08e3f3e6a08ea6418e8c083c78c20d264b4bc055e50d0db512001'),
+            'python' :   ('python-3.10.5-rev2-darwin',         '46d7c74c64bf639279c53a68ff958d9955e01e08d293524958eb7ea7cac9c4c5'),
             'tiff' :     ('tiff-4.2.0.15-rev3-mac',            'c2615ccdadcc0e1d6c5ed61e5965c4d3a82193d206591b79b805c3b3ff35a4bf'),
             'libpng' :   ('png-1.6.37-rev2-mac',               '515252226a6958c459f53d8598d80ec4f90df33d2f1637104fd1a636f4962f07'),
             'expat' :    ('expat-2.4.2-rev2-mac',              '70f195977a17b08a4dc8687400fd7f2589e3b414d4961b562129166965b6f658'),
@@ -89,7 +89,7 @@ dependencies = {
         {
             'zlib' :     ('zlib-1.2.11-rev5-windows',          '8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd'),
             'openexr' :  ('OpenEXR-3.1.3-rev4-windows',        'c850268e849171751cdaefdab1952333ac38afbb771b999e99d67f9761706d98'),
-            'python' :   ('python-3.7.12-rev2-windows',        '1173d886f6192f57b9cafb225fe679e2781f4a40a89f4bb31ee81d2b7fcad632'),
+            'python' :   ('python-3.10.5-rev1-windows',        'c012e7c8fd20e632446d2cd689a9472e4e4495da7534d484d0f1c63840222cbb'),
             'tiff' :     ('tiff-4.2.0.15-rev3-windows',        'c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60'),
             'libpng' :   ('png-1.6.37-rev2-windows',           'e16539a0fff26ac9ef80dd11ef0103eca91745519eacd41d41d96911c173589f'),
             'expat' :    ('expat-2.4.2-rev2-windows',          '748d08f21f5339757059a7887e72b52d15e954c549245c638b0b05bd5961e307'),
@@ -99,7 +99,7 @@ dependencies = {
         {
             'zlib' :     ('zlib-1.2.11-rev5-linux',            '9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc'),
             'openexr' :  ('OpenEXR-3.1.3-rev4-linux',          'fcbac68cfb4e3b694580bc3741443e111aced5f08fde21a92e0c768e8803c7af'),
-            'python' :   ('python-3.7.12-rev2-linux',          '04ae255f22a6f0529cf07108aef68f8aee8c76cd551dde70f1c90731ebf0b7b4'),
+            'python' :   ('python-3.10.5-rev2-linux',          'eda1fdc9129fb70df2d63bd21d0876c83c4f7021864f22c85850f4a8ff8cf1bf'),
             'tiff' :     ('tiff-4.2.0.15-rev3-linux',          '2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a'),
             'libpng' :   ('png-1.6.37-rev2-linux',             '5c82945a1648905a5c4c5cee30dfb53a01618da1bf58d489610636c7ade5adf5'),
             'expat' :    ('expat-2.4.2-rev2-linux',            '755369a919e744b9b3f835d1acc684f02e43987832ad4a1c0b6bbf884e6cd45b'),
@@ -185,17 +185,24 @@ parser = argparse.ArgumentParser(description='Builds this package')
 parser.add_argument('--platform', default=platform.system().lower(), required=False, help=f'Platform to build (defaults to \"{platform.system().lower()}\")')
 parser.add_argument('--clean',    action='store_true',               required=False, help=f'Complete clean build, if true, will delete entire temp and refetch dependencies')
 
+if 'O3DE_PACKAGE_NAME' in os.environ:
+    parser.add_argument('--package-name',  default=os.environ["O3DE_PACKAGE_NAME"], help=f"Name of the package to build. Defaults to '{os.environ['O3DE_PACKAGE_NAME']}")
+else:
+    parser.add_argument('--package-name',  required=True, help=f'Name of the package to build.')
+
+
 args = parser.parse_args()
 if args.platform not in dependencies.keys():
     print(f"Platform {args.platform} not in the list of supported dependency platforms {dependencies.keys()}")
     sys.exit(1)
 
+
 # We build the python bindings for OpenImageIO and OpenColorIO against our
-# python-3.7.12 dependency, so if a different version of python runs this build
+# python-3.10.5 dependency, so if a different version of python runs this build
 # script, the test at the end which attempts to import the built python bindings
 # will fail, so we need to make sure the same version of python is running
 # this build script.
-expected_python_version = '3.7.12'
+expected_python_version = '3.10.5'
 if not sys.version.startswith(expected_python_version):
     print(f"Error: Build script needs to be run with python version {expected_python_version}, current version is {sys.version}")
     sys.exit(1)
@@ -334,7 +341,7 @@ def BuildOpenColorIO(module_paths_to_use, release=True):
     python_root = get_dependency_path(args.platform, "python")
     if args.platform == "windows":
         python_root /= "python"
-        python_lib = python_root / "libs" / "python37.lib"
+        python_lib = python_root / "libs" / "python310.lib"
         python_include = python_root / "include"
         python_exe = python_root / "python.exe"
 
@@ -344,7 +351,7 @@ def BuildOpenColorIO(module_paths_to_use, release=True):
             f'-DPython_EXECUTABLE={python_exe}'
         ]
     elif args.platform == "darwin":
-        python_root /= "Python.framework/Versions/3.7"
+        python_root /= "Python.framework/Versions/3.10"
         python_exe = python_root / "bin/Python3"
 
         opencolorio_configure_command += [
@@ -422,7 +429,7 @@ if not SKIP_OPENCOLORIO:
 #           - cmake
 #               (the cmake files that define the target)
 #           - pkgconfig
-#           - python3.7/site-packages
+#           - python3.10/site-packages
 #                 - PyOpenColorIO.so
 #           libOpenColorIO.a
 #           libOpenColorIOoglapphelpers.a
@@ -576,6 +583,19 @@ def BuildOpenImageIO(release=True):
         f'-DUSE_OpenGL=OFF',
         f'-DUSE_Qt5=OFF',
         f'-DUSE_BZip2=OFF',
+        f'-DUSE_FFmpeg=OFF',
+        f'-DUSE_Field3D=OFF',
+        f'-DUSE_DCMTK=OFF',
+        f'-DUSE_OpenJPEG=OFF',
+        f'-DUSE_Libheif=OFF',
+        f'-DUSE_Libsquish=OFF',
+        f'-DUSE_Nuke=OFF',
+        f'-DUSE_OpenCV=OFF',
+        f'-DUSE_OpenVDB=OFF',
+        f'-DUSE_Ptex=OFF',
+        f'-DUSE_R3DSDK=OFF',
+        f'-DUSE_WebP=OFF',
+        f'-DUSE_TBB=OFF',
         f'-DCMAKE_MODULE_PATH={module_path_string_with_custom_find_files}',
         f'-DVERBOSE=ON' # reveals problems with library inclusion
     ]
@@ -617,7 +637,7 @@ def BuildOpenImageIO(release=True):
     python_root = get_dependency_path(args.platform, "python")
     if args.platform == "windows":
         python_root /= "python"
-        python_lib = python_root / "libs" / "python37.lib"
+        python_lib = python_root / "libs" / "python310.lib"
         python_include = python_root / "include"
         python_exe = python_root / "python.exe"
 
@@ -627,7 +647,7 @@ def BuildOpenImageIO(release=True):
             f'-DPython_EXECUTABLE={python_exe}'
         ]
     elif args.platform == "darwin":
-        python_root /= "Python.framework/Versions/3.7"
+        python_root /= "Python.framework/Versions/3.10"
         python_exe = python_root / "bin/Python3"
 
         openimageio_configure_command += [
@@ -782,7 +802,7 @@ if args.platform == "windows":
 # Generate our PackageInfo.json dynamically for the platform, and pretty
 # print the JSON so that it's human readable
 print("Generating PackageInfo.json")
-package_name = os.environ["O3DE_PACKAGE_NAME"]
+package_name = args.package_name
 package_info = {
     "PackageName" : f"{package_name}",
     "URL"         : "https://github.com/OpenImageIO/oiio and https://opencolorio.org/",
@@ -925,11 +945,11 @@ if args.platform == "windows":
     TestOpenImageIO(release=False)
 
 # Test the OIIO and OCIO python libraries
-oiio_site_packages = final_package_image_root / 'OpenImageIO' / 'lib' / 'python3.7' / 'site-packages'
+oiio_site_packages = final_package_image_root / 'OpenImageIO' / 'lib' / 'python3.10' / 'site-packages'
 if args.platform == 'windows':
     ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'site-packages'
 else:
-    ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'python3.7' / 'site-packages'
+    ocio_site_packages = final_package_image_root / 'OpenColorIO' / 'lib' / 'python3.10' / 'site-packages'
 
 # Copy our site-packages pyd's for OIIO/OCIO into our test directory where
 # we've already copied all the OIIO/OCIO shared libraries to simulate
