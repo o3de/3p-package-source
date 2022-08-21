@@ -1,52 +1,35 @@
-diff --git a/build_scripts/main.py b/build_scripts/main.py
-index cf56850df..0e1a0fa4b 100644
---- a/build_scripts/main.py
-+++ b/build_scripts/main.py
-@@ -544,6 +544,9 @@ class PysideBuild(_build):
-                 py_include_dir = os.path.join(py_prefix, "include")
-             else:
-                 py_include_dir = os.path.join(py_prefix, "include/python{}".format(py_version))
-+                if not os.path.isdir(py_include_dir):
-+                    py_include_dir = os.path.join(py_prefix, "include/python{}m".format(py_version))
-+
-         dbg_postfix = ""
-         if build_type == "Debug":
-             dbg_postfix = "_d"
 diff --git a/sources/pyside2/libpyside/CMakeLists.txt b/sources/pyside2/libpyside/CMakeLists.txt
-index 7493a453a..f67196815 100644
+index e31c87eef..a8fdf731a 100644
 --- a/sources/pyside2/libpyside/CMakeLists.txt
 +++ b/sources/pyside2/libpyside/CMakeLists.txt
 @@ -1,13 +1,5 @@
  project(libpyside)
  
--if(${Qt5Qml_FOUND})
--    if(NOT "${Qt5Qml_PRIVATE_INCLUDE_DIRS}" MATCHES "/QtQml/")
--        string(REPLACE "/QtCore" "/QtQml" replaceme "${Qt5Core_PRIVATE_INCLUDE_DIRS}")
--        list(APPEND Qt5Qml_PRIVATE_INCLUDE_DIRS ${replaceme})
--        list(REMOVE_DUPLICATES Qt5Qml_PRIVATE_INCLUDE_DIRS)
+-if(${Qt${QT_MAJOR_VERSION}Qml_FOUND})
+-    if(NOT "${Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS}" MATCHES "/QtQml/")
+-        string(REPLACE "/QtCore" "/QtQml" replaceme "${Qt${QT_MAJOR_VERSION}Core_PRIVATE_INCLUDE_DIRS}")
+-        list(APPEND Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS ${replaceme})
+-        list(REMOVE_DUPLICATES Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS)
 -    endif()
 -endif()
 -
- if(${Qt5Quick_FOUND})
-     if(NOT "${Qt5Quick_PRIVATE_INCLUDE_DIRS}" MATCHES "/QtQuick/")
-         string(REPLACE "/QtCore" "/QtQuick" replaceme "${Qt5Core_PRIVATE_INCLUDE_DIRS}")
-@@ -17,26 +9,11 @@ if(${Qt5Quick_FOUND})
-     endif()
+ if(${Qt${QT_MAJOR_VERSION}Quick_FOUND})
+     if(NOT "${Qt${QT_MAJOR_VERSION}Quick_PRIVATE_INCLUDE_DIRS}" MATCHES "/QtQuick/")
+         string(REPLACE "/QtCore" "/QtQuick" replaceme "${Qt${QT_MAJOR_VERSION}Core_PRIVATE_INCLUDE_DIRS}")
+@@ -18,25 +10,9 @@ if(${Qt${QT_MAJOR_VERSION}Quick_FOUND})
  endif()
  
-+# Disable QML support
-+set(QML_SUPPORT 0)
  set(QML_PRIVATE_API_SUPPORT 0)
--if(Qt5Qml_FOUND)
+-if(Qt${QT_MAJOR_VERSION}Qml_FOUND)
 -    # Used for registering custom QQuickItem classes defined in Python code.
 -    set(QML_SUPPORT 1)
--    set(QML_INCLUDES ${Qt5Qml_INCLUDE_DIRS})
--    set(QML_LIBRARIES ${Qt5Qml_LIBRARIES})
+-    set(QML_INCLUDES ${Qt${QT_MAJOR_VERSION}Qml_INCLUDE_DIRS})
+-    set(QML_LIBRARIES ${Qt${QT_MAJOR_VERSION}Qml_LIBRARIES})
 -
--    if(Qt5Qml_PRIVATE_INCLUDE_DIRS)
+-    if(Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS)
 -        # Used for transforming QML exceptions into Python exceptions.
 -        set(QML_PRIVATE_API_SUPPORT 1)
--        set(QML_INCLUDES ${QML_INCLUDES} ${Qt5Qml_PRIVATE_INCLUDE_DIRS})
+-        set(QML_INCLUDES ${QML_INCLUDES} ${Qt${QT_MAJOR_VERSION}Qml_PRIVATE_INCLUDE_DIRS})
 -    else()
 -        message(WARNING "QML private API include files could not be found, support for catching QML exceptions inside Python code will not work.")
 -    endif()
@@ -56,16 +39,17 @@ index 7493a453a..f67196815 100644
 -    set(QML_INCLUDES "")
 -    set(QML_LIBRARIES "")
 -endif()
++set(QML_SUPPORT 0)
 +set(QML_INCLUDES "")
 +set(QML_LIBRARIES "")
  
- qt5_wrap_cpp(DESTROYLISTENER_MOC "destroylistener.h")
- 
+ set(libpyside_SRC
+     dynamicqmetaobject.cpp
 diff --git a/sources/pyside2/libpyside/pyside.cpp b/sources/pyside2/libpyside/pyside.cpp
-index e2b8708ce..0541c7d91 100644
+index 219b99d48..f33e4f724 100644
 --- a/sources/pyside2/libpyside/pyside.cpp
 +++ b/sources/pyside2/libpyside/pyside.cpp
-@@ -423,7 +423,7 @@ static const char invalidatePropertyName[] = "_PySideInvalidatePtr";
+@@ -414,7 +414,7 @@ static const char invalidatePropertyName[] = "_PySideInvalidatePtr";
  // class by walking up the meta objects.
  static const char *typeName(QObject *cppSelf)
  {
@@ -74,16 +58,8 @@ index e2b8708ce..0541c7d91 100644
      if (!Shiboken::Conversions::getConverter(typeName)) {
          for (auto metaObject = cppSelf->metaObject(); metaObject; metaObject = metaObject->superClass()) {
              const char *name = metaObject->className();
-@@ -459,7 +459,6 @@ PyObject *getWrapperForQObject(QObject *cppSelf, SbkObjectType *sbk_type)
-     }
- 
-     pyOut = Shiboken::Object::newObject(sbk_type, cppSelf, false, false, typeName(cppSelf));
--
-     return pyOut;
- }
- 
 diff --git a/sources/pyside2/libpyside/pyside.h b/sources/pyside2/libpyside/pyside.h
-index ae400e1fe..b7412594b 100644
+index c1a298cc8..91e648f47 100644
 --- a/sources/pyside2/libpyside/pyside.h
 +++ b/sources/pyside2/libpyside/pyside.h
 @@ -50,12 +50,57 @@
@@ -145,10 +121,10 @@ index ae400e1fe..b7412594b 100644
  
  /**
 diff --git a/sources/shiboken2/CMakeLists.txt b/sources/shiboken2/CMakeLists.txt
-index c1349cae6..5e6071bb7 100644
+index 3de5d3223..8cc960e99 100644
 --- a/sources/shiboken2/CMakeLists.txt
 +++ b/sources/shiboken2/CMakeLists.txt
-@@ -76,7 +76,7 @@ if (NOT PYTHON_EXTENSION_SUFFIX)
+@@ -78,7 +78,7 @@ if (NOT PYTHON_EXTENSION_SUFFIX)
    get_python_extension_suffix()
  endif()
  
@@ -158,7 +134,7 @@ index c1349cae6..5e6071bb7 100644
  
  shiboken_check_if_limited_api()
 diff --git a/sources/shiboken2/data/shiboken_helpers.cmake b/sources/shiboken2/data/shiboken_helpers.cmake
-index 6bd75d0ea..316b52f05 100644
+index 5e0c6ea72..1097991c3 100644
 --- a/sources/shiboken2/data/shiboken_helpers.cmake
 +++ b/sources/shiboken2/data/shiboken_helpers.cmake
 @@ -298,7 +298,7 @@ macro(shiboken_check_if_limited_api)
@@ -171,10 +147,10 @@ index 6bd75d0ea..316b52f05 100644
              # GREATER_EQUAL is available only from cmake 3.7 on. We mean python 3.5 .
              set(PYTHON_LIMITED_API 1)
 diff --git a/sources/shiboken2/generator/shiboken2/cppgenerator.cpp b/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
-index 64467e3d1..e729c49ea 100644
+index 38b596a5f..1aed4286b 100644
 --- a/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
 +++ b/sources/shiboken2/generator/shiboken2/cppgenerator.cpp
-@@ -58,7 +58,11 @@ static const char typeNameFunc[] = R"CPP(
+@@ -59,7 +59,11 @@ static const char typeNameFunc[] = R"CPP(
  template <class T>
  static const char *typeNameOf(const T &t)
  {
@@ -186,39 +162,49 @@ index 64467e3d1..e729c49ea 100644
      auto size = std::strlen(typeName);
  #if defined(Q_CC_MSVC) // MSVC: "class QPaintDevice * __ptr64"
      if (auto lastStar = strchr(typeName, '*')) {
-@@ -1522,18 +1526,31 @@ void CppGenerator::writeConverterRegister(QTextStream &s, const AbstractMetaClas
-         cppSignature.removeFirst();
-     }
+diff --git a/sources/shiboken2/libshiboken/pep384impl.cpp b/sources/shiboken2/libshiboken/pep384impl.cpp
+index 66df0fd94..b84c93426 100644
+--- a/sources/shiboken2/libshiboken/pep384impl.cpp
++++ b/sources/shiboken2/libshiboken/pep384impl.cpp
+@@ -751,9 +751,7 @@ _Pep_PrivateMangle(PyObject *self, PyObject *name)
+ #endif // IS_PY2
+     Shiboken::AutoDecRef privateobj(PyObject_GetAttr(
+         reinterpret_cast<PyObject *>(Py_TYPE(self)), Shiboken::PyMagicName::name()));
+-#ifndef Py_LIMITED_API
+-    return _Py_Mangle(privateobj, name);
+-#else
++
+     // PYSIDE-1436: _Py_Mangle is no longer exposed; implement it always.
+     // The rest of this function is our own implementation of _Py_Mangle.
+     // Please compare the original function in compile.c .
+@@ -789,7 +787,7 @@ _Pep_PrivateMangle(PyObject *self, PyObject *name)
+     if (amount > big_stack)
+         free(resbuf);
+     return result;
+-#endif // else Py_LIMITED_API
++
+ }
  
--    s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
-+    if (usePySideExtensions() && metaClass->isQObject()) {
-+        s << INDENT << "Shiboken::Conversions::registerConverterName(converter, PySide::getTypeId<::";
-+    } else {
-+        s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
-+    }
-     QString qualifiedCppNameInvocation;
-     if (!classContext.forSmartPointer())
-         qualifiedCppNameInvocation = metaClass->qualifiedCppName();
-     else
-         qualifiedCppNameInvocation = classContext.preciseType()->cppSignature();
- 
--    s << qualifiedCppNameInvocation << ").name());\n";
-+    if (usePySideExtensions() && metaClass->isQObject()) {
-+        s << qualifiedCppNameInvocation << ">().name());\n";
-+    } else {
-+        s << qualifiedCppNameInvocation << ").name());\n";
-+    }
- 
-     if (shouldGenerateCppWrapper(metaClass)) {
--        s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
--        s << wrapperName(metaClass) << ").name());\n";
-+        if (usePySideExtensions() && metaClass->isQObject()) {
-+            s << INDENT << "Shiboken::Conversions::registerConverterName(converter, PySide::getTypeId<::";
-+            s << wrapperName(metaClass) << ">().name());\n";
-+        } else {
-+            s << INDENT << "Shiboken::Conversions::registerConverterName(converter, typeid(::";
-+            s << wrapperName(metaClass) << ").name());\n";
-+        }
-     }
- 
-     s << endl;
+ /*****************************************************************************
+diff --git a/sources/shiboken2/libshiboken/signature/signature_helper.cpp b/sources/shiboken2/libshiboken/signature/signature_helper.cpp
+index 2b360c786..0246ec61d 100644
+--- a/sources/shiboken2/libshiboken/signature/signature_helper.cpp
++++ b/sources/shiboken2/libshiboken/signature/signature_helper.cpp
+@@ -236,7 +236,7 @@ static PyObject *_build_new_entry(PyObject *new_name, PyObject *value)
+     PyObject *new_value = PyDict_Copy(value);
+     PyObject *multi = PyDict_GetItem(value, PyName::multi());
+     if (multi != nullptr && Py_TYPE(multi) == &PyList_Type) {
+-        ssize_t len = PyList_Size(multi);
++        Py_ssize_t len = PyList_Size(multi);
+         AutoDecRef list(PyList_New(len));
+         if (list.isNull())
+             return nullptr;
+@@ -314,7 +314,7 @@ PyObject *_address_to_stringlist(PyObject *numkey)
+      * When needed in `PySide_BuildSignatureProps`, the strings are
+      * finally materialized.
+      */
+-    ssize_t address = PyNumber_AsSsize_t(numkey, PyExc_ValueError);
++    Py_ssize_t address = PyNumber_AsSsize_t(numkey, PyExc_ValueError);
+     if (address == -1 && PyErr_Occurred())
+         return nullptr;
+     char **sig_strings = reinterpret_cast<char **>(address);
