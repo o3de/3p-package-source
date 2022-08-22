@@ -59,9 +59,9 @@ cd temp
 mkdir $SCRIPT_DIR/package
 
 echo ""
-echo "---------------- Cloning python 3.7.12 from git ----------------"
+echo "---------------- Cloning python 3.10.5 from git ----------------"
 echo ""
-git clone https://github.com/python/cpython.git --branch "v3.7.12" --depth 1
+git clone https://github.com/python/cpython.git --branch "v3.10.5" --depth 1
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error cloning python from https://github.com/python/cpython.git"
@@ -167,8 +167,8 @@ cd $RELOC_SRC_DIR
 echo ""
 echo "---------------- Altering the produced framework folder to be relocatable ----------------"
 echo ""
-echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.7.12 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
-$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.7.12 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.5 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.5 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not make python relocatable!"
@@ -179,8 +179,8 @@ echo ""
 echo "---------------- Final RPATH update ----------------"
 echo ""
 # The filename of the main python dylib is 'Python'.
-# It is located at ./package/Python.framework/Versions/3.7(symlinked to Current)
-# The original rpath "@rpath/Versions/3.7/Python" is incorrect. When the Python.framework
+# It is located at ./package/Python.framework/Versions/3.10(symlinked to Current)
+# The original rpath "@rpath/Versions/3.10/Python" is incorrect. When the Python.framework
 # is embedded in an app bundle, any executable/shared library linking to it will need to
 # find it in "@rpath/Python.framework/Versions/Current/Python". The executable will have
 # its rpath set to "<bundle_name>.app/Contents/Frameworks".
@@ -188,7 +188,7 @@ echo ""
 # as well as the root of the framework (ie, @loader_path/../../../.. etc), this makes
 # the whole thing work regardless of whether Python is in the same folder as the binary or 
 # whether a python native plugin is being located from the framework in some subfolder.
-install_name_tool -id @rpath/Python.framework/Versions/Current/Python $FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.7/Python
+install_name_tool -id @rpath/Python.framework/Versions/Current/Python $FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.10/Python
 
 echo ""
 echo "---------------- rsync package layout into $SCRIPT_DIR/package ----------------"
@@ -201,17 +201,17 @@ echo "---------------- Copying Open3DEngine package metadata and license file --
 echo ""
 # the tar contains a 'Python.framework' sub folder
 cd $SCRIPT_DIR/package
-cp $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/LICENSE.txt ./LICENSE
+cp $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/LICENSE.txt ./LICENSE
 cp $SCRIPT_DIR/PackageInfo.json .
 cp $SCRIPT_DIR/*.cmake .
 
 echo ""
 echo "---------------- Removing pip references from ensurepip ----------------"
 echo ""
-rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/ensurepip/_bundled/pip-20*.whl
-cat $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py_temp
-rm $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/ensurepip/__init__.py
-mv $SCRIPT_DIR/package/Python.framework/Versions/3.7/lib/python3.7/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/__init__.py
+rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/_bundled/pip-20*.whl
+cat $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py_temp
+rm $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py
+mv $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py
 
 echo ""
 echo "----------------  Cleaning temp folder ----------------"
