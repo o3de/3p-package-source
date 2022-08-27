@@ -19,7 +19,7 @@ then
 else
     echo "Unsupported Ubuntu Version: $UBUNTU_VERSION"
     exit 1
-fi
+endif 
 
 if [ "$OPENSSL_MAJOR_VERSION" == "1" ]
 then
@@ -30,7 +30,7 @@ then
 else
     echo "Unsupported OpenSSL Major Version: $OPENSSL_MAJOR_VERSION"
     exit 1
-fi
+endif 
 
 # Make sure docker is installed
 if ! dpkg-query -W -f'${Status}' "docker" 2>/dev/null | grep -q "ok installed"
