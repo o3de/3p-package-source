@@ -9,8 +9,7 @@
 # for its dependencies
 #
 
-FROM ubuntu:22.04
-
+FROM public.ecr.aws/ubuntu/ubuntu:22.04_stable
  
 WORKDIR /data/workspace
 
