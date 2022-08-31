@@ -60,15 +60,29 @@
          }
       },
       "Linux":{
-         "Linux":{
+         "Linux-OpenSSL-1":{
+            "package_version":"1.9.50-rev2",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
-               "./build_AWSNativeSDK_linux.sh"
+               "./build_AWSNativeSDK_linux.sh 2004 1"
+            ],
+            "custom_install_cmd": [
+               "./install_AWSNativeSDK_linux.sh"
+            ]
+         },
+         "Linux-OpenSSL-3":{
+            "package_version":"1.9.50-rev2",
+            "patch_file":"AWSNativeSDK-1.9.50-linux-openssl3.patch",
+            "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
+            "custom_build_cmd": [
+               "./build_AWSNativeSDK_linux.sh 2204 3"
             ],
             "custom_install_cmd": [
                "./install_AWSNativeSDK_linux.sh"
             ]
          }
+
+
       }
    }
 }
