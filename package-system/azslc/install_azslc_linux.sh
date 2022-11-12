@@ -20,6 +20,6 @@ cp -f $SRC_PATH/LICENSE_MIT.TXT $TARGET_INSTALL_ROOT/
 
 mkdir -p $BIN_PATH/Release
 
-cp -f $SRC_PATH/build/release/azslc $BIN_PATH/Release/
+cp -f $SRC_PATH/build/Release/azslc $BIN_PATH/Release/
 
 exit 0
