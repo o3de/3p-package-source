@@ -32,6 +32,7 @@
       },
       "Linux":{
          "Linux":{
+            "package_version":"1.8.9-rev2",
             "cmake_find_template":"Findazslc.cmake.Linux",
             "custom_build_cmd": [
                "./build_azslc_linux.sh"
