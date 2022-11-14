@@ -2,7 +2,7 @@
     "git_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
     "git_tag": "v5.15.2.1",
     "package_name": "pyside2",
-    "package_version": "5.15.2.1-py3.10-rev3",
+    "package_version": "5.15.2.1-py3.10-rev4",
     "package_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
     "package_license": "custom",
     "package_license_file": "pyside2/LICENSE.LGPLv3",
