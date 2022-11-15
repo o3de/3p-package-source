@@ -1061,6 +1061,9 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
     try:
         eligible_platforms = build_config["Platforms"][platform.system()]
         target_platform_config = eligible_platforms[platform_name]
+        # Check if the target platform is an alias to another platform from the current eligible_platforms
+        if isinstance(target_platform_config, str) and target_platform_config[0] == '@':
+            target_platform_config = eligible_platforms[target_platform_config[1:]]
     except KeyError as e:
         raise BuildError(f"Invalid build config : {str(e)}")
 
