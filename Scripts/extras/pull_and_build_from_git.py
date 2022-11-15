@@ -510,27 +510,44 @@ class BuildInfo(object):
 
         # Sync to the source folder
         if self.src_folder.is_dir():
-            # If the folder exists, see if git stash works or not
+            print(f"Checking git status of path '{self.src_folder}' ...")
+            git_status_cmd = ['git', 'status', '-s']
+            call_result = subprocess.run(subp_args(git_status_cmd),
+                                         shell=True,
+                                         capture_output=True,
+                                         cwd=str(self.src_folder.resolve()))
+            # If any error, this is not a valid git folder, proceed with cloning
+            if call_result.returncode != 0:
+                print(f"Path '{self.src_folder}' is not a valid git folder. Deleting and re-cloning...")
+                # Not a valid git folder, okay to remove and re-clone
+                delete_folder(self.src_folder)
+                self.clone_to_local()
+            else:
+                # If this is a valid git folder, check if the patch was applied or if the source was
+                # altered.
+                if len(call_result.stdout.decode('utf-8', 'ignore')):
+                    # If anything changed, then restore the entire source tree
+                    print(f"Path '{self.src_folder}' was modified. Restoring...")
+                    git_restore_cmd = ['git', 'restore', '--recurse-submodules', ':/']
+                    call_result = subprocess.run(subp_args(git_restore_cmd),
+                                                 shell=True,
+                                                 capture_output=False,
+                                                 cwd=str(self.src_folder.resolve()))
+                    if call_result.returncode != 0:
+                        # If we cannot restore through git, then delete the folder and re-clone
+                        print(f"Unable to restore {self.src_folder}. Deleting and re-cloning...")
+                        delete_folder(self.src_folder)
+                        self.clone_to_local()
+
+            # Do a re-pull
             git_pull_cmd = ['git',
-                            'stash']
+                            'pull']
             call_result = subprocess.run(subp_args(git_pull_cmd),
                                          shell=True,
                                          capture_output=True,
                                          cwd=str(self.src_folder.resolve()))
             if call_result.returncode != 0:
-                # Not a valid git folder, okay to remove and re-clone
-                delete_folder(self.src_folder)
-                self.clone_to_local()
-            else:
-                # Do a re-pull
-                git_pull_cmd = ['git',
-                                'pull']
-                call_result = subprocess.run(subp_args(git_pull_cmd),
-                                             shell=True,
-                                             capture_output=True,
-                                             cwd=str(self.src_folder.resolve()))
-                if call_result.returncode != 0:
-                    raise BuildError(f"Error pulling source from GitHub: {call_result.stderr.decode('UTF-8', 'ignore')}")
+                raise BuildError(f"Error pulling source from GitHub: {call_result.stderr.decode('UTF-8', 'ignore')}")
         else:
             self.clone_to_local()
 
