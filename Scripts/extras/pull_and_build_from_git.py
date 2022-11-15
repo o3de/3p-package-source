@@ -1135,8 +1135,8 @@ if __name__ == '__main__':
                             help='The platform to build the package for.',
                             required=True)
         parser.add_argument('--package-root',
-                            help="The root path where to install the built packages to.",
-                            required=True)
+                            help="The root path where to install the built packages to. This defaults to the {base_path}/temp. ",
+                            required=False)
         parser.add_argument('--cmake-path',
                             help='Path to where cmake is installed. Defaults to the system installed one.',
                             default='')
@@ -1156,6 +1156,9 @@ if __name__ == '__main__':
                             default=False)
 
         parsed_args = parser.parse_args(sys.argv[1:])
+
+        # If package_root is not supplied, default to {base_path}/temp
+        package_root = parsed_args.package_root or f'{parsed_args.base_path}/temp'
 
         cmake_path = validate_cmake(f"{parsed_args.cmake_path}/cmake" if parsed_args.cmake_path else "cmake")
 
