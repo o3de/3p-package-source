@@ -58,7 +58,8 @@
                 "custom_install_cmd": [
                     "./install_zlib_linux.sh"
                 ]
-            }
+            },
+	    "Linux-aarch64": "@Linux"
         }
     }
 }
