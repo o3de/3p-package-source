@@ -1161,7 +1161,7 @@ if __name__ == '__main__':
         parsed_args = parser.parse_args(sys.argv[1:])
 
         # If package_root is not supplied, default to {base_path}/temp
-        package_root = parsed_args.package_root or f'{parsed_args.base_path}/temp'
+        resolved_package_root = parsed_args.package_root or f'{parsed_args.base_path}/temp'
 
         cmake_path = validate_cmake(f"{parsed_args.cmake_path}/cmake" if parsed_args.cmake_path else "cmake")
 
@@ -1169,7 +1169,7 @@ if __name__ == '__main__':
         build_info = prepare_build(platform_name=parsed_args.platform_name,
                                    base_folder=parsed_args.base_path,
                                    build_folder=parsed_args.build_path,
-                                   package_root_folder=parsed_args.package_root,
+                                   package_root_folder=resolved_package_root,
                                    cmake_command=cmake_path,
                                    build_config_file=parsed_args.build_config_file,
                                    clean=parsed_args.clean,
