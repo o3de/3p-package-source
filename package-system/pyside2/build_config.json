@@ -18,7 +18,7 @@
                 "additional_download_packages":[ 
                     ["https://download.qt.io/development_releases/prebuilt/libclang/libclang-release_130-based-windows-vs2019_64.7z", "1c7eb369d74ea5ea0580d71ca2b89d16a241294fd6cfc80eae572c646aad850e", "sha256"]
                 ],
-                "cmake_find_source": "Findpyside2.cmake.Windows",
+                "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
                     "build_windows.bat"
                 ],
@@ -36,7 +36,7 @@
                 "additional_download_packages":[ 
                     ["https://download.qt.io/development_releases/prebuilt/libclang/libclang-release_130-based-linux-Ubuntu20.04-gcc9.3-x86_64.7z", "414f923b39515ef562ff8217e57b02889deabf02ca7350c8612e4a5aa93503e8", "sha256"]
                 ],
-                "cmake_find_source": "Findpyside2.cmake.Linux",
+                "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
                     "./build_linux.sh"
                 ],

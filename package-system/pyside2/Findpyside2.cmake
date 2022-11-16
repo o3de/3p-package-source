@@ -11,28 +11,31 @@ if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
+# Install the pyside2 site-packages into Python
 add_library(${TARGET_WITH_NAMESPACE} SHARED IMPORTED GLOBAL)
 
 set(PYSIDE_BASE_PATH ${CMAKE_CURRENT_LIST_DIR}/pyside2)
 
-ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.10/site-packages pyside2)
-
-set(${MY_NAME}_RUNTIME_DEPENDENCIES
-    ${PYSIDE_BASE_PATH}/lib/libpyside2.abi3.so.5.15.2.1
-    ${PYSIDE_BASE_PATH}/lib/libpyside2.abi3.so.5.15
-    ${PYSIDE_BASE_PATH}/lib/libpyside2.abi3.so
-    ${PYSIDE_BASE_PATH}/lib/libshiboken2.abi3.so.5.15.2.1
-    ${PYSIDE_BASE_PATH}/lib/libshiboken2.abi3.so.5.15
-    ${PYSIDE_BASE_PATH}/lib/libshiboken2.abi3.so
-)
-
-ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES ${${MY_NAME}_RUNTIME_DEPENDENCIES})
-
-# In addition to the libraries, create a Pyside2::Tools library that handles the shiboken and pyside2-lupdate executables that are part o
+# In addition to the libraries, create a Pyside2::Tools library that handles the shiboken and pyside2-lupdate executables that are part
 # of the pyside2 package
-set(${MY_NAME}_BIN_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/bin)
-set(${MY_NAME}_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/lib)
-set(${MY_NAME}_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/include)
+set(${MY_NAME}_BIN_DIR ${PYSIDE_BASE_PATH}/bin)
+set(${MY_NAME}_LIB_DIR ${PYSIDE_BASE_PATH}/lib)
+set(${MY_NAME}_INCLUDE_DIR ${PYSIDE_BASE_PATH}/include)
+
+ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages pyside2)
+
+if (PAL_PLATFORM_NAME STREQUAL "Linux")
+    set(${MY_NAME}_RUNTIME_DEPENDENCIES
+        {${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15.2.1
+        {${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15
+        {${MY_NAME}_LIB_DIR}/libpyside2.abi3.so
+        {${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15.2.1
+        {${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15
+        {${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so
+    )
+    
+    ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES ${${MY_NAME}_RUNTIME_DEPENDENCIES})
+endif()
 
 ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
     INTERFACE 
@@ -41,22 +44,30 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtConcurrent
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtCore
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtGui
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtHelp
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtNetwork
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtOpenGL
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtOpenGLFunctions
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtPrintSupport
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtSql
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtSvg
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtWidgets
         ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtXml
 )
 
-set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
-    ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/share
-    IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-    IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-)
+if (PAL_PLATFORM_NAME STREQUAL "Windows")
+    set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
+        ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/share
+        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    )
+elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
+    set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
+        ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/share
+        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    )   
+endif()
 
 set(${MY_NAME}_TOOLS_BINARIES
     ${${MY_NAME}_BIN_DIR}/pyside2-lupdate${CMAKE_EXECUTABLE_SUFFIX}
@@ -68,9 +79,15 @@ set(${MY_NAME}_TOOLS_PYTHON_SCRIPTS
     ${${MY_NAME}_BIN_DIR}/shiboken_tool.py
 )
 
-set(${MY_NAME}_TOOLS_DEPENDENCIES
+if (PAL_PLATFORM_NAME STREQUAL "Windows")
+    set(${MY_NAME}_TOOLS_DEPENDENCIES
+        ${${MY_NAME}_BIN_DIR}/libclang.dll
+    )
+elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
+    set(${MY_NAME}_TOOLS_DEPENDENCIES
     ${${MY_NAME}_BIN_DIR}/libclang.so.13
 )
+endif()
 
 add_library(${MY_NAME}::Tools SHARED IMPORTED GLOBAL)
 
@@ -84,10 +101,19 @@ ly_target_include_system_directories(TARGET ${MY_NAME}::Tools
     INTERFACE ${${MY_NAME}_INCLUDE_DIR}/shiboken2
 )
 
-set_target_properties(${MY_NAME}::Tools PROPERTIES  
-    IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-    IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-)
+if (PAL_PLATFORM_NAME STREQUAL "Windows")
+    set_target_properties(${MY_NAME}::Tools PROPERTIES  
+        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/shiboken2/shiboken2.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/shiboken2/shiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/shiboken2/shiboken2_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/shiboken2/shiboken2_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    )
+elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
+    set_target_properties(${MY_NAME}::Tools PROPERTIES  
+        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    )
+endif()
 
 add_library(${TARGET_WITH_NAMESPACE}::Tools ALIAS ${MY_NAME}::Tools)
 
@@ -183,6 +209,18 @@ function(add_shiboken_project)
 
     # Building the wrapper files will not work with a unity build.
     set_target_properties(${add_shiboken_project_NAME}.Editor PROPERTIES UNITY_BUILD OFF)
+    
+    if (PAL_PLATFORM_NAME STREQUAL "Windows")
+        # Append _d to the module name in a debug build.
+        set_target_properties(${add_shiboken_project_NAME}.Editor PROPERTIES DEBUG_POSTFIX "_d")
+    
+        # Disable various warnings in shiboken generated wrapper code.
+        #"conditional expression is constant"
+        #"unreferenced formal parameter"
+        #"declaration of 'x' hides previous local declaration."
+        #"declaration of 'x' hides class member."
+        target_compile_options(${add_shiboken_project_NAME}.Editor PRIVATE /wd4127 /wd4100 /wd4456 /wd4458)
+    endif()
 
     # Fix the name of the module.
     set_property(TARGET ${add_shiboken_project_NAME}.Editor PROPERTY PREFIX "")
