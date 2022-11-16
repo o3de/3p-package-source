@@ -11,10 +11,10 @@
 
 # Building zlib on ubuntu requires the following packages
 REQUIRED_DEV_PACKAGES="cmake ninja-build gcc"
-ALL_PACKAGES=`apt list | grep installed  2>/dev/null`
+ALL_PACKAGES=$(apt list | grep installed  2>/dev/null)
 for req_package in $REQUIRED_DEV_PACKAGES
 do
-    PACKAGE_COUNT=`echo $ALL_PACKAGES | grep $req_package | wc -l`
+    PACKAGE_COUNT=$(echo $ALL_PACKAGES | grep $req_package | wc -l)
     if [[ $PACKAGE_COUNT -eq 0 ]]; then
         echo "Missing required package '${req_package}'. Install this package and try again."
         exit 1
