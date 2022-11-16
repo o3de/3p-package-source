@@ -33,10 +33,19 @@ else
 endif 
 
 # Make sure docker is installed
-if ! dpkg-query -W -f'${Status}' "docker" 2>/dev/null | grep -q "ok installed"
+DOCKER_VERSION=$(docker --version)
+if [ $? -ne 0 ]
 then
     echo "Required package docker is not installed"
-    exit 1 
+    exit 1
+fi
+echo "Detected Docker Version $DOCKER_VERSION"
+
+# This script must be ran as root/sudo in order to run Docker
+if [ "$(id -u)" != "0" ]
+then
+    echo "This package script command must be ran with sudo"
+    exit 1
 fi
 
 # Prepare the docker file and use the temp folder as the context root
