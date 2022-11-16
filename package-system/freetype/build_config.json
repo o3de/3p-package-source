@@ -97,7 +97,19 @@
             "custom_test_cmd" : [
                "./test_Freetype_linux.sh"
            ]
-         }
+         },
+	 "Linux-aarch64": {
+            "depends_on_packages" :[
+               ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""]
+            ],
+            "cmake_generate_args": [
+               "-G",
+               "\"Ninja Multi-Config\""
+            ],
+            "custom_test_cmd" : [
+               "./test_Freetype_linux.sh"
+	    ]
+	 }
       }
    }
 }
