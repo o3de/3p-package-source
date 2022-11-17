@@ -42,7 +42,8 @@
             "custom_install_cmd": [
                "./package_unix_like.sh"
             ]
-         }
+         },
+	 "Linux-aarch64": "@Linux"
       }
    }
 }
