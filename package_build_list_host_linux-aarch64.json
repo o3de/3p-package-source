@@ -4,10 +4,12 @@
     "comment3" : "build_from_folder is package name --> folder containing built image of package",
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
+	"AWSGameLiftServerSDK-3.4.2-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK/build_package_image.py --platform-name linux-aarch64",
 	"freetype-2.11.1-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/freetype --platform-name Linux-aarch64 --clean",
         "zlib-1.2.11-rev5-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux-aarch64 --clean"
     },
     "build_from_folder": {
+        "AWSGameLiftServerSDK-3.4.2-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK-linux-aarch64",
 	"freetype-2.11.1-rev1-linux-aarch64": "package-system/freetype/temp/freetype-linux-aarch64",
         "zlib-1.2.11-rev5-linux-aarch64": "package-system/zlib/temp/zlib-linux-aarch64"
     }
