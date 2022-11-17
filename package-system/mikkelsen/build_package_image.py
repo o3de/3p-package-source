@@ -39,6 +39,12 @@ folder_names = {
         '-DCMAKE_C_COMPILER=clang-6.0', 
         '-DCMAKE_CXX_COMPILER=clang++-6.0'
     ], []),
+    'linux-aarch64'     : ([
+        '-G', 'Ninja Multi-Config',
+        '-DCMAKE_C_COMPILER=clang-6.0',
+        '-DCMAKE_CXX_COMPILER=clang++-6.0',
+        '-DPACKAGE_PLATFORM=linux-aarch64'
+    ], []),
     'windows'   : ([
         '-G', 'Visual Studio 15 2017',
         '-Ax64', '-Thost=x64'
