@@ -41,13 +41,6 @@ then
 fi
 echo "Detected Docker Version $DOCKER_VERSION"
 
-# This script must be ran as root/sudo in order to run Docker
-if [ "$(id -u)" != "0" ]
-then 
-    echo "This package script command must be ran with sudo"
-    exit 1
-fi
-
 # Prepare the docker file and use the temp folder as the context root
 cp Dockerfile.ubuntu.${UBUNTU_VERSION} temp/Dockerfile
 cp docker_build_aws_sdk.sh temp/
