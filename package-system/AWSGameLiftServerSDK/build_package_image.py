@@ -35,6 +35,13 @@ PACKAGE_BUILD_TYPES: List[str] = ["Debug", "Release"]
 PACKAGE_LIB_TYPES: List[str] = ["Shared", "Static"]
 PACKAGE_PLATFORM_OPTIONS: List[str] = ["windows", "linux", "linux-aarch64"]
 
+# Lookup table for the Find{PACKAGE_NAME}.cmake.{platform} source file to copy in case there are shared files across different platforms
+FIND_CMAKE_PLATFORM_SUFFIX_BY_PLATFORM = {
+    'Windows': 'Windows',
+    'Linux': 'Linux',
+    'Linux-Aarch64': 'Linux'
+}
+
 # utils
 class WorkingDirectoryInfo(object):
     def __init__(self, root_path: pathlib.Path,
@@ -260,7 +267,8 @@ def generate_packageInfo(working_directory: WorkingDirectoryInfo) -> None:
 
 # generate required cmake file which is used to find package libs
 def generate_cmake_file(working_directory: WorkingDirectoryInfo) -> None:
-    cmake_file_source: pathlib.Path = PACKAGE_BASE_PATH.joinpath(f"Find{PACKAGE_NAME}.cmake.{PACKAGE_PLATFORM.title()}")
+    cmake_file_source_suffix = FIND_CMAKE_PLATFORM_SUFFIX_BY_PLATFORM[PACKAGE_PLATFORM.title()]
+    cmake_file_source: pathlib.Path = PACKAGE_BASE_PATH.joinpath(f"Find{PACKAGE_NAME}.cmake.{cmake_file_source_suffix}")
     if cmake_file_source.is_file():
         find_cmake_content = cmake_file_source.read_text("UTF-8", "ignore")
 
