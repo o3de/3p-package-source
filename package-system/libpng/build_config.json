@@ -103,7 +103,7 @@
                 ],
                 "cmake_generate_args_release": [
                     "-G",
-                    "Unix\\ Makefiles",
+                    "Ninja",
                     "-DCMAKE_BUILD_TYPE=Release"
                 ],
                 "custom_test_cmd": [
@@ -116,7 +116,7 @@
                 ],
                 "cmake_generate_args_release": [
                     "-G",
-                    "Unix\\ Makefiles",
+                    "Ninja",
                     "-DCMAKE_BUILD_TYPE=Release"
                 ],
                 "custom_test_cmd": [
