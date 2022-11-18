@@ -41,8 +41,8 @@ folder_names = {
     ], []),
     'linux-aarch64'     : ([
         '-G', 'Ninja Multi-Config',
-        '-DCMAKE_C_COMPILER=clang-6.0',
-        '-DCMAKE_CXX_COMPILER=clang++-6.0',
+        '-DCMAKE_C_COMPILER=clang-12',
+        '-DCMAKE_CXX_COMPILER=clang++-12',
         '-DPACKAGE_PLATFORM=linux-aarch64'
     ], []),
     'windows'   : ([
