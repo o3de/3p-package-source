@@ -5,6 +5,7 @@
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
         "freetype-2.11.1-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/freetype --platform-name Linux-aarch64 --clean",
+        "OpenEXR-3.1.3-rev4-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/OpenEXR --platform-name Linux-aarch64 --clean",
         "Lua-5.4.4-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/Lua --platform-name Linux-aarch64 --clean",
         "png-1.6.37-rev2-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/libpng --platform-name Linux-aarch64 --clean",
         "tiff-4.2.0.15-rev3-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name Linux-aarch64 --clean",
@@ -12,6 +13,7 @@
     },
     "build_from_folder": {
         "freetype-2.11.1-rev1-linux-aarch64": "package-system/freetype/temp/freetype-linux-aarch64",
+        "OpenEXR-3.1.3-rev4-linux-aarch64": "package-system/OpenEXR/temp/OpenEXR-linux-aarch64",
         "Lua-5.4.4-rev1-linux-aarch64": "package-system/Lua/temp/Lua-linux-aarch64",
         "png-1.6.37-rev2-linux-aarch64":  "package-system/libpng/temp/png-linux-aarch64",
         "tiff-4.2.0.15-rev3-linux-aarch64": "package-system/tiff/temp/tiff-linux-aarch64",
