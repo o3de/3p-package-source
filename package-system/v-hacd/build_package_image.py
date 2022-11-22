@@ -10,6 +10,7 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import argparse
+import os
 import shutil
 
 import sys
@@ -22,10 +23,23 @@ def main():
     parser.add_argument(
         '--platform-name',
         dest='platformName',
-        choices=['windows', 'mac', 'linux'],
+        choices=['windows', 'mac', 'linux', 'linux-aarch64'],
         default=VcpkgBuilder.defaultPackagePlatformName(),
     )
     args = parser.parse_args()
+    vcpkg_platform_map = {
+        'windows': 'windows',
+        'android': 'android',
+        'mac': 'mac',
+        'ios': 'ios',
+        'linux': 'linux',
+        'linux-aarch64': 'linux'
+    }
+
+    vcpkg_platform = vcpkg_platform_map[args.platformName]
+
+    if args.platformName == 'linux-aarch64':
+        os.environ['VCPKG_FORCE_SYSTEM_BINARIES'] = '1'
 
     packageSystemDir = Path(__file__).resolve().parents[1]
     packageSourceDir = packageSystemDir / 'v-hacd'
@@ -42,7 +56,7 @@ def main():
             packageName='v-hacd',
             portName='v-hacd',
             vcpkgDir=tempdir,
-            targetPlatform=args.platformName,
+            targetPlatform=vcpkg_platform,
             static=True
         )
         
