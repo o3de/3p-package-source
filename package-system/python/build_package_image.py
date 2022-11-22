@@ -14,12 +14,16 @@ import os
 import platform
 
 folder_names = { #   subfolder     interpreter     build script 
-    'darwin'     : ('darwin_x64' , 'Python.framework/Versions/3.10/bin/python3', 'make-python.sh'),
-    'linux'      : ('linux_x64'  , 'python/bin/python', 'make-python.sh'),
-    'windows'    : ('win_x64'    , 'python/python.exe', 'build_python.bat')
+    'darwin'        : ('darwin_x64' , 'Python.framework/Versions/3.10/bin/python3', 'make-python.sh'),
+    'linux'         : ('linux_x64'  , 'python/bin/python', 'make-python.sh'),
+    'linux-aarch64' : ('linux_aarch64'  , 'python/bin/python', 'make-python.sh'),
+    'windows'       : ('win_x64'    , 'python/python.exe', 'build_python.bat')
 }
 
 platformsys = platform.system().lower()
+# For linux, we may support aarch64 architecture as well as the default x86_64
+if platformsys == 'linux' and platform.machine() == 'aarch64':
+    platformsys = 'linux-aarch64'
 
 # intentionally generate a keyerror if its not a good platform:
 subfolder_name, binary_relpath, build_script = folder_names[platformsys]

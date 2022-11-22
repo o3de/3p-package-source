@@ -11,8 +11,9 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import argparse
-
+import os
 import sys
+
 sys.path.append(str(Path(__file__).parent.parent.parent / 'Scripts'))
 from builders.vcpkgbuilder import VcpkgBuilder
 import builders.monkeypatch_tempdir_cleanup
@@ -22,10 +23,21 @@ def main():
     parser.add_argument(
         '--platform-name',
         dest='platformName',
-        choices=['windows', 'android', 'mac', 'ios', 'linux'],
+        choices=['windows', 'android', 'mac', 'ios', 'linux', 'linux-aarch64'],
         default=VcpkgBuilder.defaultPackagePlatformName(),
     )
     args = parser.parse_args()
+    vcpkg_platform_map = {
+            'windows': 'windows',
+            'android': 'android',
+            'mac': 'mac',
+            'ios': 'ios',
+            'linux': 'linux',
+            'linux-aarch64': 'linux' }
+
+    vcpkg_platform = vcpkg_platform_map[args.platformName]
+    if args.platformName == 'linux-aarch64':
+        os.environ['VCPKG_FORCE_SYSTEM_BINARIES'] = '1'
 
     packageSystemDir = Path(__file__).resolve().parents[1]
     physxPackageSourceDir = packageSystemDir / 'PhysX'
@@ -81,7 +93,7 @@ def main():
                 packageName='PhysX',
                 portName='physx',
                 vcpkgDir=tempdir,
-                targetPlatform=args.platformName,
+                targetPlatform=vcpkg_platform,
                 static=maybeStatic
             )
             if firstTime:
@@ -117,7 +129,7 @@ def main():
                 builder.writeCMakeFindFile(
                     outputDir,
                     template=cmakeFindFileTemplate,
-                    templateEnv=extraLibsPerPlatform[args.platformName],
+                    templateEnv=extraLibsPerPlatform[vcpkg_platform],
                 )
 
             firstTime = False

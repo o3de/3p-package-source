@@ -20,12 +20,6 @@
             ],
             "cmake_build_args":[
                "--target samplerate"
-            ],
-            "custom_additional_compile_definitions":[
-            ],
-            "custom_additional_link_options":[
-            ],
-            "custom_additional_libraries":[
             ]
          },
          "Android":{
@@ -50,12 +44,6 @@
             ],
             "cmake_build_args":[
                "--target samplerate"
-            ],
-            "custom_additional_compile_definitions":[
-            ],
-            "custom_additional_link_options":[
-            ],
-            "custom_additional_libraries":[
             ]
          }
       },
@@ -70,12 +58,6 @@
             ],
             "cmake_build_args":[
                "--target samplerate"
-            ],
-            "custom_additional_compile_definitions":[
-            ],
-            "custom_additional_link_options":[
-            ],
-            "custom_additional_libraries":[
             ]
          },
          "iOS":{
@@ -96,12 +78,6 @@
             ],
             "cmake_build_args":[
                "--target samplerate"
-            ],
-            "custom_additional_compile_definitions":[
-            ],
-            "custom_additional_link_options":[
-            ],
-            "custom_additional_libraries":[
             ]
          }
       },
@@ -126,14 +102,9 @@
             ],
             "cmake_build_args":[
                "--target samplerate"
-            ],
-            "custom_additional_compile_definitions":[
-            ],
-            "custom_additional_link_options":[
-            ],
-            "custom_additional_libraries":[
             ]
-         }
+         },
+	 "Linux-aarch64": "@Linux"
       }
    }
 }
