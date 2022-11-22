@@ -148,7 +148,8 @@
             "custom_additional_libraries":[
                
             ]
-         }
+         },
+	 "Linux-aarch64": "@Linux"
       }
    }
 }
