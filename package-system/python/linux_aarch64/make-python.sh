@@ -235,19 +235,9 @@ sed -i "1s+.*+\#\!/bin/sh+" ./python/bin/pip*
 sed -i "2i\\
 \"exec\" \"\`dirname \$0\`/python\" \"\$0\" \"\$\@\" " ./python/bin/pip*
 
-# https://github.com/o3de/o3de/issues/7281 Reports NVD vulnerability in the wininst-*.exe files that
-# get included in the package. Since this is a linux only package, we can remove them 
-echo "Removing wininst*.exe files"
-rm -v $SCRIPT_DIR/package/python/lib/python3.7/distutils/command/wininst-*.exe
-
-echo "Removing out of date pip*.whl"
-rm -v $SCRIPT_DIR/package/python/lib/python3.7/ensurepip/_bundled/pip-*.whl
-
 echo ""
 echo "--------------- PYTHON WAS BUILT FROM SOURCE ---------------"
 echo ""
-
-
 
 echo "Package has completed building, and is now in $SCRIPT_DIR/package"
 
