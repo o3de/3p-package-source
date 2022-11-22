@@ -101,7 +101,8 @@
                "lib/*.so",
                "lib/*.so.*"
             ]         
-         }
+         },
+	 "Linux-aarch64": "@Linux"
       }
    }
 }
