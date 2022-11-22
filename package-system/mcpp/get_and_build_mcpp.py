@@ -29,11 +29,15 @@ SOURCEFORGE_URL = "https://sourceforge.net/projects/mcpp/files/mcpp/V.2.7.2"
 SOURCEFORGE_DOWNLOAD_URL = f"{SOURCEFORGE_URL}/{SOURCE_TAR_FILE}/download"
 
 PLATFORM_LINUX = 'linux'
+PLATFORM_LINUX_ARM64 = 'linux-aarch64'
 PLATFORM_MAC = 'mac'
 PLATFORM_WINDOWS = 'windows'
 
 if platform.system() == 'Linux':
-    platform_name = PLATFORM_LINUX
+    if platform.processor() == 'aarch64':
+        platform_name = PLATFORM_LINUX_ARM64
+    else:
+        platform_name = PLATFORM_LINUX
     shared_lib_name = 'libmcpp.so'
     static_lib_name = 'libmcpp.a'
 elif platform.system() == 'Darwin':
@@ -65,7 +69,7 @@ elif platform.system() == 'Windows':
 else:
     assert False, "Invalid platform"
 
-assert platform_name in (PLATFORM_LINUX, PLATFORM_MAC, PLATFORM_WINDOWS), f"Invalid platform_name {platform_name}"
+assert platform_name in (PLATFORM_LINUX, PLATFORM_LINUX_ARM64, PLATFORM_MAC, PLATFORM_WINDOWS), f"Invalid platform_name {platform_name}"
 
 TARGET_3PP_PACKAGE_FOLDER = SCRIPT_PATH.parent / f'mcpp-{platform_name}'
 
@@ -286,7 +290,7 @@ def copy_build_artifacts(temp_folder):
         (source_path / 'src' / 'mcpp_lib.h', target_mcpp_root / 'include'),
         (source_path / 'src' / 'mcpp_out.h', target_mcpp_root / 'include')
         ]
-    if platform_name == 'linux':
+    if platform_name in ('linux', 'linux-aarch64'):
         file_copy_tuples.extend([
             (source_path / 'src' / '.libs' / 'libmcpp.a', target_mcpp_root / 'lib'),
             (source_path / 'src' / '.libs' / 'libmcpp.so.0.3.0', target_mcpp_root / 'lib'),
@@ -316,7 +320,7 @@ def copy_build_artifacts(temp_folder):
         shutil.copy2(str(src), str(dst))
 
     dst_lib_folder = target_mcpp_root / 'lib'
-    if platform_name == 'linux':
+    if platform_name in ('linux', 'linux-aarch64'):
         base_shared_lib_name = 'libmcpp.so.0.3.0'
         symlinks = ['libmcpp.so.0', 'libmcpp.so']
     elif platform_name == 'mac':
