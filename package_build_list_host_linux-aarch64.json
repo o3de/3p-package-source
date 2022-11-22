@@ -11,7 +11,7 @@
     },
     "build_from_folder": {
         "AWSNativeSDK-1.9.50-rev2-linux-openssl-1-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-openssl-1-aarch64",
-	"AWSNativeSDK-1.9.50-rev2-linux-openssl-3-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-openssl-3-aarch64",
+        "AWSNativeSDK-1.9.50-rev2-linux-openssl-3-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-openssl-3-aarch64",
 	"freetype-2.11.1-rev1-linux-aarch64": "package-system/freetype/temp/freetype-linux-aarch64",
         "zlib-1.2.11-rev5-linux-aarch64": "package-system/zlib/temp/zlib-linux-aarch64"
     }
