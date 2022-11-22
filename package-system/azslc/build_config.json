@@ -40,7 +40,8 @@
             "custom_install_cmd": [
                "./install_azslc_linux.sh"
             ]
-         }
+         },
+	 "Linux-aarch64": "@Linux"
       }
    }
 }
