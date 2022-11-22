@@ -28,14 +28,6 @@
                "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
                "-DCMAKE_BUILD_TYPE=\"Release\""
             ],
-            "cmake_build_args":[
-               "-j"
-            ],
-            "custom_additional_compile_definitions":[
-               
-            ],
-            "custom_additional_link_options":[
-            ],
             "custom_additional_libraries": [
                "Bcrypt",
                "Secur32",
@@ -67,19 +59,11 @@
                "-DBUILD_DEPS=ON",
                "-DS2N_NO_PQ_ASM=ON",
                "-DCMAKE_BUILD_TYPE=Release"
-            ],
-            "custom_additional_compile_definitions":[
-            ],
-            "custom_additional_link_options":[
-               
-            ],
-            "custom_additional_libraries":[
-               
             ]
          }
       },
       "Darwin":{
-         "Mac":{,
+         "Mac":{
             "package_version":"1.15.2-rev2",
             "build_configs":[
                "Release"
@@ -96,15 +80,6 @@
             "cmake_build_args":[
                "-j",
                "8"
-            ],
-            "custom_additional_compile_definitions":[
-               
-            ],
-            "custom_additional_link_options":[
-               
-            ],
-            "custom_additional_libraries":[
-               
             ]
          },
          "iOS":{
@@ -117,17 +92,6 @@
                "-DCMAKE_OSX_ARCHITECTURES=arm64",
                "-DCMAKE_THREAD_LIBS_INIT=-pthread",
                "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\""
-            ],
-            "cmake_build_args":[
-               
-            ],
-            "custom_additional_compile_definitions":[
-            ],
-            "custom_additional_link_options":[
-               
-            ],
-            "custom_additional_libraries":[
-               
             ]
          }
       },
@@ -153,19 +117,9 @@
                "-DCMAKE_CXX_STANDARD=17",
                "-DCMAKE_BUILD_TYPE=Release",
                "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\""
-            ],
-            "cmake_build_args":[
-               "-j"
-            ],
-            "custom_additional_compile_definitions":[
-            ],
-            "custom_additional_link_options":[
-               
-            ],
-            "custom_additional_libraries":[
-               
             ]
-         }
+         },
+         "Linux-aarch64": "@Linux"
       }
    }
 }
