@@ -33,11 +33,13 @@ else
 fi
 
 # Make sure docker is installed
-if ! dpkg-query -W -f'${Status}' "docker" 2>/dev/null | grep -q "ok installed"
+DOCKER_VERSION=$(docker --version)
+if [ $? -ne 0 ]
 then
     echo "Required package docker is not installed"
-    exit 1 
+    exit 1
 fi
+echo "Detected Docker Version $DOCKER_VERSION"
 
 # Prepare the docker file and use the temp folder as the context root
 cp Dockerfile.ubuntu.${UBUNTU_VERSION} temp/Dockerfile

@@ -80,9 +80,9 @@
             "custom_install_cmd": [
                "./install_AWSNativeSDK_linux.sh"
             ]
-         }
-
-
+         },
+	 "Linux-OpenSSL-1-aarch64": "@Linux-OpenSSL-1",
+	 "Linux-OpenSSL-3-aarch64": "@Linux-OpenSSL-3"
       }
    }
 }
