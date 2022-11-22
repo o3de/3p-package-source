@@ -33,7 +33,14 @@ PACKAGE_BASE_PATH: pathlib.Path = pathlib.Path(os.path.dirname(__file__))
 PACKAGE_ROOT_PATH: pathlib.Path = PACKAGE_BASE_PATH.parent
 PACKAGE_BUILD_TYPES: List[str] = ["Debug", "Release"]
 PACKAGE_LIB_TYPES: List[str] = ["Shared", "Static"]
-PACKAGE_PLATFORM_OPTIONS: List[str] = ["windows", "linux"]
+PACKAGE_PLATFORM_OPTIONS: List[str] = ["windows", "linux", "linux-aarch64"]
+
+# Lookup table for the Find{PACKAGE_NAME}.cmake.{platform} source file to copy in case there are shared files across different platforms
+FIND_CMAKE_PLATFORM_SUFFIX_BY_PLATFORM = {
+    'Windows': 'Windows',
+    'Linux': 'Linux',
+    'Linux-Aarch64': 'Linux'
+}
 
 # utils
 class WorkingDirectoryInfo(object):
@@ -138,7 +145,7 @@ def apply_patch_on_sdk_source(working_directory: WorkingDirectoryInfo) -> None:
 
 # get required custom environment for package build
 def get_custom_build_env():
-    if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+    if PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
         custom_env = os.environ.copy()
         custom_env["CC"] = "clang"
         custom_env["CXX"] = "clang++"
@@ -155,7 +162,7 @@ def configure_sdk_project(source_folder: str,
     build_shared: str = "ON" if lib_type == "Shared" else "OFF"
     if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
         generator: str = "-G \"Visual Studio 15 2017\" -A x64"
-    elif PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+    elif PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
         generator: str = "-G \"Unix Makefiles\""
     else:
         raise Exception(f"Error unsupported platform: {PACKAGE_PLATFORM}")
@@ -178,7 +185,7 @@ def build_sdk_project(source_folder: str,
                       build_type: str) -> None:
     if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
         target: str = "--target ALL_BUILD"
-    elif PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+    elif PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
         target: str = ""
     else:
         raise Exception(f"Error unsupported platform: {PACKAGE_PLATFORM}")
@@ -218,7 +225,7 @@ def copy_sdk_libs(libs_output_path: pathlib.Path,
 
         for file in glob.glob(static_libs_pattern):
             copy_file_to_destination(file, str(destination.resolve()))
-    elif PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[1]:
+    elif PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
         shared_libs_pattern: str = str(install_folder.joinpath("lib/*.so*"))
         static_libs_pattern: str = str(install_folder.joinpath("lib/*.a"))
         
@@ -260,7 +267,8 @@ def generate_packageInfo(working_directory: WorkingDirectoryInfo) -> None:
 
 # generate required cmake file which is used to find package libs
 def generate_cmake_file(working_directory: WorkingDirectoryInfo) -> None:
-    cmake_file_source: pathlib.Path = PACKAGE_BASE_PATH.joinpath(f"Find{PACKAGE_NAME}.cmake.{PACKAGE_PLATFORM.title()}")
+    cmake_file_source_suffix = FIND_CMAKE_PLATFORM_SUFFIX_BY_PLATFORM[PACKAGE_PLATFORM.title()]
+    cmake_file_source: pathlib.Path = PACKAGE_BASE_PATH.joinpath(f"Find{PACKAGE_NAME}.cmake.{cmake_file_source_suffix}")
     if cmake_file_source.is_file():
         find_cmake_content = cmake_file_source.read_text("UTF-8", "ignore")
 

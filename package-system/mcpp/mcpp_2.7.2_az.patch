@@ -1,3 +1,17 @@
+diff --git a/config/config.guess b/config/config.guess
+index 396482d..4592806 100755
+--- a/config/config.guess
++++ b/config/config.guess
+@@ -831,6 +831,9 @@ EOF
+     arm*:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
++    aarch64:Linux:*:*)
++	echo ${UNAME_MACHINE}-unknown-linux-gnu
++	exit ;;
+     avr32*:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
 diff --git a/src/configed.H b/src/configed.H
 index b4d1ebf..436bd54 100644
 --- a/src/configed.H
@@ -201,7 +215,7 @@ index 6b634fe..6482967 100644
  /* Version message.                 */
  /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
 diff --git a/src/support.c b/src/support.c
-index c57eaef..ba7c422 100644
+index c57eaef..c910d86 100644
 --- a/src/support.c
 +++ b/src/support.c
 @@ -364,6 +364,19 @@ void    mcpp_set_out_func(
@@ -251,13 +265,13 @@ index c57eaef..ba7c422 100644
 +    // Match the number of lines between the source AZSL files, before preprocessing,
 +    // and the AZSL files after preprocessing. Line number matching is important because it helps
 +    // providing accurate line numbers when reporting errors either by AZSLc or DXC.
-+    // 
++    //
 +    // ---- The Problem:
 +    // MCPP adds a new line after each comment line that starts with '//'
-+    // 
++    //
 +    // ---- Solution:
 +    // Do not add the extra line ending character '\n'.
-+    // 
++    //
 +    // ---- How:
 +    // We count here the amount of leading spaces before the first
 +    // non space character is detected.
