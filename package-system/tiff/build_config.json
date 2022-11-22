@@ -87,6 +87,20 @@
                 "custom_test_cmd" : [
                    "./test_tiff_linux.sh"
                ]
+            },
+	    "Linux-aarch64":{
+                "depends_on_packages" :[
+                    ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""]
+                ],
+                "custom_build_cmd": [
+                    "./build_tiff_linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_tiff_linux.sh"
+                ],
+                "custom_test_cmd" : [
+                   "./test_tiff_linux.sh"
+               ]
             }
         }
     }
