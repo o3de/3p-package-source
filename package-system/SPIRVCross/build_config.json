@@ -36,9 +36,6 @@
                "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
                "-DCMAKE_INSTALL_BINDIR=\"bin/Release\"",
                "-DCMAKE_BUILD_TYPE=Release"
-            ],
-            "cmake_build_args":[
-               "-j"
             ]
          }
       },
@@ -64,10 +61,6 @@
                "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
                "-DCMAKE_INSTALL_BINDIR=\"bin/Release\"",
                "-DCMAKE_BUILD_TYPE=Release"
-            ],
-            "cmake_build_args":[
-               "-j",
-               "8"
             ]
          }
       },
@@ -91,11 +84,9 @@
                "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
                "-DCMAKE_INSTALL_BINDIR=\"bin/Release\"",
                "-DCMAKE_BUILD_TYPE=Release"
-            ],
-            "cmake_build_args":[
-               "-j"
             ]
-         }
+         },
+	 "Linux-aarch64": "@Linux"
       }
    }
 }
