@@ -16,7 +16,7 @@ echo "--------------- PYTHON PACKAGE BUILD SCRIPT ----------------"
 echo ""
 echo "BASIC REQUIREMENTS in case something goes wrong:"
 echo "   - git installed and in PATH"
-echo "   - packages installed: apt-get dev-essential tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev texinfo"
+echo "   - packages installed: apt-get libtool autoconf tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev texinfo"
 echo "   - python3 with pip in PATH! (i.e. sudo apt install python3 and sudo apt install python3-pip"
 echo "   - Note: This script is currently written for buildng on Ubuntu Linux only."
 echo "   - Note: installing binaries with pip must result with them being on PATH."
@@ -238,8 +238,6 @@ sed -i "2i\\
 echo ""
 echo "--------------- PYTHON WAS BUILT FROM SOURCE ---------------"
 echo ""
-
-
 
 echo "Package has completed building, and is now in $SCRIPT_DIR/package"
 

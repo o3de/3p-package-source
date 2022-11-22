@@ -33,9 +33,6 @@
                "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
                "-DCMAKE_CXX_STANDARD=17",
                "-DCMAKE_BUILD_TYPE=Release"
-            ],
-            "cmake_build_args":[
-               "-j"
             ]
          }
       },
@@ -56,11 +53,9 @@
                "-DCMAKE_CXX_FLAGS=\"-fPIC -fno-aligned-allocation\"",
                "-DCMAKE_CXX_STANDARD=17",
                "-DCMAKE_BUILD_TYPE=Release"
-            ],
-            "cmake_build_args":[
-               "-j"
             ]
-         }
+         },
+	 "Linux-aarch64": "@Linux"
       }
    }
 }
