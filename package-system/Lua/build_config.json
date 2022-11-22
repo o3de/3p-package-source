@@ -68,7 +68,8 @@
                "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra -DLUA_USE_LINUX\"",
                "-DCMAKE_BUILD_TYPE=Release"
             ]
-         }
+         },
+	 "Linux-aarch64": "@Linux"
       }
    }
 }
