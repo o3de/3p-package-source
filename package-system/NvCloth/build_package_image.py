@@ -220,22 +220,33 @@ def main():
     parser.add_argument(
         '--platform-name',
         dest='platformName',
-        choices=['windows', 'linux', 'android', 'mac', 'ios'],
+        choices=['windows', 'linux', 'linux-aarch64', 'android', 'mac', 'ios'],
         default=VcpkgBuilder.defaultPackagePlatformName(),
     )
     args = parser.parse_args()
+    vcpkg_platform_map = {
+            'windows': 'windows',
+            'android': 'android',
+            'mac': 'mac',
+            'ios': 'ios',
+            'linux': 'linux',
+            'linux-aarch64': 'linux' }
+
+    vcpkg_platform = vcpkg_platform_map[args.platformName]
+    if args.platformName == 'linux-aarch64':
+        os.environ['VCPKG_FORCE_SYSTEM_BINARIES'] = '1'
 
     packageSystemDir = Path(__file__).resolve().parents[1]
     packageSourceDir = packageSystemDir / 'NvCloth'
     packageRoot = packageSystemDir / f'NvCloth-{args.platformName}'
 
-    cmakeFindFile = packageSourceDir / f'FindNvCloth_{args.platformName}.cmake'
+    cmakeFindFile = packageSourceDir / f'FindNvCloth_{vcpkg_platform}.cmake'
     if not cmakeFindFile.exists():
         cmakeFindFile = packageSourceDir / 'FindNvCloth.cmake'
 
     with TemporaryDirectory() as tempdir:
         tempdir = Path(tempdir)
-        builder = NvClothBuilder(workingDir=tempdir, basePackageSystemDir=packageSystemDir, targetPlatform=args.platformName)
+        builder = NvClothBuilder(workingDir=tempdir, basePackageSystemDir=packageSystemDir, targetPlatform=vcpkg_platform)
         builder.clone('8e100cca5888d09f40f4721cc433f284b1841e65')
         builder.build()
         builder.copyBuildOutputTo(packageRoot/'NvCloth')
