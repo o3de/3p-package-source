@@ -104,6 +104,16 @@ dependencies = {
             'libpng' :   ('png-1.6.37-rev2-linux',             '5c82945a1648905a5c4c5cee30dfb53a01618da1bf58d489610636c7ade5adf5'),
             'expat' :    ('expat-2.4.2-rev2-linux',            '755369a919e744b9b3f835d1acc684f02e43987832ad4a1c0b6bbf884e6cd45b'),
             'freetype' : ('freetype-2.11.1-rev1-linux',        '28bbb850590507eff85154604787881ead6780e6eeee9e71ed09cd1d48d85983')
+        },
+    'linux-aarch64' :
+        {
+            'zlib' :     ('zlib-1.2.11-rev5-linux-aarch64',     'ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775'),
+            'openexr' :  ('OpenEXR-3.1.3-rev4-linux-aarch64',  'c9a81050f0d550ab03d2f5801e2f67f9f02747c26f4b39647e9919278585ad6a'),
+            'python' :   ('python-3.10.5-rev2-linux-aarch64',  'a02bfb612005af364872aac96e569cef1ad84ba65632d88d04b34a99d45b077c'),
+            'tiff' :     ('tiff-4.2.0.15-rev3-linux-aarch64',  '429461014b21a530dcad597c2d91072ae39d937a04b7bbbf5c34491c41767f7f'),
+            'libpng' :   ('png-1.6.37-rev2-linux-aarch64',     'fcf646c1b1b4163000efdb56d7c8f086b6ce0a520da5c8d3ffce4e1329ae798a'),
+            'expat' :    ('expat-2.4.2-rev2-linux-aarch64',    '934a535c1492d11906789d7ddf105b1a530cf8d8fb126063ffde16c5caeb0179'),
+            'freetype' : ('freetype-2.11.1-rev1-linux-aarch64','b4e3069acdcdae2f977108679d0986fb57371b9a7d4a3a496ab16909feabcba6')
         }
 }
 
@@ -213,7 +223,7 @@ if result != 0:
     print("Missing nasm install on system")
     if args.platform == "darwin":
         print("Please run: 'brew install nasm' and then run the build again")
-    elif args.platform == "linux":
+    elif args.platform in ("linux", "linux-aarch64"):
         print("Please use your linux package manager to install the nasm package and then run the build again")
     else: # windows
         print("Please run: 'winget install nasm' or install from https://www.nasm.us/")
@@ -620,7 +630,7 @@ def BuildOpenImageIO(release=True):
             f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}',
             f'-DCMAKE_INSTALL_RPATH=@loader_path;@loader_path/../..;@loader_path/lib',
         ]
-    elif args.platform == "linux":
+    elif args.platform in ("linux", "linux-aarch64"):
         # We need to set the RPATH to use relative $ORIGIN, or
         # else the RPATH will contain absolute paths
         openimageio_configure_command += [
@@ -719,7 +729,7 @@ if not SKIP_OPENIMAGEIO:
         exec_and_exit_if_failed(disable_stacktrace_patch_cmd, cwd=oiio_source_path)
     # On Linux only, we need to also patch to make sure the pthreads is linked
     # appropriately, otherwise specifically the testtex executable will fail to link
-    elif args.platform == "linux":
+    elif args.platform in ("linux", "linux-aarch64"):
         pthread_patch_file_path = script_folder / 'linux_pthreads_fix.patch'
         pthread_patch_cmd = ['git', 'apply', '--ignore-whitespace', str(pthread_patch_file_path.absolute())]
         exec_and_exit_if_failed(pthread_patch_cmd, cwd=oiio_source_path)
