@@ -88,7 +88,8 @@
               "custom_test_cmd" : [
                 "./test_expat_linux.sh"
               ]
-           }
+           },
+	   "Linux-aarch64": "@Linux"
         }
      }
 }
