@@ -18,7 +18,16 @@ cp -f temp/src/Source/astcenc.h $INCLUDE_PATH/ || exit $?
 BUILD_PATH=temp/build/Source
 
 # copy static lib and executable
-cp -f $BUILD_PATH/astcenc-sse4.1 $BIN_PATH/ || exit $?
-cp -f $BUILD_PATH/libastcenc-sse4.1-static.a $BIN_PATH/ || exit $?
+CPU_ARCHITECTURE=$(lscpu | grep Architecture | awk '{print $2}')
+if [ "$CPU_ARCHITECTURE" = "x86_64" ]
+then
+    cp -f $BUILD_PATH/astcenc-sse4.1 $BIN_PATH/ || exit $?
+    cp -f $BUILD_PATH/libastcenc-sse4.1-static.a $BIN_PATH/ || exit $?
+elif [ "$CPU_ARCHITECTURE" = "aarch64" ]
+then
+    cp -f $BUILD_PATH/astcenc-native $BIN_PATH/ || exit $?
+    cp -f $BUILD_PATH/libastcenc-native-static.a $BIN_PATH/ || exit $?
+
+fi
 
 exit 0

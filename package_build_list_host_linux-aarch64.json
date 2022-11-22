@@ -4,6 +4,7 @@
     "comment3" : "build_from_folder is package name --> folder containing built image of package",
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
+        "astc-encoder-3.2-rev2-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/astc-encoder --platform-name Linux-aarch64 --clean",
         "AWSGameLiftServerSDK-3.4.2-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK/build_package_image.py --platform-name linux-aarch64",
         "AwsIotDeviceSdkCpp-1.15.2-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AwsIotDeviceSdkCpp --platform-name Linux-aarch64 --clean",
         "AWSNativeSDK-1.9.50-rev2-linux-openssl-1-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Linux-OpenSSL-1-aarch64 --clean",
@@ -25,7 +26,7 @@
         "OpenXR-1.0.22-rev2-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/OpenXR --platform-name Linux-aarch64 --clean",
         "PhysX-4.1.2.29882248-rev5-linux-aarch64": "package-system/PhysX/build_package_image.py --platform-name linux-aarch64",
         "png-1.6.37-rev2-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/libpng --platform-name Linux-aarch64 --clean",
-	"poly2tri-7f0487a-rev1-linux-aarch64": "package-system/poly2tri/build_package_image.py --platform-name linux-aarch64",
+        "poly2tri-7f0487a-rev1-linux-aarch64": "package-system/poly2tri/build_package_image.py --platform-name linux-aarch64",
         "python-3.10.5-rev2-linux-aarch64": "package-system/python/build_package_image.py",
         "qt-5.15.2-rev8-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/Qt --platform-name Linux-aarch64 --clean",
         "SPIRVCross-2021.04.29-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/SPIRVCross --platform-name Linux-aarch64 --clean",
@@ -33,6 +34,7 @@
         "zlib-1.2.11-rev5-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux-aarch64 --clean"
     },
     "build_from_folder": {
+        "astc-encoder-3.2-rev2-linux-aarch64": "package-system/astc-encoder/temp/astc-encoder-linux-aarch64",
         "AWSGameLiftServerSDK-3.4.2-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK-linux-aarch64",
         "AwsIotDeviceSdkCpp-1.15.2-rev1-linux-aarch64": "package-system/AwsIotDeviceSdkCpp/temp/AwsIotDeviceSdkCpp-linux-aarch64",
         "AWSNativeSDK-1.9.50-rev2-linux-openssl-1-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-openssl-1-aarch64",
@@ -58,7 +60,7 @@
         "python-3.10.5-rev2-linux-aarch64": "package-system/python/linux_aarch64/package",
         "qt-5.15.2-rev8-linux-aarch64": "package-system/Qt/temp/qt-linux-aarch64",
         "SPIRVCross-2021.04.29-rev1-linux-aarch64": "package-system/SPIRVCross/temp/SPIRVCross-linux-aarch64",
-	"tiff-4.2.0.15-rev3-linux-aarch64": "package-system/tiff/temp/tiff-linux-aarch64",
+        "tiff-4.2.0.15-rev3-linux-aarch64": "package-system/tiff/temp/tiff-linux-aarch64",
         "zlib-1.2.11-rev5-linux-aarch64": "package-system/zlib/temp/zlib-linux-aarch64"
     }
 }
