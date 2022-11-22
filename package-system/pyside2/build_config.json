@@ -2,7 +2,7 @@
     "git_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
     "git_tag": "v5.15.2.1",
     "package_name": "pyside2",
-    "package_version": "5.15.2.1-py3.10-rev3",
+    "package_version": "5.15.2.1-py3.10-rev4",
     "package_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
     "package_license": "custom",
     "package_license_file": "pyside2/LICENSE.LGPLv3",
@@ -18,7 +18,7 @@
                 "additional_download_packages":[ 
                     ["https://download.qt.io/development_releases/prebuilt/libclang/libclang-release_130-based-windows-vs2019_64.7z", "1c7eb369d74ea5ea0580d71ca2b89d16a241294fd6cfc80eae572c646aad850e", "sha256"]
                 ],
-                "cmake_find_source": "Findpyside2.cmake.Windows",
+                "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
                     "build_windows.bat"
                 ],
@@ -36,7 +36,7 @@
                 "additional_download_packages":[ 
                     ["https://download.qt.io/development_releases/prebuilt/libclang/libclang-release_130-based-linux-Ubuntu20.04-gcc9.3-x86_64.7z", "414f923b39515ef562ff8217e57b02889deabf02ca7350c8612e4a5aa93503e8", "sha256"]
                 ],
-                "cmake_find_source": "Findpyside2.cmake.Linux",
+                "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
                     "./build_linux.sh"
                 ],
