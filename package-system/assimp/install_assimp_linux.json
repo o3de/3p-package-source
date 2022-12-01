@@ -1,5 +1,5 @@
 {
-  "Source_Subfolder": "src",
+  "Source_Subfolder": "build",
   "Install_Paths": [
     "include/",
     "lib/libassimp.a",
