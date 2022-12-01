@@ -27,7 +27,7 @@ then
 fi
 
 # Set the dependent clang compiler for the build script to use
-LLVM_INSTALL_DIR=/usr/lib/llvm-6.0
+LLVM_INSTALL_DIR=$TEMP_FOLDER/libclang-release_130-based-linux-Ubuntu20.04-gcc9.3-x86_64/libclang
 PATH=$LLVM_INSTALL_DIR/bin:$PATH
 
 # Get the qt package's qmake location
