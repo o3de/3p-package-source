@@ -142,18 +142,7 @@ class PhysXBuilder(object):
         elif self.platform == 'linux' or self.platform == 'linux-aarch64':
             if buildAsStaticLibs:
                 for config in ('release', 'profile', 'checked', 'debug'):
-                    os.remove(static_bin_dir / config / 'PhysXDevice64.so')
-                    os.remove(static_bin_dir / config / 'PhysXGpu_64.so')
-                    if config == 'debug':
-                        os.remove(static_bin_dir / config / 'freeglutd.so')
-                    else:
-                        os.remove(static_bin_dir / config / 'freeglut.so')
-            else:
-                for config in ('release', 'profile', 'checked', 'debug'):
-                    if config == 'debug':
-                        os.remove(shared_bin_dir / config / 'freeglutd.so')
-                    else:
-                        os.remove(shared_bin_dir / config / 'freeglut.so')
+                    os.remove(static_bin_dir / config / 'libPhysXGpu_64.so')
             
     def build(self, buildAsStaticLibs):
         physx_dir = self.workingDir / 'physx'
