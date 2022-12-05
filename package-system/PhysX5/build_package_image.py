@@ -88,22 +88,20 @@ class PhysXBuilder(object):
             )
             
     def preparePreset(self, buildAsStaticLibs):
-        def readPreset():
-            preset_index = 0
-            preset_file = self.workingDir / 'physx' / 'buildtools' / 'presets' / 'public' / f'{self.platform_params[self.platform][preset_index]}.xml'
-            f = open(preset_file, 'r')
+        def readFile(file):
+            f = open(file, 'r')
             content = f.read()
             f.close()
             return content
             
-        def writePreset(content):
-            preset_index = 0
-            preset_file = self.workingDir / 'physx' / 'buildtools' / 'presets' / 'public' / f'{self.platform_params[self.platform][preset_index]}.xml'
-            f = open(preset_file, 'w')
+        def writeFile(file, content):
+            f = open(file, 'w')
             f.write(content)
             f.close()
             
-        content = readPreset()
+        preset_index = 0
+        preset_file = self.workingDir / 'physx' / 'buildtools' / 'presets' / 'public' / f'{self.platform_params[self.platform][preset_index]}.xml'
+        content = readFile(preset_file)
         content = re.sub('name="PX_GENERATE_STATIC_LIBRARIES" value="(True|False)"', f'name="PX_GENERATE_STATIC_LIBRARIES" value="{buildAsStaticLibs}"', content, flags = re.M)
         
         if self.platform == 'windows':
@@ -116,7 +114,15 @@ class PhysXBuilder(object):
             content = re.sub('name="PX_BUILDSNIPPETS" value="(True|False)"', f'name="PX_BUILDSNIPPETS" value="False"', content, flags = re.M)
             content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="False"', content, flags = re.M)
             
-        writePreset(content)
+        writeFile(preset_file, content)
+
+        # Ignore poison-system-directories warning when building mac/ios caused 
+        # by running 'cmake --build' using python subprocess on Mac.
+        if self.platform == 'mac' or self.platform == 'ios':
+            cmake_file = self.workingDir / 'physx' / 'source' / 'compiler' / 'cmake' / self.platform / 'CMakeLists.txt'
+            content = readFile(cmake_file)
+            content = re.sub('-Werror', r'-Werror -Wno-poison-system-directories', content, flags = re.M)
+            writeFile(cmake_file, content)
         
     # Remove dynamic libraries repeated in static and shared folders to safe space.
     def cleanUpLibs(self, buildAsStaticLibs):
