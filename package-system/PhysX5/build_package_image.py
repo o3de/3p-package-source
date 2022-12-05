@@ -37,14 +37,16 @@ class PhysXBuilder(object):
             env=self.env
         )
         
+        # nVidia CMakeModules (downloaded while building PhysX) do not cover ios or android
+        # bin folder names yet, so they appear as UNKNOWN.
         self.platform_params = { 
             # system-name   : (build preset, bin folder name, install folder name, is multiconfig)
             'windows'       : ('vc16win64', 'win.x86_64.vc142.md', 'vc16win64', True),
             'linux'         : ('linux', 'linux.clang', 'linux', False),
             'linux-aarch64' : ('linux-aarch64', 'linux.aarch64', 'linux-aarch64', False),
             'mac'           : ('mac64', 'mac.x86_64', 'mac64', True),
-            'ios'           : ('ios64', 'UNKNOWN', 'ios64', True), # nVidia CMakeModules (downloaded while building PhysX) does not cover iOS bin folder name yet.
-            'android'       : ('android-arm64-v8a', 'UNKNOWN', "android-29", False) # nVidia CMakeModules (downloaded while building PhysX) does not cover android bin folder name yet.
+            'ios'           : ('ios64', 'UNKNOWN', 'ios64', True),
+            'android'       : ('android-arm64-v8a', 'UNKNOWN', "android-29", False)
         }
 
     @property
@@ -72,6 +74,7 @@ class PhysXBuilder(object):
                 ['git', 'remote', 'add', 'origin', 'https://github.com/NVIDIA-Omniverse/PhysX',],
             )
 
+        # No PR specified, use commit directly.
         if prNumber == 0:
             self.check_call(
                 ['git', 'fetch', 'origin', '--update-head-ok', '--depth=1', lockToCommit,],
@@ -124,11 +127,12 @@ class PhysXBuilder(object):
             content = re.sub('-Werror', r'-Werror -Wno-poison-system-directories', content, flags = re.M)
             writeFile(cmake_file, content)
         
-    # Remove dynamic libraries repeated in static and shared folders to safe space.
     def cleanUpLibs(self, buildAsStaticLibs):
         static_bin_dir = self.workingDir / 'physx' / 'bin' / 'static'
         shared_bin_dir = self.workingDir / 'physx' / 'bin' / 'shared'
     
+        # Remove dynamic libraries repeated in static folders to safe space.
+        # Also freeglut is not necessary for PhysX.
         if self.platform == 'windows':
             if buildAsStaticLibs:
                 for config in ('release', 'profile', 'checked', 'debug'):
@@ -153,7 +157,6 @@ class PhysXBuilder(object):
     def build(self, buildAsStaticLibs):
         physx_dir = self.workingDir / 'physx'
         
-        # intentionally generate a keyerror if its not a good platform
         preset, bin_folder, install_folder, is_multiconfig = self.platform_params[self.platform]
         
         self.preparePreset(buildAsStaticLibs);
@@ -165,7 +168,7 @@ class PhysXBuilder(object):
         
         # Generate
         check_call_physx_dir = functools.partial(subprocess.check_call,
-            cwd=physx_dir,
+            cwd=physx_dir, # generate_projects script will fail if not called from physx directory
             env=self.env
         )
         generate_call =[generate_projects_cmd, preset,]
