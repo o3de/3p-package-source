@@ -129,8 +129,7 @@ function(add_shiboken_project)
     
     # Validate arguments
     if (NOT add_shiboken_project_MODULE_NAME)
-        message("You must provide a module name matching the package name in the xml typesystem file.")
-        message(FATAL_ERROR "This is the name of the output Python module.")
+        message(FATAL_ERROR "You must provide a module name matching the package name in the xml typesystem file. This is the name of the output Python module.")
     endif()
     
     if(NOT add_shiboken_project_WRAPPED_HEADER)
