@@ -26,12 +26,12 @@ ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages pyside
 
 if (PAL_PLATFORM_NAME STREQUAL "Linux")
     set(${MY_NAME}_RUNTIME_DEPENDENCIES
-        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15.2.1
-        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15
-        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3.so
-        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15.2.1
-        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15
-        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so
+        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15.2.1
+        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15
+        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15.2.1
+        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15
+        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
     
     ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES ${${MY_NAME}_RUNTIME_DEPENDENCIES})
