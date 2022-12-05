@@ -26,12 +26,12 @@ ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages pyside
 
 if (PAL_PLATFORM_NAME STREQUAL "Linux")
     set(${MY_NAME}_RUNTIME_DEPENDENCIES
-        {${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15.2.1
-        {${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15
-        {${MY_NAME}_LIB_DIR}/libpyside2.abi3.so
-        {${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15.2.1
-        {${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15
-        {${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so
+        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15.2.1
+        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15
+        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3.so
+        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15.2.1
+        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15
+        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so
     )
     
     ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES ${${MY_NAME}_RUNTIME_DEPENDENCIES})
@@ -56,7 +56,7 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
         ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/share
-        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
         IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
         IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
         IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
@@ -123,11 +123,16 @@ set_target_properties(${MY_NAME}::ShibokenTool PROPERTIES IMPORTED_LOCATION "${$
 add_executable(${TARGET_WITH_NAMESPACE}::ShibokenTool ALIAS ${MY_NAME}::ShibokenTool)
 
 function(add_shiboken_project)
-    set(oneValueArgs NAMESPACE NAME WRAPPED_HEADER TYPESYSTEM_FILE GENERATED_FILES LICENSE_HEADER)
+    set(oneValueArgs MODULE_NAME NAMESPACE NAME WRAPPED_HEADER TYPESYSTEM_FILE GENERATED_FILES LICENSE_HEADER)
     set(multiValueArgs INCLUDE_DIRS DEPENDENCIES)
     cmake_parse_arguments(add_shiboken_project "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
     
     # Validate arguments
+    if (NOT add_shiboken_project_MODULE_NAME)
+        message("You must provide a module name matching the package name in the xml typesystem file.")
+        message(FATAL_ERROR "This is the name of the output Python module.")
+    endif()
+    
     if(NOT add_shiboken_project_WRAPPED_HEADER)
         message(FATAL_ERROR "You must provide a header file containing all headers to be reflected.")
     endif()
@@ -150,7 +155,7 @@ function(add_shiboken_project)
     list(TRANSFORM add_shiboken_project_INCLUDE_DIRS PREPEND "-I")                    
     
     # Reformat the generated files list to prepend the containing folder.
-    list(TRANSFORM GENERATED_FILES PREPEND "${CMAKE_CURRENT_BINARY_DIR}/${add_shiboken_project_NAME}/")
+    list(TRANSFORM GENERATED_FILES PREPEND "${CMAKE_CURRENT_BINARY_DIR}/${add_shiboken_project_MODULE_NAME}/")
     
     get_property(SHARE_DIR TARGET 3rdParty::pyside2 PROPERTY pyside2_SHARE_DIR)
         
