@@ -218,17 +218,17 @@ class PhysXBuilder(object):
             
         shutil.copytree(
             src=self.workingDir / 'physx' / 'install' / 'shared' / 'PhysX',
-            dst=packageDir / 'PhysX',
+            dst=packageDir / 'physx',
             symlinks=True,
         )
         shutil.copytree(
             src=self.workingDir / 'physx' / 'bin' / 'shared',
-            dst=packageDir / 'PhysX' / 'bin' / 'shared',
+            dst=packageDir / 'physx' / 'bin' / 'shared',
             symlinks=True,
         )
         shutil.copytree(
             src=self.workingDir / 'physx' / 'bin' / 'static',
-            dst=packageDir / 'PhysX' / 'bin' / 'static',
+            dst=packageDir / 'physx' / 'bin' / 'static',
             symlinks=True,
         )
         shutil.copy2(
