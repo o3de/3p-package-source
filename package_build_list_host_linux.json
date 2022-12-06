@@ -66,7 +66,7 @@
         "azslc-1.8.9-rev2-linux": "package-system/azslc-linux",
         "tiff-4.2.0.15-rev3-linux": "package-system/tiff-linux",
         "python-3.10.5-rev2-linux": "package-system/python/linux_x64/package",
-        "PhysX-5.1.1-rev1-linux": "package-system/PhysX5-linux",
+        "PhysX-5.1.1-rev1-linux": "package-system/PhysX5/temp/PhysX5-linux",
         "NvCloth-v1.1.6-4-gd243404-pr58-rev1-linux": "package-system/NvCloth-linux",
         "mikkelsen-1.0.0.4-linux": "package-system/mikkelsen-linux",
         "poly2tri-7f0487a-rev1-linux": "package-system/poly2tri-linux",

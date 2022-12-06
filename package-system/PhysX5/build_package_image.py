@@ -320,7 +320,7 @@ def main():
 
     packageSystemDir = Path(__file__).resolve().parents[1]
     packageSourceDir = packageSystemDir / 'PhysX5'
-    packageRoot = packageSystemDir / f'PhysX5-{args.platformName}'
+    packageRoot = packageSourceDir / 'temp' / f'PhysX5-{args.platformName}'
 
     cmakeFindFile = packageSourceDir / f'FindPhysX_{args.platformName}.cmake'
     if not cmakeFindFile.exists():

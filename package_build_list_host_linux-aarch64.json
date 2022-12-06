@@ -58,7 +58,7 @@
         "openimageio-opencolorio-2.3.17-rev2-linux-aarch64": "package-system/openimageio-opencolorio/temp/package-linux-aarch64",
         "OpenMesh-8.1-rev3-linux-aarch64": "package-system/OpenMesh/temp/OpenMesh-linux-aarch64",
         "OpenXR-1.0.22-rev2-linux-aarch64": "package-system/OpenXR/temp/OpenXR-linux-aarch64",
-        "PhysX-5.1.1-rev1-linux-aarch64": "package-system/PhysX5-linux-aarch64",
+        "PhysX-5.1.1-rev1-linux-aarch64": "package-system/PhysX5/temp/PhysX5-linux-aarch64",
         "png-1.6.37-rev2-linux-aarch64":  "package-system/libpng/temp/png-linux-aarch64",
         "poly2tri-7f0487a-rev1-linux-aarch64": "package-system/poly2tri-linux-aarch64",
         "python-3.10.5-rev2-linux-aarch64": "package-system/python/linux_aarch64/package",
