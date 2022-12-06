@@ -42,10 +42,10 @@ else()
 endif()
 
 set(${MY_NAME}_LIBRARIES
-    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXCharacterKinematic_static${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXVehicle_static${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXExtensions_static${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXPvdSDK_static${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXCharacterKinematic_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXVehicle_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXExtensions_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXPvdSDK_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
 
 set(extra_static_libs ${EXTRA_STATIC_LIBS_NON_MONOLITHIC})
@@ -53,10 +53,10 @@ set(extra_shared_libs ${EXTRA_SHARED_LIBS})
 
 if(LY_MONOLITHIC_GAME)
     list(APPEND ${MY_NAME}_LIBRARIES
-        ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysX_static${CMAKE_STATIC_LIBRARY_SUFFIX}
-        ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXCooking_static${CMAKE_STATIC_LIBRARY_SUFFIX}
-        ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXFoundation_static${CMAKE_STATIC_LIBRARY_SUFFIX}
-        ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXCommon_static${CMAKE_STATIC_LIBRARY_SUFFIX}
+        ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysX_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
+        ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXCooking_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
+        ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXFoundation_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
+        ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXCommon_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
     if(extra_shared_libs)
         set(${MY_NAME}_RUNTIME_DEPENDENCIES
@@ -65,17 +65,17 @@ if(LY_MONOLITHIC_GAME)
     endif()
 else()
     list(APPEND ${MY_NAME}_LIBRARIES
-        ${PATH_TO_LIBS}/${import_lib_prefix}PhysX${import_lib_suffix}
-        ${PATH_TO_LIBS}/${import_lib_prefix}PhysXCooking${import_lib_suffix}
-        ${PATH_TO_LIBS}/${import_lib_prefix}PhysXFoundation${import_lib_suffix}
-        ${PATH_TO_LIBS}/${import_lib_prefix}PhysXCommon${import_lib_suffix}
+        ${PATH_TO_LIBS}/${import_lib_prefix}PhysX_64${import_lib_suffix}
+        ${PATH_TO_LIBS}/${import_lib_prefix}PhysXCooking_64${import_lib_suffix}
+        ${PATH_TO_LIBS}/${import_lib_prefix}PhysXFoundation_64${import_lib_suffix}
+        ${PATH_TO_LIBS}/${import_lib_prefix}PhysXCommon_64${import_lib_suffix}
         ${extra_static_libs}
     )
     set(${MY_NAME}_RUNTIME_DEPENDENCIES
-        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysX${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysXCooking${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysXFoundation${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysXCommon${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysX_64${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysXCooking_64${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysXFoundation_64${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysXCommon_64${CMAKE_SHARED_LIBRARY_SUFFIX}
         ${extra_shared_libs}
     )
 endif()
