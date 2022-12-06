@@ -19,7 +19,6 @@ from tempfile import TemporaryDirectory
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent / 'Scripts'))
-from builders.vcpkgbuilder import VcpkgBuilder
 import builders.monkeypatch_tempdir_cleanup
 
 class PhysXBuilder(object):
@@ -65,6 +64,17 @@ class PhysXBuilder(object):
     def env(self):
         return self._env
 
+    def readFile(self, file):
+        f = open(file, 'r')
+        content = f.read()
+        f.close()
+        return content
+
+    def writeFile(self, file, content):
+        f = open(file, 'w')
+        f.write(content)
+        f.close()
+
     def clone(self, lockToCommit: str, prNumber: int = 0):
         if not (self.workingDir / '.git').exists():
             self.check_call(
@@ -91,20 +101,9 @@ class PhysXBuilder(object):
             )
             
     def preparePreset(self, buildAsStaticLibs):
-        def readFile(file):
-            f = open(file, 'r')
-            content = f.read()
-            f.close()
-            return content
-            
-        def writeFile(file, content):
-            f = open(file, 'w')
-            f.write(content)
-            f.close()
-            
         preset_index = 0
         preset_file = self.workingDir / 'physx' / 'buildtools' / 'presets' / 'public' / f'{self.platform_params[self.platform][preset_index]}.xml'
-        content = readFile(preset_file)
+        content = self.readFile(preset_file)
         content = re.sub('name="PX_GENERATE_STATIC_LIBRARIES" value="(True|False)"', f'name="PX_GENERATE_STATIC_LIBRARIES" value="{buildAsStaticLibs}"', content, flags = re.M)
         
         if self.platform == 'windows':
@@ -117,15 +116,15 @@ class PhysXBuilder(object):
             content = re.sub('name="PX_BUILDSNIPPETS" value="(True|False)"', f'name="PX_BUILDSNIPPETS" value="False"', content, flags = re.M)
             content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="False"', content, flags = re.M)
             
-        writeFile(preset_file, content)
+        self.writeFile(preset_file, content)
 
         # Ignore poison-system-directories warning when building mac/ios caused 
         # by running 'cmake --build' using python subprocess on Mac.
         if self.platform == 'mac' or self.platform == 'ios':
             cmake_file = self.workingDir / 'physx' / 'source' / 'compiler' / 'cmake' / self.platform / 'CMakeLists.txt'
-            content = readFile(cmake_file)
+            content = self.readFile(cmake_file)
             content = re.sub('-Werror', r'-Werror -Wno-poison-system-directories', content, flags = re.M)
-            writeFile(cmake_file, content)
+            self.writeFile(cmake_file, content)
         
     def cleanUpLibs(self, buildAsStaticLibs):
         static_bin_dir = self.workingDir / 'physx' / 'bin' / 'static'
@@ -252,23 +251,70 @@ class PhysXBuilder(object):
         with (packageDir / 'PackageInfo.json').open('w') as fh:
             json.dump(settings, fh, indent=4)
 
+    def writeCMakeFindFile(self, packageDir: pathlib.Path, cmakeFindFile):
+        dst = packageDir / 'FindPhysX.cmake'
+        shutil.copy2(
+            src=cmakeFindFile,
+            dst=dst
+        )
+        
+        extraLibsPerPlatform = {
+            'windows': [
+                ['\${EXTRA_SHARED_LIBS}',
+                 ''.join(('\n',
+                    '\t${PATH_TO_SHARED_LIBS}/PhysXDevice64.dll\n',
+                    '\t${PATH_TO_SHARED_LIBS}/PhysXGpu_64.dll\n'
+                ))],
+                ['\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}',
+                 ''.join(('\n',
+                    '\t${PATH_TO_LIBS}/LowLevel_static_64.lib\n',
+                    '\t${PATH_TO_LIBS}/LowLevelAABB_static_64.lib\n',
+                    '\t${PATH_TO_LIBS}/LowLevelDynamics_static_64.lib\n',
+                    '\t${PATH_TO_LIBS}/PhysXTask_static_64.lib\n',
+                    '\t${PATH_TO_LIBS}/SceneQuery_static_64.lib\n',
+                    '\t${PATH_TO_LIBS}/SimulationController_static_64.lib\n',
+                ))],
+            ],
+            'linux': [
+                ['\${EXTRA_SHARED_LIBS}', '${PATH_TO_SHARED_LIBS}/libPhysXGpu_64.so'],
+                ['\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}', ''],
+            ],
+            'linux-aarch64': [
+                ['\${EXTRA_SHARED_LIBS}', '${PATH_TO_SHARED_LIBS}/libPhysXGpu_64.so'],
+                ['\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}', ''],
+            ],
+            'mac': [
+                ['\${EXTRA_SHARED_LIBS}', ''],
+                ['\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}', ''],
+            ],
+            # iOS has its own FindPhysX file where it doesn't need to do any adjustments.
+            'ios': [
+            ],
+            'android': [
+                ['\${EXTRA_SHARED_LIBS}', ''],
+                ['\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}', ''],
+            ],
+        }
+        
+        content = self.readFile(dst)
+        for extraLibs in extraLibsPerPlatform[self.platform]:
+            content = re.sub(extraLibs[0], extraLibs[1], content, flags = re.M)
+        self.writeFile(dst, content)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--platform-name',
         dest='platformName',
         choices=['windows', 'linux', 'linux-aarch64', 'android', 'mac', 'ios'],
-        default=VcpkgBuilder.defaultPackagePlatformName(),
     )
     args = parser.parse_args()
 
-    if args.platformName == 'linux-aarch64':
-        os.environ['VCPKG_FORCE_SYSTEM_BINARIES'] = '1'
-    elif args.platformName == 'mac' or args.platformName == 'ios':
+    if args.platformName == 'mac' or args.platformName == 'ios':
         # Necessary to build PhysX SDK on arm-based Mac machines
-        # since the build process will try to use an x86 python3
-        # PhysX downloads itself. This environment variable allows
-        # to use the system's python until nVidia updates its build
+        # since the build process will try to use an x86_64 python3
+        # package that PhysX downloads itself. This environment variable
+        # allows to use the system's python until nVidia updates its build
         # scripts to obtain an arm-based python package.
         os.environ['PM_PYTHON_EXT'] = 'python3'
 
@@ -293,8 +339,7 @@ def main():
         else:
             prNumber = 0
             
-        #tempdir = Path(tempdir)
-        tempdir = Path(f'E:/tmp/PhysX5')
+        tempdir = Path(tempdir)
         builder = PhysXBuilder(workingDir=tempdir, basePackageSystemDir=packageSystemDir, targetPlatform=args.platformName)
         builder.clone(lockToCommit=commit, prNumber=prNumber)
         
@@ -312,9 +357,9 @@ def main():
             },
         )
         
-        shutil.copy2(
-            src=cmakeFindFile,
-            dst=packageRoot / 'FindPhysX.cmake'
+        builder.writeCMakeFindFile(
+            packageRoot,
+            cmakeFindFile
         )
 
 if __name__ == '__main__':
