@@ -22,7 +22,11 @@ set(${MY_NAME}_BIN_DIR ${PYSIDE_BASE_PATH}/bin)
 set(${MY_NAME}_LIB_DIR ${PYSIDE_BASE_PATH}/lib)
 set(${MY_NAME}_INCLUDE_DIR ${PYSIDE_BASE_PATH}/include)
 
-ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages pyside2)
+if (PAL_PLATFORM_NAME STREQUAL "Windows")
+    ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages pyside2)
+elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
+    ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.10/site-packages pyside2)
+endif()
 
 if (PAL_PLATFORM_NAME STREQUAL "Linux")
     set(${MY_NAME}_RUNTIME_DEPENDENCIES
