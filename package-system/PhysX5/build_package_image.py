@@ -130,7 +130,7 @@ class PhysXBuilder(object):
         static_bin_dir = self.workingDir / 'physx' / 'bin' / 'static'
         shared_bin_dir = self.workingDir / 'physx' / 'bin' / 'shared'
     
-        # Remove dynamic libraries repeated in static folders to safe space.
+        # Remove dynamic libraries repeated in static folders to save space.
         # Also freeglut is not necessary for PhysX.
         if self.platform == 'windows':
             if buildAsStaticLibs:
