@@ -1,0 +1,250 @@
+diff -N -a -u -r benchmark-1.7.0.orig/src/benchmark.cc benchmark-1.7.0/src/benchmark.cc
+--- benchmark-1.7.0.orig/src/benchmark.cc	2019-05-13 14:42:18.000000000 -0500
++++ benchmark-1.7.0/src/benchmark.cc	2020-10-14 22:05:36.383669200 -0500
+@@ -18,7 +18,7 @@
+ #include "internal_macros.h"
+ 
+ #ifndef BENCHMARK_OS_WINDOWS
+-#ifndef BENCHMARK_OS_FUCHSIA
++#if !defined(BENCHMARK_OS_FUCHSIA) && !defined(BENCHMARK_SYS_RESOURCE_H_UNSUPPORTED)
+ #include <sys/resource.h>
+ #endif
+ #include <sys/time.h>
+diff -N -a -u -r benchmark-1.7.0.orig/src/benchmark_register.cc benchmark-1.7.0/src/benchmark_register.cc
+--- benchmark-1.7.0.orig/src/benchmark_register.cc	2019-05-13 14:42:18.000000000 -0500
++++ benchmark-1.7.0/src/benchmark_register.cc	2020-10-14 22:06:56.901076900 -0500
+@@ -15,7 +15,7 @@
+ #include "benchmark_register.h"
+ 
+ #ifndef BENCHMARK_OS_WINDOWS
+-#ifndef BENCHMARK_OS_FUCHSIA
++#if !defined(BENCHMARK_OS_FUCHSIA) && !defined(BENCHMARK_SYS_RESOURCE_H_UNSUPPORTED)
+ #include <sys/resource.h>
+ #endif
+ #include <sys/time.h>
+diff -N -a -u -r benchmark-1.7.0.orig/src/benchmark_runner.cc benchmark-1.7.0/src/benchmark_runner.cc
+--- benchmark-1.7.0.orig/src/benchmark_runner.cc	2019-05-13 14:42:18.000000000 -0500
++++ benchmark-1.7.0/src/benchmark_runner.cc	2020-10-14 22:07:01.282622200 -0500
+@@ -18,7 +18,7 @@
+ #include "internal_macros.h"
+ 
+ #ifndef BENCHMARK_OS_WINDOWS
+-#ifndef BENCHMARK_OS_FUCHSIA
++#if !defined(BENCHMARK_OS_FUCHSIA) && !defined(BENCHMARK_SYS_RESOURCE_H_UNSUPPORTED)
+ #include <sys/resource.h>
+ #endif
+ #include <sys/time.h>
+diff -N -a -u -r benchmark-1.7.0.orig/src/colorprint.cc benchmark-1.7.0/src/colorprint.cc
+--- benchmark-1.7.0.orig/src/colorprint.cc	2019-05-13 14:42:18.000000000 -0500
++++ benchmark-1.7.0/src/colorprint.cc	2020-10-14 22:07:43.727853800 -0500
+@@ -33,14 +33,14 @@
+ 
+ namespace benchmark {
+ namespace {
+-#ifdef BENCHMARK_OS_WINDOWS
++#if defined(BENCHMARK_OS_WINDOWS) && !defined(BENCHMARK_USE_ANSI_COLOR_MODE)
+ typedef WORD PlatformColorCode;
+ #else
+ typedef const char* PlatformColorCode;
+ #endif
+ 
+ PlatformColorCode GetPlatformColorCode(LogColor color) {
+-#ifdef BENCHMARK_OS_WINDOWS
++#if defined(BENCHMARK_OS_WINDOWS) && !defined(BENCHMARK_USE_ANSI_COLOR_MODE)
+   switch (color) {
+     case COLOR_RED:
+       return FOREGROUND_RED;
+@@ -127,7 +127,7 @@
+ 
+ void ColorPrintf(std::ostream& out, LogColor color, const char* fmt,
+                  va_list args) {
+-#ifdef BENCHMARK_OS_WINDOWS
++#if defined(BENCHMARK_OS_WINDOWS) && !defined(BENCHMARK_USE_ANSI_COLOR_MODE)
+   ((void)out);  // suppress unused warning
+ 
+   const HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+diff -N -a -u -r benchmark-1.7.0.orig/src/commandlineflags.cc benchmark-1.7.0/src/commandlineflags.cc
+--- benchmark-1.7.0.orig/src/commandlineflags.cc	2019-05-13 14:42:18.000000000 -0500
++++ benchmark-1.7.0/src/commandlineflags.cc	2020-10-14 22:09:39.353104100 -0500
+@@ -13,7 +13,7 @@
+ // limitations under the License.
+ 
+ #include "commandlineflags.h"
+-
++#include "internal_macros.h"
+ #include <cctype>
+ #include <cstdlib>
+ #include <cstring>
+diff -N -a -u -r benchmark-1.7.0.orig/src/internal_macros.h benchmark-1.7.0/src/internal_macros.h
+--- benchmark-1.7.0.orig/src/internal_macros.h	2019-05-13 14:42:18.000000000 -0500
++++ benchmark-1.7.0/src/internal_macros.h	2020-10-14 22:09:41.520871700 -0500
+@@ -89,6 +89,17 @@
+   #define BENCHMARK_MAYBE_UNUSED
+ #endif
+ 
++#ifdef BENCHMARK_ISATTY_UNSUPPORTED
++inline int isatty(int) {
++  return 0;
++}
++#endif
++
++#ifdef BENCHMARK_GETENV_UNSUPPORTED
++inline const char* getenv(const char*) {
++  return nullptr;
++}
++#endif
+ // clang-format on
+ 
+ #endif  // BENCHMARK_INTERNAL_MACROS_H_
+diff -N -a -u -r benchmark-1.7.0.orig/src/sysinfo.cc benchmark-1.7.0/src/sysinfo.cc
+--- benchmark-1.7.0.orig/src/sysinfo.cc	2019-05-13 14:42:18.000000000 -0500
++++ benchmark-1.7.0/src/sysinfo.cc	2020-10-14 22:56:44.702431200 -0500
+@@ -22,14 +22,14 @@
+ #include <codecvt>
+ #else
+ #include <fcntl.h>
+-#ifndef BENCHMARK_OS_FUCHSIA
++#if !defined(BENCHMARK_OS_FUCHSIA) && !defined(BENCHMARK_SYS_RESOURCE_H_UNSUPPORTED)
+ #include <sys/resource.h>
+ #endif
+ #include <sys/time.h>
+ #include <sys/types.h>  // this header must be included before 'sys/sysctl.h' to avoid compilation error on FreeBSD
+ #include <unistd.h>
+-#if defined BENCHMARK_OS_FREEBSD || defined BENCHMARK_OS_MACOSX || \
+-    defined BENCHMARK_OS_NETBSD || defined BENCHMARK_OS_OPENBSD
++#if (defined BENCHMARK_OS_FREEBSD || defined BENCHMARK_OS_MACOSX || \
++    defined BENCHMARK_OS_NETBSD || defined BENCHMARK_OS_OPENBSD) && !defined(BENCHMARK_SYS_SYSCTL_H_UNSUPPORTED)
+ #define BENCHMARK_HAS_SYSCTL
+ #include <sys/sysctl.h>
+ #endif
+@@ -316,6 +316,7 @@
+ #elif defined(BENCHMARK_OS_WINDOWS)
+ std::vector<CPUInfo::CacheInfo> GetCacheSizesWindows() {
+   std::vector<CPUInfo::CacheInfo> res;
++#if !defined(WINAPI_FAMILY) || WINAPI_FAMILY != WINAPI_FAMILY_TV_TITLE
+   DWORD buffer_size = 0;
+   using PInfo = SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
+   using CInfo = CACHE_DESCRIPTOR;
+@@ -360,6 +361,7 @@
+     }
+     res.push_back(C);
+   }
++#endif
+   return res;
+ }
+ #elif BENCHMARK_OS_QNX
+@@ -411,7 +413,9 @@
+ }
+ 
+ std::string GetSystemName() {
+-#if defined(BENCHMARK_OS_WINDOWS)
++#if defined(BENCHMARK_SYSTEM_NAME)
++  return { BENCHMARK_SYSTEM_NAME };
++#elif defined(BENCHMARK_OS_WINDOWS)
+   std::string str;
+   const unsigned COUNT = MAX_COMPUTERNAME_LENGTH+1;
+   TCHAR  hostname[COUNT] = {'\0'};
+@@ -434,10 +438,14 @@
+ #elif defined(BENCHMARK_OS_QNX)
+ #define HOST_NAME_MAX 154
+ #endif
++#if !defined(BENCHMARK_SYS_SYSCTL_H_UNSUPPORTED)
+   char hostname[HOST_NAME_MAX];
+   int retVal = gethostname(hostname, HOST_NAME_MAX);
+   if (retVal != 0) return std::string("");
+   return std::string(hostname);
++#else
++  return {};
++#endif
+ #endif // Catch-all POSIX block.
+ }
+ 
+@@ -610,11 +618,15 @@
+   // In NT, read MHz from the registry. If we fail to do so or we're in win9x
+   // then make a crude estimate.
+   DWORD data, data_size = sizeof(data);
++#if !defined(WINAPI_FAMILY) || WINAPI_FAMILY != WINAPI_FAMILY_TV_TITLE
+   if (IsWindowsXPOrGreater() &&
+       SUCCEEDED(
+           SHGetValueA(HKEY_LOCAL_MACHINE,
+                       "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
+                       "~MHz", nullptr, &data, &data_size)))
++#else
++  data = 1600; // Windows applications with WINAPI family of TV Title has a cpu frequency clock rate of 1.6Ghz according to documentation
++#endif
+     return static_cast<double>((int64_t)data *
+                                (int64_t)(1000 * 1000));  // was mhz
+ #elif defined (BENCHMARK_OS_SOLARIS)
+@@ -660,7 +672,7 @@
+ std::vector<double> GetLoadAvg() {
+ #if (defined BENCHMARK_OS_FREEBSD || defined(BENCHMARK_OS_LINUX) || \
+     defined BENCHMARK_OS_MACOSX || defined BENCHMARK_OS_NETBSD ||  \
+-    defined BENCHMARK_OS_OPENBSD) && !defined(__ANDROID__)
++    defined BENCHMARK_OS_OPENBSD) && !defined(__ANDROID__) && !defined(BENCHMARK_SYS_SYSCTL_H_UNSUPPORTED)
+   constexpr int kMaxSamples = 3;
+   std::vector<double> res(kMaxSamples, 0.0);
+   const int nelem = getloadavg(res.data(), kMaxSamples);
+diff -N -a -u -r benchmark-1.7.0.orig/src/timers.cc benchmark-1.7.0/src/timers.cc
+--- benchmark-1.7.0.orig/src/timers.cc	2019-05-13 14:42:18.000000000 -0500
++++ benchmark-1.7.0/src/timers.cc	2020-10-14 22:19:18.569818000 -0500
+@@ -22,13 +22,13 @@
+ #include <windows.h>
+ #else
+ #include <fcntl.h>
+-#ifndef BENCHMARK_OS_FUCHSIA
++#if !defined(BENCHMARK_OS_FUCHSIA) && !defined(BENCHMARK_SYS_RESOURCE_H_UNSUPPORTED)
+ #include <sys/resource.h>
+ #endif
+ #include <sys/time.h>
+ #include <sys/types.h>  // this header must be included before 'sys/sysctl.h' to avoid compilation error on FreeBSD
+ #include <unistd.h>
+-#if defined BENCHMARK_OS_FREEBSD || defined BENCHMARK_OS_MACOSX
++#if (defined BENCHMARK_OS_FREEBSD || defined BENCHMARK_OS_MACOSX) && !defined(BENCHMARK_SYS_SYSCTL_H_UNSUPPORTED)
+ #include <sys/sysctl.h>
+ #endif
+ #if defined(BENCHMARK_OS_MACOSX)
+@@ -77,7 +77,7 @@
+           static_cast<double>(user.QuadPart)) *
+          1e-7;
+ }
+-#elif !defined(BENCHMARK_OS_FUCHSIA)
++#elif !defined(BENCHMARK_OS_FUCHSIA) && !defined(BENCHMARK_TIME_S_SUPPORTED)
+ double MakeTime(struct rusage const& ru) {
+   return (static_cast<double>(ru.ru_utime.tv_sec) +
+           static_cast<double>(ru.ru_utime.tv_usec) * 1e-6 +
+@@ -130,6 +130,11 @@
+   if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &spec) == 0)
+     return MakeTime(spec);
+   DiagnoseAndExit("clock_gettime(CLOCK_PROCESS_CPUTIME_ID, ...) failed");
++#elif defined(CLOCK_THREAD_CPUTIME_ID)
++  struct timespec spec;
++  if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &spec) == 0)
++    return MakeTime(spec);
++  DiagnoseAndExit("clock_gettime(CLOCK_THREAD_CPUTIME_ID, ...) failed");
+ #else
+   struct rusage ru;
+   if (getrusage(RUSAGE_SELF, &ru) == 0) return MakeTime(ru);
+@@ -193,7 +198,11 @@
+         std::strftime(storage, sizeof(storage), "%x %X", ::localtime(&now));
+ #else
+     std::tm timeinfo;
++#if defined(BENCHMARK_TIME_S_SUPPORTED)
++    ::localtime_s(&now, &timeinfo);
++#else
+     ::localtime_r(&now, &timeinfo);
++#endif
+     written = std::strftime(storage, sizeof(storage), "%F %T", &timeinfo);
+ #endif
+   } else {
+@@ -201,7 +210,11 @@
+     written = std::strftime(storage, sizeof(storage), "%x %X", ::gmtime(&now));
+ #else
+     std::tm timeinfo;
++#if defined(BENCHMARK_TIME_S_SUPPORTED)
++    ::gmtime_s(&now, &timeinfo);
++#else
+     ::gmtime_r(&now, &timeinfo);
++#endif
+     written = std::strftime(storage, sizeof(storage), "%F %T", &timeinfo);
+ #endif
+   }

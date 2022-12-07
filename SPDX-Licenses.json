@@ -96,7 +96,7 @@
         "LicenseFile": "freetype/FTL.TXT"
     },
     {
-        "PackageName": "googlebenchmark-1.5.0-rev2-windows",
+        "PackageName": "googlebenchmark-1.7.0-rev1-windows",
         "URL": "https://github.com/google/benchmark",
         "License": "Apache-2.0",
         "LicenseFile": "googlebenchmark/LICENSE"

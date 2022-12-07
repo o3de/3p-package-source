@@ -3978,7 +3978,7 @@ Legal Terms
 
 ------------------------------------
 
-Package path: ..\..\..\3rdParty\packages\googlebenchmark-1.5.0-rev2-windows\googlebenchmark\LICENSE
+Package path: ..\..\..\3rdParty\packages\googlebenchmark-1.7.0-rev1-windows\googlebenchmark\LICENSE
 
 License:
 
