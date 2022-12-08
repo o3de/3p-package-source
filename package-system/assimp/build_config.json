@@ -8,7 +8,7 @@
     "package_license_file":"LICENSE",
     "cmake_find_source":"Findassimplib.cmake",
     "cmake_find_target":"Findassimplib.cmake",
-    "patch_file" : "O3DE-fixes-applied-on-top-of-v5.1.6.patch",
+    "patch_file" : "O3DE-fixes-applied-on-top-of-v5.2.5.patch",
     "Platforms":{
         "Windows":{
             "Windows":{
