@@ -93,7 +93,8 @@
                 ],
                 "custom_test_cmd": [
                     "./test_png_ios.sh"
-                ]
+                ],
+                "package_version": "1.6.37-rev3"
             }
         },
         "Linux": {
