@@ -1,0 +1,30 @@
+{
+    "git_url": "https://github.com/GameTechDev/ISPCTextureCompressor.git",
+    "git_tag": "master",
+    "git_commit": "36b80aac50ea401a9adde44d86712c2241b2acfd",
+    "package_name": "ISPCTexComp",
+    "package_version": "36b80aa-rev2",
+    "package_url": "https://github.com/GameTechDev/ISPCTextureCompressor",
+    "package_license": "MIT",
+    "package_license_file": "license.txt",
+    "cmake_find_source": "FindISPCTexComp.cmake",
+    "cmake_find_target": "FindISPCTexComp.cmake",
+    "patch_file": "ISPCTexComp_36b80aa.patch",
+    "Platforms": {
+        "Windows": {
+        },
+        "Darwin": {
+        },
+        "Linux": {
+            "Linux": {
+                "custom_build_cmd": [
+                    "./build_linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_linux.sh"
+                ]
+            },
+	       "Linux-aarch64": "@Linux"
+        }
+    }
+}
