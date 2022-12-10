@@ -28,7 +28,7 @@ rm -rf temp/ispc
 git clone https://github.com/ispc/ispc.git --branch v1.16.1 --depth 1 temp/ispc || (echo "Error occurred cloning ispc from https://github.com/ispc/ispc.git" ; exit 1)
 
 DOCKER_ISPC_ENV_IMAGE_NAME=ispc_cpu_env
-docker build -t ${DOCKER_ISPC_ENV_IMAGE_NAME}:latest ispc/docker/ubuntu/20.04/cpu_ispc_build/ -f ispc/docker/ubuntu/20.04/cpu_ispc_build/Dockerfile || \
+docker build -t ${DOCKER_ISPC_ENV_IMAGE_NAME}:latest temp/ispc/docker/ubuntu/20.04/cpu_ispc_build/ -f temp/ispc/docker/ubuntu/20.04/cpu_ispc_build/Dockerfile || \
         (echo "Error building docker image ${DOCKER_ISPC_ENV_IMAGE_NAME}" ; exit 1)
 
 
