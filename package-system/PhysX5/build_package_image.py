@@ -75,7 +75,7 @@ class PhysXBuilder(object):
         f.write(content)
         f.close()
 
-    def clone(self, lockToCommit: str, prNumber: int = 0):
+    def clone(self, lockToCommit: str):
         if not (self.workingDir / '.git').exists():
             self.check_call(
                 ['git', 'init',],
@@ -84,23 +84,14 @@ class PhysXBuilder(object):
                 ['git', 'remote', 'add', 'origin', 'https://github.com/NVIDIA-Omniverse/PhysX',],
             )
 
-        # No PR specified, use commit directly.
-        if prNumber == 0:
-            self.check_call(
-                ['git', 'fetch', 'origin', '--update-head-ok', '--depth=1', lockToCommit,],
-            )
-            self.check_call(
-                ['git', 'checkout', lockToCommit,],
-            )
-        else:
-            self.check_call(
-                ['git', 'fetch', 'origin', '--update-head-ok', '--depth=1', f'pull/{prNumber}/head:pr-{prNumber}',],
-            )
-            self.check_call(
-                ['git', 'checkout', f'pr-{prNumber}',],
-            )
+        self.check_call(
+            ['git', 'fetch', 'origin', '--update-head-ok', '--depth=1', lockToCommit,],
+        )
+        self.check_call(
+            ['git', 'checkout', lockToCommit,],
+        )
             
-    def preparePreset(self, buildAsStaticLibs):
+    def preparePreset(self, buildAsStaticLibs, config):
         preset_index = 0
         preset_file = self.workingDir / 'physx' / 'buildtools' / 'presets' / 'public' / f'{self.platform_params[self.platform][preset_index]}.xml'
         content = self.readFile(preset_file)
@@ -109,7 +100,10 @@ class PhysXBuilder(object):
         if self.platform == 'windows':
             content = re.sub('name="PX_BUILDSNIPPETS" value="(True|False)"', f'name="PX_BUILDSNIPPETS" value="False"', content, flags = re.M)
             content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="False"', content, flags = re.M)
-            content = re.sub('name="NV_USE_DEBUG_WINCRT" value="(True|False)"', f'name="NV_USE_DEBUG_WINCRT" value="False"', content, flags = re.M)
+            if config == 'debug':
+                content = re.sub('name="NV_USE_DEBUG_WINCRT" value="(True|False)"', f'name="NV_USE_DEBUG_WINCRT" value="True"', content, flags = re.M)
+            else:
+                content = re.sub('name="NV_USE_DEBUG_WINCRT" value="(True|False)"', f'name="NV_USE_DEBUG_WINCRT" value="False"', content, flags = re.M)
             content = re.sub('name="NV_USE_STATIC_WINCRT" value="(True|False)"', f'name="NV_USE_STATIC_WINCRT" value="False"', content, flags = re.M) # sets dynamic runtime usage
             
         elif self.platform == 'linux' or self.platform == 'linux-aarch64':
@@ -158,43 +152,41 @@ class PhysXBuilder(object):
         
         preset, bin_folder, install_folder, is_multiconfig = self.platform_params[self.platform]
         
-        self.preparePreset(buildAsStaticLibs);
-        
         if self.platform == 'windows' or self.platform == 'android':
             generate_projects_cmd =  str(physx_dir / 'generate_projects.bat')
         else:
             generate_projects_cmd = str(physx_dir / 'generate_projects.sh')
-        
-        # Generate
+            
         check_call_physx_dir = functools.partial(subprocess.check_call,
             cwd=physx_dir, # generate_projects script will fail if not called from physx directory
             env=self.env
         )
-        generate_call =[generate_projects_cmd, preset,]
-        print(generate_call)
-        check_call_physx_dir(generate_call)
+        
+        for config in ('release', 'profile', 'checked', 'debug'):
+            self.preparePreset(buildAsStaticLibs, config);
+            
+            # Generate
+            generate_call =[generate_projects_cmd, preset,]
+            print(generate_call)
+            check_call_physx_dir(generate_call)
 
-        # Build
-        if is_multiconfig:
-            build_dir = os.path.join(physx_dir, 'compiler', preset)
-            for config in ('release', 'profile', 'checked', 'debug'):
+            # Build
+            if is_multiconfig:
+                build_dir = os.path.join(physx_dir, 'compiler', preset)
                 if config == 'release':
                     # Build install target on release to produce the install folder where all the headers will be generated
                     cmake_build_call =['cmake', '--build', build_dir, '--config', config, '--target', 'install']
                 else:
                     cmake_build_call =['cmake', '--build', build_dir, '--config', config]
-                print(cmake_build_call)
-                self.check_call(cmake_build_call)
-        else:
-            for config in ('release', 'profile', 'checked', 'debug'):
+            else:
                 build_dir = os.path.join(physx_dir, 'compiler', f'{preset}-{config}')
                 if config == 'release':
                     # Build install target on release to produce the install folder where all the headers will be generated
                     cmake_build_call =['cmake', '--build', build_dir, '--target', 'install']
                 else:
                     cmake_build_call =['cmake', '--build', build_dir]
-                print(cmake_build_call)
-                self.check_call(cmake_build_call)
+            print(cmake_build_call)
+            self.check_call(cmake_build_call)
                 
         # Delete bin inside install folder if exists (we'll copy them later in copyBuildOutputTo)
         bin_install_folder = physx_dir / 'install' / install_folder / 'PhysX' / 'bin'
@@ -327,21 +319,25 @@ def main():
         cmakeFindFile = packageSourceDir / 'FindPhysX.cmake'
 
     with TemporaryDirectory() as tempdir:
-        # Version 5.1.1 commit
-        commit = '0bbcff3d0c541325f4d14c36ee18f24e22e35e6e'
-        packageName = f'PhysX-5.1.1-rev1-{args.platformName}'
+        # Package Name
+        revision = 'rev1'
+        if args.platformName == 'windows':
+            revision = 'rev2'
+        packageName = f'PhysX-5.1.1-{revision}-{args.platformName}'
+        
+        # Version 5.1.1 commits
         if args.platformName == 'mac':
-            prNumber = 51
+            commit = 'bbf7c0de9738c99046c9d6daf57779b4decf95ef' # Commit of PR 51 on top of 5.1.1 version
         elif args.platformName == 'ios':
-            prNumber = 49
+            commit = '5420931fd1e60aaa4df2688d07557722d021f034' # Commit of PR 49 on top of 5.1.1 version
         elif args.platformName == 'android':
-            prNumber = 40
+            commit = '8ac3e3601d1333ae2a967995f49b338d4e188215' # Commit of PR 40 on top of 5.1.1 version
         else:
-            prNumber = 0
+            commit = '0bbcff3d0c541325f4d14c36ee18f24e22e35e6e' # Commit for 5.1.1 version
             
         tempdir = Path(tempdir)
         builder = PhysXBuilder(workingDir=tempdir, basePackageSystemDir=packageSystemDir, targetPlatform=args.platformName)
-        builder.clone(lockToCommit=commit, prNumber=prNumber)
+        builder.clone(lockToCommit=commit)
         
         builder.build(buildAsStaticLibs=False)
         builder.build(buildAsStaticLibs=True)
