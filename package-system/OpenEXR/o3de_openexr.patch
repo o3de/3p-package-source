@@ -1,0 +1,23 @@
+diff --git a/cmake/LibraryDefine.cmake b/cmake/LibraryDefine.cmake
+index 5696f3fe..e3a7ecd6 100644
+--- a/cmake/LibraryDefine.cmake
++++ b/cmake/LibraryDefine.cmake
+@@ -10,7 +10,8 @@ function(OPENEXR_DEFINE_LIBRARY libname)
+   cmake_parse_arguments(OPENEXR_CURLIB "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+ 
+   if (MSVC)
+-    set(_openexr_extra_flags "/EHsc")
++    # these flags here get exported as INTERFACE_COMPILE_OPTIONS exports.
++    set(_openexr_extra_flags "$<$<CXX_COMPILER_ID:MSVC>:/EHsc>")
+   endif()
+   set(objlib ${libname})
+   add_library(${objlib}
+@@ -59,6 +60,8 @@ function(OPENEXR_DEFINE_LIBRARY libname)
+       target_compile_definitions(${objlib} PUBLIC OPENEXR_USE_DEFAULT_VISIBILITY)
+   endif()
+   if (_openexr_extra_flags)
++    # these flags here get exported as PUBLIC compile options, which pass them to
++    # includers.  Prevent this from applying /EHsc to anyone but MSVC compilers.
+     target_compile_options(${objlib} PUBLIC ${_openexr_extra_flags})
+   endif()
+   set_property(TARGET ${objlib} PROPERTY PUBLIC_HEADER ${OPENEXR_CURLIB_HEADERS})

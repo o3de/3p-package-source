@@ -34,6 +34,8 @@
       "Windows":{
          "Windows":{
             "build_configs" : ["Debug", "Release"],
+            "patch_file": "o3de_openexr.patch",
+            "package_version":"3.1.3-rev5",
             "depends_on_packages" :[ 
                ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
             ],
