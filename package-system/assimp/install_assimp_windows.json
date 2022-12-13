@@ -2,16 +2,16 @@
   "Source_Subfolder": "src",
   "Install_Paths": [
     "include/",
-    "lib/Debug/assimp-vc142-mtd.lib",
-    "lib/Debug/assimp-vc142-mtd.pdb",
-    "lib/Release/assimp-vc142-mt.lib",
+    "lib/Debug/assimp-vc143-mtd.lib",
+    "lib/Debug/assimp-vc143-mtd.pdb",
+    "lib/Release/assimp-vc143-mt.lib",
     "bin/Release/assimp.exe",
-    "bin/Release/assimp-vc142-mt.dll",
+    "bin/Release/assimp-vc143-mt.dll",
     "bin/Release/unit.exe",
     "bin/Debug/assimpd.exe",
     "bin/Debug/assimpd.pdb",
-    "bin/Debug/assimp-vc142-mtd.dll",
-    "bin/Debug/assimp-vc142-mtd.pdb",
+    "bin/Debug/assimp-vc143-mtd.dll",
+    "bin/Debug/assimp-vc143-mtd.pdb",
     "bin/Debug/unit.exe",
     "port/PyAssimp/"
   ]
