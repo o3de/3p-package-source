@@ -181,12 +181,13 @@ function(add_shiboken_project)
     
     set(generated_sources_dependencies ${add_shiboken_project_WRAPPED_HEADER} ${add_shiboken_project_TYPESYSTEM_FILE})
     
-    # Custom shiboken command to generate wrapped files.
+    # Custom shiboken command to generate wrapped files. Set the working directory to qt/bin so that shiboken can load necessary dlls.
     add_custom_command(
         OUTPUT ${GENERATED_FILES}
         COMMAND 3rdParty::pyside2::ShibokenTool ${shiboken_options} ${add_shiboken_project_WRAPPED_HEADER} ${add_shiboken_project_TYPESYSTEM_FILE}
         DEPENDS ${generated_sources_dependencies} 3rdParty::pyside2
         COMMENT "Running generator for ${add_shiboken_project_TYPESYSTEM_FILE}."
+        WORKING_DIRECTORY ${QT_PATH}/bin
         VERBATIM
     )
     
@@ -194,7 +195,7 @@ function(add_shiboken_project)
     ly_add_target(
         NAME ${add_shiboken_project_NAME}.Editor MODULE
         NAMESPACE add_shiboken_project_NAMESPACE
-        OUTPUT_NAME ${add_shiboken_project_NAME}
+        OUTPUT_NAME ${add_shiboken_project_MODULE_NAME}
         # We need to provide a FILES_CMAKE, but as the files do not yet exist, project creation would fail if it actually 
         # had a FILES list. The files are actually added in by the following TARGET_SOURCES step.
         FILES_CMAKE
