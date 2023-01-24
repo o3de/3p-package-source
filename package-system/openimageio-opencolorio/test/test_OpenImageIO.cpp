@@ -8,6 +8,7 @@
 // this is mainly to make sure linkage is ok!  Call some random function.
 #include <stdio.h>
 #include <vector>
+#include <memory>
 
 #include <OpenImageIO/imageio.h>
 #include <OpenImageIO/imagebufalgo.h>
@@ -15,7 +16,7 @@
 // Test include for OpenColorIO as well
 #include <OpenColorIO/OpenColorIO.h>
 
-int main()
+bool testReadingImage()
 {
     using namespace OIIO;
     namespace OCIO = OCIO_NAMESPACE;
@@ -29,12 +30,12 @@ int main()
     if (!inp)
     {
         printf("Was unable to read 48nits_16_LUT.exr\n");
-        return -1;
+        return false;
     }
     if (inp->has_error())
     {
         printf("Error during read of 48nits_16_LUT.exr\n");
-        return -1;
+        return false;
     }
 
     const ImageSpec &spec = inp->spec();
@@ -51,7 +52,7 @@ int main()
     if ((xres != 256) || (yres != 16) || (channels != 3))
     {
         printf("Invalid data.  Expected 256, 16, 3");
-        return -1;
+        return false;
     }
 
     std::vector<unsigned char> pixels(xres * yres * channels);
@@ -60,11 +61,97 @@ int main()
     if (!inp->read_image(0,0, 0, 0, TypeDesc::UINT8, &pixels[0]))
     {
         printf("Unable to read pixels from image.\n");
-        return -1;    
-    
+        return false;
     }
 
     inp->close();
+    return true;
+}
+
+bool testWritingImage()
+{
+    using namespace OIIO;
+     OIIO::TypeDesc pixelFormat = OIIO::TypeDesc::UINT8;
+    std::unique_ptr<OIIO::ImageOutput> outputImage = OIIO::ImageOutput::create("temp_save_image.png");
+    if (!outputImage)
+    {
+        printf("Failed to create the OIIO::ImageOutput.\n");
+        return false;
+    }
+
+    OIIO::ImageSpec spec(1024, 1024, 4, pixelFormat);
+    if (!outputImage->open("temp_save_image.png", spec))
+    {
+        printf("Failed to open temp_save_image.png\n");
+        return false;
+    }
+
+    std::vector<unsigned char> pixelBuffer;
+    pixelBuffer.resize(1024 * 1024 * 4);
+    memset(pixelBuffer.data(), 0, 1024 * 1024 * 4);
+    if (!outputImage->write_image(pixelFormat, pixelBuffer.data()))
+    {
+        printf("Failed to write temp_save_image.png\n");
+        return false;
+    }
+
+    outputImage->close();
+
+    return true;
+}
+
+
+bool testWritingImage_tif_float() // one channel 32-bit-float (4 bytes per channel)
+{
+    using namespace OIIO;
+     OIIO::TypeDesc pixelFormat = OIIO::TypeDesc::FLOAT;
+    std::unique_ptr<OIIO::ImageOutput> outputImage = OIIO::ImageOutput::create("temp_save_image.tif");
+    if (!outputImage)
+    {
+        printf("Failed to create the OIIO::ImageOutput.\n");
+        return false;
+    }
+
+    OIIO::ImageSpec spec(1024, 1024, 1, pixelFormat);
+    if (!outputImage->open("temp_save_image.tif", spec))
+    {
+        printf("Failed to open temp_save_image.tif\n");
+        return false;
+    }
+
+    std::vector<unsigned char> pixelBuffer;
+    pixelBuffer.resize(1024 * 1024 * 4);
+    memset(pixelBuffer.data(), 0, 1024 * 1024 * 4);
+    if (!outputImage->write_image(pixelFormat, pixelBuffer.data()))
+    {
+        printf("Failed to write temp_save_image.tif\n");
+        return false;
+    }
+
+    outputImage->close();
+
+    return true;
+}
+
+
+int main()
+{
+    if (!testReadingImage())
+    {
+        return 1;
+    }
+
+    if (!testWritingImage())
+    {
+        return 1;
+    }
+
+    if (!testWritingImage_tif_float())
+    {
+        return 1;
+    }
+
+    
     return 0;
 
 }
