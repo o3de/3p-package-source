@@ -97,6 +97,8 @@ bool testWritingImage()
 
     outputImage->close();
 
+    remove("temp_save_image.png");
+
     return true;
 }
 
@@ -130,6 +132,8 @@ bool testWritingImage_tif_float() // one channel 32-bit-float (4 bytes per chann
 
     outputImage->close();
 
+    remove("temp_save_image.tif");
+
     return true;
 }
 
@@ -153,5 +157,4 @@ int main()
 
     
     return 0;
-
 }
