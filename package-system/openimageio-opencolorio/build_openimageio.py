@@ -17,7 +17,7 @@ each after that.
 Notably, this script will build and fetch dependencies as needed, but is stricly limited to the
 supported set that works for Open 3D Engine.  
 
-Notably, the following features are DISABLED and will n ot be present:
+Notably, the following features are DISABLED and will not be present:
  - Camera RAW support
  - The image viewer application 'iv'
  - Jpeg2000 support
