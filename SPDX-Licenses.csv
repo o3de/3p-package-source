@@ -15,7 +15,7 @@ d3dx12-headers-rev1-windows,https://github.com/microsoft/DirectX-Headers,MIT Lic
 DirectXShaderCompilerDxc-1.6.2104-o3de-rev3-windows,https://github.com/aws-lumberyard/DirectXShaderCompiler,NCSA,DirectXShaderCompilerDxc/LICENSE.TXT
 expat-2.4.2-rev1-windows,https://libexpat.github.io/,MIT,expat/COPYING
 freetype-2.10.4.16-windows,https://www.freetype.org/,FTL,freetype/FTL.TXT
-googlebenchmark-1.5.0-rev2-windows,https://github.com/google/benchmark,Apache-2.0,googlebenchmark/LICENSE
+googlebenchmark-1.7.0-rev1-windows,https://github.com/google/benchmark,Apache-2.0,googlebenchmark/LICENSE
 googletest-1.8.1-rev4-windows,https://github.com/google/googletest,custom,googletest/LICENSE
 ISPCTexComp-36b80aa-rev1-windows,https://github.com/GameTechDev/ISPCTextureCompressor,MIT,license.txt
 libpng-1.6.37-rev1-windows,http://www.libpng.org/,libpng-2.0,libpng/LICENSE
