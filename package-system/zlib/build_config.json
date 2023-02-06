@@ -1,9 +1,9 @@
 {
     "git_url":"https://github.com/madler/zlib",
-    "git_tag":"v1.2.11",
-    "git_commit":"cacf7f1d4e3d44d871b605da3b647f07d718623f",
+    "git_tag":"v1.2.13",
+    "git_commit":"04f42ceca40f73e2978b50e93806c2a18c1281fc",
     "package_name":"zlib",
-    "package_version":"1.2.11-rev5",
+    "package_version":"1.2.13-rev1",
     "package_url":"https://zlib.net",
     "package_license":"Zlib",
     "additional_src_files":[
