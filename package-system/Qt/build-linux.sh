@@ -9,96 +9,49 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
-set -euo pipefail
+# Arg 1: The tiff package name
+TIFF_PACKAGE_DIR=$1
 
-MAKE_FLAGS=-j32
+# Arg 2: The zlib package name
+ZLIB_PACKAGE_DIR=$2
 
-echo ""
-echo "------ BUILDING QT5 FROM SOURCE ------"
-echo ""
-echo "BASIC REQUIREMENTS in case something goes wrong:"
-echo "   - git installed and in PATH"
-echo "   - QT5 packages needed for building (https://wiki.qt.io/Building_Qt_5_from_Git)"
-echo "   - Note: This script is currently written for buildng on Ubuntu Linux only."
-echo "   - Note: installing binaries with pip must result with them being on PATH."
-echo ""
+# Make sure docker is installed
+DOCKER_VERSION=$(docker --version)
+if [ $? -ne 0 ]
+then
+    echo "Required package docker is not installed"
+    echo "Follow instructions on https://docs.docker.com/engine/install/ubuntu/ to install docker properly"
+    exit 1
+fi
+echo "Detected Docker Version $DOCKER_VERSION"
 
-# Make sure we have all the required dev packages
-REQUIRED_DEV_PACKAGES="libx11-xcb-dev libxcb-icccm4-dev libxcb-shm0-dev libxcb-image0 libxcb-image0-dev libxcb-util-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-sync-dev libxcb-xinerama0-dev libxcb-glx0-dev libgbm-dev libxcb-shape0-dev sudo apt install libxcb-xfixes0-dev libxcb-xkb-dev"
-ALL_PACKAGES=`apt list 2>/dev/null`
-for req_package in $REQUIRED_DEV_PACKAGES
-do
-    PACKAGE_COUNT=`echo $ALL_PACKAGES | grep $req_package | wc -l`
-    if [[ $PACKAGE_COUNT -eq 0 ]]; then
-        echo Missing required package $req_package
-        exit 1
-    fi
-done
+# Prepare the docker file and use the temp folder as the context root
+cp docker_build_qt_linux.sh temp/
 
-# Base the Tiff of the dependent tiff O3DE package (static)
-TIFF_PREFIX=$TEMP_FOLDER/tiff-4.2.0.15-rev3-linux/tiff
-TIFF_INCDIR=$TIFF_PREFIX/include
-TIFF_LIBDIR=$TIFF_PREFIX/lib
+TIFF_FOLDER_NAME=tiff-4.2.0.15-rev3-linux-aarch64
+ZLIB_FOLDER_NAME=zlib-1.2.11-rev5-linux-aarch64
 
-# We need to also bring in the zlib dependency since Tiff is a static lib dependency
-ZLIB_PREFIX=$TEMP_FOLDER/zlib-1.2.11-rev5-linux/zlib
-ZLIB_INCDIR=$ZLIB_PREFIX/include
-ZLIB_LIBDIR=$ZLIB_PREFIX/lib
+pushd temp
 
-BUILD_PATH=$TEMP_FOLDER/build
+# Build the Docker Image
+echo "Building the docker build script"
+DOCKER_IMAGE_NAME=qt_linux_3p
+docker build --build-arg TIFF_PACKAGE_DIR=${TIFF_FOLDER_NAME} --build-arg ZLIB_PACKAGE_DIR=${ZLIB_FOLDER_NAME} -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest . || (echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
 
-[[ -d $BUILD_PATH ]] || mkdir $BUILD_PATH
-cd $BUILD_PATH
-
-echo Configuring Qt...
-../src/configure \
--prefix ${TARGET_INSTALL_ROOT} \
--opensource \
--nomake examples \
--nomake tests \
--confirm-license \
--no-icu \
--dbus \
--no-separate-debug-info \
--release \
--force-debug-info \
--qt-libpng \
--qt-libjpeg \
--no-feature-vnc \
--no-feature-linuxfb \
---tiff=system \
--qt-zlib \
--v \
--no-cups \
--no-glib \
--no-feature-renameat2 \
--no-feature-getentropy \
--no-feature-statx \
--no-egl \
--I $TIFF_INCDIR \
--I $ZLIB_INCDIR \
--L $TIFF_LIBDIR \
--L $ZLIB_LIBDIR \
--c++std c++1z \
--openssl \
--reduce-relocations \
--fontconfig
+# Capture the Docker Image ID
+IMAGE_ID=$(docker images -q ${DOCKER_IMAGE_NAME}:latest)
+if [ -z $IMAGE_ID ]
+then
+    echo "Error: Cannot find Image ID for ${DOCKER_IMAGE_NAME}"
+    exit 1
+fi
 
 
-echo Qt configured, building modules...
-qtarray=(qtbase qtgraphicaleffects qtimageformats qtsvg qttools qtx11extras)
-
-for qtlib in "${qtarray[@]}"; do
-    echo Building $qtlib...
-    make module-$qtlib $MAKE_FLAGS
-    echo Built $qtlib.
-done
-
-echo Finished building modules, installing...
-for qtlib in "${qtarray[@]}"; do
-    echo Installing $qtlib...
-    make module-$qtlib-install_subtargets
-    echo $qtlib installed.
-done
+# Run the Docker Image
+echo "Running docker build script"
+docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$TIFF_FOLDER_NAME:/data/workspace/$TIFF_FOLDER_NAME -v $TEMP_FOLDER/$ZLIB_FOLDER_NAME:/data/workspace/$ZLIB_FOLDER_NAME -v $TARGET_INSTALL_ROOT:/data/workspace/qt --tty ${DOCKER_IMAGE_NAME}:latest ./docker_build_qt_linux.sh || (echo "Error occurred running Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
 
 echo Qt installed successfully!
+
+exit 0
+
