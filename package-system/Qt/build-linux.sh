@@ -10,10 +10,10 @@
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
 # Arg 1: The tiff package name
-TIFF_PACKAGE_DIR=$1
+TIFF_FOLDER_NAME=$1
 
 # Arg 2: The zlib package name
-ZLIB_PACKAGE_DIR=$2
+ZLIB_FOLDER_NAME=$2
 
 # Make sure docker is installed
 DOCKER_VERSION=$(docker --version)
@@ -27,9 +27,6 @@ echo "Detected Docker Version $DOCKER_VERSION"
 
 # Prepare the docker file and use the temp folder as the context root
 cp docker_build_qt_linux.sh temp/
-
-TIFF_FOLDER_NAME=tiff-4.2.0.15-rev3-linux-aarch64
-ZLIB_FOLDER_NAME=zlib-1.2.11-rev5-linux-aarch64
 
 pushd temp
 
