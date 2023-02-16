@@ -46,9 +46,30 @@ fi
 
 # Run the Docker Image
 echo "Running docker build script"
-docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$TIFF_FOLDER_NAME:/data/workspace/$TIFF_FOLDER_NAME -v $TEMP_FOLDER/$ZLIB_FOLDER_NAME:/data/workspace/$ZLIB_FOLDER_NAME -v $TARGET_INSTALL_ROOT:/data/workspace/qt --tty ${DOCKER_IMAGE_NAME}:latest ./docker_build_qt_linux.sh || (echo "Error occurred running Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
+docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$TIFF_FOLDER_NAME:/data/workspace/$TIFF_FOLDER_NAME -v $TEMP_FOLDER/$ZLIB_FOLDER_NAME:/data/workspace/$ZLIB_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest ./docker_build_qt_linux.sh || (echo "Error occurred running Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
 
-echo Qt installed successfully!
+
+# Capture the container ID
+echo "Capturing the Container ID"
+CONTAINER_ID=$(docker container ls -l -q --filter "ancestor=${DOCKER_IMAGE_NAME}:latest")
+if [ -z $CONTAINER_ID ]
+then
+    echo "Error: Cannot find Container ID for Image ${DOCKER_IMAGE_NAME}"
+    exit 1
+fi
+
+# Copy the build artifacts from the Docker Container
+echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
+
+docker  cp --quiet $CONTAINER_ID:/data/workspace/qt/. $TARGET_INSTALL_ROOT || (echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
+
+# Clean up the docker image and container
+echo "Cleaning up containers"
+docker container rm $CONTAINER_ID || (echo "Error occurred trying to clean up container for image ${DOCKER_IMAGE_NAME}")
+
+echo "Cleaning up image"
+docker rmi --force $IMAGE_ID  || (echo "Error occurred trying to clean up image ${DOCKER_IMAGE_NAME}")
+
+popd
 
 exit 0
-

@@ -52,18 +52,8 @@ RUN apt-get install -y qtbase5-dev \
 # Prevent the copying of the src folder from being cached
 ARG CACHEBUST=1
 
-#RUN cd /data/workspace && \
-#    mkdir src
-
-# Copy the git synced source from the context base to this container
-#COPY src  /data/workspace/src/
-
-# Copy the dependent 3P libraries to the docker image
-#RUN mkdir ${TIFF_PACKAGE_DIR}
-COPY ${TIFF_PACKAGE_DIR} /data/workspace/${TIFF_PACKAGE_DIR}
-
-#RUN mkdir ${ZLIB_PACKAGE_DIR}
-COPY ${ZLIB_PACKAGE_DIR} /data/workspace/${ZLIB_PACKAGE_DIR}
+RUN cd /data/workspace && \
+    mkdir qt
 
 # Copy the build script specific to this Docker script in order to execute the build
 COPY docker_build_qt_linux.sh /data/workspace/
