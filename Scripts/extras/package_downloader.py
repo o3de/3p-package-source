@@ -16,6 +16,7 @@ import hashlib
 import pathlib
 import tarfile
 import sys
+from urllib.parse import _splithost
 
 
 # used if LY_PACKAGE_SERVER_URLS is not set.
@@ -134,10 +135,23 @@ class PackageDownloader():
             if not package_server:
                 continue
             full_package_url = package_server + "/" + package_file_name
-            print(f"    - attempting '{full_package_url}' ...")
-
             try:
-                if full_package_url.startswith("s3://"):
+                # check if its a local file (gets around an issue with parsing urls in py3.10.x)
+                parse_result = urllib.parse.urlparse(full_package_url)
+                if parse_result.scheme == 'file':
+                    actual_path = ""
+                    if parse_result.netloc:
+                        actual_path = urllib.request.url2pathname(parse_result.netloc + parse_result.path)
+                    else:
+                        actual_path = urllib.request.url2pathname(parse_result.path)
+                    # 'download' a local file:
+                    file_data = None
+                    print(f"    - Reading from local file: {actual_path}")
+                    with open(actual_path, "rb") as input_file:
+                        file_data = input_file.read()
+                    with open(package_download_name, "wb") as save_package:
+                        save_package.write(file_data)
+                elif full_package_url.startswith("s3://"):
                     if not _aws_s3_available:
                         print(f"S3 URL given, but boto3 could not be located. Please ensure that you have installed")
                         print(f"installed requirements: {sys.executable} -m pip install --upgrade boto3 certifi six")
@@ -156,8 +170,9 @@ class PackageDownloader():
                     session.client('s3').download_file(bucket_name, package_file_name, str(package_download_name))
                 else:
                     tls_context = ssl.create_default_context(cafile=certifi.where())
+                    print(f"    - Trying URL: {full_package_url}")
                     with urllib.request.urlopen(url=full_package_url, context = tls_context) as server_response:
-                        print("    - Downloading package...")
+                        
                         file_data = server_response.read()
                         with open(package_download_name, "wb") as save_package:
                             save_package.write(file_data)

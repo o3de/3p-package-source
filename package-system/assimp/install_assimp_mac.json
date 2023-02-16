@@ -3,7 +3,7 @@
   "Install_Paths": [
     "include/",
     "lib/libassimp.a",
-    "bin/libassimp.5.1.6.dylib",
+    "bin/libassimp.5.2.4.dylib",
     "bin/libassimp.5.dylib",
     "bin/libassimp.dylib",
     "bin/assimp",
