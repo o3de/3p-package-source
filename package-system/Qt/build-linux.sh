@@ -33,7 +33,7 @@ pushd temp
 # Build the Docker Image
 echo "Building the docker build script"
 DOCKER_IMAGE_NAME=qt_linux_3p
-docker build --build-arg TIFF_PACKAGE_DIR=${TIFF_FOLDER_NAME} --build-arg ZLIB_PACKAGE_DIR=${ZLIB_FOLDER_NAME} -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest . || (echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
+docker build -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest . || (echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
 
 # Capture the Docker Image ID
 IMAGE_ID=$(docker images -q ${DOCKER_IMAGE_NAME}:latest)
@@ -42,7 +42,6 @@ then
     echo "Error: Cannot find Image ID for ${DOCKER_IMAGE_NAME}"
     exit 1
 fi
-
 
 # Run the Docker Image
 echo "Running docker build script"
@@ -64,7 +63,7 @@ echo "Copying the built contents from the docker container for image ${DOCKER_IM
 docker  cp --quiet $CONTAINER_ID:/data/workspace/qt/. $TARGET_INSTALL_ROOT || (echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
 
 # Clean up the docker image and container
-echo "Cleaning up containers"
+echo "Cleaning up container"
 docker container rm $CONTAINER_ID || (echo "Error occurred trying to clean up container for image ${DOCKER_IMAGE_NAME}")
 
 echo "Cleaning up image"

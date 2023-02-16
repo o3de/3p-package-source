@@ -13,10 +13,6 @@ FROM public.ecr.aws/ubuntu/ubuntu:20.04_stable
  
 WORKDIR /data/workspace
 
-ARG TIFF_PACKAGE_DIR
-ARG ZLIB_PACKAGE_DIR
-
-
 # Initilize apt cache
 RUN apt-get clean && apt-get update
 
@@ -29,7 +25,7 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 
 ENV LANG=en_US.UTF-8
 
-# Install the development packages needed to build AWS Native C++ SDK
+# Install the development packages needed to build Qt from source
 RUN apt-get install -y qtbase5-dev \ 
                        build-essential \
                        perl \
@@ -48,18 +44,8 @@ RUN apt-get install -y qtbase5-dev \
                        libssl-dev \
                        libtiff-dev
 
-
-# Prevent the copying of the src folder from being cached
-ARG CACHEBUST=1
-
-RUN cd /data/workspace && \
-    mkdir qt
+# Prepare a target folder within the container to install the build artifacts tp
+RUN mkdir -p /data/workspace/qt
 
 # Copy the build script specific to this Docker script in order to execute the build
 COPY docker_build_qt_linux.sh /data/workspace/
-
-
-
-
-
-

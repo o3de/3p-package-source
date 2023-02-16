@@ -10,7 +10,6 @@
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
 # Read the dependent 3P library paths from the arguments
-
 TIFF_PACKAGE_DIR=$1
 ZLIB_PACKAGE_DIR=$2
 
