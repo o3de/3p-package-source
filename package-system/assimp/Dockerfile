@@ -32,7 +32,8 @@ RUN apt-get install -y build-essential \
                        pkg-config \
                        libminizip-dev \
                        git \
-                       cmake
+                       cmake \
+                       ninja-build
 
 RUN apt upgrade -y
 
