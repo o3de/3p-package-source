@@ -29,7 +29,12 @@ ENV LANG=en_US.UTF-8
 
 # Install the development packages needed to build Qt from source
 RUN apt-get install -y build-essential \
+                       pkg-config \
+                       libminizip-dev \
+                       git \
                        cmake
+
+RUN apt upgrade -y
 
 # Prepare a target folder within the container to install the build artifacts tp
 RUN mkdir -p /data/workspace/build

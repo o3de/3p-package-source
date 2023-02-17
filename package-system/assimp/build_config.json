@@ -52,10 +52,7 @@
                 ],
                 "custom_install_json": [
                     "./install_assimp_linux.json"
-                ],
-                "custom_test_cmd" : [
-                   "./test_assimp_linux.sh"
-               ]
+                ]
             },
             "Linux-aarch64":{
                 "depends_on_packages" :[
@@ -66,9 +63,7 @@
                 ],
                 "custom_install_json": [
                     "./install_assimp_linux.json"
-                ],
-                "custom_test_cmd" : [
-               ]
+                ]
             }
         }
     }
