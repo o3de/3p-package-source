@@ -5,8 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 
-# This docker file uses ubuntu 20.04 as the base image so that the AWS Native C++ libraries will use OpenSSL 3 as the base
-# for its dependencies
+# This docker file uses ubuntu 20.04 as the base image to install the dependencies to build Qt from source
 #
 
 FROM public.ecr.aws/ubuntu/ubuntu:20.04_stable
