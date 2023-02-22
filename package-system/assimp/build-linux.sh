@@ -33,7 +33,13 @@ pushd temp
 # Build the Docker Image
 echo "Building the docker build script"
 DOCKER_IMAGE_NAME=assimp_linux_3p
-docker build --build-arg ZLIB_FOLDER_PATH=$ZLIB_FOLDER_NAME -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest . || (echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
+docker build --build-arg ZLIB_FOLDER_PATH=$ZLIB_FOLDER_NAME -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest . 
+if [ $? -ne 0 ]
+then
+    echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." 
+    exit 1
+fi
+
 
 # Capture the Docker Image ID
 IMAGE_ID=$(docker images -q ${DOCKER_IMAGE_NAME}:latest)
@@ -43,9 +49,16 @@ then
     exit 1
 fi
 
+
 # Run the Docker Image
 echo "Running build script in the docker image"
-docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$ZLIB_FOLDER_NAME:/data/workspace/$ZLIB_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/docker_build_assimp_linux.sh || (echo "Error running build script in Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
+docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$ZLIB_FOLDER_NAME:/data/workspace/$ZLIB_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/docker_build_assimp_linux.sh 
+if [ $? -ne 0 ]
+then
+    echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
+    exit 1
+fi
+
 
 # Capture the container ID
 echo "Capturing the Container ID"
@@ -56,19 +69,27 @@ then
     exit 1
 fi
 
+
 # Copy the build artifacts from the Docker Container
 echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
 
 mkdir -p build
-docker  cp --quiet $CONTAINER_ID:/data/workspace/build/. build  || (echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." ; exit 1)
+docker  cp --quiet $CONTAINER_ID:/data/workspace/build/. build  
+if [ $? -ne 0 ]
+then
+    echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." 
+    exit 1
+fi
+
 
 # Clean up the docker image and container
 echo "Cleaning up container"
-docker container rm $CONTAINER_ID || (echo "Error occurred trying to clean up container for image ${DOCKER_IMAGE_NAME}")
+docker container rm $CONTAINER_ID || (echo "Warning: unable to clean up container for image ${DOCKER_IMAGE_NAME}")
 
 echo "Cleaning up image"
-docker rmi --force $IMAGE_ID  || (echo "Error occurred trying to clean up image ${DOCKER_IMAGE_NAME}")
+docker rmi --force $IMAGE_ID  || (echo "Warning: unable to clean up image ${DOCKER_IMAGE_NAME}")
 
 popd
 
 exit 0
+

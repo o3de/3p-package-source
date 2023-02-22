@@ -20,15 +20,40 @@ echo "Working with Assimp commit hash ${GIT_HASH}"
 
 echo "Using custom zlib (shared) library at /data/workspace/${ZLIB_LIB_PATH}"
 
-cmake -S . -B /data/workspace/build -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH="/data/workspace/${ZLIB_LIB_PATH}" -DASSIMP_BUILD_ZLIB=OFF -DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_ASSIMP_TOOLS=ON || (echo "Failed generating cmake project for assimp/shared." ; exit 1)
 
-cmake --build /data/workspace/build || (echo "Failed building cmake project for assimp/shared." ; exit 1)
+cmake -S . -B /data/workspace/build -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH="/data/workspace/${ZLIB_LIB_PATH}" -DASSIMP_BUILD_ZLIB=OFF -DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_ASSIMP_TOOLS=ON 
+if [ $? -ne 0 ]
+then
+    echo "Failed generating cmake project for assimp/shared."
+    exit 1
+fi
+
+
+cmake --build /data/workspace/build 
+if [ $? -ne 0 ]
+then
+    echo "Failed building cmake project for assimp/shared."
+    exit 1
+fi
+
 
 echo "Using custom zlib (static) library at /data/workspace/${ZLIB_LIB_PATH}"
 
-cmake -S . -B /data/workspace/build -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH="/data/workspace/${ZLIB_LIB_PATH}" -DASSIMP_BUILD_ZLIB=OFF -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=ON || (echo "Failed generating cmake project for assimp/static." ; exit 1)
+cmake -S . -B /data/workspace/build -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH="/data/workspace/${ZLIB_LIB_PATH}" -DASSIMP_BUILD_ZLIB=OFF -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=ON 
+if [ $? -ne 0 ]
+then
+    echo "Failed generating cmake project for assimp/static."
+    exit 1
+fi
 
-cmake --build /data/workspace/build || (echo "Failed building cmake project for assimp/shared." ; exit 1)
+
+cmake --build /data/workspace/build
+if [ $? -ne 0 ]
+then
+    echo "Failed building cmake project for assimp/shared." 
+    exit 1
+fi
+
 
 mkdir -p /data/workspace/build/port/
 cp -R /data/workspace/src/port/PyAssimp /data/workspace/build/port/
@@ -39,8 +64,14 @@ cd ..
 mkdir -p test_out
 cd test_out
 
-../build/bin/unit || (echo "Unit tests failed." ; exit 1)
-
-echo "Build Succeeded"
+../build/bin/unit 
+if [ $? -eq 0 ]; then
+    echo "Unit Tests Passed"
+    exit 0
+else
+    echo "Unit Tests Failed"
+    exit 1
+fi
 
 exit 0
+
