@@ -35,7 +35,7 @@
         "SQLite-3.37.2-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/sqlite --platform-name Linux-aarch64 --clean",
         "tiff-4.2.0.15-rev3-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name Linux-aarch64 --clean",
         "v-hacd-2.3-1a49edf-rev1-linux-aarch64": "package-system/v-hacd/build_package_image.py --platform-name linux-aarch64",
-        "zlib-1.2.11-rev5-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux-aarch64 --clean"
+        "zlib-1.2.13-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux-aarch64 --clean"
     },
     "build_from_folder": {
         "astc-encoder-3.2-rev2-linux-aarch64": "package-system/astc-encoder/temp/astc-encoder-linux-aarch64",
@@ -69,6 +69,6 @@
         "SQLite-3.37.2-rev1-linux-aarch64": "package-system/sqlite/temp/SQLite-linux-aarch64",
         "tiff-4.2.0.15-rev3-linux-aarch64": "package-system/tiff/temp/tiff-linux-aarch64",
         "v-hacd-2.3-1a49edf-rev1-linux-aarch64": "package-system/v-hacd-linux-aarch64",
-        "zlib-1.2.11-rev5-linux-aarch64": "package-system/zlib/temp/zlib-linux-aarch64"
+        "zlib-1.2.13-rev1-linux-aarch64": "package-system/zlib/temp/zlib-linux-aarch64"
     }
 }
