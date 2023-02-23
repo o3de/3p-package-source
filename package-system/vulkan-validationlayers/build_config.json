@@ -27,7 +27,7 @@
                 "cmake_find_source": "Findvulkan-validationlayers.cmake",
                 "cmake_find_target": "Findvulkan-validationlayers.cmake",
                 "custom_build_cmd": [
-                  "./build_vulkan_validation_linux.sh"
+                  "./build_linux.sh"
                 ],
                 "custom_install_cmd": [
                   "./install_vulkan_validation_linux.sh"
