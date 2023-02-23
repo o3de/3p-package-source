@@ -71,6 +71,12 @@ echo Configuring Qt...
                  -c++std c++1z \
                  -openssl \
                  -fontconfig
+if [ $? -ne 0 ]
+then
+    echo "Failed to configure Qt"
+    exit 1
+fi
+
 
 echo Qt configured, building modules...
 qtarray=(qtbase qtgraphicaleffects qtimageformats qtsvg qttools qtx11extras)
@@ -78,6 +84,13 @@ qtarray=(qtbase qtgraphicaleffects qtimageformats qtsvg qttools qtx11extras)
 for qtlib in "${qtarray[@]}"; do
     echo Building $qtlib...
     make module-$qtlib $MAKE_FLAGS
+
+    if [ $? -ne 0 ]
+    then
+        echo "Failed building Qt module $qtlib"
+        exit 1
+    fi
+
     echo Built $qtlib.
 done
 
@@ -85,6 +98,13 @@ echo Finished building modules, installing...
 for qtlib in "${qtarray[@]}"; do
     echo Installing $qtlib...
     make module-$qtlib-install_subtargets
+    
+    if [ ?$ -ne 0 ]
+    then
+        echo "Failed installing Qt module $qtlib"
+        exit 1
+    fi
+
     echo $qtlib installed.
 done
 
