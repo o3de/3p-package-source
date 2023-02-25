@@ -6,8 +6,9 @@ cd src
 
 INSTALL_DIR=/data/workspace/build
 
-if [ "$(uname -m)" -eq "aarch64" ]
+if [ "$(uname -m)"="aarch64" ]
 then
+    echo "Configuring for ARM"
     ./configure --build=arm --prefix=$INSTALL_DIR
 else 
     ./configure --prefix=$INSTALL_DIR
