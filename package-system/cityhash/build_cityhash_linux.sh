@@ -8,9 +8,10 @@ INSTALL_DIR=/data/workspace/build
 
 if [ "$(uname -m)"="aarch64" ]
 then
-    echo "Configuring for ARM"
+    echo "Configuring cityhash for ARM64"
     ./configure --build=arm --prefix=$INSTALL_DIR
 else 
+    echo "Configuring cityhash for x86_64"
     ./configure --prefix=$INSTALL_DIR
 fi
 
@@ -40,3 +41,6 @@ then
     echo "Failed installing cityhash"
     exit 1
 fi
+
+echo "cityhash built successfully"
+exit 0
