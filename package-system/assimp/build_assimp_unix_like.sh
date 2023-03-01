@@ -11,7 +11,7 @@ cmake_base_command="cmake -S temp/src -B temp/src  -DCMAKE_BUILD_TYPE=Release -D
 
 # On Mac, load the toolchain file to make sure
 # the build matches compatibility with other Mac libraries
-if [ "$(uname)" == "Darwin" ];
+if [ "$(uname)" = "Darwin" ];
 then
     echo "Loading Darwin toolchain file"
     cmake_base_command+=" -DCMAKE_TOOLCHAIN_FILE=$PWD/../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
@@ -24,15 +24,18 @@ echo "Running first cmake command:"
 echo "$cmake_no_shared_libs"
 
 eval "$cmake_no_shared_libs temp/src/CMakeLists.txt" || exit 1
-cmake --build temp/src --config release || exit 1
+cmake --build temp/build --config release || exit 1
 
 echo "Running second cmake command:"
 echo "$cmake_shared_libs"
 
 eval "$cmake_shared_libs temp/src/CMakeLists.txt" || exit 1
-cmake --build temp/src --config release || exit 1
+cmake --build temp/build --config release || exit 1
 
-if [ "$(uname)" == "Darwin" ];
+mkdir temp/build/port/
+cp -R temp/src/port/PyAssimp temp/build/port/
+
+if [ "$(uname)" = "Darwin" ];
 then
     # Printing the minimum OS version here can save some time debugging.
     echo "Min OS version:"

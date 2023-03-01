@@ -13,6 +13,6 @@ rm -rf test_out
 mkdir test_out
 cd test_out
 
-../src/bin/unit || exit 1
+../build/bin/unit || exit 1
 exit 0
 
