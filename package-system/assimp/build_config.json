@@ -1,14 +1,14 @@
 {
     "git_url":"https://github.com/assimp/assimp",
-    "git_tag": "v5.1.6",
+    "git_tag": "v5.2.5",
     "package_name":"assimp",
-    "package_version":"5.1.6-rev2",
+    "package_version":"5.2.5-rev1",
     "package_url":"https://github.com/assimp/assimp",
     "package_license":"BSD-3-Clause",
     "package_license_file":"LICENSE",
     "cmake_find_source":"Findassimplib.cmake",
     "cmake_find_target":"Findassimplib.cmake",
-    "patch_file" : "O3DE-fixes-applied-on-top-of-v5.1.6.patch",
+    "patch_file" : "O3DE-fixes-applied-on-top-of-v5.2.5.patch",
     "Platforms":{
         "Windows":{
             "Windows":{
@@ -48,14 +48,22 @@
                     ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
                 ],
                 "custom_build_cmd": [
-                    "./build_assimp_unix_like.sh"
+                    "./build-linux-x86.sh"
                 ],
                 "custom_install_json": [
                     "./install_assimp_linux.json"
+                ]
+            },
+            "Linux-aarch64":{
+                "depends_on_packages" :[
+                    ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""]
                 ],
-                "custom_test_cmd" : [
-                   "./test_assimp_linux.sh"
-               ]
+                "custom_build_cmd": [
+                    "./build-linux-aarch64.sh"
+                ],
+                "custom_install_json": [
+                    "./install_assimp_linux.json"
+                ]
             }
         }
     }

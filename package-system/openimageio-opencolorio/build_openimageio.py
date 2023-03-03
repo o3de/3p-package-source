@@ -17,7 +17,7 @@ each after that.
 Notably, this script will build and fetch dependencies as needed, but is stricly limited to the
 supported set that works for Open 3D Engine.  
 
-Notably, the following features are DISABLED and will n ot be present:
+Notably, the following features are DISABLED and will not be present:
  - Camera RAW support
  - The image viewer application 'iv'
  - Jpeg2000 support
@@ -88,7 +88,7 @@ dependencies = {
     'windows' :
         {
             'zlib' :     ('zlib-1.2.11-rev5-windows',          '8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd'),
-            'openexr' :  ('OpenEXR-3.1.3-rev4-windows',        'c850268e849171751cdaefdab1952333ac38afbb771b999e99d67f9761706d98'),
+            'openexr' :  ('OpenEXR-3.1.3-rev5-windows',        'bff6dc78412bb1b04ded243753bee36e9229fdaf9a9e1fa85b1059238fba4c9b'),
             'python' :   ('python-3.10.5-rev1-windows',        'c012e7c8fd20e632446d2cd689a9472e4e4495da7534d484d0f1c63840222cbb'),
             'tiff' :     ('tiff-4.2.0.15-rev3-windows',        'c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60'),
             'libpng' :   ('png-1.6.37-rev2-windows',           'e16539a0fff26ac9ef80dd11ef0103eca91745519eacd41d41d96911c173589f'),

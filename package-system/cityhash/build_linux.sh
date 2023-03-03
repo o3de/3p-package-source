@@ -9,11 +9,10 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
-# Arg 1: The tiff package name
-TIFF_FOLDER_NAME=$1
 
-# Arg 2: The zlib package name
-ZLIB_FOLDER_NAME=$2
+DOCKER_BUILD_SCRIPT=build_cityhash_linux.sh
+DOCKER_IMAGE_NAME=cityhash_3p
+
 
 # Make sure docker is installed
 DOCKER_VERSION=$(docker --version)
@@ -25,18 +24,18 @@ then
 fi
 echo "Detected Docker Version $DOCKER_VERSION"
 
-# Prepare the docker file and use the temp folder as the context root
-cp docker_build_qt_linux.sh temp/
+
+# Copy the custom build script to docker context folder
+cp $DOCKER_BUILD_SCRIPT temp/
 
 pushd temp
 
 # Build the Docker Image
-echo "Building the docker build script"
-DOCKER_IMAGE_NAME=qt_linux_3p
-docker build -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest . 
+echo "Creating docker image  ${DOCKER_IMAGE_NAME}"
+docker build --build-arg DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} -f ../Dockerfile.linux -t ${DOCKER_IMAGE_NAME}:latest . 
 if [ $? -ne 0 ]
 then
-    echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest."
+    echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." 
     exit 1
 fi
 
@@ -49,12 +48,13 @@ then
     exit 1
 fi
 
+
 # Run the Docker Image
-echo "Running docker build script"
-docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$TIFF_FOLDER_NAME:/data/workspace/$TIFF_FOLDER_NAME -v $TEMP_FOLDER/$ZLIB_FOLDER_NAME:/data/workspace/$ZLIB_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest ./docker_build_qt_linux.sh 
+echo "Running build script in the docker image ${DOCKER_IMAGE_NAME}"
+docker run -v $TEMP_FOLDER/src:/data/workspace/src --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT
 if [ $? -ne 0 ]
 then
-    echo "Error occurred running Docker image ${DOCKER_IMAGE_NAME}:latest." 
+    echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
     exit 1
 fi
 
@@ -71,21 +71,24 @@ fi
 
 # Copy the build artifacts from the Docker Container
 echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
-docker  cp --quiet $CONTAINER_ID:/data/workspace/qt/. $TARGET_INSTALL_ROOT
+
+mkdir -p build
+docker  cp --quiet $CONTAINER_ID:/data/workspace/build/. build  
 if [ $? -ne 0 ]
 then
-    echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest."
+    echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." 
     exit 1
 fi
 
 
 # Clean up the docker image and container
 echo "Cleaning up container"
-docker container rm $CONTAINER_ID || (echo "Warning: Unable to clean up container for image ${DOCKER_IMAGE_NAME}")
+docker container rm $CONTAINER_ID || (echo "Warning: unable to clean up container for image ${DOCKER_IMAGE_NAME}")
 
 echo "Cleaning up image"
-docker rmi --force $IMAGE_ID  || (echo "Warning: Unable to clean up image ${DOCKER_IMAGE_NAME}")
+docker rmi --force $IMAGE_ID  || (echo "Warning: unable to clean up image ${DOCKER_IMAGE_NAME}")
 
 popd
 
 exit 0
+

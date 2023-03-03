@@ -20,7 +20,7 @@ ECHO path as tcl is required to build for windows
 cd %BLD_PATH%
 
 REM Build the release library
-call nmake /f ..\src\Makefile.msc TOP=..\src libsqlite3.lib DEBUG=0
+call nmake /f ..\src\Makefile.msc TOP=..\src libsqlite3.lib DEBUG=0 USE_CRT_DLL=1
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "nmake for debug Command Failed"
     exit /b 1

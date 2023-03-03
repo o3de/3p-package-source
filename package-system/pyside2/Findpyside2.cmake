@@ -22,16 +22,20 @@ set(${MY_NAME}_BIN_DIR ${PYSIDE_BASE_PATH}/bin)
 set(${MY_NAME}_LIB_DIR ${PYSIDE_BASE_PATH}/lib)
 set(${MY_NAME}_INCLUDE_DIR ${PYSIDE_BASE_PATH}/include)
 
-ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages pyside2)
+if (PAL_PLATFORM_NAME STREQUAL "Windows")
+    ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages pyside2)
+elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
+    ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.10/site-packages pyside2)
+endif()
 
 if (PAL_PLATFORM_NAME STREQUAL "Linux")
     set(${MY_NAME}_RUNTIME_DEPENDENCIES
-        {${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15.2.1
-        {${MY_NAME}_LIB_DIR}/libpyside2.abi3.so.5.15
-        {${MY_NAME}_LIB_DIR}/libpyside2.abi3.so
-        {${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15.2.1
-        {${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so.5.15
-        {${MY_NAME}_LIB_DIR}/libshiboken2.abi3.so
+        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15.2.1
+        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15
+        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15.2.1
+        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15
+        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
     
     ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES ${${MY_NAME}_RUNTIME_DEPENDENCIES})
@@ -56,7 +60,7 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
         ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/share
-        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
         IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
         IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
         IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
@@ -123,11 +127,15 @@ set_target_properties(${MY_NAME}::ShibokenTool PROPERTIES IMPORTED_LOCATION "${$
 add_executable(${TARGET_WITH_NAMESPACE}::ShibokenTool ALIAS ${MY_NAME}::ShibokenTool)
 
 function(add_shiboken_project)
-    set(oneValueArgs NAMESPACE NAME WRAPPED_HEADER TYPESYSTEM_FILE GENERATED_FILES LICENSE_HEADER)
+    set(oneValueArgs MODULE_NAME NAMESPACE NAME WRAPPED_HEADER TYPESYSTEM_FILE GENERATED_FILES LICENSE_HEADER)
     set(multiValueArgs INCLUDE_DIRS DEPENDENCIES)
     cmake_parse_arguments(add_shiboken_project "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
     
     # Validate arguments
+    if (NOT add_shiboken_project_MODULE_NAME)
+        message(FATAL_ERROR "You must provide a module name matching the package name in the xml typesystem file. This is the name of the output Python module.")
+    endif()
+    
     if(NOT add_shiboken_project_WRAPPED_HEADER)
         message(FATAL_ERROR "You must provide a header file containing all headers to be reflected.")
     endif()
@@ -150,7 +158,7 @@ function(add_shiboken_project)
     list(TRANSFORM add_shiboken_project_INCLUDE_DIRS PREPEND "-I")                    
     
     # Reformat the generated files list to prepend the containing folder.
-    list(TRANSFORM GENERATED_FILES PREPEND "${CMAKE_CURRENT_BINARY_DIR}/${add_shiboken_project_NAME}/")
+    list(TRANSFORM GENERATED_FILES PREPEND "${CMAKE_CURRENT_BINARY_DIR}/${add_shiboken_project_MODULE_NAME}/")
     
     get_property(SHARE_DIR TARGET 3rdParty::pyside2 PROPERTY pyside2_SHARE_DIR)
         
@@ -172,12 +180,13 @@ function(add_shiboken_project)
     
     set(generated_sources_dependencies ${add_shiboken_project_WRAPPED_HEADER} ${add_shiboken_project_TYPESYSTEM_FILE})
     
-    # Custom shiboken command to generate wrapped files.
+    # Custom shiboken command to generate wrapped files. Set the working directory to qt/bin so that shiboken can load necessary dlls.
     add_custom_command(
         OUTPUT ${GENERATED_FILES}
         COMMAND 3rdParty::pyside2::ShibokenTool ${shiboken_options} ${add_shiboken_project_WRAPPED_HEADER} ${add_shiboken_project_TYPESYSTEM_FILE}
         DEPENDS ${generated_sources_dependencies} 3rdParty::pyside2
         COMMENT "Running generator for ${add_shiboken_project_TYPESYSTEM_FILE}."
+        WORKING_DIRECTORY ${QT_PATH}/bin
         VERBATIM
     )
     
@@ -185,7 +194,7 @@ function(add_shiboken_project)
     ly_add_target(
         NAME ${add_shiboken_project_NAME}.Editor MODULE
         NAMESPACE add_shiboken_project_NAMESPACE
-        OUTPUT_NAME ${add_shiboken_project_NAME}
+        OUTPUT_NAME ${add_shiboken_project_MODULE_NAME}
         # We need to provide a FILES_CMAKE, but as the files do not yet exist, project creation would fail if it actually 
         # had a FILES list. The files are actually added in by the following TARGET_SOURCES step.
         FILES_CMAKE
