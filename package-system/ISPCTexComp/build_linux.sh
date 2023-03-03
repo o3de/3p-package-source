@@ -33,6 +33,13 @@ then
     exit 1
 fi
 
+# If this is aarch64, we need a special patch
+if [ "$(uname -m)" = "aarch64" ]
+then
+    echo "Applying aarch64 patch"
+    git -C temp/ispc apply ../ispc_linux_patch_arm64.txt
+fi
+
 DOCKER_ISPC_ENV_IMAGE_NAME=ispc_cpu_env
 docker build --build-arg SHA=v1.16.1 -t ${DOCKER_ISPC_ENV_IMAGE_NAME}:latest temp/ispc/docker/ubuntu/20.04/cpu_ispc_build/ -f temp/ispc/docker/ubuntu/20.04/cpu_ispc_build/Dockerfile
 if [ $? -ne 0 ]
