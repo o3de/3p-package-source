@@ -169,62 +169,51 @@ set(OpenImageIO_TOOLS_BINARIES
     ${OpenImageIO_BIN_DIR}/oiiotool${CMAKE_EXECUTABLE_SUFFIX}
 )
 
-#only windows ships with debug libraries:
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-    set(_OIIO_DEBUG_POSTFIX "")
-    if ("${CMAKE_BUILD_TYPE}" STREQUAL Debug)
-        set(_OIIO_DEBUG_POSTFIX "_d")
-        set(OpenImageIO_Util_SHARED_LIB_DEBUG ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util${_OIIO_DEBUG_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
-        set(OpenImageIO_SHARED_LIB_DEBUG ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO${_OIIO_DEBUG_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
-
-        set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES
-            IMPORTED_LOCATION_DEBUG ${OpenImageIO_Util_SHARED_LIB_DEBUG}
-            IMPORTED_IMPLIB_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util${_OIIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-        )
-        set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
-            IMPORTED_LOCATION_DEBUG ${OpenImageIO_SHARED_LIB_DEBUG}
-            IMPORTED_IMPLIB_DEBUG ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${_OIIO_DEBUG_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-        )
-    endif()
-
+    # windows also has the regular import libraries (lib files) associated with its dll.   On linux and mac, the import library
+    # is part of the dynamic library, and thus no IMPLIB needs to be specified on those platforms.
     set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES 
         IMPORTED_IMPLIB ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
     set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
         IMPORTED_IMPLIB ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
+
+    # on windows, we also have a debug version of both the library and the import library, so add them:
+    set_target_properties(OpenImageIO::OpenImageIO_Util PROPERTIES
+        IMPORTED_LOCATION_DEBUG ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_Util_d${CMAKE_SHARED_LIBRARY_SUFFIX}
+        IMPORTED_IMPLIB_DEBUG   ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_Util_d${CMAKE_STATIC_LIBRARY_SUFFIX}
+    )
+    set_target_properties(OpenImageIO::OpenImageIO PROPERTIES
+        IMPORTED_LOCATION_DEBUG ${OpenImageIO_BIN_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}OpenImageIO_d${CMAKE_SHARED_LIBRARY_SUFFIX}
+        IMPORTED_IMPLIB_DEBUG   ${OpenImageIO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}OpenImageIO_d${CMAKE_STATIC_LIBRARY_SUFFIX}
+    )
+
+    # another issue is that on windows, the executable binary tools as well as python modules ship as release,
+    # and thus depend on the release binaries.  These will need to be deployed, too.  So create a target that represents the 
+    # shared release libraries, so that the binaries and the python tools can depend on them:
+    add_library(OpenImageIO::OpenImageIO::ReleaseSharedLibraries SHARED IMPORTED GLOBAL)
+    add_library(OpenImageIO::OpenImageIO_Util::ReleaseSharedLibraries SHARED IMPORTED GLOBAL)
+
+    set_target_properties(OpenImageIO::OpenImageIO::ReleaseSharedLibraries      PROPERTIES IMPORTED_LOCATION ${OpenImageIO_SHARED_LIB})
+    set_target_properties(OpenImageIO::OpenImageIO_Util::ReleaseSharedLibraries PROPERTIES IMPORTED_LOCATION ${OpenImageIO_Util_SHARED_LIB})
+
+    # add this to any targets that need the release libraries.  on platforms besides windows, its going to be blank:
+    set(_ADDITIONAL_OPENIMAGEIO_RUNTIME_TARGETS OpenImageIO::OpenImageIO::ReleaseSharedLibraries OpenImageIO::OpenImageIO_Util::ReleaseSharedLibraries)
+    
 endif()
 
 add_library(OpenImageIO::OpenImageIO::Tools::Binaries INTERFACE IMPORTED GLOBAL)
 add_library(OpenImageIO::OpenImageIO::Tools::PythonPlugins INTERFACE IMPORTED GLOBAL)
 if (COMMAND ly_add_target_files)
-    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO_Util FILES ${OpenImageIO_Util_SHARED_LIBS})
-    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO FILES ${OpenImageIO_SHARED_LIBS})
-
-    if (${CMAKE_SYSTEM_NAME} STREQUAL Windows AND "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
-        ly_add_target_files(TARGETS OpenImageIO::OpenImageIO_Util FILES ${OpenImageIO_Util_SHARED_LIB_DEBUG})
-        ly_add_target_files(TARGETS OpenImageIO::OpenImageIO FILES ${OpenImageIO_SHARED_LIB_DEBUG})
-    endif()
-
-    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::Binaries FILES
-        ${OpenImageIO_TOOLS_BINARIES}
-        ${OpenImageIO_Util_SHARED_LIBS}
-        ${OpenImageIO_SHARED_LIBS}
-    )
-    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::PythonPlugins FILES
-        ${OpenImageIOPythonBindings}
-        ${OpenImageIO_Util_SHARED_LIBS}
-        ${OpenImageIO_SHARED_LIBS}
-    )
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::Binaries FILES ${OpenImageIO_TOOLS_BINARIES})
+    ly_add_target_files(TARGETS OpenImageIO::OpenImageIO::Tools::PythonPlugins FILES ${OpenImageIOPythonBindings})
 endif()
 
 # Our OpenImageIO tools also depend on the OpenColorIO runtime (shared library)
-target_link_libraries(OpenImageIO::OpenImageIO::Tools::Binaries INTERFACE
-    OpenColorIO::OpenColorIO::Runtime
-)
-target_link_libraries(OpenImageIO::OpenImageIO::Tools::PythonPlugins INTERFACE
-    OpenColorIO::OpenColorIO::Runtime
-)
+target_link_libraries(OpenImageIO::OpenImageIO::Tools::Binaries INTERFACE OpenColorIO::OpenColorIO::Runtime ${_ADDITIONAL_OPENIMAGEIO_RUNTIME_TARGETS})
+target_link_libraries(OpenImageIO::OpenImageIO::Tools::PythonPlugins INTERFACE OpenColorIO::OpenColorIO::Runtime ${_ADDITIONAL_OPENIMAGEIO_RUNTIME_TARGETS})
 
 # alias the OpenImageIO library to the O3DE 3rdParty library
 add_library(3rdParty::OpenImageIO ALIAS OpenImageIO::OpenImageIO)

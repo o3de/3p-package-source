@@ -21,6 +21,19 @@
                     "install_vulkan_validation_windows.cmd"
                 ]
             }
+        },
+        "Linux":{
+            "Linux":{
+                "cmake_find_source": "Findvulkan-validationlayers.cmake",
+                "cmake_find_target": "Findvulkan-validationlayers.cmake",
+                "custom_build_cmd": [
+                  "./build_linux.sh"
+                ],
+                "custom_install_cmd": [
+                  "./install_vulkan_validation_linux.sh"
+                ]
+            },
+            "Linux-aarch64": "@Linux"
         }
     }
 }

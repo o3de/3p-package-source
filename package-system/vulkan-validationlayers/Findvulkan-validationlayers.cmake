@@ -15,7 +15,7 @@ endif()
 
 set(PATH_TO_DLL ${CMAKE_CURRENT_LIST_DIR}/vulkan-validationlayers/lib/release)
 
-set(_DLL_NAME ${PATH_TO_DLL}/VkLayer_khronos_validation${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(_DLL_NAME ${PATH_TO_DLL}/${CMAKE_SHARED_LIBRARY_PREFIX}VkLayer_khronos_validation${CMAKE_SHARED_LIBRARY_SUFFIX})
 set(${MY_NAME}_RUNTIME_JSON_DEPENDENCIES ${PATH_TO_DLL}/VkLayer_khronos_validation.json)
 
 add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL) 

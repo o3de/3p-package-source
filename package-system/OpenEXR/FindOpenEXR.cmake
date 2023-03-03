@@ -43,6 +43,13 @@ o3de_import_targets(NAMESPACE_FROM
                         OpenEXRUtil
                         OpenEXR)
 
+# fixup OpenEXR::xxxxxx it forces /EHsc when compiled on windows MSVC, when it should be doing so when targetted to it instead:
+set_target_properties(OpenEXR::Iex PROPERTIES INTERFACE_COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:MSVC>:/EHsc>")
+set_target_properties(OpenEXR::IlmThread PROPERTIES INTERFACE_COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:MSVC>:/EHsc>")
+set_target_properties(OpenEXR::OpenEXRCore PROPERTIES INTERFACE_COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:MSVC>:/EHsc>")
+set_target_properties(OpenEXR::OpenEXR PROPERTIES INTERFACE_COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:MSVC>:/EHsc>")
+set_target_properties(OpenEXR::OpenEXRUtil PROPERTIES INTERFACE_COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:MSVC>:/EHsc>")
+
 # if we're not in O3DE, it's also extremely helpful to show a message to logs that indicate that this
 # library was successfully picked up, as opposed to the system one.
 # A good way to know if you're in O3DE or not is that O3DE sets various cache variables before 

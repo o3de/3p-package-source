@@ -53,7 +53,7 @@
                     ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
                 ],
                 "custom_build_cmd": [
-                    "./build-linux.sh"
+                    "./build-linux-x86.sh"
                 ],
                 "custom_install_cmd": [
                     "{python} copy_platform_cmakes.py"

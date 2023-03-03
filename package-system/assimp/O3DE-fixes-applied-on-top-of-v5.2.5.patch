@@ -1,0 +1,181 @@
+diff --git a/code/AssetLib/Collada/ColladaParser.cpp b/code/AssetLib/Collada/ColladaParser.cpp
+index fd2662ddb..7398bdf05 100644
+--- a/code/AssetLib/Collada/ColladaParser.cpp
++++ b/code/AssetLib/Collada/ColladaParser.cpp
+@@ -67,7 +67,7 @@ static void ReportWarning(const char *msg, ...) {
+     va_start(args, msg);
+ 
+     char szBuffer[3000];
+-    const int iLen = vsprintf(szBuffer, msg, args);
++    const int iLen = vsnprintf(szBuffer, sizeof(szBuffer), msg, args);
+     ai_assert(iLen > 0);
+ 
+     va_end(args);
+diff --git a/code/AssetLib/FBX/FBXConverter.cpp b/code/AssetLib/FBX/FBXConverter.cpp
+index ffe961a4e..669656021 100644
+--- a/code/AssetLib/FBX/FBXConverter.cpp
++++ b/code/AssetLib/FBX/FBXConverter.cpp
+@@ -848,7 +848,12 @@ bool FBXConverter::GenerateTransformationNodeChain(const Model &model, const std
+     // for (const auto &transform : chain) {
+     // skip inverse chain for no preservePivots
+     for (unsigned int i = TransformationComp_Translation; i < TransformationComp_MAXIMUM; i++) {
+-      nd->mTransformation = nd->mTransformation * chain[i];
++
++        if (i == TransformationComp_PostRotation) {
++            chain[i] = chain[i].Inverse();
++        }
++
++        nd->mTransformation = nd->mTransformation * chain[i];
+     }
+     output_nodes.push_back(std::move(nd));
+     return false;
+@@ -3165,6 +3170,7 @@ aiNodeAnim* FBXConverter::GenerateSimpleNodeAnim(const std::string& name,
+     const PropertyTable &props = target.Props();
+ 
+     // collect unique times and keyframe lists
++    bool anyKeyframeListsPopulated = false;
+     KeyFrameListList keyframeLists[TransformationComp_MAXIMUM];
+     KeyTimeList keytimes;
+ 
+@@ -3175,8 +3181,10 @@ aiNodeAnim* FBXConverter::GenerateSimpleNodeAnim(const std::string& name,
+         if (i == TransformationComp_Rotation || i == TransformationComp_PreRotation
+                 || i == TransformationComp_PostRotation || i == TransformationComp_GeometricRotation) {
+             keyframeLists[i] = GetRotationKeyframeList((*chain[i]).second, start, stop);
++            anyKeyframeListsPopulated = true;
+         } else {
+             keyframeLists[i] = GetKeyframeList((*chain[i]).second, start, stop);
++            anyKeyframeListsPopulated = true;
+         }
+ 
+         for (KeyFrameListList::const_iterator it = keyframeLists[i].begin(); it != keyframeLists[i].end(); ++it) {
+@@ -3194,6 +3202,13 @@ aiNodeAnim* FBXConverter::GenerateSimpleNodeAnim(const std::string& name,
+     const Model::RotOrder rotOrder = target.RotationOrder();
+     const size_t keyCount = keytimes.size();
+ 
++    if (keyCount == 0 && anyKeyframeListsPopulated) {
++        // Later code will assert and potentially crash if the keyCount is zero and there are keyframeLists, so check now and error out.
++        FBXImporter::LogError("Animation has a key frame list with zero animation keys and cannot be loaded: ", name.c_str());
++        // The call site asserts on the return value, and cleans it up if all keys are empty, which they will be in this error case.
++        return na.release();
++    }
++
+     aiVector3D defTranslate = PropertyGet(props, "Lcl Translation", aiVector3D(0.f, 0.f, 0.f));
+     aiVector3D defRotation = PropertyGet(props, "Lcl Rotation", aiVector3D(0.f, 0.f, 0.f));
+     aiVector3D defScale = PropertyGet(props, "Lcl Scaling", aiVector3D(1.f, 1.f, 1.f));
+@@ -3244,7 +3259,10 @@ aiNodeAnim* FBXConverter::GenerateSimpleNodeAnim(const std::string& name,
+ 
+     const aiVector3D& postRotation = PropertyGet<aiVector3D>(props, "PostRotation", ok);
+     if (ok && postRotation.SquareLength() > zero_epsilon) {
+-        const aiQuaternion postQuat = EulerToQuaternion(postRotation, Model::RotOrder_EulerXYZ);
++        aiMatrix4x4 rotationMatrix;
++        GetRotationMatrix(Model::RotOrder_EulerXYZ, postRotation, rotationMatrix);
++        rotationMatrix.Inverse();
++        const auto postQuat = aiQuaternion(aiMatrix3x3(rotationMatrix));
+         for (size_t i = 0; i < keyCount; ++i) {
+             outRotations[i].mValue = outRotations[i].mValue * postQuat;
+         }
+diff --git a/code/AssetLib/FBX/FBXExporter.cpp b/code/AssetLib/FBX/FBXExporter.cpp
+index 563ac68f0..fb130a6f4 100644
+--- a/code/AssetLib/FBX/FBXExporter.cpp
++++ b/code/AssetLib/FBX/FBXExporter.cpp
+@@ -1228,7 +1228,7 @@ void FBXExporter::WriteObjects ()
+                 "Version", int32_t(101), outstream, binary, indent
+             );
+             char layerName[8];
+-            sprintf(layerName, "COLOR_%d", colorChannelIndex);
++            snprintf(layerName, sizeof(layerName), "COLOR_%d", colorChannelIndex);
+             FBX::Node::WritePropertyNode(
+                 "Name", (const char*)layerName, outstream, binary, indent
+             );
+diff --git a/code/AssetLib/MD5/MD5Parser.cpp b/code/AssetLib/MD5/MD5Parser.cpp
+index 606660080..4cdb64d4c 100644
+--- a/code/AssetLib/MD5/MD5Parser.cpp
++++ b/code/AssetLib/MD5/MD5Parser.cpp
+@@ -102,7 +102,7 @@ MD5Parser::MD5Parser(char *_buffer, unsigned int _fileSize) {
+ // Report warning to the log stream
+ /*static*/ void MD5Parser::ReportWarning(const char *warn, unsigned int line) {
+     char szBuffer[1024];
+-    ::sprintf(szBuffer, "[MD5] Line %u: %s", line, warn);
++    ::ai_snprintf(szBuffer, sizeof(szBuffer), "[MD5] Line %u: %s", line, warn);
+     ASSIMP_LOG_WARN(szBuffer);
+ }
+ 
+diff --git a/code/AssetLib/MDL/MDLLoader.cpp b/code/AssetLib/MDL/MDLLoader.cpp
+index b2bd2d2f1..c0a63709b 100644
+--- a/code/AssetLib/MDL/MDLLoader.cpp
++++ b/code/AssetLib/MDL/MDLLoader.cpp
+@@ -298,7 +298,7 @@ void MDLImporter::SizeCheck(const void *szPos, const char *szFile, unsigned int
+         }
+ 
+         char szBuffer[1024];
+-        ::sprintf(szBuffer, "Invalid MDL file. The file is too small "
++        ::snprintf(szBuffer, sizeof(szBuffer), "Invalid MDL file. The file is too small "
+                             "or contains invalid data (File: %s Line: %u)",
+                 szFilePtr, iLine);
+ 
+diff --git a/code/PostProcessing/ValidateDataStructure.cpp b/code/PostProcessing/ValidateDataStructure.cpp
+index 54889f34b..d234e220b 100644
+--- a/code/PostProcessing/ValidateDataStructure.cpp
++++ b/code/PostProcessing/ValidateDataStructure.cpp
+@@ -80,7 +80,7 @@ AI_WONT_RETURN void ValidateDSProcess::ReportError(const char *msg, ...) {
+     va_start(args, msg);
+ 
+     char szBuffer[3000];
+-    const int iLen = vsprintf(szBuffer, msg, args);
++    const int iLen = vsnprintf(szBuffer, sizeof(szBuffer), msg, args);
+     ai_assert(iLen > 0);
+ 
+     va_end(args);
+@@ -95,7 +95,7 @@ void ValidateDSProcess::ReportWarning(const char *msg, ...) {
+     va_start(args, msg);
+ 
+     char szBuffer[3000];
+-    const int iLen = vsprintf(szBuffer, msg, args);
++    const int iLen = vsnprintf(szBuffer, sizeof(szBuffer), msg, args);
+     ai_assert(iLen > 0);
+ 
+     va_end(args);
+diff --git a/contrib/openddlparser/code/OpenDDLExport.cpp b/contrib/openddlparser/code/OpenDDLExport.cpp
+index d235b553b..8768ca64f 100644
+--- a/contrib/openddlparser/code/OpenDDLExport.cpp
++++ b/contrib/openddlparser/code/OpenDDLExport.cpp
+@@ -224,7 +224,7 @@ bool OpenDDLExport::writeValueType(Value::ValueType type, size_t numItems, std::
+         statement += "[";
+         char buffer[256];
+         ::memset(buffer, '\0', 256 * sizeof(char));
+-        sprintf(buffer, "%d", static_cast<int>(numItems));
++        snprintf(buffer, sizeof(buffer), "%d", static_cast<int>(numItems));
+         statement += buffer;
+         statement += "]";
+     }
+@@ -255,7 +255,7 @@ bool OpenDDLExport::writeValue(Value *val, std::string &statement) {
+             std::stringstream stream;
+             char buffer[256];
+             ::memset(buffer, '\0', 256 * sizeof(char));
+-            sprintf(buffer, "%d", val->getInt16());
++            snprintf(buffer, sizeof(buffer), "%d", val->getInt16());
+             statement += buffer;
+         } break;
+         case Value::ValueType::ddl_int32: {
+@@ -263,7 +263,7 @@ bool OpenDDLExport::writeValue(Value *val, std::string &statement) {
+             char buffer[256];
+             ::memset(buffer, '\0', 256 * sizeof(char));
+             const int i = static_cast<int>(val->getInt32());
+-            sprintf(buffer, "%d", i);
++            snprintf(buffer, sizeof(buffer), "%d", i);
+             statement += buffer;
+         } break;
+         case Value::ValueType::ddl_int64: {
+diff --git a/test/unit/utPretransformVertices.cpp b/test/unit/utPretransformVertices.cpp
+index b22fdf71f..2dbace382 100644
+--- a/test/unit/utPretransformVertices.cpp
++++ b/test/unit/utPretransformVertices.cpp
+@@ -68,7 +68,7 @@ void AddNodes(unsigned int num, aiNode *father, unsigned int depth) {
+     for (unsigned int i = 0; i < 5; ++i) {
+         aiNode *nd = father->mChildren[i] = new aiNode();
+ 
+-        nd->mName.length = sprintf(nd->mName.data, "%i%i", depth, i);
++        nd->mName.length = snprintf(nd->mName.data, MAXLEN - 1, "%i%i", depth, i);
+ 
+         // spawn two meshes
+         nd->mMeshes = new unsigned int[nd->mNumMeshes = 2];
