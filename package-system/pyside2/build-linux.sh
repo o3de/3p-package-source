@@ -21,6 +21,7 @@ fi
 DOCKER_BUILD_SCRIPT=docker_build_linux.sh
 PYSIDE2_TOOL_PATCH=pyside2-tools.patch
 
+
 # Make sure docker is installed
 DOCKER_VERSION=$(docker --version)
 if [ $? -ne 0 ]
@@ -36,13 +37,29 @@ echo "Using dependent 3rd Party Library ${QT_FOLDER_NAME}"
 
 # Prepare the docker file and use the temp folder as the context root
 cp ${DOCKER_BUILD_SCRIPT} temp/
-cp ${PYSIDE2_TOOL_PATCH} temp/
 
 pushd temp
 
+# An additional patch needs to be applied since pyside-tools
+pushd src/sources/pyside2-tools
+PYSIDE_TOOLS_PATCH_FILE=${BASE_ROOT}/pyside2-tools.patch
+echo Applying patch $PYSIDE_TOOLS_PATCH_FILE to pyside-tools
+git apply --ignore-whitespace ../../../$PYSIDE2_TOOL_PATCH
+if [ $? -eq 0 ]; then
+    echo "Patch applied"
+else
+    echo "Git apply failed"
+    popd
+    exit $retVal
+fi
+popd
+
 # Build the Docker Image
 echo "Building the docker build script"
+
 DOCKER_IMAGE_NAME=pyside_linux_3p
+
+echo docker build --build-arg PYTHON_FOLDER_NAME=${PYTHON_FOLDER_NAME} --build-arg QT_FOLDER_NAME=${QT_FOLDER_NAME} --build-arg DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest .
 docker build --build-arg PYTHON_FOLDER_NAME=${PYTHON_FOLDER_NAME} --build-arg QT_FOLDER_NAME=${QT_FOLDER_NAME} --build-arg DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest .
 if [ $? -ne 0 ]
 then
@@ -59,18 +76,15 @@ then
     exit 1
 fi
 
-# $TEMP_FOLDER/$PYTHON_FOLDER_NAME/python/include/python3.10:/home/ubuntu/github/3p-package-source/package-system/python/linux_aarch64/package/python/include/python3.10
-
-
 # Run the Docker Image
 echo "Running build script in the docker image"
+echo docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$QT_FOLDER_NAME:/data/workspace/$QT_FOLDER_NAME -v $TEMP_FOLDER/$PYTHON_FOLDER_NAME:/data/workspace/$PYTHON_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
 docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$QT_FOLDER_NAME:/data/workspace/$QT_FOLDER_NAME -v $TEMP_FOLDER/$PYTHON_FOLDER_NAME:/data/workspace/$PYTHON_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
 if [ $? -ne 0 ]
 then
     echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
     exit 1
 fi
-
 
 # Capture the container ID
 echo "Capturing the Container ID"
@@ -81,18 +95,16 @@ then
     exit 1
 fi
 
-
 # Copy the build artifacts from the Docker Container
 echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
 
 mkdir -p build
-docker  cp --quiet $CONTAINER_ID:/data/workspace/build/. build  
+docker cp $CONTAINER_ID:/data/workspace/build/. build  
 if [ $? -ne 0 ]
 then
     echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." 
     exit 1
 fi
-
 
 # Clean up the docker image and container
 echo "Cleaning up container"

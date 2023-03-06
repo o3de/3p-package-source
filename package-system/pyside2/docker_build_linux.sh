@@ -23,8 +23,6 @@ then
     exit 1
 fi
 
-export PYTHON_INCLUDE_DIRS=${DEP_PYTHON_BASE}/python/include/python3.10
-declare -x PYTHON_INCLUDE_DIRS=${DEP_PYTHON_BASE}/python/include/python3.10
 export LLVM_INSTALL_DIR=/usr/lib/llvm-12
 export LLVM_CONFIG=/usr/bin/llvm-config-12
 
@@ -40,26 +38,6 @@ then
     exit 1
 fi
 
-# An additional patch needs to be applied since pyside-tools in the pyside2 repo is a ref 
-pushd ${BASE_ROOT}/src/sources/pyside2-tools
-PYSIDE_TOOLS_PATCH_FILE=${BASE_ROOT}/pyside2-tools.patch
-echo Applying patch $PYSIDE_TOOLS_PATCH_FILE to pyside-tools 
-git apply --ignore-whitespace $PYSIDE_TOOLS_PATCH_FILE
-if [ $? -eq 0 ]; then
-    echo "Patch applied"
-else
-    echo "Git apply failed"
-    popd
-    exit $retVal
-fi
-popd
-
-mkdir -p /home/ubuntu/github/3p-package-source/package-system/python/linux_aarch64/package/python/include
-pushd /home/ubuntu/github/3p-package-source/package-system/python/linux_aarch64/package/python/include
-ln -s ${DEP_PYTHON_BASE}/python/include/python3.10 python3.10
-popd
-
-
 echo Building source
 pushd ${BASE_ROOT}/src
 
@@ -69,10 +47,19 @@ export LD_LIBRARY_PATH
 # Build shiboken2 library first since it is 
 echo "$LOCAL_PYTHON3_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=shiboken2 --limited-api=yes --skip-modules=Qml,Quick,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer"
 $LOCAL_PYTHON3_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=shiboken2 --limited-api=yes --skip-modules=Qml,Quick,QuickWidgets,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer
-
+if [ $? -ne 0 ]
+then
+    echo "Error building shiobken2 package"
+    exit 1
+fi
 
 echo "$LOCAL_PYTHON3_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=pyside2 --no-examples --skip-docs --standalone --limited-api=yes --skip-modules=Qml,Quick,QtQuickControls2,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer" --shiboken-config-dir=${BASE_ROOT}/src/pyside3a_install/py3.10-qt5.15.1-64bit-release/lib/cmake/Shiboken2-5.15.2.
 $LOCAL_PYTHON3_BIN setup.py install --qmake=$LOCAL_3P_QTBUILD_QMAKE_PATH --build-type=pyside2 --no-examples --skip-docs --standalone  --limited-api=yes --skip-modules=Qml,Quick,QuickWidgets,QtQuickControls2,Positioning,Location,RemoteObjects,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,Multimedia,MultimediaWidgets,AxContainer --shiboken-config-dir=${BASE_ROOT}/src/pyside3a_install/py3.10-qt5.15.1-64bit-release/lib/cmake/Shiboken2-5.15.2.1
+if [ $? -ne 0 ]
+then
+    echo "Error building pyside2 package"
+    exit 1
+fi
 
 popd
 

@@ -10,7 +10,6 @@
 #
 
 FROM public.ecr.aws/ubuntu/ubuntu:20.04_stable
-#FROM ubuntu:20.04
  
 WORKDIR /data/workspace
 
@@ -37,7 +36,10 @@ RUN apt-get install -y cmake \
                        build-essential \
                        clang-12 \
                        llvm-12 \
-                       git
+                       git \
+                       libgl1-mesa-dev \
+                       libpcre2-dev
+
 
 RUN apt-get install -y libclang-12-dev
 
@@ -52,10 +54,18 @@ run git config --global --add safe.directory /data/workspace/src && \
 ENV PYTHON_FOLDER_NAME=${PYTHON_FOLDER_NAME}
 ENV QT_FOLDER_NAME=${QT_FOLDER_NAME}
 
-ARG CACHEBUST=1
+# The 3P package for python has some embedded paths from the host machine that was
+# used to build it, and pyside2 extracts these paths to deduce the include and lib
+# paths. To work around this and make it appear that the dependent 3P python package
+# was installed in this docker sctructure, we will instead create a symlink from the
+# 3p package's original path to the actual one mapped to the workspace path
+RUN mkdir -p /home/github/3p-package-source/package-system/python/linux_x64/package && \
+    cd /home/github/3p-package-source/package-system/python/linux_x64/package && \
+    ln -s /data/workspace/${PYTHON_FOLDER_NAME}/python python
 
 # Copy the build script specific to this Docker script in order to execute the build
+ARG CACHEBUST=1
+
 COPY ${DOCKER_BUILD_SCRIPT} /data/workspace/
-COPY pyside2-tools.patch /data/workspace/
 
 ENTRYPOINT ["/bin/bash"]

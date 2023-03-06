@@ -29,7 +29,6 @@ fi
 # Set the dependent clang compiler for the build script to use
 export LLVM_INSTALL_DIR=/usr/lib/llvm-6.0
 export LLVM_CONFIG=/usr/bin/llvm-config-6.0
-export PYTHON_INCLUDE_DIRS=$TEMP_FOLDER/python-3.10.5-rev2-linux-aarch64/python/include/python3.10
 
 
 # Get the qt package's qmake location
