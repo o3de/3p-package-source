@@ -16,7 +16,7 @@ echo PACKAGE_BASE=$PACKAGE_BASE
 # Add additional files needed for pip install
 cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.10/site-packages/
 cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.10/site-packages/
-cp $TEMP_FOLDER/../LICENSES $PACKAGE_BASE/
+cp $TEMP_FOLDER/../LICENSES.txt $PACKAGE_BASE/
 
 INSTALL_SOURCE=$TEMP_FOLDER/build
 echo INSTALL_SOURCE=$INSTALL_SOURCE

@@ -44,7 +44,7 @@ pushd temp
 pushd src/sources/pyside2-tools
 PYSIDE_TOOLS_PATCH_FILE=${BASE_ROOT}/pyside2-tools.patch
 echo Applying patch $PYSIDE_TOOLS_PATCH_FILE to pyside-tools
-git apply --ignore-whitespace ../../../$PYSIDE2_TOOL_PATCH
+git apply --ignore-whitespace ../../../../$PYSIDE2_TOOL_PATCH
 if [ $? -eq 0 ]; then
     echo "Patch applied"
 else
@@ -99,7 +99,7 @@ fi
 echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
 
 mkdir -p build
-docker cp $CONTAINER_ID:/data/workspace/build/. build  
+docker cp $CONTAINER_ID:/data/workspace/build/. $TARGET_INSTALL_ROOT  
 if [ $? -ne 0 ]
 then
     echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." 
@@ -108,10 +108,10 @@ fi
 
 # Clean up the docker image and container
 echo "Cleaning up container"
-#docker container rm $CONTAINER_ID || (echo "Warning: unable to clean up container for image ${DOCKER_IMAGE_NAME}")
+docker container rm $CONTAINER_ID || (echo "Warning: unable to clean up container for image ${DOCKER_IMAGE_NAME}")
 
 echo "Cleaning up image"
-#docker rmi --force $IMAGE_ID  || (echo "Warning: unable to clean up image ${DOCKER_IMAGE_NAME}")
+docker rmi --force $IMAGE_ID  || (echo "Warning: unable to clean up image ${DOCKER_IMAGE_NAME}")
 
 popd
 

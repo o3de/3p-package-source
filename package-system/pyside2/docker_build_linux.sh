@@ -85,15 +85,6 @@ cp -r $INSTALL_SOURCE/include $PACKAGE_BASE
 cp -r $INSTALL_SOURCE/lib $PACKAGE_BASE
 cp -r $INSTALL_SOURCE/share $PACKAGE_BASE
 
-# Copy the dependent libclang.so.12 from the downloaded dependent package
-
-cp $LLVM_INSTALL_DIR/lib/libclang-12.so.1 $PACKAGE_BASE/bin
-pushd $PACKAGE_BASE/bin
-
-ln -s libclang-12.so.1 libclang-12.so.1
-ln -s libclang.so libclang-12.so.1
-
-popd
 
 # RPATH fixes
 $BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
@@ -101,11 +92,6 @@ $BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/libshiboken2.abi3
 $BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/python3.10/site-packages/shiboken2/shiboken2.abi3.so
 $BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/bin/shiboken2
 $BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/bin/pyside2-lupdate
-
-# Add additional files needed for pip install
-cp $BASE_ROOT/../__init__.py $PACKAGE_BASE/lib/python3.10/site-packages/
-cp $BASE_ROOT/../setup.py $PACKAGE_BASE/lib/python3.10/site-packages/
-
 
 exit 0
 
