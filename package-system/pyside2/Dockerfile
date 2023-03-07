@@ -59,9 +59,15 @@ ENV QT_FOLDER_NAME=${QT_FOLDER_NAME}
 # paths. To work around this and make it appear that the dependent 3P python package
 # was installed in this docker sctructure, we will instead create a symlink from the
 # 3p package's original path to the actual one mapped to the workspace path
-RUN mkdir -p /home/github/3p-package-source/package-system/python/linux_x64/package && \
-    cd /home/github/3p-package-source/package-system/python/linux_x64/package && \
-    ln -s /data/workspace/${PYTHON_FOLDER_NAME}/python python
+RUN if [ "$(uname -m)" = "aarch64" ]; then \
+        mkdir -p /home/ubuntu/github/3p-package-source/package-system/python/linux_aarch64/package && \
+        cd /home/ubuntu/github/3p-package-source/package-system/python/linux_aarch64/package && \
+        ln -s /data/workspace/${PYTHON_FOLDER_NAME}/python python; \
+    else \
+        mkdir -p /home/github/3p-package-source/package-system/python/linux_x64/package && \
+        cd /home/github/3p-package-source/package-system/python/linux_x64/package && \
+        ln -s /data/workspace/${PYTHON_FOLDER_NAME}/python python; \
+    fi
 
 # Copy the build script specific to this Docker script in order to execute the build
 ARG CACHEBUST=1
