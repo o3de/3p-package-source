@@ -53,6 +53,8 @@ run git config --global --add safe.directory /data/workspace/src && \
 
 ENV PYTHON_FOLDER_NAME=${PYTHON_FOLDER_NAME}
 ENV QT_FOLDER_NAME=${QT_FOLDER_NAME}
+ENV LLVM_INSTALL_DIR=/usr/lib/llvm-12
+ENV LLVM_CONFIG=/usr/bin/llvm-config-12
 
 # The 3P package for python has some embedded paths from the host machine that was
 # used to build it, and pyside2 extracts these paths to deduce the include and lib
