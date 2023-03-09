@@ -19,6 +19,7 @@ else
 fi
 
 DOCKER_BUILD_SCRIPT=docker_build_linux.sh
+DOCKER_IMAGE_NAME=pyside2_linux_3p
 PYSIDE2_TOOL_PATCH=pyside2-tools.patch
 
 
@@ -57,8 +58,6 @@ popd
 # Build the Docker Image
 echo "Building the docker build script"
 
-DOCKER_IMAGE_NAME=pyside_linux_3p
-
 echo docker build --build-arg PYTHON_FOLDER_NAME=${PYTHON_FOLDER_NAME} --build-arg QT_FOLDER_NAME=${QT_FOLDER_NAME} --build-arg DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest .
 docker build --build-arg PYTHON_FOLDER_NAME=${PYTHON_FOLDER_NAME} --build-arg QT_FOLDER_NAME=${QT_FOLDER_NAME} --build-arg DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest .
 if [ $? -ne 0 ]
@@ -79,7 +78,7 @@ fi
 # Run the Docker Image
 echo "Running build script in the docker image"
 echo docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$QT_FOLDER_NAME:/data/workspace/$QT_FOLDER_NAME -v $TEMP_FOLDER/$PYTHON_FOLDER_NAME:/data/workspace/$PYTHON_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
-docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$QT_FOLDER_NAME:/data/workspace/$QT_FOLDER_NAME -v $TEMP_FOLDER/$PYTHON_FOLDER_NAME:/data/workspace/$PYTHON_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
+docker run -v $TEMP_FOLDER/$QT_FOLDER_NAME:/data/workspace/$QT_FOLDER_NAME -v $TEMP_FOLDER/$PYTHON_FOLDER_NAME:/data/workspace/$PYTHON_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
 if [ $? -ne 0 ]
 then
     echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest

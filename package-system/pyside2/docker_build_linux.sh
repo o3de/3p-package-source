@@ -24,9 +24,6 @@ then
     exit 1
 fi
 
-#export LLVM_INSTALL_DIR=/usr/lib/llvm-12
-#export LLVM_CONFIG=/usr/bin/llvm-config-12
-
 # Setup the local QT Paths
 # Get the qt package's qmake location
 LOCAL_3P_QTBUILD_PATH=${DEP_QT_BASE}/qt

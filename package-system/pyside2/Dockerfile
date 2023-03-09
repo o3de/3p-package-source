@@ -46,7 +46,8 @@ RUN apt-get install -y libclang-12-dev
 RUN apt upgrade -y
 
 # Prepare a target folder within the container to install the build artifacts tp
-RUN mkdir -p /data/workspace/build
+RUN mkdir -p /data/workspace/build && \
+    mkdir -p /data/workspace/src
 
 run git config --global --add safe.directory /data/workspace/src && \
     git config --global --add safe.directory /data/workspace/src/sources/pyside2-tools
@@ -75,5 +76,6 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
 ARG CACHEBUST=1
 
 COPY ${DOCKER_BUILD_SCRIPT} /data/workspace/
+COPY src /data/workspace/src/
 
 ENTRYPOINT ["/bin/bash"]
