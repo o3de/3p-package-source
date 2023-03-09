@@ -68,6 +68,10 @@ fi
 mkdir -p /data/workspace/build/port/
 cp -R /data/workspace/src/port/PyAssimp /data/workspace/build/port/
 
+mkdir -p /data/workspace/build/include/assimp/
+cp -v -r /data/workspace/src/include/assimp/* /data/workspace/build/include/assimp/
+rm /data/workspace/build/include/assimp/config.h.in
+
 echo "Running unit test"
 
 cd ..
