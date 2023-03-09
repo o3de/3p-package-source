@@ -154,7 +154,12 @@ endif()
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cp310-win_amd64.pyd)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cpython-310-x86_64-linux-gnu.so)
+
+    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
+        set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cpython-310-aarch64-linux-gnu.so)
+    else()
+        set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cpython-310-x86_64-linux-gnu.so)
+    endif()
     
 else() # Darwin
     set(OpenImageIOPythonBindings ${OpenImageIO_LIB_DIR}/python3.10/site-packages/OpenImageIO.cpython-310-darwin.so)
