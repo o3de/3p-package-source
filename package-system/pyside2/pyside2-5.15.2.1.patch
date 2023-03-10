@@ -1,3 +1,22 @@
+diff --git a/build_scripts/utils.py b/build_scripts/utils.py
+index 0782ae036..53231ce14 100644
+--- a/build_scripts/utils.py
++++ b/build_scripts/utils.py
+@@ -833,7 +833,7 @@ def ldd(executable_path):
+     chosen_rtld = None
+     # List of ld's considered by ldd on Ubuntu (here's hoping it's the
+     # same on all distros).
+-    rtld_list = ["/lib/ld-linux.so.2", "/lib64/ld-linux-x86-64.so.2", "/libx32/ld-linux-x32.so.2"]
++    rtld_list = ["/lib/ld-linux.so.2", "/lib64/ld-linux-x86-64.so.2", "/libx32/ld-linux-x32.so.2", "/lib/ld-linux-aarch64.so.1"]
+ 
+     # Choose appropriate runtime dynamic linker.
+     for rtld in rtld_list:
+diff --git a/sources/pyside2-tools b/sources/pyside2-tools
+--- a/sources/pyside2-tools
++++ b/sources/pyside2-tools
+@@ -1 +1 @@
+-Subproject commit a8448837204faee0b457d1e2d4cbf574a2811114
++Subproject commit a8448837204faee0b457d1e2d4cbf574a2811114-dirty
 diff --git a/sources/pyside2/libpyside/CMakeLists.txt b/sources/pyside2/libpyside/CMakeLists.txt
 index e31c87eef..a8fdf731a 100644
 --- a/sources/pyside2/libpyside/CMakeLists.txt
