@@ -25,8 +25,8 @@ then
     cp -f $BUILD_PATH/libastcenc-sse4.1-static.a $BIN_PATH/ || exit $?
 elif [ "$CPU_ARCHITECTURE" = "aarch64" ]
 then
-    cp -f $BUILD_PATH/astcenc-native $BIN_PATH/ || exit $?
-    cp -f $BUILD_PATH/libastcenc-native-static.a $BIN_PATH/ || exit $?
+    cp -f $BUILD_PATH/astcenc-neon $BIN_PATH/ || exit $?
+    cp -f $BUILD_PATH/libastcenc-neon-static.a $BIN_PATH/ || exit $?
 
 fi
 
