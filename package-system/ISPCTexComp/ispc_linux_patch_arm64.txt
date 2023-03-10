@@ -1,0 +1,12 @@
+diff --git a/docker/ubuntu/20.04/cpu_ispc_build/Dockerfile b/docker/ubuntu/20.04/cpu_ispc_build/Dockerfile
+index 8621e71..9f93d1b 100644
+--- a/docker/ubuntu/20.04/cpu_ispc_build/Dockerfile
++++ b/docker/ubuntu/20.04/cpu_ispc_build/Dockerfile
+@@ -40,6 +40,6 @@ RUN apt-get -y update && apt-get install -y m4 bison flex zlib1g-dev \
+ 
+ RUN mkdir -p build
+ WORKDIR /home/src/ispc/build
+-RUN cmake .. -DX86_ENABLED=ON -DARM_ENABLED=ON -DCMAKE_CXX_FLAGS=-Werror && make -j`nproc` && make check-all
++RUN cmake .. -DX86_ENABLED=OFF -DARM_ENABLED=ON -DCMAKE_CXX_FLAGS=-Werror && make -j`nproc` && make check-all
+ # Add ISPC to PATH
+ ENV PATH=/home/ispc/bin:$PATH
