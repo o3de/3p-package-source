@@ -31,7 +31,7 @@ echo "Working with Assimp commit hash ${GIT_HASH}"
 echo "Using custom zlib (shared) library at /data/workspace/${ZLIB_LIB_PATH}"
 
 
-cmake -S . -B /data/workspace/build -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH="/data/workspace/${ZLIB_LIB_PATH}" -DASSIMP_BUILD_ZLIB=OFF -DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_ASSIMP_TOOLS=ON ${AARCH64_FLAGS} 
+cmake -S . -B /data/workspace/build -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH="/data/workspace/${ZLIB_LIB_PATH}" -DASSIMP_BUILD_ZLIB=ON -DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_ASSIMP_TOOLS=ON ${AARCH64_FLAGS} 
 if [ $? -ne 0 ]
 then
     echo "Failed generating cmake project for assimp/shared."
@@ -49,7 +49,7 @@ fi
 
 echo "Using custom zlib (static) library at /data/workspace/${ZLIB_LIB_PATH}"
 
-cmake -S . -B /data/workspace/build -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH="/data/workspace/${ZLIB_LIB_PATH}" -DASSIMP_BUILD_ZLIB=OFF -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=ON ${AARCH64_FLAGS}
+cmake -S . -B /data/workspace/build -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH="/data/workspace/${ZLIB_LIB_PATH}" -DASSIMP_BUILD_ZLIB=ON -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=ON ${AARCH64_FLAGS}
 if [ $? -ne 0 ]
 then
     echo "Failed generating cmake project for assimp/static."
@@ -67,6 +67,10 @@ fi
 
 mkdir -p /data/workspace/build/port/
 cp -R /data/workspace/src/port/PyAssimp /data/workspace/build/port/
+
+mkdir -p /data/workspace/build/include/assimp/
+cp -v -r /data/workspace/src/include/assimp/* /data/workspace/build/include/assimp/
+rm /data/workspace/build/include/assimp/config.h.in
 
 echo "Running unit test"
 
