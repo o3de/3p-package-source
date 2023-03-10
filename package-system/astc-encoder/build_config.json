@@ -2,16 +2,16 @@
     "git_url": "https://github.com/ARM-software/astc-encoder.git",
     "git_tag": "3.2",
     "package_name": "astc-encoder",
-    "package_version": "3.2-rev2",
+    "package_version": "3.2-rev3",
     "package_url": "https://github.com/ARM-software/astc-encoder",
     "package_license": "Apache-2.0",
     "package_license_file": "LICENSE.txt",
-    "cmake_find_template": "Findastc-encoder.cmake.template",
     "cmake_find_target": "Findastc-encoder.cmake",
     "patch_file": "astcencoder-o3de.patch",
     "Platforms": {
         "Windows": {
             "Windows": {
+                "cmake_find_template": "Findastc-encoder.cmake.template",
                 "custom_build_cmd": [
                     "build_windows.cmd"
                 ],
@@ -22,6 +22,7 @@
         },
         "Darwin": {
             "Mac": {
+                "cmake_find_template": "Findastc-encoder.cmake.template",
                 "package_version": "3.2-rev5",
                 "custom_build_cmd": [
                     "./build_mac.sh"
@@ -33,14 +34,23 @@
         },
         "Linux": {
             "Linux": {
+                "cmake_find_source": "Findastc-encoder.cmake.linux-x86_64",
                 "custom_build_cmd": [
-                    "./build_linux.sh"
+                    "./build-linux.sh"
                 ],
                 "custom_install_cmd": [
                     "./install_linux.sh"
                 ]
             },
-	    "Linux-aarch64": "@Linux"
+	    "Linux-aarch64": {
+		"cmake_find_source": "Findastc-encoder.cmake.linux-aarch64",
+                "custom_build_cmd": [
+                    "./build-linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_linux.sh"
+                ]
+	    }
         }
     }
 }

@@ -10,7 +10,7 @@
 
 
 # Get the python executable from the package dependency
-LOCAL_PYTHON3_BIN=$TEMP_FOLDER/python-3.10.5-rev2-linux/python/bin/python3
+LOCAL_PYTHON3_BIN=$TEMP_FOLDER/python-3.10.5-rev2-linux-aarch64/python/bin/python3
 
 SCRIPT_PATH=`dirname $0`
 
@@ -27,11 +27,12 @@ then
 fi
 
 # Set the dependent clang compiler for the build script to use
-LLVM_INSTALL_DIR=$TEMP_FOLDER/libclang-release_130-based-linux-Ubuntu20.04-gcc9.3-x86_64/libclang
-PATH=$LLVM_INSTALL_DIR/bin:$PATH
+export LLVM_INSTALL_DIR=/usr/lib/llvm-6.0
+export LLVM_CONFIG=/usr/bin/llvm-config-6.0
+
 
 # Get the qt package's qmake location
-LOCAL_3P_QTBUILD_PATH=$TEMP_FOLDER/qt-5.15.2-rev6-linux/qt
+LOCAL_3P_QTBUILD_PATH=$TEMP_FOLDER/qt-5.15.2-rev8-linux-aarch64/qt
 LOCAL_3P_QTBUILD_QMAKE_PATH=`readlink -f $LOCAL_3P_QTBUILD_PATH/bin/qmake`
 LOCAL_3P_QTBUILD_LIB_PATH=`readlink -f $LOCAL_3P_QTBUILD_PATH/lib`
 if [ ! -f "$LOCAL_3P_QTBUILD_QMAKE_PATH" ]

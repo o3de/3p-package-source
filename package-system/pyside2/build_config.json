@@ -31,19 +31,30 @@
             "Linux": {
                 "depends_on_packages" :[ 
                     ["python-3.10.5-rev2-linux", "eda1fdc9129fb70df2d63bd21d0876c83c4f7021864f22c85850f4a8ff8cf1bf", ""],
-                    ["qt-5.15.2-rev6-linux", "a37bd9989f1e8fe57d94b98cbf9bd5c3caaea740e2f314e5162fa77300551531", ""]
-                ],
-                "additional_download_packages":[ 
-                    ["https://download.qt.io/development_releases/prebuilt/libclang/libclang-release_130-based-linux-Ubuntu20.04-gcc9.3-x86_64.7z", "414f923b39515ef562ff8217e57b02889deabf02ca7350c8612e4a5aa93503e8", "sha256"]
+                    ["qt-5.15.2-rev8-linux", "613d6a404b305ce0e715c57c936dc00318fb9f0d2d3f6609f8454c198f993095", ""]
                 ],
                 "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
-                    "./build_linux.sh"
+                    "./build-linux.sh"
                 ],
                 "custom_install_cmd": [
                     "./package_linux.sh"
                 ]
+            },
+	    "Linux-aarch64":  {
+                "depends_on_packages" :[
+                    ["python-3.10.5-rev2-linux-aarch64", "a02bfb612005af364872aac96e569cef1ad84ba65632d88d04b34a99d45b077c", ""],
+                    ["qt-5.15.2-rev8-linux-aarch64", "c437ee1c7a4fe84002352a2f8ed230c822a13dcc80735a4fecf3b3af6e34bb63", ""]
+                ],
+                "cmake_find_source": "Findpyside2.cmake",
+                "custom_build_cmd": [
+                    "./build-linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./package_linux_aarch64.sh"
+                ]
             }
+
         }
     }
 }

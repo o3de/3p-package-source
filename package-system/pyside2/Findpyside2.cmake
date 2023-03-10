@@ -87,10 +87,6 @@ if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set(${MY_NAME}_TOOLS_DEPENDENCIES
         ${${MY_NAME}_BIN_DIR}/libclang.dll
     )
-elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
-    set(${MY_NAME}_TOOLS_DEPENDENCIES
-    ${${MY_NAME}_BIN_DIR}/libclang.so.13
-)
 endif()
 
 add_library(${MY_NAME}::Tools SHARED IMPORTED GLOBAL)
