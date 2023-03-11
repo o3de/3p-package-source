@@ -131,25 +131,11 @@
       },
       "Linux":{
          "Linux":{
-            "cmake_generate_args_debug":[
-               "-G",
-               "Unix\\ Makefiles",
-               "-DCMAKE_CXX_STANDARD=17",
-               "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
-               "-DHAVE_STD_REGEX=TRUE",
-               "-DBENCHMARK_ENABLE_TESTING=OFF",
-               "-DCMAKE_INSTALL_LIBDIR=\"lib/Debug\"",
-               "-DCMAKE_BUILD_TYPE=Debug"
-            ],
-            "cmake_generate_args_release":[
-               "-G",
-               "Unix\\ Makefiles",
-               "-DCMAKE_CXX_STANDARD=17",
-               "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
-               "-DHAVE_STD_REGEX=TRUE",
-               "-DBENCHMARK_ENABLE_TESTING=OFF",
-               "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
-               "-DCMAKE_BUILD_TYPE=Release"
+               "custom_build_cmd": [
+                    "./build-linux.sh"
+                ],
+                "custom_install_cmd": [
+                    "./package-linux.sh"
             ]
          },
 	 "Linux-aarch64": "@Linux"
