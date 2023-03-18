@@ -110,6 +110,17 @@ then
     exit 1
 fi
 
+#
+if [ "${TARGET_AARCH}" = "aarch64" ]
+then
+    docker cp --quiet $CONTAINER_ID:/data/workspace/sse2neon/LICENSE build/LICENSE.sse2neon
+    if [ $? -ne 0 ]
+    then
+        echo "Error occurred copying sse2neon license from Docker image ${DOCKER_IMAGE_NAME}:latest."
+        exit 1
+    fi
+fi
+
 
 # Clean up the docker image and container
 echo "Cleaning up container"
