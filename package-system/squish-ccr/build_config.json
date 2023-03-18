@@ -7,7 +7,7 @@
    "package_url":"http://sjbrown.co.uk/2006/01/19/dxt-compression-techniques/",
    "package_license":"MIT",
    "package_license_file":"LICENSE.txt",
-   "cmake_find_template":"Findsquish-ccr.cmake.template",
+   "cmake_find_source":"Findsquish-ccr.cmake",
    "cmake_find_target":"Findsquish-ccr.cmake",
    "patch_file":"squish-ccr-deb557d-rev1.patch",
    "additional_src_files":[
