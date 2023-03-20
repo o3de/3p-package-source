@@ -9,14 +9,53 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
-if [ "$#" -eq 0 ]
+# Determine the host architecture
+CURRENT_HOST_ARCH=$(uname -m)
+
+# Use the host architecture if not supplied
+TARGET_AARCH=${1:-$(uname -m)}
+
+# If the host and target architecture does not match, make sure the necessary cross compilation packages are installed
+if [ "${CURRENT_HOST_ARCH}" != ${TARGET_AARCH} ]
 then
-    echo "Missing required [architecture] argument"
-    exit 1
+    echo "Checking cross compiling requirements."
+    for package_check in docker-ce qemu binfmt-support qemu-user-static
+    do
+        echo "Checking package $package_check"
+        dpkg -s $package_check > /dev/null 2>&1
+        if [ $? -ne 0 ]
+        then
+            echo ""
+            echo "Missing package $package_check. Make sure to install it with your local package manager." 
+            echo ""
+            exit 1
+        fi
+    done
+
+    # Only cross compilation of an ARM64 image on an x86_64 host is supported
+    if [ "${TARGET_AARCH}" = "aarch64" ]
+    then
+        # Make sure qemu-aarch64 is installed properly
+        QEMU_AARCH_COUNT=$(update-binfmts --display | grep qemu-aarch65 | wc -l)
+        if [ $QEMU_AARCH_COUNT -eq 1 ]
+        then
+            echo ""
+            echo "QEMU aarch64 binary format not registered."
+            echo "Run the following command to register"
+            echo ""
+            echo "sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes"
+            echo ""
+            exit 1
+        fi
+        echo ""
+        echo "Cross compiling aarch64 on an amd64 machine validated."
+        echo ""
+    fi
+else
+    echo "Building ${TARGET_AARCH} natively."
 fi
 
-TARGET_AARCH=$1
-
+# Setup the docker arguments for the target architecture
 if [ "${TARGET_AARCH}" = "x86_64" ]
 then
     echo "Processing Docker for x86_64"
@@ -33,7 +72,6 @@ else
     echo "Unsupported architecture ${TARGET_AARCH}"
     exit 1
 fi
-
 
 # Make sure docker is installed
 DOCKER_VERSION=$(docker --version)
@@ -132,4 +170,3 @@ docker rmi --force $IMAGE_ID  || (echo "Warning: unable to clean up image ${DOCK
 popd
 
 exit 0
-
