@@ -788,7 +788,7 @@ class BuildInfo(object):
         if custom_build_cmds:
 
             # Construct the custom build command to execute
-            if len(custom_build_cmds)>1:
+            if len(custom_build_cmds) > 1:
                 custom_build_cmd_args = ' '.join([f'"{cmd.strip()}"' if " " in cmd else f'{cmd.strip()}' for cmd in custom_build_cmds[1:]])
                 full_custom_build_cmd = f'{custom_build_cmds[0].format(python=sys.executable)} {custom_build_cmd_args}'
             else:
@@ -800,13 +800,13 @@ class BuildInfo(object):
                                          cwd=str(self.base_folder),
                                          env=env_to_use)
             if call_result.returncode != 0:
-                raise BuildError(f"Error executing custom build command {custom_build_cmd}")
+                raise BuildError(f"Error executing custom build command {full_custom_build_cmd}")
 
         custom_install_cmds = self.platform_config.get('custom_install_cmd', [])
         if custom_install_cmds:
 
             # Construct the custom install command to execute
-            if len(custom_install_cmds)>1:
+            if len(custom_install_cmds) > 1:
                 customer_install_args = ' '.join([f'"{cmd.strip()}"' if " " in cmd else f'{cmd.strip()}' for cmd in custom_install_cmds[1:]])
                 full_custom_install_cmd = f'{custom_install_cmds[0].format(python=sys.executable)} {customer_install_args}'
             else:
@@ -821,7 +821,7 @@ class BuildInfo(object):
                                          cwd=str(self.base_folder),
                                          env=env_to_use)
             if call_result.returncode != 0:
-                raise BuildError(f"Error executing custom install command {custom_install_cmd}")
+                raise BuildError(f"Error executing custom install command {full_custom_install_cmd}")
                 
         # Allow libraries to define a list of files to include via a json script that stores folder paths and
         # individual files in the "Install_Paths" array
