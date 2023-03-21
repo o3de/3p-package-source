@@ -14,6 +14,7 @@ import os
 import pathlib
 import platform
 import re
+import shlex
 import shutil
 import string
 import subprocess
@@ -788,11 +789,7 @@ class BuildInfo(object):
         if custom_build_cmds:
 
             # Construct the custom build command to execute
-            if len(custom_build_cmds) > 1:
-                custom_build_cmd_args = ' '.join([f'"{cmd.strip()}"' if " " in cmd else f'{cmd.strip()}' for cmd in custom_build_cmds[1:]])
-                full_custom_build_cmd = f'{custom_build_cmds[0].format(python=sys.executable)} {custom_build_cmd_args}'
-            else:
-                full_custom_build_cmd = custom_build_cmds[0].format(python=sys.executable)
+            full_custom_build_cmd = shlex.join(custom_build_cmds).format(python=sys.executable)
 
             call_result = subprocess.run(full_custom_build_cmd,
                                          shell=True,
@@ -806,15 +803,8 @@ class BuildInfo(object):
         if custom_install_cmds:
 
             # Construct the custom install command to execute
-            if len(custom_install_cmds) > 1:
-                customer_install_args = ' '.join([f'"{cmd.strip()}"' if " " in cmd else f'{cmd.strip()}' for cmd in custom_install_cmds[1:]])
-                full_custom_install_cmd = f'{custom_install_cmds[0].format(python=sys.executable)} {customer_install_args}'
-            else:
-                full_custom_install_cmd = custom_install_cmds[0].format(python=sys.executable)
+            full_custom_install_cmd = shlex.join(custom_install_cmds).format(python=sys.executable)
 
-
-            # Support the user specifying {python} in the custom_install_cmd to invoke
-            # the Python executable that launched this build script
             call_result = subprocess.run(full_custom_install_cmd,
                                          shell=True,
                                          capture_output=False,
