@@ -38,8 +38,8 @@ then
     if [ "${TARGET_AARCH}" = "aarch64" ]
     then
         # Make sure qemu-aarch64 is installed properly
-        QEMU_AARCH_COUNT=$(update-binfmts --display | grep qemu-aarch65 | wc -l)
-        if [ $QEMU_AARCH_COUNT -eq 1 ]
+        QEMU_AARCH_COUNT=$(update-binfmts --display | grep qemu-aarch64 | wc -l)
+        if [ $QEMU_AARCH_COUNT -eq 0 ]
         then
             echo ""
             echo "QEMU aarch64 binary format not registered."
