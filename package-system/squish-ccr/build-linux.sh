@@ -9,6 +9,8 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
+LIB_NAME=squish_ccr
+
 # Determine the host architecture
 CURRENT_HOST_ARCH=$(uname -m)
 
@@ -61,13 +63,13 @@ then
     echo "Processing Docker for x86_64"
     TARGET_DOCKER_FILE=Dockerfile.x86_64
     TARGET_DOCKER_PLATFORM_ARG=linux/amd64
-    DOCKER_IMAGE_NAME=squish_ccr_linux_3p
+    DOCKER_IMAGE_NAME=${LIB_NAME}_linux_3p
 elif [ "${TARGET_AARCH}" = "aarch64" ] 
 then
     echo "Processing Docker for aarch64"
     TARGET_DOCKER_FILE=Dockerfile.aarch64
     TARGET_DOCKER_PLATFORM_ARG=linux/arm64/v8
-    DOCKER_IMAGE_NAME=squish_ccr_linux_aarch64_3p
+    DOCKER_IMAGE_NAME=${LIB_NAME}_linux_aarch64_3p
 else
     echo "Unsupported architecture ${TARGET_AARCH}"
     exit 1
@@ -83,7 +85,7 @@ then
 fi
 echo "Detected Docker Version $DOCKER_VERSION"
 
-DOCKER_BUILD_SCRIPT=docker_build_squish_ccr_linux.sh
+DOCKER_BUILD_SCRIPT=docker_build_linux.sh
 
 if [ ! -f $DOCKER_BUILD_SCRIPT ]
 then

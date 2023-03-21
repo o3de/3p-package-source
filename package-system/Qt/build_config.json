@@ -18,8 +18,11 @@
                     ["tiff-4.2.0.15-rev3-windows", "c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60", ""],
                     ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
                 ],
+                "additional_download_packages":[ 
+                    ["http://download.qt.io/official_releases/jom/jom.zip", "128fdd846fe24f8594eed37d1d8929a0ea78df563537c0c1b1861a635013fff8", "sha256"],
+                    ["https://github.com/unicode-org/icu/releases/download/release-65-1/icu4c-65_1-Win64-MSVC2017.zip", "cfaf7477d65272e9e01c739951f0607642c0510235e46befc109f6a3addd4f43", "sha256"]
+                ],
                 "custom_build_cmd": [
-                    "install_windows_extras.py",
                     "build-windows.bat"
                 ],
                 "custom_install_cmd": [

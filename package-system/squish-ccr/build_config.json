@@ -57,7 +57,8 @@
       "Linux":{
             "Linux":{
                "custom_build_cmd": [
-                    "./build-linux-x86_64.sh"
+                    "./build-linux.sh",
+                    "x86_64"
                 ],
                 "custom_install_cmd": [
                     "./package-linux.sh"
@@ -65,7 +66,8 @@
             },
             "Linux-aarch64":{
                "custom_build_cmd": [
-                    "./build-linux-aarch64.sh"
+                    "./build-linux.sh",
+                    "aarch64"
                 ],
                 "custom_install_cmd": [
                     "./package-linux.sh"
