@@ -122,7 +122,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         target_compile_options(squish-ccr PRIVATE -msse2 -Wno-unused-value -Wno-switch)
     endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_definitions(squish-ccr PRIVATE NDEBUG USE_CPP)
+    target_include_directories(squish-ccr PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    target_compile_definitions(squish-ccr PRIVATE NDEBUG USE_CPP SQUISH_USE_NEON=0 SQUISH_USE_SSE=2 SQUISH_USE_CPP SQUISH_USE_CCR)
 endif()
 
 set_target_properties(squish-ccr
