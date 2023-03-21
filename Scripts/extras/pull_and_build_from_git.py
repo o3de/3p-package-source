@@ -94,11 +94,15 @@ The following keys can only exist at the target platform level as they describe 
 * custom_build_cmd                        : A custom build script and arguments to build from the source that was pulled from git. This is a list 
                                             starting with the script to execute along with a list of optional arguments to the script. This is mutually
                                             exclusive from the cmake_generate_args and cmake_build_args options.
+                                            Note: If the command is a python script, format the command with a {python} variable, for example: "{python} build_me.py"
+                                                  This will invoke the same python interpreter that is used to launch the build package script
                                             see the note about environment variables below.
 
 * custom_install_cmd                      : A custom script and arguments to run (after the custom_build_cmd) to copy and assemble the built binaries
                                             into the target package folder. This is a list starting with the script to execute along with a list of optional
                                             arguments to the script. This argument is optional.  You could do the install in your custom build command instead.
+                                            Note: If the command is a python script, format the command with a {python} variable, for example: "{python} install_me.py"
+                                                  This will invoke the same python interpreter that is used to launch the build package script
                                             see the note about environment variables below.
 
 * custom_install_json                     : A list of files to copy into the target package folder from the built SDK. This argument is optional.
@@ -783,17 +787,13 @@ class BuildInfo(object):
         custom_build_cmds = self.platform_config.get('custom_build_cmd', [])
         if custom_build_cmds:
 
+            # Construct the custom build command to execute
             if len(custom_build_cmds)>1:
                 custom_build_cmd_args = ' '.join([f'"{cmd.strip()}"' if " " in cmd else f'{cmd.strip()}' for cmd in custom_build_cmds[1:]])
                 full_custom_build_cmd = f'{custom_build_cmds[0].format(python=sys.executable)} {custom_build_cmd_args}'
             else:
                 full_custom_build_cmd = custom_build_cmds[0].format(python=sys.executable)
 
-
-            print(f"CUSTOM BUILD COMMAND: {full_custom_build_cmd}")
-
-            # Support the user specifying {python} in the custom_build_cmd to invoke
-            # the Python executable that launched this build script
             call_result = subprocess.run(full_custom_build_cmd,
                                          shell=True,
                                          capture_output=False,
@@ -805,13 +805,13 @@ class BuildInfo(object):
         custom_install_cmds = self.platform_config.get('custom_install_cmd', [])
         if custom_install_cmds:
 
+            # Construct the custom install command to execute
             if len(custom_install_cmds)>1:
                 customer_install_args = ' '.join([f'"{cmd.strip()}"' if " " in cmd else f'{cmd.strip()}' for cmd in custom_install_cmds[1:]])
                 full_custom_install_cmd = f'{custom_install_cmds[0].format(python=sys.executable)} {customer_install_args}'
             else:
                 full_custom_install_cmd = custom_install_cmds[0].format(python=sys.executable)
 
-            print(f"CUSTOM INSTALL COMMAND: {full_custom_install_cmd}")
 
             # Support the user specifying {python} in the custom_install_cmd to invoke
             # the Python executable that launched this build script
