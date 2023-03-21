@@ -39,7 +39,8 @@
         "mikkelsen-1.0.0.4-linux": "package-system/mikkelsen/build_package_image.py",
         "qt-5.15.2-rev8-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/Qt --platform-name Linux --package-root ../../package-system/Qt/temp --clean",
         "zlib-1.2.11-rev5-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux --package-root ../../package-system --clean",
-        "lz4-1.9.3-vcpkg-rev4-linux": "package-system/lz4/build_package_image.py --platform-name linux",
+        "lz4-1.9.4-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/lz4 --platform-name Linux --package-root ../../package-system/lz4/temp --clean",
+        "lz4-1.9.4-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/lz4 --platform-name Linux-aarch64 --package-root ../../package-system/lz4/temp --clean",
         "expat-2.4.2-rev2-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/expat --platform-name Linux --package-root ../../package-system/expat/temp --clean",
         "vulkan-validationlayers-1.2.198-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/vulkan-validationlayers --platform-name Linux --package-root ../../package-system/vulkan-validationlayers/temp --clean"
     },
@@ -81,7 +82,8 @@
         "xxhash-0.7.4-rev1-multiplatform": "package-system/xxhash-multiplatform",
         "qt-5.15.2-rev8-linux": "package-system/Qt/temp/qt-linux",
         "zlib-1.2.11-rev5-linux": "package-system/zlib-linux",
-        "lz4-1.9.3-vcpkg-rev4-linux": "package-system/lz4-linux",
+        "lz4-1.9.4-rev1-linux": "package-system/lz4/temp/lz4-linux",
+        "lz4-1.9.4-rev1-linux-aarch64": "package-system/lz4/temp/lz4-linux-aarch64",
         "expat-2.4.2-rev2-linux": "package-system/expat/temp/expat-linux",
         "vulkan-validationlayers-1.2.198-rev1-linux": "package-system/vulkan-validationlayers/temp/vulkan-validationlayers-linux"
     }
