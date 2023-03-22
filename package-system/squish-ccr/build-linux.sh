@@ -123,6 +123,10 @@ docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} --tty ${DOCKER_IMAGE_NAME}:l
 if [ $? -ne 0 ]
 then
     echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
+    echo "To log into and troubleshoot the docker container, run the following command:"
+    echo ""
+    echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest"
+    echo ""
     exit 1
 fi
 
@@ -145,6 +149,10 @@ docker cp --quiet $CONTAINER_ID:/data/workspace/package/. build
 if [ $? -ne 0 ]
 then
     echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." 
+    echo "To log into and troubleshoot the docker container, run the following command:"
+    echo ""
+    echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest"
+    echo ""
     exit 1
 fi
 
@@ -155,6 +163,10 @@ then
     if [ $? -ne 0 ]
     then
         echo "Error occurred copying sse2neon license from Docker image ${DOCKER_IMAGE_NAME}:latest."
+        echo "To log into and troubleshoot the docker container, run the following command:"
+        echo ""
+        echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest"
+        echo ""
         exit 1
     fi
 fi
