@@ -44,11 +44,12 @@ RUN git clone https://github.com/DLTcollab/sse2neon.git /data/workspace/sse2neon
 
 
 # Prepare a target folder within the container to install the build artifacts tp
-RUN mkdir -p /data/workspace/build
+RUN mkdir -p /data/workspace/build && \
+    mkdir -p /data/workspace/src
 
 ARG CACHEBUST=1
 
 # Copy the build script specific to this Docker script in order to execute the build
 COPY ${DOCKER_BUILD_SCRIPT} /data/workspace/
-
+COPY src /data/workspace/src/
 

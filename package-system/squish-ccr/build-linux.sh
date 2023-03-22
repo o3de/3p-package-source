@@ -120,8 +120,8 @@ fi
 
 # Run the Docker Image
 echo "Running build script in the docker image"
-echo docker run -v $TEMP_FOLDER/src:/data/workspace/src --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
-docker run -v $TEMP_FOLDER/src:/data/workspace/src --platform ${TARGET_DOCKER_PLATFORM_ARG} --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
+echo docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
+docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
 if [ $? -ne 0 ]
 then
     echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
