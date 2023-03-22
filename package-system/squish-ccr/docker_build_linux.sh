@@ -5,10 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
-# Build both debug and release variants
-build_configs=(Debug Release)
-
-
+# Build the release version of the library
 cmake -S src -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="-fPIC -O2" -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=/data/workspace/package
 if [ $? -ne 0 ]
 then
@@ -16,17 +13,10 @@ then
     exit 1
 fi
 
-cmake --build build/${build_config}
+cmake --build build --target install
 if [ $? -ne 0 ]
 then
     echo "Failed to build squish-ccr for Linux (${build_config})"
-    exit 1
-fi
-
-cmake --install build/${build_config}
-if [ $? -ne 0 ]
-then
-    echo "Failed to package squish-ccr for Linux (${build_config})"
     exit 1
 fi
 
