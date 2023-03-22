@@ -51,7 +51,9 @@
                     "-G",
                     "Xcode",
                     "-DCMAKE_MACOSX_BUNDLE=OFF",
-                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake"
+                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake",
+                    "-DLZ4_BUILD_CLI=OFF",
+                    "-DLZ4_BUILD_LEGACY_LZ4C=OFF"
                 ]
             }
         },
