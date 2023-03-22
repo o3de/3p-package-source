@@ -100,7 +100,6 @@ pushd temp
 
 # Build the Docker Image
 echo "Building the docker build script for ${DOCKER_IMAGE_NAME}"
-
 docker build --build-arg DOCKER_BUILD_SCRIPT=$DOCKER_BUILD_SCRIPT -f ../${TARGET_DOCKER_FILE} -t ${DOCKER_IMAGE_NAME}:latest . 
 if [ $? -ne 0 ]
 then
@@ -120,7 +119,6 @@ fi
 
 # Run the Docker Image
 echo "Running build script in the docker image"
-echo docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
 docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
 if [ $? -ne 0 ]
 then
@@ -150,7 +148,7 @@ then
     exit 1
 fi
 
-#
+# Copy over the license from sse2neon since it is used to build the aarch64 version of the library
 if [ "${TARGET_AARCH}" = "aarch64" ]
 then
     docker cp --quiet $CONTAINER_ID:/data/workspace/sse2neon/LICENSE build/LICENSE.sse2neon

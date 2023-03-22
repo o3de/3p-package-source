@@ -6,7 +6,7 @@
 #
 
 # CMake definition for squish-ccr 2.00 alpha2
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 
 project(squish-ccr)
 
