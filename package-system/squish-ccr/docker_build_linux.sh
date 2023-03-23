@@ -20,4 +20,10 @@ then
     exit 1
 fi
 
+# If sse2neon was installed on this docker container, include its license file
+if [ -f /data/workspace/sse2neon/LICENSE ]
+then
+    cp /data/workspace/sse2neon/LICENSE /data/workspace/package/LICENSE.sse2neon
+fi
+
 exit 0

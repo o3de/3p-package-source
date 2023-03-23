@@ -15,10 +15,10 @@ LIB_NAME=squish_ccr
 CURRENT_HOST_ARCH=$(uname -m)
 
 # Use the host architecture if not supplied
-TARGET_AARCH=${1:-$(uname -m)}
+TARGET_ARCH=${1:-$(uname -m)}
 
 # If the host and target architecture does not match, make sure the necessary cross compilation packages are installed
-if [ "${CURRENT_HOST_ARCH}" != ${TARGET_AARCH} ]
+if [ "${CURRENT_HOST_ARCH}" != ${TARGET_ARCH} ]
 then
     echo "Checking cross compiling requirements."
     for package_check in docker-ce qemu binfmt-support qemu-user-static
@@ -35,7 +35,7 @@ then
     done
 
     # Only cross compilation of an ARM64 image on an x86_64 host is supported
-    if [ "${TARGET_AARCH}" = "aarch64" ]
+    if [ "${TARGET_ARCH}" = "aarch64" ]
     then
         # Make sure qemu-aarch64 is installed properly
         QEMU_AARCH_COUNT=$(update-binfmts --display | grep qemu-aarch64 | wc -l)
@@ -54,24 +54,24 @@ then
         echo ""
     fi
 else
-    echo "Building ${TARGET_AARCH} natively."
+    echo "Building ${TARGET_ARCH} natively."
 fi
 
 # Setup the docker arguments for the target architecture
-if [ "${TARGET_AARCH}" = "x86_64" ]
+if [ "${TARGET_ARCH}" = "x86_64" ]
 then
     echo "Processing Docker for x86_64"
     TARGET_DOCKER_FILE=Dockerfile.x86_64
     TARGET_DOCKER_PLATFORM_ARG=linux/amd64
     DOCKER_IMAGE_NAME=${LIB_NAME}_linux_3p
-elif [ "${TARGET_AARCH}" = "aarch64" ] 
+elif [ "${TARGET_ARCH}" = "aarch64" ] 
 then
     echo "Processing Docker for aarch64"
     TARGET_DOCKER_FILE=Dockerfile.aarch64
     TARGET_DOCKER_PLATFORM_ARG=linux/arm64/v8
     DOCKER_IMAGE_NAME=${LIB_NAME}_linux_aarch64_3p
 else
-    echo "Unsupported architecture ${TARGET_AARCH}"
+    echo "Unsupported architecture ${TARGET_ARCH}"
     exit 1
 fi
 
@@ -148,29 +148,9 @@ mkdir -p build
 docker cp --quiet $CONTAINER_ID:/data/workspace/package/. build  
 if [ $? -ne 0 ]
 then
-    echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." 
-    echo "To log into and troubleshoot the docker container, run the following command:"
-    echo ""
-    echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest"
-    echo ""
+    echo "Error occurred copying build artifacts from Docker container ($CONTAINER_ID)" 
     exit 1
 fi
-
-# Copy over the license from sse2neon since it is used to build the aarch64 version of the library
-if [ "${TARGET_AARCH}" = "aarch64" ]
-then
-    docker cp --quiet $CONTAINER_ID:/data/workspace/sse2neon/LICENSE build/LICENSE.sse2neon
-    if [ $? -ne 0 ]
-    then
-        echo "Error occurred copying sse2neon license from Docker image ${DOCKER_IMAGE_NAME}:latest."
-        echo "To log into and troubleshoot the docker container, run the following command:"
-        echo ""
-        echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest"
-        echo ""
-        exit 1
-    fi
-fi
-
 
 # Clean up the docker image and container
 echo "Cleaning up container"
