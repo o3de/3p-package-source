@@ -10,9 +10,8 @@ lib_name="lz4"
 build_configs=(Release)
 
 cmake_src_dir="src/build/cmake"
-
 # Configure using the Ninja Multi-Config generator
-cmake -S ${cmake_src_dir} -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="-fPIC -O2" -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=/data/workspace/package
+cmake -S ${cmake_src_dir} -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="-fPIC -O2" -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=/data/workspace/package -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF
 if [ $? -ne 0 ]; then
     echo "Error configuring cmake for ${lib_name}"
     exit 1
