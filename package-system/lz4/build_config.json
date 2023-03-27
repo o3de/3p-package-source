@@ -1,0 +1,79 @@
+{
+    "git_url": "https://github.com/lz4/lz4.git",
+    "git_tag": "v1.9.4",
+    "package_name": "lz4",
+    "package_version": "1.9.4-rev2",
+    "package_url": "http://lz4.github.io/lz4/",
+    "package_license": "BSD-2-Clause",
+    "package_license_file": "LICENSE",
+    "cmake_find_source": "Findlz4.cmake",
+    "cmake_find_target": "Findlz4.cmake",
+    "cmake_src_subfolder": "build/cmake",
+    "additional_src_files": [
+    ],
+    "cmake_generate_args_common": [
+        "-DBUILD_SHARED_LIBS=0",
+        "-DCMAKE_CXX_STANDARD=17"
+    ],
+    "cmake_build_args_common": [
+        "-j"
+    ],
+    "build_configs":[
+        "Release"
+    ],
+    "Platforms": {
+        "Windows": {
+            "Windows": {
+                "cmake_generate_args_release": [
+                    "-G",
+                    "\"Visual Studio 16\""
+                ]
+            },
+            "Android": {
+                "cmake_generate_args_release": [
+                    "-G",
+                    "\"Ninja Multi-Config\"",
+                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake",
+                    "-DCMAKE_BUILD_TYPE=Release"
+                ]
+            }
+        },
+        "Darwin": {
+            "Mac": {
+                "cmake_generate_args_release": [
+                    "-G",
+                    "Xcode",
+                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
+                ]
+            },
+            "iOS": {
+                "cmake_generate_args_release": [
+                    "-G",
+                    "Xcode",
+                    "-DCMAKE_MACOSX_BUNDLE=OFF",
+                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake",
+                    "-DLZ4_BUILD_CLI=OFF",
+                    "-DLZ4_BUILD_LEGACY_LZ4C=OFF"
+                ]
+            }
+        },
+        "Linux": {
+            "Linux": {
+                "custom_build_cmd": [
+                    "./build-linux-x86_64.sh"
+                ],
+                "custom_install_cmd": [
+                    "./package-linux.sh"
+                ]
+            },
+            "Linux-aarch64": {
+                "custom_build_cmd": [
+                    "./build-linux-aarch64.sh"
+                ],
+                "custom_install_cmd": [
+                    "./package-linux.sh"
+                ]
+            }
+        }
+    }
+}

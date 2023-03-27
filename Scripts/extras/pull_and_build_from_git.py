@@ -1,7 +1,7 @@
 #
 # Copyright (c) Contributors to the Open 3D Engine Project.
 # For complete copyright and license terms please see the LICENSE at the root of this distribution.
-# 
+#
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 #
@@ -27,7 +27,7 @@ from archive_downloader import download_and_verify, extract_package
 SCHEMA_DESCRIPTION = """
 Build Config Description:
 
-The build configuration (build_config.json) accepts keys that are root level only, and some keys that can be 
+The build configuration (build_config.json) accepts keys that are root level only, and some keys that can be
 either global or target platform specific. Root level only keys are keys that define the project and cannot
 be different by platform, and all are required. The keys are:
 
@@ -41,23 +41,23 @@ The following keys can exist at the root level or the target-platform level:
 * git_url               : The git clone url for the source to pull for building
 * git_tag               : The git tag or branch to identify the branch to pull from for building
 * git_commit            : (optional) A specific git commit to check out. This is useful for upstream repos that do not tag their releases.
-* package_version       : (required) The string to describe the package version. This string is used to build the full package name. 
+* package_version       : (required) The string to describe the package version. This string is used to build the full package name.
                           This can be uniform for all platforms or can be set for a specific platform
-* prebuilt_source       : (optional) If the 3rd party library files are prebuilt and accessible, then setting this key to the relative location of 
+* prebuilt_source       : (optional) If the 3rd party library files are prebuilt and accessible, then setting this key to the relative location of
                           the folder will cause the workflow to perform copy operations into the generated target library folder directly (see
                           'prebuilt_args' below.
 * prebuild_args         : (required if  prebuilt_source is set) A map of target subfolders within the target 3rd party folder against a glob pattern of
                           file(s) to copy to the target subfolders.
 * cmake_find_source     : The name of the source Find*.cmake file that will be used in the target package
                           that is ingested by the lumberyard 3P system.
-* cmake_find_template   : If the find*.cmake in the target package requires template processing, then this is name of the template file that is used to 
-                          generate the contents of the find*.cmake file in the target package. 
+* cmake_find_template   : If the find*.cmake in the target package requires template processing, then this is name of the template file that is used to
+                          generate the contents of the find*.cmake file in the target package.
                           * Note that either 'cmake_find_source' or 'cmake_fine_template' must be declared.
-* cmake_find_target     : (required if prebuilt_source is not set) The name of the target find*.cmake file that is generated based on the template file and 
+* cmake_find_target     : (required if prebuilt_source is not set) The name of the target find*.cmake file that is generated based on the template file and
                           additional arguments (described below)
 
 * build_configs         : (optional) A list of configurations to build during the build process. This is available
-                          to restrict building to a specific configuration rather than building all configurations 
+                          to restrict building to a specific configuration rather than building all configurations
                           (provided by the default value: ['Debug', 'Release'])
 * patch_file            : (optional) Option patch file to apply to the synced source before performing a build
 * source_path           : (optional) Option to provide a path to the project source rather than getting it from github
@@ -65,7 +65,7 @@ The following keys can exist at the root level or the target-platform level:
 * cmake_src_subfolder   : (optional) Some packages don't have a CMakeLists at the root and instead its in a subfolder.
                                     In this case, set this to be the relative path from the src root to the folder that
                                     contains the CMakeLists.txt.
-* cmake_generate_args_common : (optional) When used at the root, this provides a set of cmake arguments for generation which will 
+* cmake_generate_args_common : (optional) When used at the root, this provides a set of cmake arguments for generation which will
                                 apply to ALL platforms and configs (appended to cmake_generate_args).
                                 Can be overriden by a specific platform by specifying it in the platform specific section.
                                 The final args will be (cmake_generate_args || cmake_generation_args_CONFIG) + cmake_generate_args_common
@@ -73,7 +73,7 @@ The following keys can exist at the root level or the target-platform level:
                             platforms and configurations.
                             The final args will be (cmake_build_args || cmake_build_args_CONFIG) + cmake_build_args_common
                             `cmake --build (build folder) --config config` will automatically be supplied.
-* extra_files_to_copy   : (optional) a list of pairs of files to copy [source, destination]. 
+* extra_files_to_copy   : (optional) a list of pairs of files to copy [source, destination].
 
 * cmake_install_filter                    : Optional list of filename patterns to filter what is actually copied to the target package based on
                                             the 3rd party library's install definition. (For example, a library may install headers and static
@@ -81,12 +81,12 @@ The following keys can exist at the root level or the target-platform level:
                                             install tree will be copied to the target package.
                                             This field can exist at the root but also at individual platform target level.
 
- 
+
 The following keys can only exist at the target platform level as they describe the specifics for that platform.
 
-* cmake_generate_args                     : The cmake generation arguments (minus the build folder target or any configuration) for generating 
+* cmake_generate_args                     : The cmake generation arguments (minus the build folder target or any configuration) for generating
                                             the project for the platform (for all configurations). To perform specific generation commands (i.e.
-                                            for situations where the generator does not support multiple configs) the key can contain the 
+                                            for situations where the generator does not support multiple configs) the key can contain the
                                             suffix of the configuration name (cmake_generate_args_debug, cmake_generate_args_release).
                                             For common args that should apply to every config, see cmake_generate_args_common above.
 
@@ -114,21 +114,21 @@ The following keys can only exist at the target platform level as they describe 
 
 * custom_additional_compile_definitions   : Any additional compile definitions to apply in the find*.cmake file for the library that will applied
                                             to targets that consume this 3P library
-                                            
+
 * custom_additional_link_options          : Any additional linker options to apply in the find*.cmake file for the library that will applied
                                             to targets that consume this 3P library during linking
-                                            
-* custom_additional_libraries             : Any additional dependent system library to include in the find*.cmake file for the library that will 
+
+* custom_additional_libraries             : Any additional dependent system library to include in the find*.cmake file for the library that will
                                             applied to targets that consume this 3P library during linking
-                                            
-* depends_on_packages                     : list of name of 3-TUPLES of [package name, package hash, subfolder] that 'find' files live in] 
+
+* depends_on_packages                     : list of name of 3-TUPLES of [package name, package hash, subfolder] that 'find' files live in]
                                             [  ["zlib-1.5.3-rev5",    "some hash", ""],
-                                               ["some other package", "some other hash", "subfoldername"], 
+                                               ["some other package", "some other hash", "subfoldername"],
                                                ...
-                                            ] 
+                                            ]
                                             that we need to download and use).
     - note that we don't check recursively - you must name your recursive deps!
-    - The packages must be on a public CDN or locally tested with FILE:// - it uses env var 
+    - The packages must be on a public CDN or locally tested with FILE:// - it uses env var
       "LY_PACKAGE_SERVER_URLS" which can be a semicolon seperated list of places to try.
     - The packages unzip path + subfolder is added to CMAKE_MODULE_PATH if you use cmake commands.
     - Otherwise you can use DOWNLOADED_PACKAGE_FOLDERS env var in your custom script and set
@@ -136,7 +136,7 @@ The following keys can only exist at the target platform level as they describe 
     - The subfolder can be empty, in which case the root of the package will be used.
 
 * additional_download_packages            : list of archived package files to download and extract for use in any custom build script. The packages will
-                                            be extracted to the working temp folder. The list will be a list of 3-TUPLES of 
+                                            be extracted to the working temp folder. The list will be a list of 3-TUPLES of
                                             [full_download_url, file hash, hash algorithm] where:
                                                full_download_url - The full download URL of the package to download
                                                file hash - The hex-string of the fingerprint to validate the download with. If this is left blank, no validation
@@ -157,7 +157,7 @@ for the process:
             - usually used to set CMAKE_MODULE_PATH so it can find the packages.
             - unset if there are no dependencies declared
     Note that any of the above environment variables that contain paths will use system native slashes for script
-    compatibility, and may need to be converted to forward slash in your script on windows 
+    compatibility, and may need to be converted to forward slash in your script on windows
     if you feed it to cmake.
     Also note that the working directory for all custom commands will the folder containing the build_config.json file.
 
@@ -261,7 +261,7 @@ class PackageInfo(object):
         self.custom_toolchain_file = _get_value("custom_toolchain_file", required=False)
 
         if self.cmake_find_template and self.cmake_find_source:
-            raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")            
+            raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")
         if not self.cmake_find_template and not self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_source' must be set in the configuration.")
 
@@ -342,14 +342,14 @@ def validate_patch():
 def create_folder(folder):
     """
     Handles error checking and messaging for creating a tree of folders.
-    It is assumed that it is okay if the folder exists, but not okay if the 
+    It is assumed that it is okay if the folder exists, but not okay if the
     folder is a file.
     """
     # wrap it up in a Path so that if a string is passed in, this still works.
     path_folder = pathlib.Path(folder).resolve(strict=False)
     if path_folder.is_file():
         print(f"create_folder expected a folder but found a file: {path_folder}")
-    
+
     path_folder.mkdir(parents=True, exist_ok=True)
 
 
@@ -365,7 +365,7 @@ def delete_folder(folder):
         print(f"Expected a folder, but found a file: {path_folder}")
     if not path_folder.is_dir():
         return
-    
+
     if platform.system() == 'Windows':
         call_result = subprocess.run(subp_args(['rmdir', '/Q', '/S', str(path_folder)]),
                                      shell=True,
@@ -405,8 +405,8 @@ class BuildInfo(object):
     This is the Build management class that will perform the entire build from source and preparing a folder for packaging
     """
 
-    def __init__(self, package_info, platform_config, base_folder, build_folder, package_install_root, 
-                 cmake_command, clean_build, cmake_find_template, 
+    def __init__(self, package_info, platform_config, base_folder, build_folder, package_install_root,
+                 cmake_command, clean_build, cmake_find_template,
                  cmake_find_source, prebuilt_source, prebuilt_args, src_folder, skip_git):
         """
         Initialize the Build management object with information needed
@@ -493,7 +493,7 @@ class BuildInfo(object):
 
         if self.clean_build:
             delete_folder(self.build_folder)
-            
+
         # some installs use a working temp folder as an intermediate, clean that too:
         working_install_folder = self.base_temp_folder / 'working_install'
         delete_folder(working_install_folder)
@@ -576,8 +576,8 @@ class BuildInfo(object):
                     raise BuildError(f"Invalid/missing license file '{self.package_info.package_license_file}' specified in the build config.")
 
             license_file_content = package_license_src.read_text("UTF-8", "ignore")
-            if "Copyright" not in license_file_content and "OPEN 3D ENGINE LICENSING" not in license_file_content and "copyright" not in license_file_content:
-                raise BuildError(f"Unable to find 'Copyright' or the O3DE licensing text in the license file {str(self.package_info.package_license_file)}. Is this a valid license file?")
+            if not len(license_file_content):
+                raise BuildError(f"license file {str(self.package_info.package_license_file)} is empty. Is this a valid license file?")
             target_license_copy = self.build_install_folder / os.path.basename(package_license_src)
             if target_license_copy.is_file():
                 target_license_copy.unlink()
@@ -623,7 +623,7 @@ class BuildInfo(object):
                                                               src_zip_hash_algorithm=package_algorithm,
                                                               target_folder=self.base_temp_folder)
 
-                extracted_package_path = extract_package(src_package_file=downloaded_package_file, 
+                extracted_package_path = extract_package(src_package_file=downloaded_package_file,
                                                          target_folder=self.base_temp_folder)
 
 
@@ -698,7 +698,7 @@ class BuildInfo(object):
                     cmake_generate_cmd.extend([f"-DCMAKE_MODULE_PATH={cmake_module_path}"])
 
                 cmake_generate_cmd.extend(cmake_generator_args)
-                
+
                 # make sure it always installs into a prefix (ie, not the system!)
                 cmake_generate_cmd.extend([f"-DCMAKE_INSTALL_PREFIX={str(install_target_folder.resolve())}"])
 
@@ -783,7 +783,7 @@ class BuildInfo(object):
         """
         # we add TARGET_INSTALL_ROOT, TEMP_FOLDER and DOWNLOADED_PACKAGE_FOLDERS to the environ for both
         # build and install, as they are useful to refer to from scripts.
-        
+
         env_to_use = self.create_custom_env()
         custom_build_cmds = self.platform_config.get('custom_build_cmd', [])
         if custom_build_cmds:
@@ -800,12 +800,14 @@ class BuildInfo(object):
                 raise BuildError(f"Error executing custom build command {full_custom_build_cmd}")
 
         custom_install_cmds = self.platform_config.get('custom_install_cmd', [])
+
         if custom_install_cmds:
 
             # Construct the custom install command to execute
             full_custom_install_cmd = shlex.join(custom_install_cmds).format(python=sys.executable)
 
             call_result = subprocess.run(full_custom_install_cmd,
+
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
@@ -965,7 +967,7 @@ class BuildInfo(object):
             if target_base_folder_path.is_file():
                 raise BuildError(f'Error: Target folder {target_base_folder_path} is a file')
             create_folder(target_base_folder_path)
-           
+
             total_copied = 0
 
             # For each search pattern, run a glob
@@ -1100,7 +1102,7 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
         # Validate the cmake find template
         if os.path.isabs(package_info.cmake_find_template):
             raise BuildError("Invalid 'cmake_find_template' entry in build config. Absolute paths are not allowed, must be relative to the package base folder.")
-        
+
         cmake_find_template_path = base_folder_path / package_info.cmake_find_template
         if not cmake_find_template_path.is_file():
             raise BuildError("Invalid 'cmake_find_template' entry in build config")
@@ -1116,7 +1118,7 @@ def prepare_build(platform_name, base_folder, build_folder, package_root_folder,
             raise BuildError("Invalid 'cmake_find_source' entry in build config")
 
     else:
-        raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_template' must be specified.")            
+        raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_template' must be specified.")
 
     return BuildInfo(package_info=package_info,
                      platform_config=target_platform_config,

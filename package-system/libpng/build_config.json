@@ -71,7 +71,7 @@
                 "cmake_generate_args_release": [
                     "-G",
                     "Xcode",
-                    "-DDCMAKE_MACOSX_BUNDLE=OFF",
+                    "-DCMAKE_MACOSX_BUNDLE=OFF",
                     "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake",
                     "-T",
                     "buildsystem=1"
