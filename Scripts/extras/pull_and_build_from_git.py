@@ -14,6 +14,7 @@ import os
 import pathlib
 import platform
 import re
+import shlex
 import shutil
 import string
 import subprocess
@@ -91,13 +92,18 @@ The following keys can only exist at the target platform level as they describe 
 
 * cmake_build_args                        : Additional build args to pass to cmake during the cmake build command
 
-* custom_build_cmd                        : A list of custom scripts to run to build from the source that was pulled from git. This option is
-                                            mutually exclusive from the cmake_generate_args and cmake_build_args options.
+* custom_build_cmd                        : A custom build script and arguments to build from the source that was pulled from git. This is a list 
+                                            starting with the script to execute along with a list of optional arguments to the script. This is mutually
+                                            exclusive from the cmake_generate_args and cmake_build_args options.
+                                            Note: If the command is a python script, format the command with a {python} variable, for example: "{python} build_me.py"
+                                                  This will invoke the same python interpreter that is used to launch the build package script
                                             see the note about environment variables below.
 
-* custom_install_cmd                      : A list of custom scripts to run (after the custom_build_cmd) to copy and assemble the built binaries
-                                            into the target package folder.
-                                            this argument is optional.  You could do the install in your custom build command instead.
+* custom_install_cmd                      : A custom script and arguments to run (after the custom_build_cmd) to copy and assemble the built binaries
+                                            into the target package folder. This is a list starting with the script to execute along with a list of optional
+                                            arguments to the script. This argument is optional.  You could do the install in your custom build command instead.
+                                            Note: If the command is a python script, format the command with a {python} variable, for example: "{python} install_me.py"
+                                                  This will invoke the same python interpreter that is used to launch the build package script
                                             see the note about environment variables below.
 
 * custom_install_json                     : A list of files to copy into the target package folder from the built SDK. This argument is optional.
@@ -780,30 +786,35 @@ class BuildInfo(object):
 
         env_to_use = self.create_custom_env()
         custom_build_cmds = self.platform_config.get('custom_build_cmd', [])
-        for custom_build_cmd in custom_build_cmds:
-            # Support the user specifying {python} in the custom_build_cmd to invoke
-            # the Python executable that launched this build script
-            call_result = subprocess.run(custom_build_cmd.format(python=sys.executable),
+        if custom_build_cmds:
+
+            # Construct the custom build command to execute
+            full_custom_build_cmd = shlex.join(custom_build_cmds).format(python=sys.executable)
+
+            call_result = subprocess.run(full_custom_build_cmd,
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
                                          env=env_to_use)
             if call_result.returncode != 0:
-                raise BuildError(f"Error executing custom build command {custom_build_cmd}")
+                raise BuildError(f"Error executing custom build command {full_custom_build_cmd}")
 
         custom_install_cmds = self.platform_config.get('custom_install_cmd', [])
 
-        for custom_install_cmd in custom_install_cmds:
-            # Support the user specifying {python} in the custom_install_cmd to invoke
-            # the Python executable that launched this build script
-            call_result = subprocess.run(custom_install_cmd.format(python=sys.executable),
+        if custom_install_cmds:
+
+            # Construct the custom install command to execute
+            full_custom_install_cmd = shlex.join(custom_install_cmds).format(python=sys.executable)
+
+            call_result = subprocess.run(full_custom_install_cmd,
+
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
                                          env=env_to_use)
             if call_result.returncode != 0:
-                raise BuildError(f"Error executing custom install command {custom_install_cmd}")
-
+                raise BuildError(f"Error executing custom install command {full_custom_install_cmd}")
+                
         # Allow libraries to define a list of files to include via a json script that stores folder paths and
         # individual files in the "Install_Paths" array
         custom_install_jsons = self.platform_config.get('custom_install_json', [])

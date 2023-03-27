@@ -7,7 +7,7 @@
    "package_url":"http://sjbrown.co.uk/2006/01/19/dxt-compression-techniques/",
    "package_license":"MIT",
    "package_license_file":"LICENSE.txt",
-   "cmake_find_template":"Findsquish-ccr.cmake.template",
+   "cmake_find_source":"Findsquish-ccr.cmake",
    "cmake_find_target":"Findsquish-ccr.cmake",
    "patch_file":"squish-ccr-deb557d-rev1.patch",
    "additional_src_files":[
@@ -55,24 +55,24 @@
         }
       },
       "Linux":{
-         "Linux":{
-            "custom_cmake_install":true,
-            "cmake_generate_args_release": [
-                "-G",
-                "Unix\\ Makefiles",
-                "-DCMAKE_C_COMPILER=clang-6.0",
-                "-DCMAKE_CXX_COMPILER=clang++-6.0",
-                "-DCMAKE_CXX_FLAGS=\"-fPIC -O2\"",
-                "-DCMAKE_CXX_STANDARD=17",
-                "-DCMAKE_BUILD_TYPE=Release"
-            ],
-            "cmake_build_args":[
-               "-j"
-            ],
-            "build_configs":[
-                "Release"
-            ]
-         }
-      }
+            "Linux":{
+               "custom_build_cmd": [
+                    "./build-linux.sh",
+                    "x86_64"
+                ],
+                "custom_install_cmd": [
+                    "./package-linux.sh"
+               ]
+            },
+            "Linux-aarch64":{
+               "custom_build_cmd": [
+                    "./build-linux.sh",
+                    "aarch64"
+                ],
+                "custom_install_cmd": [
+                    "./package-linux.sh"
+               ]
+            }
+        }
    }
 }

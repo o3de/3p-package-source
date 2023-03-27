@@ -6,7 +6,7 @@
 #
 
 # CMake definition for squish-ccr 2.00 alpha2
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 
 project(squish-ccr)
 
@@ -74,6 +74,8 @@ set(SQUISH_HEADER_FILES
     hdrsinglefit.h
     hdrsinglesnap.h
     maths.h
+    maths_sse.h
+    maths_std.h
     paletteblock.h
     palettechannelfit.h
     paletteclusterfit.h
@@ -107,13 +109,21 @@ set(SQUISH_PUBLIC_INCLUDE_FILES
 )
 
 add_library(squish-ccr SHARED ${SQUISH_SOURCE_FILES} ${SQUISH_HEADER_FILES} ${SQUISH_INLINE_FILES})
-target_include_directories(squish-ccr PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-target_compile_definitions(squish-ccr PRIVATE SQUISH_USE_SSE=2 SQUISH_USE_CPP SQUISH_USE_CCR)
+
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    target_compile_options(squish-ccr PRIVATE -msse2 -Wno-unused-value)
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+        target_include_directories(squish-ccr PRIVATE ${CMAKE_CURRENT_LIST_DIR} /data/workspace/sse2neon)
+        target_compile_definitions(squish-ccr PRIVATE SQUISH_USE_NEON=1 SQUISH_USE_SSE=2 SQUISH_USE_CPP SQUISH_USE_CCR)
+        target_compile_options(squish-ccr PRIVATE -march=armv8-a+fp+simd+crypto+crc -Wno-unused-value -Wno-c++20-extensions -Wno-shift-op-parentheses -Wno-tautological-constant-out-of-range-compare -Wno-array-bounds -Wno-switch)
+    else()
+        target_include_directories(squish-ccr PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+        target_compile_definitions(squish-ccr PRIVATE SQUISH_USE_NEON=0 SQUISH_USE_SSE=2 SQUISH_USE_CPP SQUISH_USE_CCR)
+        target_compile_options(squish-ccr PRIVATE -msse2 -Wno-unused-value -Wno-switch)
+    endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_definitions(squish-ccr PRIVATE NDEBUG USE_CPP)
+    target_include_directories(squish-ccr PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    target_compile_definitions(squish-ccr PRIVATE NDEBUG USE_CPP SQUISH_USE_NEON=0 SQUISH_USE_SSE=2 SQUISH_USE_CPP SQUISH_USE_CCR)
 endif()
 
 set_target_properties(squish-ccr
