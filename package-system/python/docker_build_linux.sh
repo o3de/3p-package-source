@@ -5,8 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
-# Copy from the lib FFI
-
 WORKSPACE=/data/workspace
 
 mkdir -p $WORKSPACE/package
