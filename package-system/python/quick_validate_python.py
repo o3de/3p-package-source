@@ -17,6 +17,7 @@ try:
     import encodings
     import tarfile
     import lzma
+    import bz2
 except Exception as e:
     print("Failed: " + e)
     sys.exit(1)
