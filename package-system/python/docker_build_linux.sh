@@ -14,8 +14,6 @@ mkdir -p $WORKSPACE/package
 cp -f -v $WORKSPACE/libexpat/expat/lib/*.h $WORKSPACE/cpython/Modules/expat/
 cp -f -v $WORKSPACE/libexpat/expat/lib/*.c $WORKSPACE/cpython/Modules/expat/
 
-cd $WORKSPACE/src
-
 echo ""
 echo "--------------- Building cpython from source ---------------"
 echo ""
