@@ -167,7 +167,7 @@ def configure_sdk_project(working_directory: WorkingDirectoryInfo,
     source_folder: str = working_directory.source_path.resolve()
     build_shared: str = "ON" if lib_type == "Shared" else "OFF"
     if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
-        generator: str = "-G \"Visual Studio 17 2022\""
+        generator: str = "-G \"Visual Studio 17\""
     elif PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
         generator: str = "-G \"Unix Makefiles\""
     else:
