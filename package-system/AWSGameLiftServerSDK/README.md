@@ -24,7 +24,7 @@ You can find the official GameLift documentation [here](https://aws.amazon.com/d
    ```
 
 ## FAQ
-* For windows build, the Amazon GameLift Server SDK depends on an older version of boost, it is recommend to build with `Visual Studio 15 2017`
+* For windows build, it is recommend to build with `Visual Studio 17 2022`
 * For windows build, if you get error message `The specified path, file name, or both are too long. The fully qualified file name must be less than 260 characters, and the directory name must be less than 248 characters`
   (Refer to [PathTooLongException](https://docs.microsoft.com/en-us/dotnet/api/system.io.pathtoolongexception?view=net-6.0))
   Please move `3p-package-source` directory to shorter path location and retry.

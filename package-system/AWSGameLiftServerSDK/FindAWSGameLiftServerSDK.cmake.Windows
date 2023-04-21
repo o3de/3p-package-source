@@ -29,11 +29,6 @@ else()
 endif()
 
 set(AWSGAMELIFTSERVERSDK_LIBS
-    ${AWSGAMELIFTSERVERSDK_LIB_PATH}/sioclient.lib
-    ${AWSGAMELIFTSERVERSDK_LIB_PATH}/libboost_date_time.lib
-    ${AWSGAMELIFTSERVERSDK_LIB_PATH}/libboost_random.lib
-    ${AWSGAMELIFTSERVERSDK_LIB_PATH}/libboost_system.lib
-    ${AWSGAMELIFTSERVERSDK_LIB_PATH}/libprotobuf$<$<CONFIG:Debug>:d>.lib
     ${AWSGAMELIFTSERVERSDK_LIB_PATH}/aws-cpp-sdk-gamelift-server.lib
 )
 
