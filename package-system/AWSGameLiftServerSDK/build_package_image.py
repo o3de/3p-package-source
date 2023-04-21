@@ -3,7 +3,7 @@
 #
 # Copyright (c) Contributors to the Open 3D Engine Project.
 # For complete copyright and license terms please see the LICENSE at the root of this distribution.
-# 
+#
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 #
@@ -104,7 +104,7 @@ def collect_package_info() -> None:
         required=True,
         choices=PACKAGE_PLATFORM_OPTIONS
     )
-    
+
     args = parser.parse_args()
     global PACKAGE_PLATFORM
     PACKAGE_PLATFORM = args.platform_name
@@ -115,21 +115,21 @@ def prepare_working_directory() -> WorkingDirectoryInfo:
     root_directory: pathlib.Path = PACKAGE_BASE_PATH.joinpath("temp")
     if root_directory.is_dir():
         delete_folder(root_directory)
-    
+
     # source and build directory
     source_directory: pathlib.Path = \
         root_directory.joinpath(f"GameLift-SDK-Release-{GAMELIFT_SERVER_SDK_RELEASE_VERSION}/GameLift-Cpp-ServerSDK-{GAMELIFT_SERVER_SDK_RELEASE_VERSION}")
     build_directory: pathlib.Path = root_directory.joinpath("build")
     build_directory.mkdir(parents=True)
-    
+
     # build output and libs output directory
     build_output_directory: pathlib.Path = PACKAGE_ROOT_PATH.joinpath(f"{PACKAGE_NAME}-{PACKAGE_PLATFORM}")
     if build_output_directory.is_dir():
         delete_folder(build_output_directory)
-    
+
     build_libs_output_directory: pathlib.Path = build_output_directory.joinpath(f"{PACKAGE_NAME}")
     build_libs_output_directory.mkdir(parents=True)
-    
+
     return WorkingDirectoryInfo(root_directory, source_directory, build_directory, build_output_directory, build_libs_output_directory)
 
 # download gamelift server server sdk source code for package build
@@ -138,7 +138,7 @@ def download_gamelift_server_sdk(working_directory: WorkingDirectoryInfo) -> Non
     gamelift_sdk_zip_file: str = str(working_directory.root_path.joinpath("gamelift_server_sdk.zip").resolve())
     with urllib.request.urlopen(GAMELIFT_SERVER_SDK_DOWNLOAD_URL) as response, open(gamelift_sdk_zip_file, 'wb') as out_file:
         shutil.copyfileobj(response, out_file)
-    
+
     # unzip sdk contents
     with zipfile.ZipFile(gamelift_sdk_zip_file, "r") as f:
         unzip_path = working_directory.root_path.resolve()
@@ -152,8 +152,8 @@ def download_gamelift_server_sdk(working_directory: WorkingDirectoryInfo) -> Non
 def get_custom_build_env():
     if PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
         custom_env = os.environ.copy()
-        custom_env["CC"] = "clang"
-        custom_env["CXX"] = "clang++"
+        custom_env["CC"] = "gcc"
+        custom_env["CXX"] = "g++"
         custom_env["CFLAGS"] = "-fPIC"
         custom_env["CXXFLAGS"] = "-fPIC"
         return custom_env
@@ -172,7 +172,7 @@ def configure_sdk_project(working_directory: WorkingDirectoryInfo,
         generator: str = "-G \"Unix Makefiles\""
     else:
         raise Exception(f"Error unsupported platform: {PACKAGE_PLATFORM}")
-        
+
     configure_cmd: List[str] = [f"cmake {generator} -S .",
                                 f"-B {build_folder}",
                                 f"-DBUILD_SHARED_LIBS={build_shared}",
@@ -203,7 +203,7 @@ def build_sdk_project(source_folder: str,
         target: str = ""
     else:
         raise Exception(f"Error unsupported platform: {PACKAGE_PLATFORM}")
-    
+
     build_cmd: List[str] = ["cmake",
                             f"--build {build_folder}",
                             f"--config {build_type}",
@@ -226,12 +226,12 @@ def copy_sdk_libs(libs_output_path: pathlib.Path,
     else:
         destination: pathlib.Path = libs_output_path.joinpath(f"lib/{build_type}")
     destination.mkdir(parents=True)
-    
+
     install_folder: pathlib.Path = build_path.joinpath("prefix")
     if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
         shared_libs_pattern: str = str(install_folder.joinpath("bin/*.dll"))
         static_libs_pattern: str = str(install_folder.joinpath("lib/*.lib"))
-        
+
         # for windows, it always requires .lib file, .dll file is only required for shared libs
         if lib_type == PACKAGE_LIB_TYPES[0]:
             for file in glob.glob(shared_libs_pattern):
@@ -242,7 +242,7 @@ def copy_sdk_libs(libs_output_path: pathlib.Path,
     elif PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
         shared_libs_pattern: str = str(install_folder.joinpath("lib/*.so*"))
         static_libs_pattern: str = str(install_folder.joinpath("lib/*.a"))
-        
+
         # for linux, it requires .a file for static libs and .so file for shared libs
         if lib_type == PACKAGE_LIB_TYPES[0]:
             for file in glob.glob(shared_libs_pattern):
@@ -257,13 +257,13 @@ def build_gamelift_server_sdk(working_directory: WorkingDirectoryInfo,
                               build_type: str,
                               lib_type: str) -> None:
     build_folder: pathlib.Path = working_directory.build_path.joinpath(f"{build_type}_{lib_type}").resolve()
-    
+
     print(f"Generating GameLift Server SDK project with {build_type} {lib_type} configuration...")
     configure_sdk_project(working_directory, build_folder.resolve(), build_type, lib_type)
-    
+
     print(f"Building GameLift Server SDK project with {build_type} {lib_type} configuration...")
     build_sdk_project(working_directory.source_path.resolve(), build_folder.resolve(), build_type)
-    
+
     print(f"Copying {build_type} {lib_type} built sdk libs into output folder...")
     copy_sdk_libs(working_directory.libs_output_path, build_folder, build_type, lib_type)
 
