@@ -14,18 +14,27 @@ if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
+if ("${OPENSSL_VERSION}" STREQUAL "")
+    message(FATAL_ERROR "OpenSSL not detected. The OpenSSL dev package is required for O3DE")
+elseif ("${OPENSSL_VERSION}" VERSION_LESS "3.0.0")
+    set(SRC_OPENSSL_BASE openssl-1)
+else()
+    set(SRC_OPENSSL_BASE openssl-3)
+endif()
+
+
 set(LIB_NAME "AWSGameLiftServerSDK")
 
 set(${LIB_NAME}_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/${LIB_NAME}/include)
 
 if (LY_MONOLITHIC_GAME)
-    set(AWSGAMELIFTSERVERSDK_LIB_PATH ${CMAKE_CURRENT_LIST_DIR}/${LIB_NAME}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>)
+    set(AWSGAMELIFTSERVERSDK_LIB_PATH ${CMAKE_CURRENT_LIST_DIR}/${LIB_NAME}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/${SRC_OPENSSL_BASE})
 
     set(AWSGAMELIFTSERVERSDK_LIBS
         ${AWSGAMELIFTSERVERSDK_LIB_PATH}/libaws-cpp-sdk-gamelift-server.a
     )
 else()
-    set(AWSGAMELIFTSERVERSDK_LIB_PATH ${CMAKE_CURRENT_LIST_DIR}/${LIB_NAME}/bin/$<IF:$<CONFIG:Debug>,Debug,Release>)
+    set(AWSGAMELIFTSERVERSDK_LIB_PATH ${CMAKE_CURRENT_LIST_DIR}/${LIB_NAME}/bin/$<IF:$<CONFIG:Debug>,Debug,Release>/${SRC_OPENSSL_BASE})
 
     set(AWSGAMELIFTSERVERSDK_LIBS
         ${AWSGAMELIFTSERVERSDK_LIB_PATH}/libaws-cpp-sdk-gamelift-server.so
