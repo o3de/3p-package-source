@@ -17,6 +17,16 @@ then
     exit 1
 fi
 
+# Fix for unit test failure on ARM64 from the package caused by a different default initialization behavior on an enum 
+FILE_TO_PATCH=${SRC_PATH}/gamelift-server-sdk/include/aws/gamelift/internal/model/request/UpdatePlayerSessionCreationPolicyRequest.h
+if [ -f ${FILE_TO_PATCH} ]
+then
+    echo "Found 'UpdatePlayerSessionCreationPolicyRequest.h', patching if needed"
+    sed -i 's/WebSocketPlayerSessionCreationPolicy m_playerSessionCreationPolicy;/WebSocketPlayerSessionCreationPolicy m_playerSessionCreationPolicy = WebSocketPlayerSessionCreationPolicy::NOT_SET;/g' ${FILE_TO_PATCH}
+else
+    echo "UpdatePlayerSessionCreationPolicyRequest.h not found, skipping patching"
+fi
+
 # Perform a cmake project generation and build
 # 
 # Arguments:
@@ -49,19 +59,23 @@ build_package() {
 
 BUILD_PATH_ROOT=${WORKSPACE_DIR}/build
 
-#### Build Static/Debug ####
+#### Build Static/Debug ####"
+echo "Building Static/Debug..."
 build_package ${BUILD_PATH_ROOT}/build_static_debug OFF Debug
 
 #### Build Static/Release ####
+echo "Building Static/Release ..."
 build_package ${BUILD_PATH_ROOT}/build_static_release OFF Release
 
 #### Build Shared/Debug ####
+echo "Building Shared/Debug..."
 build_package ${BUILD_PATH_ROOT}/build_shared_debug ON Debug
 
 #### Build Shared/Release ####
+echo "Building Shared/Release..."
 build_package ${BUILD_PATH_ROOT}/build_shared_release ON Release
 
-echo "Build complete"
+echo "Build Succeeded."
 
 exit 0
 

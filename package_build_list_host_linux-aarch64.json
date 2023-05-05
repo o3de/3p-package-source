@@ -46,7 +46,7 @@
     "build_from_folder": {
         "assimp-5.2.5-rev1-linux-aarch64": "package-system/assimp/temp/assimp-linux-aarch64",
         "astc-encoder-3.2-rev3-linux-aarch64": "package-system/astc-encoder/temp/astc-encoder-linux-aarch64",
-        "AWSGameLiftServerSDK-5.0.0-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux-aarch64",,
+        "AWSGameLiftServerSDK-5.0.0-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux-aarch64",
         "AwsIotDeviceSdkCpp-1.15.2-rev1-linux-aarch64": "package-system/AwsIotDeviceSdkCpp/temp/AwsIotDeviceSdkCpp-linux-aarch64",
         "AWSNativeSDK-1.9.50-rev2-linux-openssl-1-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-openssl-1-aarch64",
         "AWSNativeSDK-1.9.50-rev2-linux-openssl-3-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-openssl-3-aarch64",
