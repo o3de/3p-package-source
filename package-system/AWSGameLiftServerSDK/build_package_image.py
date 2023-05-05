@@ -141,11 +141,13 @@ def download_gamelift_server_sdk(working_directory: WorkingDirectoryInfo) -> Non
 
     # unzip sdk contents
     with zipfile.ZipFile(gamelift_sdk_zip_file, "r") as f:
+        cpp_serversdk_folder = f"GameLift-SDK-Release-{GAMELIFT_SERVER_SDK_RELEASE_VERSION}/GameLift-Cpp-ServerSDK"
         unzip_path = working_directory.root_path.resolve()
         for file in f.namelist():
-            # Ignore the __MACOSX metadata file structure because unzipping
-            # it as well can exceed the max path on windows
-            if not file.startswith('__MACOSX'):
+            # Only unzip the GameLift-Cpp-ServerSDK folder, which is the only SDK we build
+            # because other folders inside the zip such as the __MACOSX metadata file structure
+            # and the Go SDK can exceed the max path on windows
+            if file.startswith(cpp_serversdk_folder):
                 f.extract(file, unzip_path)
 
 # get required custom environment for package build
@@ -167,7 +169,10 @@ def configure_sdk_project(working_directory: WorkingDirectoryInfo,
     source_folder: str = working_directory.source_path.resolve()
     build_shared: str = "ON" if lib_type == "Shared" else "OFF"
     if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
-        generator: str = "-G \"Visual Studio 17\""
+        # We need to explicitly build using the VS 2019 toolset. If we built using VS 2022
+        # then if we try to link against this library from VS 2019 there will be unresolved
+        # symbols for __std_init_once_link_alternate_names_and_abort and __std_find_trivial_1
+        generator: str = "-T v142"
     elif PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
         generator: str = "-G \"Unix Makefiles\""
     else:
