@@ -6,7 +6,7 @@
     "build_from_source": {
         "assimp-5.2.5-rev1-linux-aarch64":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Linux-aarch64 --clean",
         "astc-encoder-3.2-rev3-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/astc-encoder --platform-name Linux-aarch64 --clean",
-        "AWSGameLiftServerSDK-3.4.2-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK/build_package_image.py --platform-name linux-aarch64",
+        "AWSGameLiftServerSDK-5.0.0-rev1-linux-openssl-1-aarch64": "package-system/AWSGameLiftServerSDK/build_package_image.py --platform-name linux-aarch64",
         "AwsIotDeviceSdkCpp-1.15.2-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AwsIotDeviceSdkCpp --platform-name Linux-aarch64 --clean",
         "AWSNativeSDK-1.9.50-rev2-linux-openssl-1-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Linux-OpenSSL-1-aarch64 --clean",
         "AWSNativeSDK-1.9.50-rev2-linux-openssl-3-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Linux-OpenSSL-3-aarch64 --clean",
@@ -46,7 +46,7 @@
     "build_from_folder": {
         "assimp-5.2.5-rev1-linux-aarch64": "package-system/assimp/temp/assimp-linux-aarch64",
         "astc-encoder-3.2-rev3-linux-aarch64": "package-system/astc-encoder/temp/astc-encoder-linux-aarch64",
-        "AWSGameLiftServerSDK-3.4.2-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK-linux-aarch64",
+        "AWSGameLiftServerSDK-5.0.0-rev1-linux-openssl-1-aarch64": "package-system/AWSGameLiftServerSDK-linux-aarch64",
         "AwsIotDeviceSdkCpp-1.15.2-rev1-linux-aarch64": "package-system/AwsIotDeviceSdkCpp/temp/AwsIotDeviceSdkCpp-linux-aarch64",
         "AWSNativeSDK-1.9.50-rev2-linux-openssl-1-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-openssl-1-aarch64",
         "AWSNativeSDK-1.9.50-rev2-linux-openssl-3-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-openssl-3-aarch64",
