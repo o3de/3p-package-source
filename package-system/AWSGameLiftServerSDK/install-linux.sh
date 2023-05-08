@@ -45,12 +45,12 @@ copy_folder() {
 	    echo "Invalid source folder copy path ${SRC_FOLDER}"
 	    exit 1
     fi
-    echo "Copying ${SRC_FOLDER} -> ${TARGET_INSTALL_ROOT}"
-    cp -r ${SRC_FOLDER} ${TARGET_INSTALL_ROOT}/
+    echo "Copying ${SRC_FOLDER} -> ${TGT_FOLDER}"
+    cp -r ${SRC_FOLDER} ${TGT_FOLDER}/
     if [ $? -ne 0 ]
     then
-    	echo "Error copying ${SRC_FOLDER} -> ${TARGET_INSTALL_ROOT}"
-    	exit 1
+        echo "Error copying ${SRC_FOLDER} -> ${TGT_FOLDER}"
+        exit 1
     fi
 }
 
