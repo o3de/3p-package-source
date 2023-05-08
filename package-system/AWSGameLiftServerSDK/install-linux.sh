@@ -16,16 +16,16 @@ SDK_SRC_SUBPATH=${1:-.}
 SRC_INSTALL_PACKAGE_PATH=${TEMP_FOLDER}/install/
 if [ ! -d ${SRC_INSTALL_PACKAGE_PATH} ]
 then
-	echo "Invalid source package path ${SRC_INSTALL_PACKAGE_PATH}"
-	exit 1
+    echo "Invalid source package path ${SRC_INSTALL_PACKAGE_PATH}"
+    exit 1
 fi
 
 # Copy an additional notice file
 ADDITIONAL_NOTICE_FILE=${TEMP_FOLDER}/src/${SDK_SRC_SUBPATH}/NOTICE_C++_AMAZON_GAMELIFT_SDK.TXT
 if [ ! -f ${ADDITIONAL_NOTICE_FILE} ]
 then
-	echo "Invalid source package path ${SRC_INSTALL_PACKAGE_PATH}"
-	exit 1
+    echo "Invalid source package path ${SRC_INSTALL_PACKAGE_PATH}"
+    exit 1
 fi
 echo "Copying the additional notice file ${ADDITIONAL_NOTICE_FILE} -> ${TARGET_INSTALL_ROOT}"
 cp ${TEMP_FOLDER}/src/${SDK_SRC_SUBPATH}/NOTICE_C++_AMAZON_GAMELIFT_SDK.TXT ${TARGET_INSTALL_ROOT}
@@ -42,8 +42,8 @@ copy_folder() {
     TGT_FOLDER=$2
     if [ ! -d ${SRC_FOLDER} ]
     then
-	    echo "Invalid source folder copy path ${SRC_FOLDER}"
-	    exit 1
+        echo "Invalid source folder copy path ${SRC_FOLDER}"
+        exit 1
     fi
     echo "Copying ${SRC_FOLDER} -> ${TGT_FOLDER}"
     cp -r ${SRC_FOLDER} ${TGT_FOLDER}/

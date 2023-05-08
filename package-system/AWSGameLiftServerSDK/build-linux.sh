@@ -164,8 +164,6 @@ function execute_docker() {
 
     echo "Build Complete"
 
-    echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest"
-
     # Copy the build artifacts from the docker image
 
     # Capture the Docker Image ID
