@@ -26,7 +26,7 @@ RUN apt-get clean && apt-get update
 # Setup time zone and locale data (necessary for SSL and HTTPS packages)
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-configuration
 
-# Install the development packages needed to build AWS Native C++ SDK
+# Install the development packages needed to build AWS Gamelift
 RUN apt-get install -y build-essential \
                        git \
                        cmake \
