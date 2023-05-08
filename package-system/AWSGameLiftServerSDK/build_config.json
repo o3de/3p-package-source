@@ -10,6 +10,7 @@
     "Platforms": {
         "Linux": {
             "Linux":{
+                "patch_file":"aws_gamelift_5.0.0.patch",
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",
@@ -22,6 +23,7 @@
                 ]
               },
               "Linux-aarch64":  {
+                "patch_file":"aws_gamelift_5.0.0.patch",
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",

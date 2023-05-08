@@ -625,10 +625,18 @@ class BuildInfo(object):
             if not patch_file_path.is_file():
                 raise BuildError(f"Invalid/missing patch file '{patch_file_path}' specified in the build config.")
 
-            patch_cmd = ['git',
-                         'apply',
-                         "--ignore-whitespace",
-                         str(patch_file_path.absolute())]
+            if self.package_info.git_url:
+                patch_cmd = ['git',
+                             'apply',
+                             "--ignore-whitespace",
+                             str(patch_file_path.absolute())]
+            elif self.package_info.src_package_url:
+                patch_cmd = ['patch',
+                             '--unified',
+                             '--strip=1',
+                             f'--directory={str(self.src_folder.absolute())}',
+                             '<',
+                             str(patch_file_path.absolute())]
 
             patch_result = subprocess.run(subp_args(patch_cmd),
                                           shell=True,

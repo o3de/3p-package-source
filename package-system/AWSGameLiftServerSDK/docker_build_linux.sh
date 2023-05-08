@@ -17,16 +17,6 @@ then
     exit 1
 fi
 
-# Fix for unit test failure on ARM64 from the package caused by a different default initialization behavior on an enum 
-FILE_TO_PATCH=${SRC_PATH}/gamelift-server-sdk/include/aws/gamelift/internal/model/request/UpdatePlayerSessionCreationPolicyRequest.h
-if [ -f ${FILE_TO_PATCH} ]
-then
-    echo "Found 'UpdatePlayerSessionCreationPolicyRequest.h', patching if needed"
-    sed -i 's/WebSocketPlayerSessionCreationPolicy m_playerSessionCreationPolicy;/WebSocketPlayerSessionCreationPolicy m_playerSessionCreationPolicy = WebSocketPlayerSessionCreationPolicy::NOT_SET;/g' ${FILE_TO_PATCH}
-else
-    echo "UpdatePlayerSessionCreationPolicyRequest.h not found, skipping patching"
-fi
-
 # Perform a cmake project generation and build
 # 
 # Arguments:
