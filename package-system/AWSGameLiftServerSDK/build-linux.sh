@@ -117,7 +117,7 @@ function execute_docker() {
         BIN_SUBFOLDER_NAME=openssl-1
     elif [ $1 = "22.04" ]
     then
-        echo "Preparing for OpenSSL 1.1.1.x version"
+        echo "Preparing for OpenSSL 3.x version"
         BIN_SUBFOLDER_NAME=openssl-3
     else
         echo "Unsupported base build image ubuntu version ${1}"
