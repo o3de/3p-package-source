@@ -2,7 +2,7 @@
     "src_package_url": "https://gamelift-release.s3-us-west-2.amazonaws.com/GameLift-SDK-Release-5.0.0.zip",
     "src_package_sha1": "25cfa89252a934925c14830ba75e91855bf02e5d",
     "package_name": "AWSGameLiftServerSDK",
-    "package_version": "5.0.0-rev1",
+    "package_version": "5.0.0-rev2",
     "package_url": "https://aws.amazon.com/documentation/gamelift/",
     "package_license": "Apache-2.0",
     "package_license_file": "GameLift-SDK-Release-5.0.0/GameLift-SDK-Release-5.0.0/GameLift-Cpp-ServerSDK-5.0.0/LICENSE_AMAZON_GAMELIFT_SDK.TXT",

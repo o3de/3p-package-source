@@ -187,26 +187,22 @@ function execute_docker() {
 
     if [ ! -f ${INSTALL_PACKAGE_PATH}/include ]
     then
-        docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_static_release/prefix/include  ${INSTALL_PACKAGE_PATH}/
+        docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_static/prefix/include  ${INSTALL_PACKAGE_PATH}/
     fi
     if [ ! -f ${INSTALL_PACKAGE_PATH}/cmake ]
     then
-        docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_static_release/prefix/cmake  ${INSTALL_PACKAGE_PATH}/
+        docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_static/prefix/cmake  ${INSTALL_PACKAGE_PATH}/
     fi
 
-    docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_static_release/prefix/lib  ${INSTALL_PACKAGE_PATH}/lib/Release/${BIN_SUBFOLDER_NAME}
-    docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_static_debug/prefix/lib  ${INSTALL_PACKAGE_PATH}/lib/Debug/${BIN_SUBFOLDER_NAME}
-    docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_shared_release/prefix/lib  ${INSTALL_PACKAGE_PATH}/bin/Release/${BIN_SUBFOLDER_NAME}
-    docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_shared_debug/prefix/lib  ${INSTALL_PACKAGE_PATH}/bin/Debug/${BIN_SUBFOLDER_NAME}
+    docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_static/prefix/lib  ${INSTALL_PACKAGE_PATH}/lib/${BIN_SUBFOLDER_NAME}
+    docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/build_shared/prefix/lib  ${INSTALL_PACKAGE_PATH}/bin/${BIN_SUBFOLDER_NAME}
 }
 
 rm -rf ${INSTALL_PACKAGE_PATH}
 
 mkdir -p ${INSTALL_PACKAGE_PATH}
-mkdir -p ${INSTALL_PACKAGE_PATH}/lib/Debug
-mkdir -p ${INSTALL_PACKAGE_PATH}/lib/Release
-mkdir -p ${INSTALL_PACKAGE_PATH}/bin/Debug
-mkdir -p ${INSTALL_PACKAGE_PATH}/bin/Release
+mkdir -p ${INSTALL_PACKAGE_PATH}/lib
+mkdir -p ${INSTALL_PACKAGE_PATH}/bin
 
 # Build for Ubuntu 20.04
 execute_docker 20.04 

@@ -27,7 +27,7 @@ build_package() {
 
     echo "Generating $1"
 
-    cmake -G Ninja -S ${SRC_PATH} -B $1 -DBUILD_SHARED_LIBS=$2 -DCMAKE_BUILD_TYPE=$3
+    cmake -G Ninja -S ${SRC_PATH} -B $1 -DBUILD_SHARED_LIBS=$2 -DCMAKE_BUILD_TYPE=Release
     if [ $? -ne 0 ]
     then
         echo "Error generating AWS Gamelift Server SDK for $1" 
@@ -49,23 +49,14 @@ build_package() {
 
 BUILD_PATH_ROOT=${WORKSPACE_DIR}/build
 
-#### Build Static/Debug ####"
-echo "Building Static/Debug..."
-build_package ${BUILD_PATH_ROOT}/build_static_debug OFF Debug
-
-#### Build Static/Release ####
+#### Build Static ####
 echo "Building Static/Release ..."
-build_package ${BUILD_PATH_ROOT}/build_static_release OFF Release
+build_package ${BUILD_PATH_ROOT}/build_static OFF
 
-#### Build Shared/Debug ####
-echo "Building Shared/Debug..."
-build_package ${BUILD_PATH_ROOT}/build_shared_debug ON Debug
-
-#### Build Shared/Release ####
+#### Build Shared ####
 echo "Building Shared/Release..."
-build_package ${BUILD_PATH_ROOT}/build_shared_release ON Release
+build_package ${BUILD_PATH_ROOT}/build_shared ON
 
 echo "Build Succeeded."
 
 exit 0
-
