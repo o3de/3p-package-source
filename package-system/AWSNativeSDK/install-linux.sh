@@ -41,7 +41,7 @@ copy_shared_and_static_libs() {
     local OPENSSL_LABEL=$1
 
     # Copy the shared libraries to the bin folder
-    OUT_BIN_PATH=${TARGET_INSTALL_ROOT}/bin/${OPENSSL_LABEL}
+    OUT_BIN_PATH=${TARGET_INSTALL_ROOT}/bin
     echo "Copying shared libraries (.so) to ${OUT_BIN_PATH}"
 
     mkdir -p ${OUT_BIN_PATH}
@@ -53,7 +53,7 @@ copy_shared_and_static_libs() {
     fi
 
     # Copy the static libraries to the lib folder
-    OUT_LIB_PATH=${TARGET_INSTALL_ROOT}/lib/${OPENSSL_LABEL}
+    OUT_LIB_PATH=${TARGET_INSTALL_ROOT}/lib
     echo "Copying static libraries (.a) to ${OUT_LIB_PATH}"
 
     mkdir -p ${OUT_LIB_PATH}
