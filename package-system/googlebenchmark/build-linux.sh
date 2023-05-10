@@ -78,7 +78,7 @@ fi
 echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
 
 mkdir -p build
-docker cp --quiet $CONTAINER_ID:/data/workspace/package/. build  
+docker cp $CONTAINER_ID:/data/workspace/package/. build  
 if [ $? -ne 0 ]
 then
     echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest." 
