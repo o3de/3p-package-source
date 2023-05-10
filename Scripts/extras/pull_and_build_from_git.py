@@ -252,10 +252,10 @@ class PackageInfo(object):
         self.src_package_url = _get_value("src_package_url", required=False)
         self.src_package_sha1 = _get_value("src_package_sha1", required=False)
 
-        if not self.git_url and not self.package_url:
+        if not self.git_url and not self.src_package_url:
             raise BuildError(f"Either 'git_url' or 'src_package_url' must be provided for the source in the build config.")
-        if self.git_url and self.package_url:
-            raise BuildError(f"Only 'git_url' or 'package_url' can be specified, not both. Both were specified in this build config.")
+        if self.git_url and self.src_package_url:
+            raise BuildError(f"Only 'git_url' or 'src_package_url' can be specified, not both. Both were specified in this build config.")
 
         if self.git_url and not self.git_tag:
             raise BuildError(f"Missing 'git_tag' entry for the git repo  {self.git_url} in the build config.")
