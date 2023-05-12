@@ -9,7 +9,7 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
-LIB_NAME=squish_ccr
+LIB_NAME=python3
 
 # Determine the host architecture
 CURRENT_HOST_ARCH=$(uname -m)
@@ -145,7 +145,7 @@ fi
 echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
 
 mkdir -p build
-docker cp $CONTAINER_ID:/data/workspace/package/. build  
+docker cp $CONTAINER_ID:/data/workspace/package/python/. build  
 if [ $? -ne 0 ]
 then
     echo "Error occurred copying build artifacts from Docker container ($CONTAINER_ID)" 
