@@ -38,9 +38,16 @@ be different by platform, and all are required. The keys are:
 
 The following keys can exist at the root level or the target-platform level:
 
+
 * git_url               : The git clone url for the source to pull for building
 * git_tag               : The git tag or branch to identify the branch to pull from for building
 * git_commit            : (optional) A specific git commit to check out. This is useful for upstream repos that do not tag their releases.
+
+* src_package_url       : The download URI to retrieve the source package compressed tar from
+* src_package_sha1      : The sha1 fingerprint of the downloaded source package compressed tar for verification
+
+** Note: Either both git_url + git_tag/git_commit OR src_package_url + src_package_sha1 must be supplied, but not both
+
 * package_version       : (required) The string to describe the package version. This string is used to build the full package name.
                           This can be uniform for all platforms or can be set for a specific platform
 * prebuilt_source       : (optional) If the 3rd party library files are prebuilt and accessible, then setting this key to the relative location of
@@ -240,8 +247,21 @@ class PackageInfo(object):
                 raise BuildError(f"Required key '{value_key}' not found in build config")
             return result
 
-        self.git_url = _get_value("git_url")
-        self.git_tag = _get_value("git_tag")
+        self.git_url = _get_value("git_url", required=False)
+        self.git_tag = _get_value("git_tag", required=False)
+        self.src_package_url = _get_value("src_package_url", required=False)
+        self.src_package_sha1 = _get_value("src_package_sha1", required=False)
+
+        if not self.git_url and not self.src_package_url:
+            raise BuildError(f"Either 'git_url' or 'src_package_url' must be provided for the source in the build config.")
+        if self.git_url and self.src_package_url:
+            raise BuildError(f"Only 'git_url' or 'src_package_url' can be specified, not both. Both were specified in this build config.")
+
+        if self.git_url and not self.git_tag:
+            raise BuildError(f"Missing 'git_tag' entry for the git repo  {self.git_url} in the build config.")
+        if self.src_package_url and not self.src_package_sha1:
+            raise BuildError(f"Missing 'src_package_sha1' entry for the source package at  {self.src_package_url} in the build config.")
+
         self.package_version = _get_value("package_version")
         self.patch_file = _get_value("patch_file", required=False)
         self.git_commit = _get_value("git_commit", required=False)
@@ -507,55 +527,69 @@ class BuildInfo(object):
         """
         Sync the 3rd party from its git source location (either cloning if its not there or syncing)
         """
+
         if self.skip_git:
             return
 
-        # Validate Git is installed
-        git_version = validate_git()
-        print(f"Detected Git: {git_version}")
+        if self.package_info.git_url:
+            # Validate Git is installed
+            git_version = validate_git()
+            print(f"Detected Git: {git_version}")
 
-        # Sync to the source folder
-        if self.src_folder.is_dir():
-            print(f"Checking git status of path '{self.src_folder}' ...")
-            git_status_cmd = ['git', 'status', '-s']
-            call_result = subprocess.run(subp_args(git_status_cmd),
-                                         shell=True,
-                                         capture_output=True,
-                                         cwd=str(self.src_folder.resolve()))
-            # If any error, this is not a valid git folder, proceed with cloning
-            if call_result.returncode != 0:
-                print(f"Path '{self.src_folder}' is not a valid git folder. Deleting and re-cloning...")
-                # Not a valid git folder, okay to remove and re-clone
-                delete_folder(self.src_folder)
-                self.clone_to_local()
+            # Sync to the source folder
+            if self.src_folder.is_dir():
+                print(f"Checking git status of path '{self.src_folder}' ...")
+                git_status_cmd = ['git', 'status', '-s']
+                call_result = subprocess.run(subp_args(git_status_cmd),
+                                             shell=True,
+                                             capture_output=True,
+                                             cwd=str(self.src_folder.resolve()))
+                # If any error, this is not a valid git folder, proceed with cloning
+                if call_result.returncode != 0:
+                    print(f"Path '{self.src_folder}' is not a valid git folder. Deleting and re-cloning...")
+                    # Not a valid git folder, okay to remove and re-clone
+                    delete_folder(self.src_folder)
+                    self.clone_to_local()
+                else:
+                    # If this is a valid git folder, check if the patch was applied or if the source was
+                    # altered.
+                    if len(call_result.stdout.decode('utf-8', 'ignore')):
+                        # If anything changed, then restore the entire source tree
+                        print(f"Path '{self.src_folder}' was modified. Restoring...")
+                        git_restore_cmd = ['git', 'restore', '--recurse-submodules', ':/']
+                        call_result = subprocess.run(subp_args(git_restore_cmd),
+                                                     shell=True,
+                                                     capture_output=False,
+                                                     cwd=str(self.src_folder.resolve()))
+                        if call_result.returncode != 0:
+                            # If we cannot restore through git, then delete the folder and re-clone
+                            print(f"Unable to restore {self.src_folder}. Deleting and re-cloning...")
+                            delete_folder(self.src_folder)
+                            self.clone_to_local()
+
+                # Do a re-pull
+                git_pull_cmd = ['git',
+                                'pull']
+                call_result = subprocess.run(subp_args(git_pull_cmd),
+                                             shell=True,
+                                             capture_output=True,
+                                             cwd=str(self.src_folder.resolve()))
+                if call_result.returncode != 0:
+                    raise BuildError(f"Error pulling source from GitHub: {call_result.stderr.decode('UTF-8', 'ignore')}")
             else:
-                # If this is a valid git folder, check if the patch was applied or if the source was
-                # altered.
-                if len(call_result.stdout.decode('utf-8', 'ignore')):
-                    # If anything changed, then restore the entire source tree
-                    print(f"Path '{self.src_folder}' was modified. Restoring...")
-                    git_restore_cmd = ['git', 'restore', '--recurse-submodules', ':/']
-                    call_result = subprocess.run(subp_args(git_restore_cmd),
-                                                 shell=True,
-                                                 capture_output=False,
-                                                 cwd=str(self.src_folder.resolve()))
-                    if call_result.returncode != 0:
-                        # If we cannot restore through git, then delete the folder and re-clone
-                        print(f"Unable to restore {self.src_folder}. Deleting and re-cloning...")
-                        delete_folder(self.src_folder)
-                        self.clone_to_local()
+                self.clone_to_local()
+        elif self.package_info.src_package_url:
 
-            # Do a re-pull
-            git_pull_cmd = ['git',
-                            'pull']
-            call_result = subprocess.run(subp_args(git_pull_cmd),
-                                         shell=True,
-                                         capture_output=True,
-                                         cwd=str(self.src_folder.resolve()))
-            if call_result.returncode != 0:
-                raise BuildError(f"Error pulling source from GitHub: {call_result.stderr.decode('UTF-8', 'ignore')}")
+            downloaded_package_file = download_and_verify(src_url=self.package_info.src_package_url,
+                                                          src_zip_hash=self.package_info.src_package_sha1,
+                                                          src_zip_hash_algorithm="sha1",
+                                                          target_folder=self.base_temp_folder)
+            extracted_package_path = extract_package(src_package_file=downloaded_package_file,
+                                                     target_folder=self.src_folder.resolve())
+
         else:
-            self.clone_to_local()
+            raise BuildError(f"Missing both 'git_url' and 'src_package_url' from the build config")
+
 
         if self.package_info.additional_src_files:
             for additional_src in self.package_info.additional_src_files:
@@ -591,10 +625,18 @@ class BuildInfo(object):
             if not patch_file_path.is_file():
                 raise BuildError(f"Invalid/missing patch file '{patch_file_path}' specified in the build config.")
 
-            patch_cmd = ['git',
-                         'apply',
-                         "--ignore-whitespace",
-                         str(patch_file_path.absolute())]
+            if self.package_info.git_url:
+                patch_cmd = ['git',
+                             'apply',
+                             "--ignore-whitespace",
+                             str(patch_file_path.absolute())]
+            elif self.package_info.src_package_url:
+                patch_cmd = ['patch',
+                             '--unified',
+                             '--strip=1',
+                             f'--directory={str(self.src_folder.absolute())}',
+                             '<',
+                             str(patch_file_path.absolute())]
 
             patch_result = subprocess.run(subp_args(patch_cmd),
                                           shell=True,
