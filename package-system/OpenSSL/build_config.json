@@ -1,0 +1,60 @@
+{
+   "git_url":"https://github.com/openssl/openssl.git",
+   "git_tag":"OpenSSL_1_1_1t",
+   "package_name":"OpenSSL",
+   "package_version":"1.1.1t-rev1",
+   "package_url":"https://github.com/openssl/openssl.git",
+   "package_license":"OpenSSL",
+   "package_license_file":"LICENSE",
+   "cmake_find_target":"FindOpenSSL.cmake",
+   "Platforms":{
+      "Linux":{
+         "Linux":{
+            "cmake_find_template":"FindOpenSSL.cmake.template",
+            "custom_build_cmd": [
+               "./build-linux.sh",
+               "openssl_1_1_1t",
+               "18.04",
+               "x86_64"
+            ],
+            "custom_install_cmd": [
+               "./install-linux.sh",
+               "build"
+            ],
+            "custom_test_cmd" : [
+               "./test-linux.sh",
+               "x86_64",
+               "OpenSSL 1.1.1t  7 Feb 2023",
+               "92b72d8487f5580f88413f85e7053daf63da2653"
+            ],
+            "custom_additional_template_map": {
+               "OPENSSL_VERSION_STRING": "1.1.1t",
+               "CRYPTO_LIBRARY_DEPENDENCIES": ""
+            }
+         },
+         "Linux-aarch64":{
+            "cmake_find_template":"FindOpenSSL.cmake.template",
+            "custom_build_cmd": [
+               "./build-linux.sh",
+               "openssl_1_1_1t",
+               "18.04",
+               "aarch64"
+            ],
+            "custom_install_cmd": [
+               "./install-linux.sh",
+               "build"
+            ],
+            "custom_test_cmd" : [
+               "./test-linux.sh",
+               "aarch64",
+               "OpenSSL 1.1.1t  7 Feb 2023",
+               "92b72d8487f5580f88413f85e7053daf63da2653"
+            ],
+            "custom_additional_template_map": {
+               "OPENSSL_VERSION_STRING": "1.1.1t",
+               "CRYPTO_LIBRARY_DEPENDENCIES": ""
+            }
+         }
+      }
+   }
+}

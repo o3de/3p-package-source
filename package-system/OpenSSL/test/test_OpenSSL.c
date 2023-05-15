@@ -15,21 +15,66 @@
 
 // test whether a header is found
 #include <openssl/ssl.h>
+#include <openssl/sha.h>
+#include <openssl/evp.h>
+#include <openssl/crypto.h>
 
-int main()
+int main(int argc, char* argv[])
 {
-    if (OPENSSL_init_ssl(0, NULL) == 0)
+    if (argc<3)
+    {
+        printf("Not enough arguments: %s [SSL Version Text] [SSL Version Text SHA256 Hash]", argv[0]);
+        return 1;
+    }
+
+    const char* inputOpenSSLVersionText = argv[1];
+    printf("Validating version text '%s': ", inputOpenSSLVersionText);
+
+    if (strcmp(OPENSSL_VERSION_TEXT, inputOpenSSLVersionText) != 0)
+    {
+        printf("FAILURE!\n OpenSSL OPENSSL_VERSION_TEXT returned invalid text '%s'. Expecting '%s'.\n", OPENSSL_VERSION_TEXT, inputOpenSSLVersionText);
+        return 1;
+    }
+    else
+    {
+        printf("OK\n");
+    }
+
+    if (OPENSSL_init_crypto(0, NULL) == 0)
     {
         printf("FAILURE! OPENSSL failed call to OPENSSL_init_ssl!\n");
         return 1;
     }
 
-    if (strcmp(OPENSSL_VERSION_TEXT, "OpenSSL 1.1.1o  3 May 2022") != 0)
+    // Compute a sha-1 hash
+    unsigned char hash[SHA_DIGEST_LENGTH];
+    SHA1(inputOpenSSLVersionText, strlen(inputOpenSSLVersionText), hash);
+
+    // Generate a sha1sum string from the hash
+    char sha1_hex[SHA_DIGEST_LENGTH*2+1] = {'\0'};
+    char* p = sha1_hex;
+    for (int i=0; i<SHA_DIGEST_LENGTH;i++, p+=2)
     {
-        printf("FAILURE! OpenSSL OPENSSL_VERSION_TEXT returned invalid text (%s)!\n", OPENSSL_VERSION_TEXT);
+        sprintf(p,"%.2x",hash[i]);
+    }
+
+    // Compare against the expected sha1sum (lower) 
+    const char* inputOpenSSLVersionTextHash = argv[2];
+    printf("Validating version text sha1sum '%s': ", inputOpenSSLVersionTextHash);
+
+    if (strcmp(sha1_hex, inputOpenSSLVersionTextHash) != 0)
+    {
+        printf("FAILURE!\n OpenSSL failed sha1 sum comparison (%s != %s)\n", sha1_hex, inputOpenSSLVersionTextHash);
         return 1;
+    }
+    else
+    {
+        printf("OK\n");
     }
 
     printf("Success: All is ok!\n");
+
+    OPENSSL_cleanup();
+
     return 0;
 }
