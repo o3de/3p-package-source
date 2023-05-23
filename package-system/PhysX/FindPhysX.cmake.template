@@ -55,17 +55,38 @@ set(extra_static_libs ${EXTRA_STATIC_LIBS_NON_MONOLITHIC})
 set(extra_shared_libs ${EXTRA_SHARED_LIBS})
 
 if(LY_MONOLITHIC_GAME)
-    list(APPEND $${MY_NAME}_LIBRARIES
-        $${PATH_TO_STATIC_LIBS}/$${CMAKE_STATIC_LIBRARY_PREFIX}PhysX_static_64$${CMAKE_STATIC_LIBRARY_SUFFIX}
-        $${PATH_TO_STATIC_LIBS}/$${CMAKE_STATIC_LIBRARY_PREFIX}PhysXCooking_static_64$${CMAKE_STATIC_LIBRARY_SUFFIX}
-        $${PATH_TO_STATIC_LIBS}/$${CMAKE_STATIC_LIBRARY_PREFIX}PhysXFoundation_static_64$${CMAKE_STATIC_LIBRARY_SUFFIX}
-        $${PATH_TO_STATIC_LIBS}/$${CMAKE_STATIC_LIBRARY_PREFIX}PhysXCommon_static_64$${CMAKE_STATIC_LIBRARY_SUFFIX}
+    set(MONO_PATH_TO_STATIC_LIBS $${CMAKE_CURRENT_LIST_DIR}/PhysX/static/lib)
+    # The order of PhysX 4.x static libraries is important for monolithic targets.
+    set(IMPORTED_PHYSICS_LIBS
+        PhysX_static_64
+        PhysXPvdSDK_static_64
+        PhysXVehicle_static_64
+        PhysXCharacterKinematic_static_64
+        PhysXExtensions_static_64
+        PhysXCooking_static_64
+        PhysXCommon_static_64
+        PhysXFoundation_static_64
     )
-    if(extra_shared_libs)
-        set($${MY_NAME}_RUNTIME_DEPENDENCIES
-            $${extra_shared_libs}
+    foreach(PHYSICS_LIB $${IMPORTED_PHYSICS_LIBS})
+        add_library($${PHYSICS_LIB}::imported STATIC IMPORTED GLOBAL)
+        set($${PHYSICS_LIB}_PATH $${MONO_PATH_TO_STATIC_LIBS}/$${CMAKE_STATIC_LIBRARY_PREFIX}$${PHYSICS_LIB}$${CMAKE_STATIC_LIBRARY_SUFFIX})
+        set_target_properties($${PHYSICS_LIB}::imported
+            PROPERTIES
+                IMPORTED_LOCATION_DEBUG   $${$${PHYSICS_LIB}_PATH}
+                IMPORTED_LOCATION_PROFILE $${$${PHYSICS_LIB}_PATH}
+                IMPORTED_LOCATION_RELEASE $${$${PHYSICS_LIB}_PATH}
         )
-    endif()
+        target_link_libraries($${PHYSICS_LIB}::imported INTERFACE 
+            $${PREVIOUS_PHYSICS_LIB}
+            $${MONO_PATH_TO_STATIC_LIBS}/$${CMAKE_STATIC_LIBRARY_PREFIX}$${PHYSICS_LIB}$${CMAKE_STATIC_LIBRARY_SUFFIX}
+        )
+        set (PREVIOUS_PHYSICS_LIB $${PHYSICS_LIB}::imported)
+    endforeach()
+
+    add_library(Physx4_STATIC_LIBS_FOR_MONOLITHIC::imported INTERFACE IMPORTED GLOBAL)
+    target_link_libraries(Physx4_STATIC_LIBS_FOR_MONOLITHIC::imported INTERFACE
+        PhysXFoundation_static_64::imported
+    )
 else()
     list(APPEND $${MY_NAME}_LIBRARIES
         $${PATH_TO_IMPORT_LIBS}/$${import_lib_prefix}PhysX_64$${import_lib_suffix}
@@ -85,7 +106,11 @@ endif()
 
 add_library($${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 ly_target_include_system_directories(TARGET $${TARGET_WITH_NAMESPACE} INTERFACE $${$${MY_NAME}_INCLUDE_DIR})
-target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE $${$${MY_NAME}_LIBRARIES})
+if(LY_MONOLITHIC_GAME)
+    target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE Physx4_STATIC_LIBS_FOR_MONOLITHIC::imported)
+else()
+    target_link_libraries($${TARGET_WITH_NAMESPACE} INTERFACE $${$${MY_NAME}_LIBRARIES})
+endif()
 target_compile_definitions($${TARGET_WITH_NAMESPACE} INTERFACE $${$${MY_NAME}_COMPILE_DEFINITIONS})
 if(DEFINED $${MY_NAME}_RUNTIME_DEPENDENCIES)
     ly_add_target_files(TARGETS $${TARGET_WITH_NAMESPACE} FILES $${$${MY_NAME}_RUNTIME_DEPENDENCIES})
