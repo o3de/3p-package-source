@@ -55,7 +55,11 @@ set(extra_static_libs ${EXTRA_STATIC_LIBS_NON_MONOLITHIC})
 set(extra_shared_libs ${EXTRA_SHARED_LIBS})
 
 if(LY_MONOLITHIC_GAME)
-    set(MONO_PATH_TO_STATIC_LIBS $${CMAKE_CURRENT_LIST_DIR}/PhysX/static/lib)
+    if(LY_PHYSX_PROFILE_USE_CHECKED_LIBS)
+        set(MONO_PATH_TO_STATIC_LIBS $${CMAKE_CURRENT_LIST_DIR}/PhysX/static/checked/lib)
+    else()
+        set(MONO_PATH_TO_STATIC_LIBS $${CMAKE_CURRENT_LIST_DIR}/PhysX/static/profile/lib)
+    endif()
     # The order of PhysX 4.x static libraries is important for monolithic targets.
     set(IMPORTED_PHYSICS_LIBS
         PhysX_static_64
