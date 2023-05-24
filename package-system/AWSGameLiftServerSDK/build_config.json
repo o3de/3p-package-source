@@ -2,7 +2,7 @@
     "src_package_url": "https://gamelift-release.s3-us-west-2.amazonaws.com/GameLift-SDK-Release-5.0.0.zip",
     "src_package_sha1": "25cfa89252a934925c14830ba75e91855bf02e5d",
     "package_name": "AWSGameLiftServerSDK",
-    "package_version": "5.0.0-rev2",
+    "package_version": "5.0.0-rev3",
     "package_url": "https://aws.amazon.com/documentation/gamelift/",
     "package_license": "Apache-2.0",
     "package_license_file": "GameLift-SDK-Release-5.0.0/GameLift-SDK-Release-5.0.0/GameLift-Cpp-ServerSDK-5.0.0/LICENSE_AMAZON_GAMELIFT_SDK.TXT",
@@ -10,29 +10,35 @@
     "Platforms": {
         "Linux": {
             "Linux":{
-                "patch_file":"aws_gamelift_5.0.0.patch",
+                "depends_on_packages": [
+                    [ "OpenSSL-1.1.1t-rev1-linux", "c86ee5793cbcc99a7a3167096d187ec8f6124fadc3b5fd0dac1cdb78fc3a12cc", "" ]
+                ],
+                 "patch_file":"aws_gamelift_5.0.0.patch",
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",
-                    "GameLift-SDK-Release-5.0.0/GameLift-SDK-Release-5.0.0/GameLift-Cpp-ServerSDK-5.0.0",
+                    "aws_gamelift_5_5_0",
+                    "20.04",
                     "x86_64"
-                ],
+                     ],
                 "custom_install_cmd": [
-                    "./install-linux.sh",
-                    "GameLift-SDK-Release-5.0.0/GameLift-SDK-Release-5.0.0/GameLift-Cpp-ServerSDK-5.0.0"
+                    "./install-linux.sh"
                 ]
               },
               "Linux-aarch64":  {
-                "patch_file":"aws_gamelift_5.0.0.patch",
+                "depends_on_packages": [
+                    [ "OpenSSL-1.1.1t-rev1-linux-aarch64", "f3cd98f7c6308c1f2fed1b71d420afa0fceb162496c3361acd2a3428f5f175ab", "" ]
+                 ],
+                     "patch_file":"aws_gamelift_5.0.0.patch",
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",
-                    "GameLift-SDK-Release-5.0.0/GameLift-SDK-Release-5.0.0/GameLift-Cpp-ServerSDK-5.0.0",
+                    "aws_gamelift_5_5_0",
+                    "20.04",
                     "aarch64"
                 ],
                 "custom_install_cmd": [
-                    "./install-linux.sh",
-                    "GameLift-SDK-Release-5.0.0/GameLift-SDK-Release-5.0.0/GameLift-Cpp-ServerSDK-5.0.0"
+                    "./install-linux.sh"
                 ]
             }
         }
