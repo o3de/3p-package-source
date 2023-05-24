@@ -14,28 +14,18 @@ set(AWS_BASE_PATH ${CMAKE_CURRENT_LIST_DIR}/${AWSNATIVESDK_PACKAGE_NAME})
 # Include Path
 set(AWSNATIVESDK_INCLUDE_PATH ${AWS_BASE_PATH}/include)
 
-# Determine the specific openssl-dependent lib/binary paths
-if ("${OPENSSL_VERSION}" STREQUAL "")
-    message(FATAL_ERROR "OpenSSL not detected. The OpenSSL dev package is required for O3DE")
-elseif ("${OPENSSL_VERSION}" VERSION_LESS "3.0.0")
-    set(SRC_OPENSSL_BASE openssl-1)
-else()
-    set(SRC_OPENSSL_BASE openssl-3)
-endif()
-
 # Determine the lib path
 if(LY_MONOLITHIC_GAME)
-    set(AWSNATIVE_SDK_LIB_PATH ${AWS_BASE_PATH}/lib/${SRC_OPENSSL_BASE})
+    # Monolithic builds uses the static libraries
+    set(AWSNATIVE_SDK_LIB_PATH ${AWS_BASE_PATH}/lib)
 else()
-    set(AWSNATIVE_SDK_LIB_PATH ${AWS_BASE_PATH}/bin/${SRC_OPENSSL_BASE})
+    # Non-monolithic builds uses the shared libraries
+    set(AWSNATIVE_SDK_LIB_PATH ${AWS_BASE_PATH}/bin)
 endif()
 
 # AWS Compile Definitions
 set(AWSNATIVESDK_COMPILE_DEFINITIONS AWS_CUSTOM_MEMORY_MANAGEMENT PLATFORM_SUPPORTS_AWS_NATIVE_SDK)
 
-set(AWSNATIVESDK_BUILD_DEPENDENCIES
-    curl # The one bundled with the aws sdk in 3rdParty doesn't use the right openssl
-)
 
 # Helper function to define individual AWSNativeSDK Libraries
 function(ly_declare_aws_library)
@@ -120,6 +110,7 @@ else()
             Core
         LIB_FILE 
             aws-cpp-sdk-core
+            curl
     )
 endif()
 

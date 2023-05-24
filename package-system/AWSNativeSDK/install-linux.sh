@@ -6,69 +6,29 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 
+
 echo "TEMP_FOLDER=${TEMP_FOLDER}"
 echo "TARGET_INSTALL_ROOT=${TARGET_INSTALL_ROOT}"
 
-SRC_PATH=${TEMP_FOLDER}/src
-BLD_PATH=${TEMP_FOLDER}/build
-INSTALL_PATH=${TEMP_FOLDER}/install
+SRC_PACKAGE_BASE=${TEMP_FOLDER}/build
 
-
-# Copy the include folders to the target root folder
-OUT_INCLUDE_PATH=$TARGET_INSTALL_ROOT/include
-
-echo "Copying include headers to ${OUT_INCLUDE_PATH}"
-mkdir -p ${OUT_INCLUDE_PATH}
-cp -f -R "${INSTALL_PATH}/include/"* ${OUT_INCLUDE_PATH}/ 
-if [ $? -ne 0 ]
-then
-    echo "Copying include headers to ${OUT_INCLUDE_PATH} failed."
-    exit 1
-fi
-
+# Copy the include folder
+cp -r ${SRC_PACKAGE_BASE}/Shared/include $TARGET_INSTALL_ROOT/
 
 # Copy the license file to the target installation root folder
-echo "Copying LICENSE.txt to ${TARGET_INSTALL_ROOT}"
-cp -f ${SRC_PATH}/LICENSE.txt ${TARGET_INSTALL_ROOT}/
-if [ $? -ne 0 ]
-then
-    echo "Copying LICENSE.txt to ${TARGET_INSTALL_ROOT} failed."
-    exit 1
-fi
+SRC_PATH=${TEMP_FOLDER}/src
 
-copy_shared_and_static_libs() {
+echo cp -f ${SRC_PACKAGE_BASE}/README.CURL ${TARGET_INSTALL_ROOT}/
+cp -f ${SRC_PACKAGE_BASE}/README.CURL ${TARGET_INSTALL_ROOT}/
 
-    local OPENSSL_LABEL=$1
+echo cp -f ${SRC_PACKAGE_BASE}/COPYING.CURL ${TARGET_INSTALL_ROOT}/
+cp -f ${SRC_PACKAGE_BASE}/COPYING.CURL ${TARGET_INSTALL_ROOT}/
 
-    # Copy the shared libraries to the bin folder
-    OUT_BIN_PATH=${TARGET_INSTALL_ROOT}/bin
-    echo "Copying shared libraries (.so) to ${OUT_BIN_PATH}"
+echo cp -f -R ${SRC_PACKAGE_BASE}/Shared/lib ${TARGET_INSTALL_ROOT}/bin
+cp -f -R ${SRC_PACKAGE_BASE}/Shared/lib ${TARGET_INSTALL_ROOT}/bin
 
-    mkdir -p ${OUT_BIN_PATH}
-    cp -f -R "${INSTALL_PATH}/bin/${OPENSSL_LABEL}" ${OUT_BIN_PATH}
-    if [ $? -ne 0 ]
-    then
-        echo "Copying shared libraries (.so) to ${OUT_BIN_PATH} failed."
-        exit 1
-    fi
-
-    # Copy the static libraries to the lib folder
-    OUT_LIB_PATH=${TARGET_INSTALL_ROOT}/lib
-    echo "Copying static libraries (.a) to ${OUT_LIB_PATH}"
-
-    mkdir -p ${OUT_LIB_PATH}
-    cp -f -R "${INSTALL_PATH}/lib/${OPENSSL_LABEL}" ${OUT_LIB_PATH}
-    if [ $? -ne 0 ]
-    then
-        echo "Copying static libraries (.a) to ${OUT_LIB_PATH} failed."
-        exit 1
-    fi
-
-}
-
-copy_shared_and_static_libs openssl-1
-
-copy_shared_and_static_libs openssl-3
+echo cp -f -R ${SRC_PACKAGE_BASE}/Static/lib ${TARGET_INSTALL_ROOT}/lib
+cp -f -R ${SRC_PACKAGE_BASE}/Static/lib ${TARGET_INSTALL_ROOT}/lib
 
 echo "Custom Install for AWSNativeSDK finished successfully"
 

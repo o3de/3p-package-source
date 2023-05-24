@@ -6,15 +6,34 @@
 #
 
 
+# The cpu architecture to base the docker base script from
 ARG INPUT_ARCHITECTURE=amd64
+
+# The root to base the docker script base from
 ARG INPUT_IMAGE=ubuntu:20.04
-ARG INPUT_DOCKER_BUILD_SCRIPT
+
+# The build subfolder where the final artifacts are built in this container which will be used to copy the results out of
+ARG INPUT_BUILD_FOLDER=build
+
+# The name of the build script to copy to the docker image to execute
+ARG INPUT_DOCKER_BUILD_SCRIPT=build.sh
+
+# The optional environment variable for list of folders in the mapped temp folders that represent additional 3P dependent packages
+ARG INPUT_DEPENDENT_PACKAGE_FOLDERS
+
 
 FROM ${INPUT_ARCHITECTURE}/${INPUT_IMAGE}
 
 ARG INPUT_DOCKER_BUILD_SCRIPT
+ARG INPUT_BUILD_FOLDER
+ARG INPUT_DEPENDENT_PACKAGE_FOLDERS
 
-WORKDIR /data/workspace
+ENV WORKSPACE=/data/workspace
+ENV DOCKER_BUILD_PATH=$WORKSPACE/$INPUT_BUILD_FOLDER
+ENV DOWNLOADED_PACKAGE_FOLDERS=$INPUT_DEPENDENT_PACKAGE_FOLDERS
+
+
+WORKDIR $WORKSPACE
 
 # Initilize apt cache
 RUN apt-get clean && apt-get update
@@ -26,20 +45,17 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-
 RUN apt-get install -y cmake \
                        clang-12 \
                        ninja-build \
-                       libssl-dev \
-                       libssh-dev \
-                       zlib1g-dev \
-                       libcurl4-openssl-dev
+                       git \
+                       build-essential \
+                       autoconf \
+                       libtool
 
+
+RUN mkdir -p $WORKSPACE/curl && \
+    git -C $WORKSPACE/curl clone https://github.com/curl/curl.git --single-branch --recursive --branch curl-7_68_0 src
 
 # Prevent the copying of the src folder from being cached
 ARG CACHEBUST=1
-
-RUN cd /data/workspace && \
-    mkdir src
-
-# Copy the git synced source from the context base to this container
-COPY src  /data/workspace/src/
 
 # Copy the build script specific to this Docker script in order to execute the build
 COPY ${INPUT_DOCKER_BUILD_SCRIPT} /data/workspace/

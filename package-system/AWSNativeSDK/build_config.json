@@ -61,11 +61,17 @@
       },
       "Linux":{
          "Linux":{
-            "package_version":"1.9.50-rev3",
+            "depends_on_packages": [
+               [ "OpenSSL-1.1.1t-rev1-linux", "c86ee5793cbcc99a7a3167096d187ec8f6124fadc3b5fd0dac1cdb78fc3a12cc", "" ],
+               [ "zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", "" ]
+            ],
+            "package_version":"1.9.50-rev4",
             "patch_file":"AWSNativeSDK-1.9.50-linux-openssl3.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build-linux.sh",
+               "aws_native_sdk_1_9_50",
+               "20.04",
                "x86_64"
             ],
             "custom_install_cmd": [
@@ -73,11 +79,17 @@
             ]
          },
          "Linux-aarch64":{
-            "package_version":"1.9.50-rev3",
+            "depends_on_packages": [
+               [ "OpenSSL-1.1.1t-rev1-linux-aarch64", "f3cd98f7c6308c1f2fed1b71d420afa0fceb162496c3361acd2a3428f5f175ab", "" ],
+               [ "zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", "" ]
+            ],
+            "package_version":"1.9.50-rev4",
             "patch_file":"AWSNativeSDK-1.9.50-linux-openssl3.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build-linux.sh",
+               "aws_native_sdk_1_9_50",
+               "20.04",
                "aarch64"
             ],
             "custom_install_cmd": [

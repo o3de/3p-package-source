@@ -8,20 +8,66 @@
 #
 
 # This script will utilize Docker to build on either AMD64 or AARCH64 architectures. The script will 
-# also build on both Ubuntu 20.04 (focal) and Ubuntu 22.04 (jammy) systems because of the dependencies
-# on OpenSSL 1.1.1 and Open 3.0 respectively
+# also build on both Ubuntu based docker images
 
-DOCKER_IMAGE_NAME_BASE=aws_native_sdk
 DOCKER_BUILD_SCRIPT=docker_build_aws_sdk.sh
+TARGET_BUILD_FOLDER=build
+
+#
+# Collect the required arguments for this ubuntu docker-base build script
+#
+
+# Get the base docker image name
+DOCKER_IMAGE_NAME_BASE=$1
+if [ "${DOCKER_IMAGE_NAME_BASE}" == "" ]
+then
+    echo "Missing argument 1: Docker image name for this this process"
+    exit 1
+fi
+
+# Get the ubuntu base version (16.04|18.04|20.04|22.04)
+UBUNTU_BASE=$2
+if [ "${UBUNTU_BASE}" == "" ]
+then
+    echo "Missing argument 2: Ubuntu docker tag"
+    exit 1
+fi
+
 
 # Determine the host architecture
 CURRENT_HOST_ARCH=$(uname -m)
 
 # Use the host architecture if not supplied
-TARGET_ARCH=${1:-$(uname -m)}
+TARGET_ARCH=${3:-$(uname -m)}
 
-# Prepare the target install path
-INSTALL_PACKAGE_PATH=${TEMP_FOLDER}/install/
+# Recompute the DOWNLOADED_PACKAGE_FOLDERS to apply to $WORKSPACE/temp inside the Docker script 
+DEP_PACKAGES_FOLDERNAMES_ONLY=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER\//}
+DEP_PACKAGES_DOCKER_FOLDERNAMES=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER/"/data/workspace/temp"}
+
+echo "Executing docker-based build from the following arguments"
+echo "    DOCKER_IMAGE_NAME_BASE     = ${DOCKER_IMAGE_NAME_BASE}"
+echo "    UBUNTU_BASE                = ${UBUNTU_BASE}"
+echo "    DOCKER_BUILD_SCRIPT        = ${DOCKER_BUILD_SCRIPT}"
+echo "    TARGET_BUILD_FOLDER        = ${TARGET_BUILD_FOLDER}"
+echo "    TARGET_ARCH                = ${TARGET_ARCH}"
+echo "    TEMP_FOLDER                = ${TEMP_FOLDER}"
+echo "    DOWNLOADED_PACKAGE_FOLDERS = ${DEP_PACKAGES_FOLDERNAMES_ONLY}"
+
+#
+# Make sure docker is installed
+#
+DOCKER_VERSION=$(docker --version)
+if [ $? -ne 0 ]
+then
+    echo "Required package docker is not installed"
+    echo "Follow instructions on https://docs.docker.com/engine/install/ubuntu/ to install docker properly"
+    exit 1
+fi
+echo "Detected Docker Version $DOCKER_VERSION"
+
+# 
+# Check the target architecture and determine if the necessary cross compilation requirements are met
+#
 
 # If the host and target architecture does not match, make sure the necessary cross compilation packages are installed
 if [ "${CURRENT_HOST_ARCH}" != ${TARGET_ARCH} ]
@@ -63,16 +109,6 @@ else
     echo "Building ${TARGET_ARCH} natively."
 fi
 
-# Make sure docker is installed
-DOCKER_VERSION=$(docker --version)
-if [ $? -ne 0 ]
-then
-    echo "Required package docker is not installed"
-    echo "Follow instructions on https://docs.docker.com/engine/install/ubuntu/ to install docker properly"
-    exit 1
-fi
-echo "Detected Docker Version $DOCKER_VERSION"
-
 
 # Setup the docker arguments 
 if [ "${TARGET_ARCH}" = "x86_64" ]
@@ -81,7 +117,6 @@ then
 
     DOCKER_INPUT_ARCHITECTURE=amd64
     TARGET_DOCKER_PLATFORM_ARG=linux/amd64
-    DOCKER_BUILD_ARG=1
 
 elif [ "${TARGET_ARCH}" = "aarch64" ] 
 then
@@ -89,117 +124,96 @@ then
 
     DOCKER_INPUT_ARCHITECTURE=arm64v8
     TARGET_DOCKER_PLATFORM_ARG=linux/arm64/v8
-    DOCKER_BUILD_ARG=3
+
 else
     echo "Unsupported architecture ${TARGET_ARCH}"
     exit 1
 fi
 
-# Prepare to build on both Ubuntu 20.04 and Ubuntu 22.04 based docker images
-
+# 
+# Prepare the docker base context based on ${TEMP_FOLDER} 
 mkdir -p ${TEMP_FOLDER}
 cp -f ${DOCKER_BUILD_SCRIPT} ${TEMP_FOLDER}/
 
-# Args
-# $1 : Ubuntu version
-# $2 : Include
-# $3 : Docker run platform
+echo "Building on ubuntu public.ecr.aws/ubuntu/ubuntu:${UBUNTU_BASE}"
 
-function execute_docker() {
+# Build the Docker Image 
+DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME_BASE}_${DOCKER_INPUT_ARCHITECTURE}_3p
+echo DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}
 
-    # Determine the openssl version based on the ubuntu version (20.04/OpenSSL 1.1.1.x vs 22.04/OpenSSL 3.x)
-    if [ $1 = "20.04" ]
-    then
-        echo "Preparing for OpenSSL 1.1.1.x version"
-        BIN_SUBFOLDER_NAME=openssl-1
-    elif [ $1 = "22.04" ]
-    then
-        echo "Preparing for OpenSSL 3.x version"
-        BIN_SUBFOLDER_NAME=openssl-3
-    else
-        echo "Unsupported base build image ubuntu version ${1}"
-        exit 1
-    fi
+echo "Building the docker build script for ${DOCKER_IMAGE_NAME_BASE} on ${DOCKER_INPUT_ARCHITECTURE} for Ubuntu $1"
+echo ""
+echo docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} \
+             --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE} \
+             --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE} \
+             --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=${DEP_PACKAGES_DOCKER_FOLDERNAMES} \
+             -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp 
+docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} \
+             --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE} \
+             --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE} \
+             --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=${DEP_PACKAGES_DOCKER_FOLDERNAMES} \
+             -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp 
+if [ $? -ne 0 ]
+then
+    echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." 
+    exit 1
+fi
 
-    # Build the Docker Image 
-    DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME_BASE}_${DOCKER_INPUT_ARCHITECTURE}_3p
+# Prepare the target build folder to copy from the docker container on successful run of the docker script
+INSTALL_PACKAGE_PATH=${TEMP_FOLDER}/${TARGET_BUILD_FOLDER}/
 
-    echo "Building the docker build script for ${DOCKER_IMAGE_NAME_BASE} on ${DOCKER_INPUT_ARCHITECTURE} for Ubuntu $1"
+# Run the build script in the docker image
+echo "Running build script in the docker image ${DOCKER_IMAGE_NAME}"
+echo ""
+docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} \
+           --tty \
+           -v ${TEMP_FOLDER}:/data/workspace/temp:ro \
+           ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
+if [ $? -ne 0 ]
+then
+    echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
+    echo "To log into and troubleshoot the docker container, run the following command:"
     echo ""
-    echo docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} \
-                 --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE} \
-                 --build-arg INPUT_IMAGE=ubuntu:${1} \
-                 -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp 
-    docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} \
-                 --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE} \
-                 --build-arg INPUT_IMAGE=ubuntu:${1} \
-                 -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp 
-    if [ $? -ne 0 ]
-    then
-        echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." 
-        exit 1
-    fi
-
-    # Run the build script in the docker image
-    echo "Running build script in the docker image ${DOCKER_IMAGE_NAME}"
+    echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty -v ${TEMP_FOLDER}:/data/workspace/temp:ro ${DOCKER_IMAGE_NAME}:latest"
     echo ""
-    docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} \
-               --tty \
-               ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
-    if [ $? -ne 0 ]
-    then
-        echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
-        echo "To log into and troubleshoot the docker container, run the following command:"
-        echo ""
-        echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest"
-        echo ""
-        exit 1
-    fi
+    exit 1
+fi
 
-    echo "Build Complete"
+echo "Build Complete"
 
-    # Copy the build artifacts from the docker image
+# Copy the build artifacts from the docker image
 
-    # Capture the Docker Image ID
-    IMAGE_ID=$(docker images -q ${DOCKER_IMAGE_NAME}:latest)
-    if [ -z $IMAGE_ID ]
-    then
-        echo "Error: Cannot find Image ID for ${DOCKER_IMAGE_NAME}"
-        exit 1
-    fi
+# Capture the Docker Image ID
+IMAGE_ID=$(docker images -q ${DOCKER_IMAGE_NAME}:latest)
+if [ -z $IMAGE_ID ]
+then
+    echo "Error: Cannot find Image ID for ${DOCKER_IMAGE_NAME}"
+    exit 1
+fi
 
-    # Capture the container ID
-    echo "Capturing the Container ID"
-    CONTAINER_ID=$(docker container ls -l -q --filter "ancestor=${DOCKER_IMAGE_NAME}:latest")
-    if [ -z $CONTAINER_ID ]
-    then
-        echo "Error: Cannot find Container ID for Image ${DOCKER_IMAGE_NAME}"
-        exit 1
-    fi
+# Capture the container ID
+echo "Capturing the Container ID"
+CONTAINER_ID=$(docker container ls -l -q --filter "ancestor=${DOCKER_IMAGE_NAME}:latest")
+if [ -z $CONTAINER_ID ]
+then
+    echo "Error: Cannot find Container ID for Image ${DOCKER_IMAGE_NAME}"
+    exit 1
+fi
 
-    DOCKER_BUILD_ROOT=/data/workspace/install
+DOCKER_BUILD_ROOT=/data/workspace/${TARGET_BUILD_FOLDER}
 
-    if [ ! -f ${INSTALL_PACKAGE_PATH}/include ]
-    then
-        docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/Static/include  ${INSTALL_PACKAGE_PATH}/
-    fi
-
-    docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/Static/lib  ${INSTALL_PACKAGE_PATH}/lib/${BIN_SUBFOLDER_NAME}
-    docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}/Shared/lib  ${INSTALL_PACKAGE_PATH}/bin/${BIN_SUBFOLDER_NAME}
-}
 
 rm -rf ${INSTALL_PACKAGE_PATH}
-
 mkdir -p ${INSTALL_PACKAGE_PATH}
-mkdir -p ${INSTALL_PACKAGE_PATH}/lib
-mkdir -p ${INSTALL_PACKAGE_PATH}/bin
 
-# Build for Ubuntu 20.04
-execute_docker 20.04 
+echo "Copying from $CONTAINER_ID:${DOCKER_BUILD_ROOT} to ${TEMP_FOLDER}/"
+docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}  ${TEMP_FOLDER}/ 
+if [ $? -ne 0 ]
+then
+    echo "Error copying build from docker image ${DOCKER_IMAGE_NAME}:latest." 
+    exit 1
+fi
 
-# Build for Ubuntu 22.04
-execute_docker 22.04 
-
-echo "Build successful"
+echo "Built ${DOCKER_IMAGE_NAME_BASE} into ${INSTALL_PACKAGE_PATH} successfully"
 
 exit 0
