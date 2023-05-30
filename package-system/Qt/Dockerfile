@@ -40,7 +40,6 @@ RUN apt-get install -y qtbase5-dev \
                        libgbm-dev \
                        libxext-dev \
                        libfontconfig1-dev \ 
-                       libssl-dev \
                        libtiff-dev
 
 # Prepare a target folder within the container to install the build artifacts tp

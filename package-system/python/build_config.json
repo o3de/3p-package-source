@@ -2,7 +2,7 @@
    "git_url":"https://github.com/python/cpython.git",
    "git_tag":"v3.10.5",
    "package_name":"python",
-   "package_version":"3.10.5-rev3",
+   "package_version":"3.10.5-rev4",
    "package_url":"https://python.org",
    "package_license":"PSF-2.0",
    "package_license_file":"LICENSE",
@@ -11,8 +11,14 @@
    "Platforms":{
       "Linux":{
             "Linux":{
+                "depends_on_packages": [
+                   [ "OpenSSL-1.1.1t-rev1-linux", "c86ee5793cbcc99a7a3167096d187ec8f6124fadc3b5fd0dac1cdb78fc3a12cc", "" ],
+                   [ "SQLite-3.37.2-rev1-linux", "bee80d6c6db3e312c1f4f089c90894436ea9c9b74d67256d8c1fb00d4d81fe46", "" ]
+                ],
                "custom_build_cmd": [
                     "./build-linux.sh",
+                    "python_3_10_5",
+                    "20.04",
                     "x86_64"
                 ],
                 "custom_install_cmd": [
@@ -23,8 +29,14 @@
                 ]
             },
             "Linux-aarch64":{
+                "depends_on_packages": [
+                   [ "OpenSSL-1.1.1t-rev1-linux-aarch64", "f3cd98f7c6308c1f2fed1b71d420afa0fceb162496c3361acd2a3428f5f175ab", "" ],
+                   [ "SQLite-3.37.2-rev1-linux-aarch64", "5cc1fd9294af72514eba60509414e58f1a268996940be31d0ab6919383f05118", "" ]
+                ],
                "custom_build_cmd": [
                     "./build-linux.sh",
+                    "python_3_10_5",
+                    "20.04",
                     "aarch64"
                 ],
                 "custom_install_cmd": [
@@ -37,3 +49,6 @@
         }
    }
 }
+
+
+

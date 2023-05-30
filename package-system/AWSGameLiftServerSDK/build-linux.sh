@@ -7,9 +7,7 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 
-# This script will utilize Docker to build on either AMD64 or AARCH64 architectures. The script will 
-# also build on both Ubuntu 20.04 (focal) and Ubuntu 22.04 (jammy) systems because of the dependencies
-# on OpenSSL 1.1.1 and Open 3.0 respectively
+# This script will utilize Docker to build on either AMD64 or AARCH64 architectures. 
 
 DOCKER_BUILD_SCRIPT=docker_build_linux.sh
 TARGET_BUILD_FOLDER=build
