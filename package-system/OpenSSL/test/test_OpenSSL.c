@@ -17,7 +17,10 @@
 #include <openssl/ssl.h>
 #include <openssl/sha.h>
 #include <openssl/evp.h>
+#include <openssl/bn.h>
 #include <openssl/crypto.h>
+#include <openssl/rand.h>
+#include <openssl/err.h>
 
 int main(int argc, char* argv[])
 {
@@ -71,6 +74,62 @@ int main(int argc, char* argv[])
     {
         printf("OK\n");
     }
+
+    int rsa_key_length = 1024u;
+    
+    // Test generating random numbers
+    printf("Generating random %d bit number : ", rsa_key_length);
+    BIGNUM* random_bn = BN_new();
+    if (BN_rand(random_bn, rsa_key_length, 1, 0)!=1)
+    {
+        printf("FAILURE!\n Failed to generate random number (%ld)\n", ERR_get_error());
+        return 1;
+    }
+
+    printf("OK\n");
+    char* rand_number_text = BN_bn2hex(random_bn);
+    printf("Random Number: %s\n", rand_number_text);
+
+
+    printf("Generating RSA Key pair (%d bits) : ", rsa_key_length);
+
+    RSA* rsa_key = RSA_new();
+    if (rsa_key == NULL)
+    {
+        printf("FAILURE!\n Failed to create RSA key instance (%ld)\n", ERR_get_error());
+        return 1;
+    }
+
+    // Set the RSA exponent to RSA_F4 (0x10001l) for key generation
+    BIGNUM* rsa_exponent = BN_new();
+    if (BN_set_word(rsa_exponent, RSA_F4)!=1)
+    {
+        printf("FAILURE!\n Failed to generate BN exponent (%ld)\n", ERR_get_error());
+        return 1;
+    }
+
+    if (RSA_generate_key_ex(rsa_key, rsa_key_length, rsa_exponent, NULL) == 0)
+    {
+        printf("FAILURE!\n Failed to generate %d bit RSA key  (%ld)\n", rsa_key_length, ERR_get_error());
+        return 1;
+    }
+    printf("OK\n");
+
+    printf("Private key values:\n");
+    char* rsa_p = BN_bn2hex(RSA_get0_p(rsa_key));
+    char* rsa_q = BN_bn2hex(RSA_get0_q(rsa_key));
+    char* rsa_e = BN_bn2hex(RSA_get0_e(rsa_key));
+    printf("    exponent : %s\n", rsa_e);
+    printf("    prime (p) : %s\n", rsa_p);
+    printf("    prime (q) : %s\n", rsa_q);
+
+    OPENSSL_free(rsa_p);
+    OPENSSL_free(rsa_q);
+    OPENSSL_free(rsa_e);
+
+    BN_free(rsa_exponent);
+    RSA_free(rsa_key);
+
 
     printf("Success: All is ok!\n");
 

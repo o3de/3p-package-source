@@ -7,30 +7,27 @@
 #
 #
 
+
+# The expected OPENSSL_VERSION_TEXT (Refer to build_config.json for the current version being built)
+EXPECTED_OPENSSL_VERSION="OpenSSL 1.1.1t  7 Feb 2023"
+
+# The sha256 hash of the above OPENSSL_VERSION_TEXT (Refer to build_config.json for the current version being built)
+EXPECTED_OPENSSL_VERSION_SHA256="92b72d8487f5580f88413f85e7053daf63da2653"
+
+
+# Reset any existing test folder
 rm -rf temp/build_test
 mkdir temp/build_test
 
-if [ $# -ne 3 ]
-then
-    echo "Invalid/incomplete arguments"
-    echo "Usage: ${0} [architecture] [OpenSSL version string] [SHA256 hash of the the OpenSSL version string]"
-    exit 1
-fi
-
 # Make sure we are running on the target architecture
-TARGET_ARCH=$1
+TARGET_ARCH=${1:-$(uname -m)}
+
 CURRENT_HOST_ARCH=$(uname -m)
 if [ "${CURRENT_HOST_ARCH}" != ${TARGET_ARCH} ]
 then
     echo "Warning: Tests for packages on target ${TARGET_ARCH} can only be run on ${TARGET_ARCH}. Skipping tests."
     exit 0
 fi
-
-# Required Argument 2: The expected OPENSSL_VERSION_TEXT
-EXPECTED_OPENSSL_VERSION=$2
-
-# Required Argument 3: The sha256 hash of the above OPENSSL_VERSION_TEXT 
-EXPECTED_OPENSSL_VERSION_SHA256=$3
 
 # Build the test program
 cmake -S test -B temp/build_test -DCMAKE_MODULE_PATH="$PACKAGE_ROOT" -DCMAKE_BUILD_TYPE=Release
@@ -39,7 +36,6 @@ then
     echo "Error generating the test project"
     exit 1
 fi
-
 
 cmake --build temp/build_test
 if [ $? -ne 0 ]
