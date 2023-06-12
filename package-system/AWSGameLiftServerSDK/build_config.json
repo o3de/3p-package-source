@@ -31,7 +31,7 @@
               },
               "Linux-aarch64":  {
                 "depends_on_packages": [
-                    [ "OpenSSL-1.1.1t-rev1-linux-aarch64", "f3cd98f7c6308c1f2fed1b71d420afa0fceb162496c3361acd2a3428f5f175ab", "" ]
+                    [ "OpenSSL-1.1.1t-rev1-linux-aarch64", "f32721bec9c82d1bd7fb244d78d5dc4e2a47e7b808bb36027236ad377e241ea5", "" ]
                  ],
                      "patch_file":"aws_gamelift_5.0.0.patch",
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
