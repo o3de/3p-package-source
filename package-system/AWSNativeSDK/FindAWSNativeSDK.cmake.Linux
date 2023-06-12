@@ -93,6 +93,7 @@ set(CORE_STATIC_LIBS
     ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-cal.a
     ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-common.a
     ${AWSNATIVE_SDK_LIB_PATH}/libs2n.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libcurl.a
 )
 
 if(LY_MONOLITHIC_GAME)
