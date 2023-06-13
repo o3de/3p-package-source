@@ -1,8 +1,8 @@
 diff --git a/aws-cpp-sdk-core/CMakeLists.txt b/aws-cpp-sdk-core/CMakeLists.txt
-index 17b4e46442..40e1bc9aa4 100644
+index 17b4e46442..f71a925288 100644
 --- a/aws-cpp-sdk-core/CMakeLists.txt
 +++ b/aws-cpp-sdk-core/CMakeLists.txt
-@@ -100,7 +100,17 @@ include(CheckCXXSourceRuns)
+@@ -100,7 +100,22 @@ include(CheckCXXSourceRuns)
  if(ENABLE_CURL_CLIENT)
      file(GLOB HTTP_CURL_CLIENT_HEADERS "include/aws/core/http/curl/*.h")
      file(GLOB HTTP_CURL_CLIENT_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/source/http/curl/*.cpp")
@@ -11,11 +11,16 @@ index 17b4e46442..40e1bc9aa4 100644
 +    set(CMAKE_REQUIRED_INCLUDES ${CURL_INCLUDE_DIR})
 +
 +    set(REQUIRED_CURL_TEST_LIBRARIES ${CURL_LIBRARIES})
-+    if(NOT BUILD_SHARED_LIBS)
++
++    get_filename_component(DEP_CURL_FILE_EXTN ${CURL_LIBRARY} EXT)
++
++    if(DEP_CURL_FILE_EXTN STREQUAL ".a")
++        message("Adding additional static dependencies for curl")
 +        LIST(APPEND REQUIRED_CURL_TEST_LIBRARIES ${OPENSSL_LIBRARIES})
 +        LIST(APPEND REQUIRED_CURL_TEST_LIBRARIES ${ZLIB_LIBRARIES})
 +        SET(CMAKE_REQUIRED_FLAGS "-pthread -ldl")
 +    endif()
++
 +    set(CMAKE_REQUIRED_LIBRARIES ${REQUIRED_CURL_TEST_LIBRARIES})
 +
      set(CHECK_CURL_HAS_H2 "

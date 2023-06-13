@@ -113,13 +113,12 @@ fi
 configure_and_build() {
 
     lib_type=$1
+    dep_curl_lib=${CURL_INSTALL}/lib/libcurl.a
     if [ "$lib_type" == "Shared" ]
     then
         build_shared=ON
-        dep_curl_lib=${CURL_INSTALL}/lib/libcurl.so
     else
         build_shared=OFF
-        dep_curl_lib=${CURL_INSTALL}/lib/libcurl.a
     fi
 
     echo "CMake Configure $build_type $lib_type"
@@ -177,7 +176,7 @@ configure_and_build() {
     echo "CMake Install ${BUILD_PATH}/${lib_type} to ${INSTALL_PATH}/${lib_type}"
     cmake --install "${BUILD_PATH}/${lib_type}" --prefix "${INSTALL_PATH}/${lib_type}" || (echo "Error installing the ${lib_type} AWS Native SDK libraries" && exit 1)
 
-    cp ${dep_curl_lib}* ${INSTALL_PATH}/${lib_type}/lib/
+    cp ${dep_curl_lib} ${INSTALL_PATH}/${lib_type}/lib/
 }
 
 # Static
