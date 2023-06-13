@@ -85,20 +85,6 @@ make install || (echo "Failed installing curl" && exit 1)
 
 popd
 
-# Prepare symlinks for the libcurl built from source to the /usr/include and /usr/lib folders because even though AWSNativeSDK supports
-# -DCURL_INCLUDE_DIR and -DCURL_LIBRARY for its cmake variables, they are not used during the project generation and will fail 
-# the 'CURL_HAS_TLS_PROXY' test.
-
-pushd /usr/include
-ln -s ${CURL_INSTALL}/include/curl curl
-popd
-
-
-pushd /usr/lib
-ln -s ${CURL_INSTALL}/lib/libcurl.a libcurl.a
-popd
-
-
 # Copy the source folder from the read-only $WORKSPACE/temp/src to $WORKSPACE/src
 # since the build process will write/modify the source path
 echo "Preparing source folder '$WORKSPACE/src'"
@@ -194,11 +180,11 @@ configure_and_build() {
     cp ${dep_curl_lib}* ${INSTALL_PATH}/${lib_type}/lib/
 }
 
-# Shared
-configure_and_build Shared
-
 # Static
 configure_and_build Static
+
+# Shared
+configure_and_build Shared
 
 # Copy the curl-related copyright and readme
 cp ${CURL_SRC}/README ${INSTALL_PATH}/README.CURL
