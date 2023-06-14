@@ -20,7 +20,7 @@ TARGET_BUILD_FOLDER=build
 DOCKER_IMAGE_NAME_BASE=$1
 if [ "${DOCKER_IMAGE_NAME_BASE}" == "" ]
 then
-    echo "Missing argument 1: Docker image name for this this process"
+    echo "Missing argument 1: Docker image name for this process"
     exit 1
 fi
 
