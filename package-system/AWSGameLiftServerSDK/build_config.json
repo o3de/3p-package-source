@@ -13,7 +13,7 @@
                 "depends_on_packages": [
                     [ "OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", "" ]
                 ],
-                 "patch_file":"aws_gamelift_5.0.0.patch",
+                "patch_file":"aws_gamelift_5.0.0.patch",
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",
