@@ -21,7 +21,7 @@ fi
 
 
 # Locate the dependent OpenSSL package
-OPENSSL_REGEX='(OpenSSL-([A-Za-z0-9\.\-]*)-(linux|linux-aarch64))'
+OPENSSL_REGEX='(OpenSSL-([A-Za-z0-9\.\-]+)-(linux|linux-aarch64))'
 [[ $DOWNLOADED_PACKAGE_FOLDERS =~ $OPENSSL_REGEX ]]
 DEPENDENT_OPENSSL=${BASH_REMATCH[1]}
 
@@ -40,7 +40,7 @@ echo "Detected dependent OpenSSL package at ${DEPENDENT_OPENSSL_BASE}"
 
 
 # Locate the dependent ZLIB package
-OPENZLIB_REGEX='(zlib-([A-Za-z0-9\.\-]*)-(linux|linux-aarch64))'
+OPENZLIB_REGEX='(zlib-([A-Za-z0-9\.\-]+)-(linux|linux-aarch64))'
 [[ $DOWNLOADED_PACKAGE_FOLDERS =~ $OPENZLIB_REGEX ]]
 DEPENDENT_ZLIB=${BASH_REMATCH[1]}
 
