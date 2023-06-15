@@ -34,7 +34,7 @@ ENV DOWNLOADED_PACKAGE_FOLDERS=$INPUT_DEPENDENT_PACKAGE_FOLDERS
 
 WORKDIR $WORKSPACE
 
-# Initilize apt cache
+# Initialize apt cache
 RUN apt-get clean && apt-get update
 
 # Setup time zone and locale data (necessary for SSL and HTTPS packages)
