@@ -24,7 +24,7 @@ then
     exit 1
 fi
 
-# Get the ubuntu base version (16.04|18.04|20.04|22.04)
+# Get the ubuntu base version (20.04|22.04)
 UBUNTU_BASE=$2
 if [ "${UBUNTU_BASE}" == "" ]
 then
@@ -143,16 +143,16 @@ echo DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}
 
 echo "Building the docker build script for ${DOCKER_IMAGE_NAME_BASE} on ${DOCKER_INPUT_ARCHITECTURE} for Ubuntu $1"
 echo ""
-echo docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} \
-             --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE} \
-             --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE} \
-             --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=${DEP_PACKAGES_DOCKER_FOLDERNAMES} \
-             -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp 
-docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} \
-             --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE} \
-             --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE} \
-             --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=${DEP_PACKAGES_DOCKER_FOLDERNAMES} \
-             -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp 
+
+CMD_DOCKER_BUILD="\
+docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT}\
+ --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE}\
+ --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE}\
+ --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=${DEP_PACKAGES_DOCKER_FOLDERNAMES}\
+ -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp "
+
+echo $CMD_DOCKER_BUILD
+eval $CMD_DOCKER_BUILD
 if [ $? -ne 0 ]
 then
     echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." 
@@ -165,10 +165,15 @@ INSTALL_PACKAGE_PATH=${TEMP_FOLDER}/${TARGET_BUILD_FOLDER}/
 # Run the build script in the docker image
 echo "Running build script in the docker image ${DOCKER_IMAGE_NAME}"
 echo ""
-docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} \
-           --tty \
-           -v ${TEMP_FOLDER}:/data/workspace/temp:ro \
-           ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
+
+CMD_DOCKER_RUN="\
+docker run --platform ${TARGET_DOCKER_PLATFORM_ARG}\
+ --tty\
+ -v ${TEMP_FOLDER}:/data/workspace/temp:ro\
+ ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}"
+
+echo $CMD_DOCKER_RUN
+eval $CMD_DOCKER_RUN
 if [ $? -ne 0 ]
 then
     echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest

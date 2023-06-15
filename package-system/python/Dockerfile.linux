@@ -54,7 +54,7 @@ RUN apt-get install -y autoconf \
                        tcl8.6-dev \
                        tk8.6-dev \
                        texinfo \
-                       vim
+                       curl
 
 # Prevent the copying of the src folder from being cached
 ARG CACHEBUST=1

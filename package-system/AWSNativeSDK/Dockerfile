@@ -18,6 +18,9 @@ ARG INPUT_BUILD_FOLDER=build
 # The name of the build script to copy to the docker image to execute
 ARG INPUT_DOCKER_BUILD_SCRIPT=build.sh
 
+# The git tag to use for the branch for cloning curl from git
+ARG INPUT_DEP_CURL_GIT_TAG
+
 # The optional environment variable for list of folders in the mapped temp folders that represent additional 3P dependent packages
 ARG INPUT_DEPENDENT_PACKAGE_FOLDERS
 
@@ -27,6 +30,7 @@ FROM ${INPUT_ARCHITECTURE}/${INPUT_IMAGE}
 ARG INPUT_DOCKER_BUILD_SCRIPT
 ARG INPUT_BUILD_FOLDER
 ARG INPUT_DEPENDENT_PACKAGE_FOLDERS
+ARG INPUT_DEP_CURL_GIT_TAG
 
 ENV WORKSPACE=/data/workspace
 ENV DOCKER_BUILD_PATH=$WORKSPACE/$INPUT_BUILD_FOLDER
@@ -52,7 +56,7 @@ RUN apt-get install -y cmake \
 
 
 RUN mkdir -p $WORKSPACE/curl && \
-    git -C $WORKSPACE/curl clone https://github.com/curl/curl.git --single-branch --recursive --branch curl-7_68_0 src
+    git -C $WORKSPACE/curl clone https://github.com/curl/curl.git --single-branch --recursive --branch $INPUT_DEP_CURL_GIT_TAG src
 
 # Prevent the copying of the src folder from being cached
 ARG CACHEBUST=1

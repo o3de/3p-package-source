@@ -23,26 +23,53 @@ fi
 # since the build process will write/modify the source path
 
 echo "Preparing source folder '$WORKSPACE/src'"
-cp -r $WORKSPACE/temp/src $WORKSPACE/ || (echo "Error copying src from $WORKSPACE/tempo" && exit 1)
+cp -r $WORKSPACE/temp/src $WORKSPACE/ 
+if [ $? -ne 0 ]
+then
+    echo "Error copying src from $WORKSPACE/tempo"
+    exit 1
+fi
 
 cd $WORKSPACE/src
 echo "Configuring OpenSSL"
-echo ./config no-shared no-asm --prefix=${BUILD_FOLDER} --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN' 
-./config no-shared no-asm --prefix=${BUILD_FOLDER} --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN' 
-
+CMD="./config no-shared no-asm --prefix=${BUILD_FOLDER} --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN'"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error configuring OpenSSL"
+    exit 1
+fi
 
 echo "Building OpenSSL"
-echo make
-make || (echo "Error building OpenSSL" && exit 1)
+CMD="make"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error building OpenSSL"
+    exit 1
+fi
 
 echo "Running OpenSSL tests"
-echo make test
-make test || (echo "OpenSSL failed tests" && exit 1)
+CMD="make test"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "OpenSSL failed tests"
+    exit 1
+fi
 
 echo "Installing OpenSSL to ${BUILD_FOLDER}"
-echo make install
-make install || (echo "Error install OpenSSL" && exit 1)
-
+CMD="make install"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "OpenSSL failed to install"
+    exit 1
+fi
 
 echo "Build complete. Build artifacts installed to ${BUILD_FOLDER}"
 

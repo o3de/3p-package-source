@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
     }
 
     auto game_lift_version = serverVersionResult.GetResult();
-    printf("AWSGameLiftSDK version %s\n", game_lift_version);
+    printf("AWSGameLiftSDK version %s\n", game_lift_version.c_str());
 
     return 0;
 }

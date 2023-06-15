@@ -72,6 +72,7 @@
                "./build-linux.sh",
                "aws_native_sdk_1_9_50",
                "20.04",
+               "curl-7_68_0",
                "x86_64"
             ],
             "custom_install_cmd": [
@@ -90,6 +91,7 @@
                "./build-linux.sh",
                "aws_native_sdk_1_9_50",
                "20.04",
+               "curl-7_68_0",
                "aarch64"
             ],
             "custom_install_cmd": [

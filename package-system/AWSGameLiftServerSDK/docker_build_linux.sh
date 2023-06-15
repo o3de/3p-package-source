@@ -62,32 +62,29 @@ build_package() {
     else
         build_shared=OFF
     fi
-
-    echo cmake -S ${SRC_PATH} -B ${BUILD_PATH_ROOT}/${lib_type} \
-          -G "Unix Makefiles" \
-          -DBUILD_SHARED_LIBS=$build_shared \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_MODULE_PATH=$DOWNLOADED_PACKAGE_FOLDERS
-
-
+    CMD_CMAKE_GENERATE="\
     cmake -S ${SRC_PATH} -B ${BUILD_PATH_ROOT}/${lib_type} \
-          -G "Unix Makefiles" \
+          -G \"Unix Makefiles\" \
           -DBUILD_SHARED_LIBS=$build_shared \
           -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_MODULE_PATH=$DOWNLOADED_PACKAGE_FOLDERS
+          -DCMAKE_MODULE_PATH=$DOWNLOADED_PACKAGE_FOLDERS"
+    echo $CMD_CMAKE_GENERATE
+    eval $CMD_CMAKE_GENERATE
     if [ $? -ne 0 ]
     then
         echo "Error generating AWS Gamelift Server SDK build" 
         exit 1
     fi          
 
-    echo "cmake --build ${BUILD_PATH_ROOT}/${lib_type}"
-    cmake --build ${BUILD_PATH_ROOT}/${lib_type}
+    CMD_CMAKE_BUILD="\
+    cmake --build ${BUILD_PATH_ROOT}/${lib_type}"
+    echo $CMD_CMAKE_BUILD
+    eval $CMD_CMAKE_BUILD
     if [ $? -ne 0 ]
     then
-        echo "Error building the ${lib_type}"
+        echo "Error building the ${lib_type} configuration for AWS Gamelift Server SDK"
         exit 1
-    fi          
+    fi
 
     if [ ! -d ${BUILD_PATH_ROOT}/${lib_type}/prefix ]
     then

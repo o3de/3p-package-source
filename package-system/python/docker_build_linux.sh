@@ -53,8 +53,10 @@ LIBFFI_SRC_PATH=${WORKSPACE}/${LIBFFI_SRC}
 LIBFFI_LIB_PATH=${WORKSPACE}/ffi_lib
 
 echo "Clone and build libFFI statically from ${FFI_GIT_URL} / ${LIBFFI_VERSION}"
-echo "git -C ${WORKSPACE} clone ${LIBFFI_GIT_URL} --branch ${LIBFFI_VERSION} --depth 1 ${LIBFFI_SRC}"
-git -C ${WORKSPACE} clone ${LIBFFI_GIT_URL} --branch ${LIBFFI_VERSION} --depth 1 ${LIBFFI_SRC}
+
+CMD="git -C ${WORKSPACE} clone ${LIBFFI_GIT_URL} --branch ${LIBFFI_VERSION} --depth 1 ${LIBFFI_SRC}"
+echo $CMD
+eval $CMD
 if [ $? -ne 0 ]
 then
     echo "Failed cloning libffi from ${LIBFFI_GIT_URL}"
@@ -63,8 +65,9 @@ fi
 
 pushd ${LIBFFI_SRC_PATH}
 
-echo ./autogen.sh
-./autogen.sh
+CMD="./autogen.sh"
+echo $CMD
+eval $CMD
 if [ $? -ne 0 ]
 then
     echo "'autogen' failed for libffi at ${LIBFFI_SRC_PATH}"
@@ -72,16 +75,18 @@ then
 fi
 
 
-echo ./configure --prefix=${WORKSPACE}/${LIBFFI_LIB} --enable-shared=no CFLAGS='-fPIC' CPPFLAGS='-fPIC'
-./configure --prefix=$LIBFFI_LIB --enable-shared=no CFLAGS='-fPIC' CPPFLAGS='-fPIC' 
+CMD="./configure --prefix=$LIBFFI_LIB --enable-shared=no CFLAGS='-fPIC' CPPFLAGS='-fPIC' "
+echo $CMD
+eval $CMD
 if [ $? -ne 0 ]
 then
     echo "'configure' failed for libffi at ${LIBFFI_SRC_PATH}"
     exit 1
 fi
 
-echo make install
-make install
+CMD="make install"
+echo $CMD
+eval $CMD
 if [ $? -ne 0 ]
 then
     echo "'configure' failed for libffi at ${LIBFFI_SRC_PATH}"
@@ -98,24 +103,32 @@ echo ""
 pushd ${SRC_PATH}
 
 # Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
-echo ./configure --prefix=${BUILD_FOLDER}/python --enable-optimizations --with-openssl=${OPENSSL_BASE} --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L'${SQLITE_BASE}'/lib' CPPFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}'' CFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}'' 
-./configure --prefix=${BUILD_FOLDER}/python --enable-optimizations --with-openssl=${OPENSSL_BASE} --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L'${SQLITE_BASE}'/lib' CPPFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}'' CFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}'' 
+CMD="\
+./configure --prefix=${BUILD_FOLDER}/python\
+ --enable-optimizations\
+ --with-openssl=${OPENSSL_BASE}\
+ --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L'${SQLITE_BASE}'/lib'\
+ CPPFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}'' CFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}''"
+echo $CMD
+eval $CMD
 if [ $? -ne 0 ]
 then
     echo "'configure' failed for cpython at ${SRC_PATH}"
     exit 1
 fi
 
-echo make 
-make
+CMD="make"
+echo $CMD
+eval $CMD
 if [ $? -ne 0 ]
 then
     echo "'make' failed for cpython at ${SRC_PATH}"
     exit 1
 fi
 
-echo make install
-make install
+CMD="make install"
+echo $CMD
+eval $CMD
 if [ $? -ne 0 ]
 then
     echo "'make install' failed for cpython at ${SRC_PATH}"
@@ -137,7 +150,6 @@ pushd ${BUILD_FOLDER}/python/bin
 ln -s python3 python
 popd
 
-
 pushd ${BUILD_FOLDER}
 
 echo "Upgrading pip"
@@ -147,16 +159,20 @@ echo "Upgrading pip"
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 ./python/bin/python3 get-pip.py
 rm get-pip.py
-PYTHONNOUSERSITE=1 ./python/bin/python3 -m pip install --upgrade pip
+
+pushd python/bin
+
+PYTHONNOUSERSITE=1 ./python3 -m pip install --upgrade pip
 
 echo "Upgrading setup tools"
 
 # Update setup tools to resolve https://avd.aquasec.com/nvd/cve-2022-40897
-PYTHONNOUSERSITE=1 ./python/bin/python3 -m pip install setuptools --upgrade setuptools
+PYTHONNOUSERSITE=1 ./python3 -m pip install setuptools --upgrade setuptools
 
 # Update wheel to resolve https://avd.aquasec.com/nvd/2022/cve-2022-40898/
-PYTHONNOUSERSITE=1 ./python/bin/python3 -m pip install wheel --upgrade wheel
+PYTHONNOUSERSITE=1 ./python3 -m pip install wheel --upgrade wheel
 
+popd #python/bin 
 
 # installing pip causes it to put absolute paths to python
 # in the pip files (in bin).  For example, pip will have 
@@ -170,7 +186,7 @@ sed -i "1s+.*+\#\!/bin/sh+" ./python/bin/pip*
 sed -i "2i\\
 \"exec\" \"\`dirname \$0\`/python\" \"\$0\" \"\$\@\" " ./python/bin/pip*
 
-popd
+popd # ${BUILD_FOLDER}
 
 echo ""
 echo "--------------- PYTHON WAS BUILT FROM SOURCE ---------------"

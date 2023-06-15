@@ -71,17 +71,42 @@ fi
 # Build curl from source
 pushd $CURL_BASE/src
 
-echo autoreconf -fi
-autoreconf -fi || (echo "Failed generating configuration for curl" && exit 1)
+CMD="autoreconf -fi"
+echo ${CMD}
+eval ${CMD}
+if [ $? -ne 0 ]
+then
+    echo "Failed generating configuration for curl"
+    exit 1
+fi
 
-echo ./configure --with-ssl=${DEPENDENT_OPENSSL_BASE}/ --with-zlib=${DEPENDENT_ZLIB_BASE} --prefix=${CURL_INSTALL} --enable-proxy 
-./configure --with-ssl=${DEPENDENT_OPENSSL_BASE}/ --with-zlib=${DEPENDENT_ZLIB_BASE} --prefix=${CURL_INSTALL} --enable-proxy  || (echo "Failed configuring curl" && exit 1)
 
-echo make
-make || (echo "Failed building curl" && exit 1)
+CMD="./configure --with-ssl=${DEPENDENT_OPENSSL_BASE}/ --with-zlib=${DEPENDENT_ZLIB_BASE} --prefix=${CURL_INSTALL} --enable-proxy"
+echo ${CMD}
+eval ${CMD}
+if [ $? -ne 0 ]
+then
+    echo "Failed configuring curl"
+    exit 1
+fi
 
-echo make install
-make install || (echo "Failed installing curl" && exit 1)
+CMD="make"
+echo ${CMD}
+eval ${CMD}
+if [ $? -ne 0 ]
+then
+    echo "Failed building curl"
+    exit 1
+fi
+
+CMD="make install"
+echo ${CMD}
+eval ${CMD}
+if [ $? -ne 0 ]
+then
+    echo "Failed installing curl"
+    exit 1
+fi
 
 popd
 
@@ -123,58 +148,52 @@ configure_and_build() {
 
     echo "CMake Configure $build_type $lib_type"
 
-    echo cmake -S ${SRC_PATH} -B ${BUILD_PATH}/${lib_type} \
-          -G "Ninja" \
-          -DTARGET_ARCH=LINUX \
-          -DCMAKE_C_COMPILER=/usr/lib/llvm-12/bin/clang \
-          -DCMAKE_CXX_COMPILER=/usr/lib/llvm-12/bin/clang++ \
-          -DCMAKE_CXX_STANDARD=17 \
-          -DCPP_STANDARD=17 \
-          -DCMAKE_C_FLAGS="-fPIC -Wno-option-ignored" \
-          -DCMAKE_CXX_FLAGS="-fPIC  -Wno-option-ignored" \
-          -DENABLE_TESTING=OFF \
-          -DENABLE_RTTI=ON \
-          -DCUSTOM_MEMORY_MANAGEMENT=ON \
-          -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" \
-          -DBUILD_SHARED_LIBS=$build_shared \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_BINDIR="bin" \
-          -DCMAKE_INSTALL_LIBDIR="lib" \
-          -DCMAKE_MODULE_PATH=${DOWNLOADED_PACKAGE_FOLDERS} \
-          -DCURL_INCLUDE_DIR=${CURL_INSTALL}/include \
-          -DCURL_LIBRARY=${dep_curl_lib}
+    CMD="cmake -S ${SRC_PATH} -B ${BUILD_PATH}/${lib_type} \
+ -G Ninja \
+ -DTARGET_ARCH=LINUX \
+ -DCMAKE_C_COMPILER=/usr/lib/llvm-12/bin/clang \
+ -DCMAKE_CXX_COMPILER=/usr/lib/llvm-12/bin/clang++ \
+ -DCMAKE_CXX_STANDARD=17 \
+ -DCPP_STANDARD=17 \
+ -DCMAKE_C_FLAGS=\"-fPIC -Wno-option-ignored\" \
+ -DCMAKE_CXX_FLAGS=\"-fPIC -Wno-option-ignored\" \
+ -DENABLE_TESTING=OFF \
+ -DENABLE_RTTI=ON \
+ -DCUSTOM_MEMORY_MANAGEMENT=ON \
+ -DBUILD_ONLY=\"access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer\" \
+ -DBUILD_SHARED_LIBS=$build_shared \
+ -DCMAKE_BUILD_TYPE=Release \
+ -DCMAKE_INSTALL_BINDIR=\"bin\" \
+ -DCMAKE_INSTALL_LIBDIR=\"lib\" \
+ -DCMAKE_MODULE_PATH=\"$DOWNLOADED_PACKAGE_FOLDERS\" \
+ -DCURL_INCLUDE_DIR=${CURL_INSTALL}/include \
+ -DCURL_LIBRARY=${dep_curl_lib}"
 
-    cmake -S ${SRC_PATH} -B ${BUILD_PATH}/${lib_type} \
-          -G "Ninja" \
-          -DTARGET_ARCH=LINUX \
-          -DCMAKE_C_COMPILER=/usr/lib/llvm-12/bin/clang \
-          -DCMAKE_CXX_COMPILER=/usr/lib/llvm-12/bin/clang++ \
-          -DCMAKE_CXX_STANDARD=17 \
-          -DCPP_STANDARD=17 \
-          -DCMAKE_C_FLAGS="-fPIC -Wno-option-ignored" \
-          -DCMAKE_CXX_FLAGS="-fPIC -Wno-option-ignored" \
-          -DENABLE_TESTING=OFF \
-          -DENABLE_RTTI=ON \
-          -DCUSTOM_MEMORY_MANAGEMENT=ON \
-          -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" \
-          -DBUILD_SHARED_LIBS=$build_shared \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_BINDIR="bin" \
-          -DCMAKE_INSTALL_LIBDIR="lib" \
-          -DCMAKE_MODULE_PATH=$DOWNLOADED_PACKAGE_FOLDERS \
-          -DCURL_INCLUDE_DIR=${CURL_INSTALL}/include \
-          -DCURL_LIBRARY=${dep_curl_lib}
+    echo ${CMD}
+    eval ${CMD}
     if [ $? -ne 0 ]
     then
         echo "Error generating AWS Native SDK build" 
         exit 1
-    fi          
+    fi
 
-    echo "CMake Build $build_type $lib_type to ${BUILD_PATH}/${lib_type}"
-    cmake --build "${BUILD_PATH}/${lib_type}" || (echo "Error building the ${lib_type} AWS Native SDK libraries" && exit 1)
+    CMD="cmake --build \"${BUILD_PATH}/${lib_type}\" "
+    echo ${CMD}
+    eval ${CMD}
+    if [ $? -ne 0 ]
+    then
+        echo "Error building the ${lib_type} AWS Native SDK libraries"
+        exit 1
+    fi
 
-    echo "CMake Install ${BUILD_PATH}/${lib_type} to ${INSTALL_PATH}/${lib_type}"
-    cmake --install "${BUILD_PATH}/${lib_type}" --prefix "${INSTALL_PATH}/${lib_type}" || (echo "Error installing the ${lib_type} AWS Native SDK libraries" && exit 1)
+    CMD="cmake --install \"${BUILD_PATH}/${lib_type}\" --prefix \"${INSTALL_PATH}/${lib_type}\" "
+    echo ${CMD}
+    eval ${CMD}
+    if [ $? -ne 0 ]
+    then
+        echo "Error installing the ${lib_type} AWS Native SDK libraries" 
+        exit 1
+    fi
 
     cp ${dep_curl_lib} ${INSTALL_PATH}/${lib_type}/lib/
 }
