@@ -119,7 +119,7 @@ def main():
                 builder.writePackageInfoFile(
                     outputDir,
                     settings={
-                        'PackageName': f'PhysX-4.1.2.29882248-rev5-{args.platformName}',
+                        'PackageName': f'PhysX-4.1.2.29882248-rev6-{args.platformName}',
                         'URL': 'https://github.com/NVIDIAGameWorks/PhysX',
                         'License': 'BSD-3-Clause',
                         'LicenseFile': 'PhysX/LICENSE.md'
