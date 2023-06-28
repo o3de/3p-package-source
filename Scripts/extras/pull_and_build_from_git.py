@@ -127,6 +127,7 @@ The following keys can only exist at the target platform level as they describe 
 
 * custom_additional_libraries             : Any additional dependent system library to include in the find*.cmake file for the library that will
                                             applied to targets that consume this 3P library during linking
+* custom_additional_template_map          : Any additional custom template mappings to apply if a `cmake_find_template` was specified
 
 * depends_on_packages                     : list of name of 3-TUPLES of [package name, package hash, subfolder] that 'find' files live in]
                                             [  ["zlib-1.5.3-rev5",    "some hash", ""],
@@ -465,6 +466,33 @@ class BuildInfo(object):
         self.prebuilt_source = prebuilt_source
         self.prebuilt_args = prebuilt_args
         self.skip_git = skip_git
+
+        # Prepare any cmake_find_template format parameters
+        def _build_list_str(indent, key):
+            list_items = self.platform_config.get(key, [])
+            indented_list_items = []
+            for list_item in list_items:
+                indented_list_items.append(f'{" "*(indent*4)}{list_item}')
+            return '\n'.join(indented_list_items)
+
+        cmake_find_template_def_ident_level = package_info.cmake_find_template_custom_indent
+
+        self.cmake_template_env = {
+            "CUSTOM_ADDITIONAL_COMPILE_DEFINITIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_compile_definitions'),
+            "CUSTOM_ADDITIONAL_LINK_OPTIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_link_options'),
+            "CUSTOM_ADDITIONAL_LIBRARIES": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_libraries')
+        }
+
+        # Apply any custom cmake template variable parameters
+        custom_additional_template_map = self.platform_config.get("custom_additional_template_map", {})
+        if custom_additional_template_map:
+            # Validate that the custom map does not include reserved template variables
+            reserved_keys = self.cmake_template_env.keys()
+            for custom_template_variable in custom_additional_template_map.items():
+                if custom_template_variable[0] in reserved_keys:
+                    raise BuildError(f"Invalid entry in 'custom_additional_template_map' build config. Reserved word '{custom_template_variable[0]}' not permitted")
+                self.cmake_template_env[custom_template_variable[0]] = custom_template_variable[1]
+
 
 
     def clone_to_local(self):
@@ -956,22 +984,7 @@ class BuildInfo(object):
 
             template_file_content = self.cmake_find_template.read_text("UTF-8", "ignore")
 
-            def _build_list_str(indent, key):
-                list_items = self.platform_config.get(key, [])
-                indented_list_items = []
-                for list_item in list_items:
-                    indented_list_items.append(f'{" "*(indent*4)}{list_item}')
-                return '\n'.join(indented_list_items)
-
-            cmake_find_template_def_ident_level = self.package_info.cmake_find_template_custom_indent
-
-            template_env = {
-                "CUSTOM_ADDITIONAL_COMPILE_DEFINITIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_compile_definitions'),
-                "CUSTOM_ADDITIONAL_LINK_OPTIONS": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_link_options'),
-                "CUSTOM_ADDITIONAL_LIBRARIES": _build_list_str(cmake_find_template_def_ident_level, 'custom_additional_libraries')
-            }
-
-            find_cmake_content = string.Template(template_file_content).substitute(template_env)
+            find_cmake_content = string.Template(template_file_content).substitute(self.cmake_template_env)
 
         elif self.cmake_find_source is not None:
             find_cmake_content = self.cmake_find_source.read_text("UTF-8", "ignore")
@@ -1028,23 +1041,24 @@ class BuildInfo(object):
         pass
 
     def test_package(self):
-        has_test_commands = self.check_build_keys(['custom_test_cmd'])
-        if not has_test_commands:
+
+        custom_test_cmd = self.platform_config.get('custom_test_cmd', [])
+        if not custom_test_cmd:
             print(f"\n\nNo tests defined, skipping test phase.")
             return
 
-        print(f"\n\nRunning Tests...")
+        # Construct the custom build command to execute
+        full_custom_test_cmd = shlex.join(custom_test_cmd).format(python=sys.executable)
+        print(f"\n\nRunning custom test...")
 
-        custom_test_cmds= self.platform_config.get('custom_test_cmd', [])
-        for custom_test_cmd in custom_test_cmds:
+        call_result = subprocess.run(full_custom_test_cmd,
+                                    shell=True,
+                                    capture_output=False,
+                                    cwd=str(self.base_folder),
+                                    env=self.create_custom_env())
+        if call_result.returncode != 0:
+            raise BuildError(f"Error executing custom test command {custom_test_cmd}")
 
-            call_result = subprocess.run(custom_test_cmd,
-                                        shell=True,
-                                        capture_output=False,
-                                        cwd=str(self.base_folder),
-                                        env=self.create_custom_env())
-            if call_result.returncode != 0:
-                raise BuildError(f"Error executing custom test command {custom_test_cmd}")
         print(f"\n... Tests OK!")
 
     def execute(self):

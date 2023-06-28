@@ -5,6 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
-temp/build/bin/python3 quick_validate_python.py
+temp/build/python/bin/python3 quick_validate_python.py
 
 exit $?

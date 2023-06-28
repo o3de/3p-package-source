@@ -9,13 +9,67 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
-LIB_NAME=python3
+# This script will utilize Docker to build on either AMD64 or AARCH64 architectures. 
+
+
+DOCKER_BUILD_SCRIPT=docker_build_linux.sh
+TARGET_BUILD_FOLDER=build
+
+#
+# Collect the required arguments for this ubuntu docker-base build script
+#
+
+# Get the base docker image name
+DOCKER_IMAGE_NAME_BASE=$1
+if [ "${DOCKER_IMAGE_NAME_BASE}" == "" ]
+then
+    echo "Missing argument 1: Docker image name for this this process"
+    exit 1
+fi
+
+# Get the ubuntu base version (16.04|18.04|20.04|22.04)
+UBUNTU_BASE=$2
+if [ "${UBUNTU_BASE}" == "" ]
+then
+    echo "Missing argument 2: Ubuntu docker tag"
+    exit 1
+fi
 
 # Determine the host architecture
 CURRENT_HOST_ARCH=$(uname -m)
 
 # Use the host architecture if not supplied
-TARGET_ARCH=${1:-$(uname -m)}
+TARGET_ARCH=${3:-$(uname -m)}
+
+# Recompute the DOWNLOADED_PACKAGE_FOLDERS to apply to $WORKSPACE/temp inside the Docker script 
+DEP_PACKAGES_FOLDERNAMES_ONLY=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER\//}
+DEP_PACKAGES_DOCKER_FOLDERNAMES=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER/"/data/workspace/temp"}
+
+echo "Executing docker-based build from the following arguments"
+echo "    DOCKER_IMAGE_NAME_BASE     = ${DOCKER_IMAGE_NAME_BASE}"
+echo "    UBUNTU_BASE                = ${UBUNTU_BASE}"
+echo "    DOCKER_BUILD_SCRIPT        = ${DOCKER_BUILD_SCRIPT}"
+echo "    TARGET_BUILD_FOLDER        = ${TARGET_BUILD_FOLDER}"
+echo "    TARGET_ARCH                = ${TARGET_ARCH}"
+echo "    TEMP_FOLDER                = ${TEMP_FOLDER}"
+echo "    DOWNLOADED_PACKAGE_FOLDERS = ${DEP_PACKAGES_FOLDERNAMES_ONLY}"
+
+
+#
+# Make sure docker is installed
+#
+DOCKER_VERSION=$(docker --version)
+if [ $? -ne 0 ]
+then
+    echo "Required package docker is not installed"
+    echo "Follow instructions on https://docs.docker.com/engine/install/ubuntu/ to install docker properly"
+    exit 1
+fi
+echo "Detected Docker Version $DOCKER_VERSION"
+
+# 
+# Check the target architecture and determine if the necessary cross compilation requirements are met
+#
 
 # If the host and target architecture does not match, make sure the necessary cross compilation packages are installed
 if [ "${CURRENT_HOST_ARCH}" != ${TARGET_ARCH} ]
@@ -57,33 +111,31 @@ else
     echo "Building ${TARGET_ARCH} natively."
 fi
 
-# Setup the docker arguments for the target architecture
+
+# Setup the docker arguments 
 if [ "${TARGET_ARCH}" = "x86_64" ]
 then
-    echo "Processing Docker for x86_64"
-    TARGET_DOCKER_FILE=Dockerfile.x86_64
+    echo "Processing Docker for amd64"
+
+    DOCKER_INPUT_ARCHITECTURE=amd64
     TARGET_DOCKER_PLATFORM_ARG=linux/amd64
-    DOCKER_IMAGE_NAME=${LIB_NAME}_linux_3p
+
 elif [ "${TARGET_ARCH}" = "aarch64" ] 
 then
     echo "Processing Docker for aarch64"
-    TARGET_DOCKER_FILE=Dockerfile.aarch64
+
+    DOCKER_INPUT_ARCHITECTURE=arm64v8
     TARGET_DOCKER_PLATFORM_ARG=linux/arm64/v8
-    DOCKER_IMAGE_NAME=${LIB_NAME}_linux_aarch64_3p
+
 else
     echo "Unsupported architecture ${TARGET_ARCH}"
     exit 1
 fi
 
-# Make sure docker is installed
-DOCKER_VERSION=$(docker --version)
-if [ $? -ne 0 ]
-then
-    echo "Required package docker is not installed"
-    echo "Follow instructions on https://docs.docker.com/engine/install/ubuntu/ to install docker properly"
-    exit 1
-fi
-echo "Detected Docker Version $DOCKER_VERSION"
+# 
+# Prepare the docker base context based on ${TEMP_FOLDER} 
+mkdir -p ${TEMP_FOLDER}
+cp -f ${DOCKER_BUILD_SCRIPT} ${TEMP_FOLDER}/
 
 DOCKER_BUILD_SCRIPT=docker_build_linux.sh
 
@@ -93,20 +145,57 @@ then
     exit 1
 fi
 
-# Prepare the docker file and use the temp folder as the context root
-cp -f ${DOCKER_BUILD_SCRIPT} temp/
+# Build the Docker Image 
+DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME_BASE}_${DOCKER_INPUT_ARCHITECTURE}_3p
+echo DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}
 
-pushd temp
+echo "Building the docker build script for ${DOCKER_IMAGE_NAME_BASE} on ${DOCKER_INPUT_ARCHITECTURE} for Ubuntu $1"
+echo ""
 
-# Build the Docker Image
-echo "Building the docker build script for ${DOCKER_IMAGE_NAME}"
-docker build --build-arg DOCKER_BUILD_SCRIPT=$DOCKER_BUILD_SCRIPT -f ../${TARGET_DOCKER_FILE} -t ${DOCKER_IMAGE_NAME}:latest . 
+CMD_DOCKER_BUILD="\
+docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT}\
+ --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE}\
+ --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE}\
+ --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=\"${DEP_PACKAGES_DOCKER_FOLDERNAMES}\"\
+ -f Dockerfile.linux -t ${DOCKER_IMAGE_NAME}:latest temp"
+
+echo $CMD_DOCKER_BUILD
+eval $CMD_DOCKER_BUILD
+
 if [ $? -ne 0 ]
 then
     echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." 
     exit 1
 fi
 
+# Prepare the target build folder to copy from the docker container on successful run of the docker script
+INSTALL_PACKAGE_PATH=${TEMP_FOLDER}/${TARGET_BUILD_FOLDER}/
+
+# Run the build script in the docker image
+echo "Running build script in the docker image ${DOCKER_IMAGE_NAME}"
+echo ""
+CMD_DOCKER_RUN="\
+docker run --platform ${TARGET_DOCKER_PLATFORM_ARG}\
+ --tty\
+ -v ${TEMP_FOLDER}:/data/workspace/temp:ro\
+ ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}"
+
+echo $CMD_DOCKER_RUN
+eval $CMD_DOCKER_RUN
+
+if [ $? -ne 0 ]
+then
+    echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
+    echo "To log into and troubleshoot the docker container, run the following command:"
+    echo ""
+    echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty -v ${TEMP_FOLDER}:/data/workspace/temp:ro ${DOCKER_IMAGE_NAME}:latest"
+    echo ""
+    exit 1
+fi
+
+echo "Build Complete"
+
+# Copy the build artifacts from the docker image
 
 # Capture the Docker Image ID
 IMAGE_ID=$(docker images -q ${DOCKER_IMAGE_NAME}:latest)
@@ -115,21 +204,6 @@ then
     echo "Error: Cannot find Image ID for ${DOCKER_IMAGE_NAME}"
     exit 1
 fi
-
-
-# Run the Docker Image
-echo "Running build script in the docker image"
-docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}
-if [ $? -ne 0 ]
-then
-    echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
-    echo "To log into and troubleshoot the docker container, run the following command:"
-    echo ""
-    echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty ${DOCKER_IMAGE_NAME}:latest"
-    echo ""
-    exit 1
-fi
-
 
 # Capture the container ID
 echo "Capturing the Container ID"
@@ -140,25 +214,20 @@ then
     exit 1
 fi
 
+DOCKER_BUILD_ROOT=/data/workspace/${TARGET_BUILD_FOLDER}
 
-# Copy the build artifacts from the Docker Container
-echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
 
-mkdir -p build
-docker cp $CONTAINER_ID:/data/workspace/package/python/. build  
+rm -rf ${INSTALL_PACKAGE_PATH}
+mkdir -p ${INSTALL_PACKAGE_PATH}
+
+echo "Copying from $CONTAINER_ID:${DOCKER_BUILD_ROOT} to ${TEMP_FOLDER}/"
+docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}  ${TEMP_FOLDER}/ 
 if [ $? -ne 0 ]
 then
-    echo "Error occurred copying build artifacts from Docker container ($CONTAINER_ID)" 
+    echo "Error copying build from docker image ${DOCKER_IMAGE_NAME}:latest." 
     exit 1
 fi
 
-# Clean up the docker image and container
-echo "Cleaning up container"
-docker container rm $CONTAINER_ID || (echo "Warning: unable to clean up container for image ${DOCKER_IMAGE_NAME}")
-
-echo "Cleaning up image"
-docker rmi --force $IMAGE_ID  || (echo "Warning: unable to clean up image ${DOCKER_IMAGE_NAME}")
-
-popd
+echo "Built ${DOCKER_IMAGE_NAME_BASE} into ${INSTALL_PACKAGE_PATH} successfully"
 
 exit 0

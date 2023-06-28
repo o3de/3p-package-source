@@ -40,16 +40,24 @@ RUN apt-get clean && apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-configuration
 
 # Install the development packages needed to build AWS Gamelift
-RUN apt-get install -y build-essential \
-                       git \
+RUN apt-get install -y autoconf \
+                       build-essential \
                        cmake \
-                       python3
+                       git \
+                       libbz2-dev \
+                       libgdbm-compat-dev \
+                       libgdbm-dev \
+                       liblzma-dev \
+                       libreadline-dev \
+                       libtool \
+                       python3 \
+                       tcl8.6-dev \
+                       tk8.6-dev \
+                       texinfo \
+                       curl
 
 # Prevent the copying of the src folder from being cached
 ARG CACHEBUST=1
 
 # Copy the build script specific to this Docker script in order to execute the build
 COPY ${INPUT_DOCKER_BUILD_SCRIPT} /data/workspace/
-
-
-

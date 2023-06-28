@@ -7,9 +7,10 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 
-# This script will utilize Docker to build on either AMD64 or AARCH64 architectures. 
+# This script will utilize Docker to build on either AMD64 or AARCH64 architectures. The script will 
+# also build on both Ubuntu based docker images
 
-DOCKER_BUILD_SCRIPT=docker_build_linux.sh
+DOCKER_BUILD_SCRIPT=docker_build_openssl.sh
 TARGET_BUILD_FOLDER=build
 
 #
@@ -20,11 +21,11 @@ TARGET_BUILD_FOLDER=build
 DOCKER_IMAGE_NAME_BASE=$1
 if [ "${DOCKER_IMAGE_NAME_BASE}" == "" ]
 then
-    echo "Missing argument 1: Docker image name for this process"
+    echo "Missing argument 1: Docker image name for this this process"
     exit 1
 fi
 
-# Get the ubuntu base version (20.04|22.04)
+# Get the ubuntu base version (16.04|18.04|20.04|22.04)
 UBUNTU_BASE=$2
 if [ "${UBUNTU_BASE}" == "" ]
 then
@@ -32,25 +33,20 @@ then
     exit 1
 fi
 
+
 # Determine the host architecture
 CURRENT_HOST_ARCH=$(uname -m)
 
 # Use the host architecture if not supplied
 TARGET_ARCH=${3:-$(uname -m)}
 
-# Recompute the DOWNLOADED_PACKAGE_FOLDERS to apply to $WORKSPACE/temp inside the Docker script 
-DEP_PACKAGES_FOLDERNAMES_ONLY=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER\//}
-DEP_PACKAGES_DOCKER_FOLDERNAMES=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER/"/data/workspace/temp"}
-
 echo "Executing docker-based build from the following arguments"
-echo "    DOCKER_IMAGE_NAME_BASE     = ${DOCKER_IMAGE_NAME_BASE}"
-echo "    UBUNTU_BASE                = ${UBUNTU_BASE}"
-echo "    DOCKER_BUILD_SCRIPT        = ${DOCKER_BUILD_SCRIPT}"
-echo "    TARGET_BUILD_FOLDER        = ${TARGET_BUILD_FOLDER}"
-echo "    TARGET_ARCH                = ${TARGET_ARCH}"
-echo "    TEMP_FOLDER                = ${TEMP_FOLDER}"
-echo "    DOWNLOADED_PACKAGE_FOLDERS = ${DEP_PACKAGES_FOLDERNAMES_ONLY}"
-
+echo "    DOCKER_IMAGE_NAME_BASE=${DOCKER_IMAGE_NAME_BASE}"
+echo "    UBUNTU_BASE=${UBUNTU_BASE}"
+echo "    DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT}"
+echo "    TARGET_BUILD_FOLDER=${TARGET_BUILD_FOLDER}"
+echo "    TARGET_ARCH=${TARGET_ARCH}"
+echo ""
 
 
 #
@@ -130,10 +126,12 @@ else
     exit 1
 fi
 
+
 # 
 # Prepare the docker base context based on ${TEMP_FOLDER} 
 mkdir -p ${TEMP_FOLDER}
 cp -f ${DOCKER_BUILD_SCRIPT} ${TEMP_FOLDER}/
+
 
 echo "Building on ubuntu public.ecr.aws/ubuntu/ubuntu:${UBUNTU_BASE}"
 
@@ -143,16 +141,14 @@ echo DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}
 
 echo "Building the docker build script for ${DOCKER_IMAGE_NAME_BASE} on ${DOCKER_INPUT_ARCHITECTURE} for Ubuntu $1"
 echo ""
-
 CMD_DOCKER_BUILD="\
 docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT}\
  --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE}\
  --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE}\
- --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=${DEP_PACKAGES_DOCKER_FOLDERNAMES}\
- -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp "
-
-echo $CMD_DOCKER_BUILD
-eval $CMD_DOCKER_BUILD
+ --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=${DOWNLOADED_PACKAGE_FOLDERS}\
+ -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp"
+ echo ${CMD_DOCKER_BUILD}
+ eval ${CMD_DOCKER_BUILD}
 if [ $? -ne 0 ]
 then
     echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." 
@@ -165,21 +161,19 @@ INSTALL_PACKAGE_PATH=${TEMP_FOLDER}/${TARGET_BUILD_FOLDER}/
 # Run the build script in the docker image
 echo "Running build script in the docker image ${DOCKER_IMAGE_NAME}"
 echo ""
-
 CMD_DOCKER_RUN="\
-docker run --platform ${TARGET_DOCKER_PLATFORM_ARG}\
- --tty\
- -v ${TEMP_FOLDER}:/data/workspace/temp:ro\
- ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}"
-
-echo $CMD_DOCKER_RUN
-eval $CMD_DOCKER_RUN
+docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} \
+  --tty \
+  -v ${TEMP_FOLDER}:/data/workspace/temp:ro \
+  ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}"
+echo ${CMD_DOCKER_RUN}
+eval ${CMD_DOCKER_RUN}
 if [ $? -ne 0 ]
 then
     echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest
     echo "To log into and troubleshoot the docker container, run the following command:"
     echo ""
-    echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -it --tty -v ${TEMP_FOLDER}:/data/workspace/temp:ro ${DOCKER_IMAGE_NAME}:latest"
+    echo "docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} -v ${TEMP_FOLDER}:/data/workspace/temp:ro -it --tty ${DOCKER_IMAGE_NAME}:latest"
     echo ""
     exit 1
 fi
@@ -211,7 +205,7 @@ DOCKER_BUILD_ROOT=/data/workspace/${TARGET_BUILD_FOLDER}
 rm -rf ${INSTALL_PACKAGE_PATH}
 mkdir -p ${INSTALL_PACKAGE_PATH}
 
-echo "Copying from $CONTAINER_ID:${DOCKER_BUILD_ROOT} to ${TEMP_FOLDER}/"
+echo "Copying from $CONTAINER_ID:${DOCKER_BUILD_ROOT} to ${${TEMP_FOLDER}}/"
 docker cp $CONTAINER_ID:${DOCKER_BUILD_ROOT}  ${TEMP_FOLDER}/ 
 if [ $? -ne 0 ]
 then

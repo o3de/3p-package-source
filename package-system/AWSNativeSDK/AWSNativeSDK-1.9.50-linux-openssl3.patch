@@ -1,5 +1,33 @@
+diff --git a/aws-cpp-sdk-core/CMakeLists.txt b/aws-cpp-sdk-core/CMakeLists.txt
+index 17b4e46442..f71a925288 100644
+--- a/aws-cpp-sdk-core/CMakeLists.txt
++++ b/aws-cpp-sdk-core/CMakeLists.txt
+@@ -100,7 +100,22 @@ include(CheckCXXSourceRuns)
+ if(ENABLE_CURL_CLIENT)
+     file(GLOB HTTP_CURL_CLIENT_HEADERS "include/aws/core/http/curl/*.h")
+     file(GLOB HTTP_CURL_CLIENT_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/source/http/curl/*.cpp")
+-    set(CMAKE_REQUIRED_LIBRARIES ${CURL_LIBRARIES})
++
++    set(CMAKE_REQUIRED_INCLUDES ${CURL_INCLUDE_DIR})
++
++    set(REQUIRED_CURL_TEST_LIBRARIES ${CURL_LIBRARIES})
++
++    get_filename_component(DEP_CURL_FILE_EXTN ${CURL_LIBRARY} EXT)
++
++    if(DEP_CURL_FILE_EXTN STREQUAL ".a")
++        message("Adding additional static dependencies for curl")
++        LIST(APPEND REQUIRED_CURL_TEST_LIBRARIES ${OPENSSL_LIBRARIES})
++        LIST(APPEND REQUIRED_CURL_TEST_LIBRARIES ${ZLIB_LIBRARIES})
++        SET(CMAKE_REQUIRED_FLAGS "-pthread -ldl")
++    endif()
++
++    set(CMAKE_REQUIRED_LIBRARIES ${REQUIRED_CURL_TEST_LIBRARIES})
++
+     set(CHECK_CURL_HAS_H2 "
+     #include <curl/curl.h>
+     int main() {
 diff --git a/aws-cpp-sdk-core/source/utils/crypto/openssl/CryptoImpl.cpp b/aws-cpp-sdk-core/source/utils/crypto/openssl/CryptoImpl.cpp
-index 3855dda43e..87c75f2db1 100644
+index af3e33e045..228625417e 100644
 --- a/aws-cpp-sdk-core/source/utils/crypto/openssl/CryptoImpl.cpp
 +++ b/aws-cpp-sdk-core/source/utils/crypto/openssl/CryptoImpl.cpp
 @@ -51,6 +51,11 @@ namespace Aws
@@ -14,7 +42,7 @@ index 3855dda43e..87c75f2db1 100644
  
  #if OPENSSL_VERSION_LESS_1_1
                  static const char* OPENSSL_INTERNALS_TAG = "OpenSSLCallbackState";
-@@ -412,8 +417,11 @@ namespace Aws
+@@ -328,8 +333,11 @@ namespace Aws
                  HMACRAIIGuard() {
  #if OPENSSL_VERSION_LESS_1_1
                      m_ctx = Aws::New<HMAC_CTX>("AllocSha256HAMCOpenSSLContext");
@@ -27,7 +55,7 @@ index 3855dda43e..87c75f2db1 100644
  #endif
                      assert(m_ctx != nullptr);
                  }
-@@ -421,17 +429,28 @@ namespace Aws
+@@ -337,17 +345,28 @@ namespace Aws
                  ~HMACRAIIGuard() {
  #if OPENSSL_VERSION_LESS_1_1
                      Aws::Delete<HMAC_CTX>(m_ctx);
@@ -57,7 +85,7 @@ index 3855dda43e..87c75f2db1 100644
              };
  
              HashResult Sha256HMACOpenSSLImpl::Calculate(const ByteBuffer& toSign, const ByteBuffer& secret)
-@@ -441,20 +460,36 @@ namespace Aws
+@@ -357,20 +376,36 @@ namespace Aws
                  memset(digest.GetUnderlyingData(), 0, length);
  
                  HMACRAIIGuard guard;

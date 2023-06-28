@@ -21,35 +21,32 @@ ARG INPUT_DOCKER_BUILD_SCRIPT=build.sh
 # The optional environment variable for list of folders in the mapped temp folders that represent additional 3P dependent packages
 ARG INPUT_DEPENDENT_PACKAGE_FOLDERS
 
+
 FROM ${INPUT_ARCHITECTURE}/${INPUT_IMAGE}
 
 ARG INPUT_DOCKER_BUILD_SCRIPT
 ARG INPUT_BUILD_FOLDER
-ARG INPUT_DEPENDENT_PACKAGE_FOLDERS
 
 ENV WORKSPACE=/data/workspace
 ENV DOCKER_BUILD_PATH=$WORKSPACE/$INPUT_BUILD_FOLDER
 ENV DOWNLOADED_PACKAGE_FOLDERS=$INPUT_DEPENDENT_PACKAGE_FOLDERS
 
+
 WORKDIR $WORKSPACE
 
-# Initilize apt cache
+# Initialize apt cache
 RUN apt-get clean && apt-get update
 
 # Setup time zone and locale data (necessary for SSL and HTTPS packages)
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-configuration
 
-# Install the development packages needed to build AWS Gamelift
+# Install the development packages needed to build AWS Native C++ SDK
 RUN apt-get install -y build-essential \
-                       git \
-                       cmake \
-                       python3
+                       autoconf \
+                       libtool
 
 # Prevent the copying of the src folder from being cached
 ARG CACHEBUST=1
 
 # Copy the build script specific to this Docker script in order to execute the build
 COPY ${INPUT_DOCKER_BUILD_SCRIPT} /data/workspace/
-
-
-
