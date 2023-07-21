@@ -58,8 +58,6 @@ fi
 # Copy the sdformat include folder
 copy_folder_to_target include
 
-# Copy the bin folder
-# copy_folder_to_target bin
 
 # Copy the sdformat lib folder
 copy_folder_to_target lib
@@ -67,7 +65,7 @@ copy_folder_to_target lib
 # Copy the dependent libraries include files for sdformat (tinyxml2, gz-utils, gz-math)
 # exclude the gz-cmake folder, since it is not needed to use the library.
 
-# Change directory to the dependency install path so that `find`` can use relative paths
+# Change directory to the dependency install path so that `find` can use relative paths
 pushd ${DEP_INSTALL_PATH}/include > /dev/null
 # Use cp --parents to preserve the directory structure
 # Skip copying directories via the `find -not -type d` command

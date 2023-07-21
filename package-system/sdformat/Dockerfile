@@ -36,7 +36,7 @@ ARG INPUT_DEP_TINYXML2_GIT_TAG=9.0.0
 # Pinning to the gz-math7 release which libsdformat has a dependency on
 ARG INPUT_DEP_GZ_MATH_GIT_TAG=gz-math7_7.2.0
 # Pinning to the gz-utils2 to the last release in September 2022
-# The libsdformat has an explicit dependencyt on gz-utils2
+# The libsdformat has an explicit dependency on gz-utils2
 ARG INPUT_DEP_GZ_UTILS_GIT_TAG=gz-utils2_2.0.0
 
 
@@ -48,7 +48,7 @@ ARG GROUP_ID
 ARG INPUT_BUILD_FOLDER=build
 
 # The install subfolder where binary artifacts are copied to
-# It is being copied to /data/workspace/temp/instaall
+# It is being copied to /data/workspace/temp/install
 # which is a local filesystem mounted on the user machine
 ARG INPUT_INSTALL_FOLDER=install
 
@@ -74,7 +74,7 @@ RUN apt-get install -y build-essential \
                        ruby
 
 
-# Add a user called "user" that will inside the docker
+# Add a user called "user" that will be used inside the docker
 # It will have the same UID and GID as the outside user
 RUN addgroup --gid $GROUP_ID user && \
     adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user

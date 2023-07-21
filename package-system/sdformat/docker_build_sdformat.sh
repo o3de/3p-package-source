@@ -182,6 +182,9 @@ if [ -d ${BUILD_FOLDER} ]; then
     rm -rf ${BUILD_FOLDER}
 fi
 
+# When building sdformat, set it to use its internal copy of urdfdom for parsing urdf files
+# instead of relying on an externally-installed package.
+# This keeps the dependencies self-contained.
 echo "Configuring ${LIB_NAME}"
 CMD="cmake -B ${BUILD_FOLDER} -S. -DUSE_INTERNAL_URDF=ON -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_FOLDER} -DCMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH}\""
 echo $CMD
