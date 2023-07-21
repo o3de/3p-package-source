@@ -1,0 +1,48 @@
+{
+   "git_url":"https://github.com/gazebosim/sdformat.git",
+   "git_tag":"sdformat13_13.5.0",
+   "package_name":"sdformat",
+   "package_version":"13.5.0-rev0",
+   "package_url":"https://github.com/gazebosim/sdformat.git",
+   "package_license":"MIT",
+   "package_license_file":"LICENSE",
+   "cmake_find_target":"Findsdformat.cmake",
+   "Platforms":{
+      "Linux":{
+         "Linux":{
+            "cmake_find_template":"Findsdformat.cmake.template",
+            "custom_build_cmd": [
+               "./build-host-os.sh",
+               "x86_64",
+               "sdformat13",
+               "20.04"
+            ],
+            "custom_install_cmd": [
+               "./install-linux.sh",
+               "install"
+            ],
+            "custom_test_cmd" : [
+               "./test-linux.sh",
+               "x86_64"
+            ]
+         },
+         "Linux-aarch64":{
+            "cmake_find_template":"Findsdformat.cmake.template",
+            "custom_build_cmd": [
+               "./build-host-os.sh",
+               "aarch64",
+               "sdformat13",
+               "20.04"
+            ],
+            "custom_install_cmd": [
+               "./install-linux.sh",
+               "install"
+            ],
+            "custom_test_cmd" : [
+               "./test-linux.sh",
+               "aarch64"
+            ]
+         }
+      }
+   }
+}

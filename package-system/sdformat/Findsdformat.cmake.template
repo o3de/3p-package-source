@@ -1,0 +1,152 @@
+#
+# Copyright (c) Contributors to the Open 3D Engine Project.
+# For complete copyright and license terms please see the LICENSE at the root of this distribution.
+#
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+#
+
+set(LIB_NAME "sdformat")
+set(LIB_VERSION_FULL 13.5.0)
+set(LIB_VERSION_MAJOR 13)
+
+set(SDFORMAT_O3DE_NAMESPACE "3rdParty::$${LIB_NAME}")
+if (TARGET $${SDFORMAT_O3DE_NAMESPACE})
+    return()
+endif()
+
+# if we're not in O3DE, it's also extremely helpful to show a message to logs that indicate that this
+# library was successfully picked up, as opposed to the system one.
+# A good way to know if you're in O3DE or not is that O3DE sets various cache variables before
+# calling find_package, specifically, O3DE_ENGINE_NAME is always set very early:
+if (NOT O3DE_ENGINE_NAME)
+    message(STATUS "Using O3DE's sdformat library from $${CMAKE_CURRENT_LIST_DIR}")
+endif()
+
+set($${LIB_NAME}_INCLUDE_DIR_ROOT $${CMAKE_CURRENT_LIST_DIR}/$${LIB_NAME}/include)
+set($${LIB_NAME}_INCLUDE_DIRECTORIES $${$${LIB_NAME}_INCLUDE_DIR_ROOT}
+    $${$${LIB_NAME}_INCLUDE_DIR_ROOT}/gz/$${LIB_NAME}$${LIB_VERSION_MAJOR})
+set($${LIB_NAME}_LIBS_DIR $${CMAKE_CURRENT_LIST_DIR}/$${LIB_NAME}/lib)
+set($${LIB_NAME}_LIBRARY_RELEASE $${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${LIB_NAME}$${LIB_VERSION_MAJOR}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${LIB_VERSION_FULL})
+
+add_library($${SDFORMAT_O3DE_NAMESPACE} SHARED IMPORTED GLOBAL)
+# If the find script is being called in an O3DE context use
+# the `ly_target_include_system_directories` function
+if(COMMAND ly_target_include_system_directories)
+    ly_target_include_system_directories(TARGET $${SDFORMAT_O3DE_NAMESPACE}
+        INTERFACE $${$${LIB_NAME}_INCLUDE_DIRECTORIES})
+else()
+    target_include_directories($${SDFORMAT_O3DE_NAMESPACE} SYSTEM
+        INTERFACE $${$${LIB_NAME}_INCLUDE_DIRECTORIES})
+endif()
+
+set_target_properties($${SDFORMAT_O3DE_NAMESPACE} PROPERTIES
+    IMPORTED_LOCATION $${$${LIB_NAME}_LIBRARY_RELEASE}
+)
+
+# If this Find script is run in context of O3DE,
+# make sure to copy over the symlinks as well to the cmake binary directory
+if (COMMAND ly_add_target_files)
+    ly_add_target_files(TARGETS $${SDFORMAT_O3DE_NAMESPACE}
+        FILES
+            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${LIB_NAME}$${LIB_VERSION_MAJOR}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${LIB_VERSION_MAJOR}"
+            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${LIB_NAME}$${LIB_VERSION_MAJOR}$${CMAKE_SHARED_LIBRARY_SUFFIX}")
+endif()
+
+# Add the tinyxml2 dependency
+set(tinyxml2_libname "tinyxml2")
+set(tinyxml2_include_directories "$${$${LIB_NAME}_INCLUDE_DIR_ROOT}")
+# Tinyxml2 is built as a STATIC library
+set(tinyxml2_lib_release "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_STATIC_LIBRARY_PREFIX}$${tinyxml2_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
+# Add the 3rdParty::tinyxml2 target STATIC library
+set(tinyxml2_target "tinyxml2")
+set(tinyxml2_target_namespace "3rdParty::$${tinyxml2_target}")
+add_library($${tinyxml2_target_namespace} STATIC IMPORTED GLOBAL)
+# Add the include directories to the 3rdParty::tinyxml2 target
+if(COMMAND ly_target_include_system_directories)
+    ly_target_include_system_directories(TARGET $${tinyxml2_target_namespace}
+        INTERFACE $${tinyxml2_include_directories})
+else()
+    target_include_directories($${tinyxml2_target_namespace} SYSTEM
+        INTERFACE $${tinyxml2_include_directories})
+endif()
+
+# Associate the libtinyxml2.a file with the library location
+set_target_properties($${tinyxml2_target_namespace} PROPERTIES
+    IMPORTED_LOCATION $${tinyxml2_lib_release})
+
+# Add the gz-utils dependency
+set(gz_utils_raw_name "utils2")
+set(gz_utils_version_full "2.0.0")
+set(gz_utils_version_major "2")
+set(gz_utils_libname "gz-$${gz_utils_raw_name}")
+set(gz_utils_include_directories "$${$${LIB_NAME}_INCLUDE_DIR_ROOT}/gz/$${gz_utils_raw_name}")
+# gz-utils is built as a SHARED library
+set(gz_utils_lib_release "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_utils_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${gz_utils_version_full}")
+
+# Add the 3rdParty::gz-utils target library
+set(gz_utils_target "gz-utils")
+set(gz_utils_target_namespace "3rdParty::$${gz_utils_target}")
+add_library($${gz_utils_target_namespace} STATIC IMPORTED GLOBAL)
+# Add the include directories to the 3rdParty::gz-utils target
+if(COMMAND ly_target_include_system_directories)
+    ly_target_include_system_directories(TARGET $${gz_utils_target_namespace}
+        INTERFACE $${gz_utils_include_directories})
+else()
+    target_include_directories($${gz_utils_target_namespace} SYSTEM
+        INTERFACE $${gz_utils_include_directories})
+endif()
+
+# Associate the libgz-utils2.so file with the library location
+set_target_properties($${gz_utils_target_namespace} PROPERTIES
+    IMPORTED_LOCATION $${gz_utils_lib_release})
+
+if (COMMAND ly_add_target_files)
+    ly_add_target_files(TARGETS $${gz_utils_target_namespace}
+        FILES
+            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_utils_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${gz_utils_version_major}"
+            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_utils_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}")
+endif()
+
+# Add the gz-math dependency
+set(gz_math_raw_name "math7")
+set(gz_math_version_full "7.2.0")
+set(gz_math_version_major "7")
+set(gz_math_libname "gz-$${gz_math_raw_name}")
+set(gz_math_include_directories "$${$${LIB_NAME}_INCLUDE_DIR_ROOT}/gz/$${gz_math_raw_name}")
+# gz-math is built as a SHARED library
+set(gz_math_lib_release "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_math_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${gz_math_version_full}")
+
+# Add the 3rdParty::gz-math target library
+set(gz_math_target "gz-math")
+set(gz_math_target_namespace "3rdParty::$${gz_math_target}")
+add_library($${gz_math_target_namespace} STATIC IMPORTED GLOBAL)
+# Add the include directories to the 3rdParty::gz-math target
+if(COMMAND ly_target_include_system_directories)
+    ly_target_include_system_directories(TARGET $${gz_math_target_namespace}
+        INTERFACE $${gz_math_include_directories})
+else()
+    target_include_directories($${gz_math_target_namespace} SYSTEM
+        INTERFACE $${gz_math_include_directories})
+endif()
+
+# Associate the libgz-math2.so file with the library location
+set_target_properties($${gz_math_target_namespace} PROPERTIES
+    IMPORTED_LOCATION $${gz_math_lib_release})
+
+if (COMMAND ly_add_target_files)
+    ly_add_target_files(TARGETS $${gz_math_target_namespace}
+        FILES
+            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_math_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${gz_math_version_major}"
+            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_math_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}")
+endif()
+
+# Add the dependent libraries as target_link_libraries
+target_link_libraries($${SDFORMAT_O3DE_NAMESPACE}
+    INTERFACE
+        $${tinyxml_target_namespace}
+        $${gz_utils_target_namespace}
+        $${gz_math_target_namespace})
+
+set($${LIB_NAME}_FOUND True)
