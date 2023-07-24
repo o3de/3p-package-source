@@ -128,9 +128,6 @@ then
     exit 1
 fi
 
-# Prepare the target build folder to copy from the docker container on successful run of the docker script
-INSTALL_PACKAGE_PATH=${TEMP_FOLDER}/${TARGET_INSTALL_FOLDER}/
-
 # Run the build script in the docker image
 echo "Running build script in the docker image ${DOCKER_IMAGE_NAME}:latest"
 echo ""
@@ -153,10 +150,5 @@ then
 fi
 
 echo "Build Complete"
-
-# Copy the build artifacts from the docker image
-
-
-echo "Built ${DOCKER_IMAGE_NAME_BASE} into ${INSTALL_PACKAGE_PATH} successfully"
 
 exit 0

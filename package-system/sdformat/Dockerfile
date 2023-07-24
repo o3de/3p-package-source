@@ -25,7 +25,7 @@ FROM ${INPUT_ARCHITECTURE}/${INPUT_IMAGE}
 # of the image
 
 # The name of the build script to copy to the docker image to execute
-ARG INPUT_DOCKER_BUILD_SCRIPT=build.sh
+ARG INPUT_DOCKER_BUILD_SCRIPT=docker_build_sdformat.sh
 
 # The optional environment variable for list of folders in the mapped temp folders that represent additional 3P dependent packages
 ARG INPUT_DEPENDENT_PACKAGE_FOLDERS

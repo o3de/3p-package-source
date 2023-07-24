@@ -8,7 +8,7 @@
 #
 
 # The function below is used to check if the docker application
-# is installed via checking the ArchLinux package manager
+# is installed via checking the Ubuntu package manager
 function check_docker_requirements()
 {
     echo "Checking cross compiling requirements."
@@ -48,4 +48,4 @@ function check_docker_requirements()
     fi
 }
 
-source ./build_linux.sh "$@" "check_docker_requirements"
+source ./build-linux.sh "$@" "check_docker_requirements"
