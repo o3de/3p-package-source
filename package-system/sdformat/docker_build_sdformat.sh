@@ -22,6 +22,8 @@ fi
 # Set the install path from the DOCKER_INSTALL_PATH argument
 INSTALL_FOLDER=${DOCKER_INSTALL_PATH}
 
+BUILD_TYPE=${CMAKE_BUILD_TYPE}
+
 # Stores array of each installed dependency after building locally
 DEP_INSTALL_PATHS=()
 
@@ -45,7 +47,7 @@ DEP_INSTALL_PATHS+=( $GZ_TINYXML2_INSTALL_FOLDER )
 pushd $GZ_TINYXML2_SRC_FOLDER
 
 echo "Configuring $DEP_NAME"
-CMD="cmake -B ${GZ_TINYXML2_BUILD_FOLDER} -S. -DCMAKE_INSTALL_PREFIX=${GZ_TINYXML2_INSTALL_FOLDER} -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+CMD="cmake -B ${GZ_TINYXML2_BUILD_FOLDER} -S. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${GZ_TINYXML2_INSTALL_FOLDER} -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -55,7 +57,7 @@ then
 fi
 
 echo "Building and installing $DEP_NAME"
-CMD="cmake --build $GZ_TINYXML2_BUILD_FOLDER --target install --config Release"
+CMD="cmake --build $GZ_TINYXML2_BUILD_FOLDER --target install --config ${BUILD_TYPE}"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -79,7 +81,7 @@ DEP_INSTALL_PATHS+=( $GZ_CMAKE_INSTALL_FOLDER )
 pushd $GZ_CMAKE_SRC_FOLDER
 
 echo "Configuring $DEP_NAME"
-CMD="cmake -B ${GZ_CMAKE_BUILD_FOLDER} -S. -DCMAKE_INSTALL_PREFIX=${GZ_CMAKE_INSTALL_FOLDER} -DBUILD_TESTING=OFF"
+CMD="cmake -B ${GZ_CMAKE_BUILD_FOLDER} -S. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${GZ_CMAKE_INSTALL_FOLDER} -DBUILD_TESTING=OFF"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -89,7 +91,7 @@ then
 fi
 
 echo "Building and installing $DEP_NAME"
-CMD="cmake --build $GZ_CMAKE_BUILD_FOLDER --target install --config Release"
+CMD="cmake --build $GZ_CMAKE_BUILD_FOLDER --target install --config ${BUILD_TYPE}"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -113,7 +115,7 @@ DEP_INSTALL_PATHS+=( $GZ_UTILS_INSTALL_FOLDER )
 pushd $GZ_UTILS_SRC_FOLDER
 
 echo "Configuring $DEP_NAME"
-CMD="cmake -B ${GZ_UTILS_BUILD_FOLDER} -S. -DCMAKE_INSTALL_PREFIX=${GZ_UTILS_INSTALL_FOLDER} -DBUILD_TESTING=OFF"
+CMD="cmake -B ${GZ_UTILS_BUILD_FOLDER} -S. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${GZ_UTILS_INSTALL_FOLDER} -DBUILD_TESTING=OFF"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -123,7 +125,7 @@ then
 fi
 
 echo "Building and installing $DEP_NAME"
-CMD="cmake --build $GZ_UTILS_BUILD_FOLDER --target install --config Release"
+CMD="cmake --build $GZ_UTILS_BUILD_FOLDER --target install --config ${BUILD_TYPE}"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -146,7 +148,7 @@ DEP_INSTALL_PATHS+=( $GZ_MATH_INSTALL_FOLDER )
 pushd $GZ_MATH_SRC_FOLDER
 
 echo "Configuring $DEP_NAME"
-CMD="cmake -B ${GZ_MATH_BUILD_FOLDER} -S. -DCMAKE_INSTALL_PREFIX=${GZ_MATH_INSTALL_FOLDER} -DSKIP_SWIG=ON -DSKIP_PYBIND11=ON -DBUILD_TESTING=OFF"
+CMD="cmake -B ${GZ_MATH_BUILD_FOLDER} -S. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${GZ_MATH_INSTALL_FOLDER} -DSKIP_SWIG=ON -DSKIP_PYBIND11=ON -DBUILD_TESTING=OFF"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -156,7 +158,7 @@ then
 fi
 
 echo "Building and installing $DEP_NAME"
-CMD="cmake --build $GZ_MATH_BUILD_FOLDER --target install --config Release"
+CMD="cmake --build $GZ_MATH_BUILD_FOLDER --target install --config ${BUILD_TYPE}"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -186,7 +188,7 @@ fi
 # instead of relying on an externally-installed package.
 # This keeps the dependencies self-contained.
 echo "Configuring ${LIB_NAME}"
-CMD="cmake -B ${BUILD_FOLDER} -S. -DUSE_INTERNAL_URDF=ON -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_FOLDER} -DCMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH}\""
+CMD="cmake -B ${BUILD_FOLDER} -S. -DUSE_INTERNAL_URDF=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${INSTALL_FOLDER} -DCMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH}\""
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -200,7 +202,7 @@ if [ -d ${INSTALL_FOLDER} ]; then
     rm -rf ${INSTALL_FOLDER}
 fi
 echo "Building and installing ${LIB_NAME} to ${INSTALL_FOLDER}"
-CMD="cmake --build ${BUILD_FOLDER} --target install --config Release"
+CMD="cmake --build ${BUILD_FOLDER} --target install --config ${BUILD_TYPE}"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
