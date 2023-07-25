@@ -59,7 +59,7 @@ The following keys can exist at the root level or the target-platform level:
                           that is ingested by the lumberyard 3P system.
 * cmake_find_template   : If the find*.cmake in the target package requires template processing, then this is name of the template file that is used to
                           generate the contents of the find*.cmake file in the target package.
-                          * Note that either 'cmake_find_source' or 'cmake_fine_template' must be declared.
+                          * Note that either 'cmake_find_source' or 'cmake_find_template' must be declared.
 * cmake_find_target     : (required if prebuilt_source is not set) The name of the target find*.cmake file that is generated based on the template file and
                           additional arguments (described below)
 
@@ -99,7 +99,7 @@ The following keys can only exist at the target platform level as they describe 
 
 * cmake_build_args                        : Additional build args to pass to cmake during the cmake build command
 
-* custom_build_cmd                        : A custom build script and arguments to build from the source that was pulled from git. This is a list 
+* custom_build_cmd                        : A custom build script and arguments to build from the source that was pulled from git. This is a list
                                             starting with the script to execute along with a list of optional arguments to the script. This is mutually
                                             exclusive from the cmake_generate_args and cmake_build_args options.
                                             Note: If the command is a python script, format the command with a {python} variable, for example: "{python} build_me.py"
@@ -884,7 +884,7 @@ class BuildInfo(object):
                                          env=env_to_use)
             if call_result.returncode != 0:
                 raise BuildError(f"Error executing custom install command {full_custom_install_cmd}")
-                
+
         # Allow libraries to define a list of files to include via a json script that stores folder paths and
         # individual files in the "Install_Paths" array
         custom_install_jsons = self.platform_config.get('custom_install_json', [])
