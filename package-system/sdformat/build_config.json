@@ -4,7 +4,7 @@
    "package_name":"sdformat",
    "package_version":"13.5.0-rev0",
    "package_url":"https://github.com/gazebosim/sdformat.git",
-   "package_license":"MIT",
+   "package_license":"Apache-2.0",
    "package_license_file":"LICENSE",
    "patch_file": "fortify.patch",
    "cmake_find_target":"Findsdformat.cmake",
