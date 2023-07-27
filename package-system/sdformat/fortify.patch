@@ -1,0 +1,39 @@
+diff --git a/src/Camera.cc b/src/Camera.cc
+index c41850a0..4f9a199b 100644
+--- a/src/Camera.cc
++++ b/src/Camera.cc
+@@ -1144,7 +1144,7 @@ void Camera::SetLensIntrinsicsSkew(double _s)
+ /////////////////////////////////////////////////
+ std::string Camera::ConvertPixelFormat(PixelFormatType _type)
+ {
+-  unsigned int index = static_cast<int>(_type);
++  unsigned int index = static_cast<unsigned int>(_type);
+   if (index < kPixelFormatNames.size())
+     return kPixelFormatNames[static_cast<int>(_type)];
+ 
+diff --git a/src/ParticleEmitter.cc b/src/ParticleEmitter.cc
+index 347df7f4..e10624c7 100644
+--- a/src/ParticleEmitter.cc
++++ b/src/ParticleEmitter.cc
+@@ -265,7 +265,7 @@ bool ParticleEmitter::SetType(const std::string &_typeStr)
+ /////////////////////////////////////////////////
+ std::string ParticleEmitter::TypeStr() const
+ {
+-  size_t index = static_cast<int>(this->dataPtr->type);
++  size_t index = static_cast<size_t>(this->dataPtr->type);
+   if (index < emitterTypeStrs.size())
+     return emitterTypeStrs[index];
+   return "point";
+diff --git a/src/Sensor.cc b/src/Sensor.cc
+index 6c6dde9d..324a3422 100644
+--- a/src/Sensor.cc
++++ b/src/Sensor.cc
+@@ -644,7 +644,7 @@ void Sensor::SetUpdateRate(double _hz)
+ /////////////////////////////////////////////////
+ std::string Sensor::TypeStr() const
+ {
+-  size_t index = static_cast<int>(this->dataPtr->type);
++  size_t index = static_cast<size_t>(this->dataPtr->type);
+   if (index > 0 && index < sensorTypeStrs.size())
+     return sensorTypeStrs[index];
+   return "none";

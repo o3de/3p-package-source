@@ -6,6 +6,7 @@
    "package_url":"https://github.com/gazebosim/sdformat.git",
    "package_license":"MIT",
    "package_license_file":"LICENSE",
+   "patch_file": "fortify.patch",
    "cmake_find_target":"Findsdformat.cmake",
    "Platforms":{
       "Linux":{
