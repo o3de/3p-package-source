@@ -17,9 +17,10 @@ set(CRYPTO_TARGETNAME "OpenSSL::Crypto")
 if (LY_SYSTEM_PACKAGE_OpenSSL)
 
     # We need to temporarily override the CMAKE_MODULE_PATH to force it to search in the system directories
+    set(CMAKE_MODULE_PATH_TMP $${CMAKE_MODULE_PATH})
     set(CMAKE_MODULE_PATH "")
     find_package(OpenSSL)
-    unset(CMAKE_MODULE_PATH)
+    set(CMAKE_MODULE_PATH $${CMAKE_MODULE_PATH_TMP})
 
     if (NOT OpenSSL_FOUND)
        message(FATAL_ERROR "Compiling on linux requires the development headers for OpenSSL.  Try using your package manager to install the OpenSSL development libraries following https://wiki.openssl.org/index.php/Libssl_API")
