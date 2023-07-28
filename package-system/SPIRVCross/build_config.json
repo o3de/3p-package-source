@@ -3,7 +3,7 @@
    "git_tag":"release-2021.04.29",
    "package_name":"SPIRVCross",
    "package_version":"2021.04.29-rev1",
-   "package_url":"https://github.com/03de/SPIRV-Cross",
+   "package_url":"https://github.com/o3de/SPIRV-Cross",
    "package_license":"Apache-2.0",
    "package_license_file":"LICENSE",
    "cmake_find_target":"FindSPIRVCross.cmake",
