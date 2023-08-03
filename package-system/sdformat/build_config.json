@@ -2,7 +2,7 @@
    "git_url":"https://github.com/gazebosim/sdformat.git",
    "git_tag":"sdformat13_13.5.0",
    "package_name":"sdformat",
-   "package_version":"13.5.0-rev0",
+   "package_version":"13.5.0-rev1",
    "package_url":"https://github.com/gazebosim/sdformat.git",
    "package_license":"Apache-2.0",
    "package_license_file":"LICENSE",
