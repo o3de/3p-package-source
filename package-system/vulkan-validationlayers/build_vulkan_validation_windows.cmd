@@ -20,7 +20,7 @@ cmake -C temp/src/external/helper.cmake -S temp/src -B temp/build
 cmake --build temp/build --config Release --target clean
 cmake --build temp/build --config Release --target install 
 mkdir temp\\build\\install\\lib\\release
-move temp\\build\\install\\lib\\* temp\\build\\install\\lib\\release\\
+move temp\\build\\layers\\Release\\* temp\\build\\install\\lib\\release\\
 
 @rem debug build
 %PYTHON_BINARY% temp/src/scripts/update_deps.py --dir temp/src/external --arch x64 --config debug
@@ -28,6 +28,6 @@ cmake --build temp/build --config Debug --target clean
 cmake -C temp/src/external/helper.cmake -S temp/src -B temp/build
 cmake --build temp/build --config Debug --target install 
 mkdir temp\\build\\install\\lib\\debug
-move temp\\build\\install\\lib\\* temp\\build\\install\\lib\\debug\\
+move temp\\build\\layers\\Debug\\* temp\\build\\install\\lib\\debug\\
 
 exit /b 0
