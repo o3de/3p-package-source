@@ -16,9 +16,14 @@ endif()
 set(PATH_TO_DLL ${CMAKE_CURRENT_LIST_DIR}/vulkan-validationlayers/lib/release)
 
 set(_DLL_NAME ${PATH_TO_DLL}/${CMAKE_SHARED_LIBRARY_PREFIX}VkLayer_khronos_validation${CMAKE_SHARED_LIBRARY_SUFFIX})
-set(${MY_NAME}_RUNTIME_JSON_DEPENDENCIES ${PATH_TO_DLL}/VkLayer_khronos_validation.json)
+if (${PAL_PLATFORM_NAME} STREQUAL "Windows")
+    set(${MY_NAME}_RUNTIME_JSON_DEPENDENCIES ${PATH_TO_DLL}/VkLayer_khronos_validation.json)
+elseif (${PAL_PLATFORM_NAME} STREQUAL "Android")
+    set(${MY_NAME}_RUNTIME_JSON_DEPENDENCIES "")
+endif()
 
 add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL) 
+
 ly_add_target_files(
     TARGETS
     ${TARGET_WITH_NAMESPACE}
