@@ -71,7 +71,7 @@ fi
 
 # Copy the build artifacts from the Docker Container
 echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
-docker  cp --quiet $CONTAINER_ID:/data/workspace/qt/. $TARGET_INSTALL_ROOT
+docker cp $CONTAINER_ID:/data/workspace/qt/. $TARGET_INSTALL_ROOT
 if [ $? -ne 0 ]
 then
     echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest."

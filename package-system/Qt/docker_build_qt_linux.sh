@@ -69,7 +69,6 @@ echo Configuring Qt...
                  -L $TIFF_LIBDIR \
                  -L $ZLIB_LIBDIR \
                  -c++std c++1z \
-                 -openssl \
                  -fontconfig
 if [ $? -ne 0 ]
 then
@@ -99,7 +98,7 @@ for qtlib in "${qtarray[@]}"; do
     echo Installing $qtlib...
     make module-$qtlib-install_subtargets
     
-    if [ ?$ -ne 0 ]
+    if [ $? -ne 0 ]
     then
         echo "Failed installing Qt module $qtlib"
         exit 1
