@@ -100,6 +100,7 @@ set(CORE_STATIC_LIBS
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-compression.lib
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-cal.lib
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-common.lib
+    ${AWSNATIVE_SDK_LIB_PATH}/aws-c-sdkutils.lib
     Ncrypt
     Secur32
     Shlwapi
@@ -120,6 +121,7 @@ set(CORE_SHARED_LIBS
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-compression.dll
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-cal.dll
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-common.dll
+    ${AWSNATIVE_SDK_LIB_PATH}/aws-c-sdkutils.dll
 )
 
 if(LY_MONOLITHIC_GAME)
@@ -214,14 +216,6 @@ ly_declare_aws_library(
         Lambda
     LIB_FILE 
         aws-cpp-sdk-lambda
-)
-
-#### MobileAnalytics ####
-ly_declare_aws_library(
-    NAME 
-        MobileAnalytics
-    LIB_FILE 
-        aws-cpp-sdk-mobileanalytics
 )
 
 #### Queues ####
