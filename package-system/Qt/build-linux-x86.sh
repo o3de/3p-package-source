@@ -11,7 +11,8 @@
 
 TIFF_PACKAGE=tiff-4.2.0.15-rev3-linux
 ZLIB_PACKAGE=zlib-1.2.11-rev5-linux
+OPENSSL_PACKAGE=OpenSSL-1.1.1t-rev1-linux
 
-./build-linux.sh $TIFF_PACKAGE $ZLIB_PACKAGE || exit 1
+./build-linux.sh $TIFF_PACKAGE $ZLIB_PACKAGE $OPENSSL_PACKAGE
 
-exit 0
+exit $?

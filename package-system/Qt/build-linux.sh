@@ -15,6 +15,9 @@ TIFF_FOLDER_NAME=$1
 # Arg 2: The zlib package name
 ZLIB_FOLDER_NAME=$2
 
+# Arg 3: The openssl package name
+OPENSSL_FOLDER_NAME=$3
+
 # Make sure docker is installed
 DOCKER_VERSION=$(docker --version)
 if [ $? -ne 0 ]
@@ -51,7 +54,7 @@ fi
 
 # Run the Docker Image
 echo "Running docker build script"
-docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$TIFF_FOLDER_NAME:/data/workspace/$TIFF_FOLDER_NAME -v $TEMP_FOLDER/$ZLIB_FOLDER_NAME:/data/workspace/$ZLIB_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest ./docker_build_qt_linux.sh 
+docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$TIFF_FOLDER_NAME:/data/workspace/o3de_tiff -v $TEMP_FOLDER/$ZLIB_FOLDER_NAME:/data/workspace/o3de_zlib -v $TEMP_FOLDER/$OPENSSL_FOLDER_NAME:/data/workspace/o3de_openssl --tty ${DOCKER_IMAGE_NAME}:latest ./docker_build_qt_linux.sh
 if [ $? -ne 0 ]
 then
     echo "Error occurred running Docker image ${DOCKER_IMAGE_NAME}:latest." 
@@ -78,13 +81,20 @@ then
     exit 1
 fi
 
-
 # Clean up the docker image and container
 echo "Cleaning up container"
-docker container rm $CONTAINER_ID || (echo "Warning: Unable to clean up container for image ${DOCKER_IMAGE_NAME}")
+docker container rm $CONTAINER_ID
+if [ $? -ne 0 ]
+then
+    echo "Warning: Unable to clean up container for image ${DOCKER_IMAGE_NAME}"
+fi
 
 echo "Cleaning up image"
-docker rmi --force $IMAGE_ID  || (echo "Warning: Unable to clean up image ${DOCKER_IMAGE_NAME}")
+docker rmi --force $IMAGE_ID
+if [ $? -ne 0 ]
+then
+    echo "Warning: Unable to clean up image ${DOCKER_IMAGE_NAME}"
+fi
 
 popd
 
