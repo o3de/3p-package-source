@@ -27,7 +27,6 @@
                [ "OpenSSL-1.1.1m-rev1-android", "b11fe493af5d6b03ebbf1a2c97fea443b125e88def5cd1c32b854220b3ad4681", "" ],
                [ "zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", "" ]
             ],
-            "patch_file":"AWSNativeSDK-1.11.144-android.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Android",
             "custom_build_cmd": [
                "build_AWSNativeSDK_android.cmd"
@@ -48,7 +47,6 @@
             ]
          },
          "iOS":{
-            "patch_file":"AWSNativeSDK-1.11.144-ios.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.iOS",
             "custom_build_cmd": [
                "./build_AWSNativeSDK_ios.sh"
@@ -65,11 +63,10 @@
                [ "zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", "" ]
             ],
             "package_version":"1.11.144-rev1",
-            "patch_file":"AWSNativeSDK-1.11.144-linux-openssl3.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build-linux.sh",
-               "aws_native_sdk_1_9_50",
+               "aws_native_sdk_1_11_144",
                "20.04",
                "curl-7_68_0",
                "x86_64"
@@ -84,11 +81,10 @@
                [ "zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", "" ]
             ],
             "package_version":"1.11.144-rev1",
-            "patch_file":"AWSNativeSDK-1.11.144-linux-openssl3.patch",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build-linux.sh",
-               "aws_native_sdk_1_9_50",
+               "aws_native_sdk_1_11_144",
                "20.04",
                "curl-7_68_0",
                "aarch64"

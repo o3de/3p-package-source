@@ -106,6 +106,7 @@ if(LY_MONOLITHIC_GAME)
             ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream${CMAKE_STATIC_LIBRARY_SUFFIX}
             ${AWSNATIVE_SDK_LIB_PATH}/libaws-checksums${CMAKE_STATIC_LIBRARY_SUFFIX}
             ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-common${CMAKE_STATIC_LIBRARY_SUFFIX}
+            ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-sdkutils${CMAKE_STATIC_LIBRARY_SUFFIX}
             ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-compression${CMAKE_STATIC_LIBRARY_SUFFIX}
             ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-cal${CMAKE_STATIC_LIBRARY_SUFFIX}
             ${AWSNATIVE_SDK_LIB_PATH}/libs2n${CMAKE_STATIC_LIBRARY_SUFFIX}
@@ -203,14 +204,6 @@ ly_declare_aws_library(
         aws-cpp-sdk-lambda
 )
 
-#### MobileAnalytics ####
-ly_declare_aws_library(
-    NAME 
-        MobileAnalytics
-    LIB_FILE 
-        aws-cpp-sdk-mobileanalytics
-)
-
 #### Queues ####
 ly_declare_aws_library(
     NAME 
@@ -279,20 +272,6 @@ else()
             Dependencies
     )
 endif()
-
-#### IdentityMetrics ####
-ly_declare_aws_library(
-    NAME 
-        IdentityMetrics
-    BUILD_DEPENDENCIES 
-        3rdParty::AWSNativeSDK::CognitoIdentity
-        3rdParty::AWSNativeSDK::CognitoIdp
-        3rdParty::AWSNativeSDK::Core
-        3rdParty::AWSNativeSDK::IdentityManagement
-        3rdParty::AWSNativeSDK::MobileAnalytics
-        3rdParty::AWSNativeSDK::STS
-        3rdParty::AWSNativeSDK::Dependencies
-)
 
 #### IdentityLambda ####
 ly_declare_aws_library(

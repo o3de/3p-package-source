@@ -162,14 +162,6 @@ ly_declare_aws_library(
         aws-cpp-sdk-lambda
 )
 
-#### MobileAnalytics ####
-ly_declare_aws_library(
-    NAME 
-        MobileAnalytics
-    LIB_FILE 
-        aws-cpp-sdk-mobileanalytics
-)
-
 #### Queues ####
 ly_declare_aws_library(
     NAME 

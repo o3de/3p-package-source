@@ -70,7 +70,7 @@
     "azslc-1.8.15-rev2-windows": "package-system/azslc/temp/azslc-windows",
     "AWSGameLiftServerSDK-5.0.0-rev2-windows": "package-system/AWSGameLiftServerSDK-windows",
     "AwsIotDeviceSdkCpp-1.15.2-rev1-windows": "package-system/AwsIotDeviceSdkCpp-windows",
-    "AWSNativeSDK-1.11.144-rev-android": "package-system/AWSNativeSDK-android",
+    "AWSNativeSDK-1.11.144-rev1-android": "package-system/AWSNativeSDK-android",
     "AWSNativeSDK-1.11.144-rev1-windows": "package-system/AWSNativeSDK-windows",
     "Blast-v1.1.7_rc2-9-geb169fe-rev1-windows": "package-system/Blast-windows",
     "cityhash-1.1-multiplatform": "package-system/cityhash-multiplatform",
