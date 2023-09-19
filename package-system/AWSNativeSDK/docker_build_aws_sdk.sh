@@ -158,7 +158,7 @@ configure_and_build() {
  -DCMAKE_C_FLAGS=\"-fPIC -Wno-option-ignored\" \
  -DCMAKE_CXX_FLAGS=\"-fPIC -Wno-option-ignored\" \
  -DENABLE_TESTING=OFF \
- -DENABLE_RTTI=ON \
+ -DENABLE_RTTI=OFF \
  -DCUSTOM_MEMORY_MANAGEMENT=ON \
  -DBUILD_ONLY=\"access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer\" \
  -DBUILD_SHARED_LIBS=$build_shared \
