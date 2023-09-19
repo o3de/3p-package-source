@@ -167,7 +167,8 @@ configure_and_build() {
  -DCMAKE_INSTALL_LIBDIR=\"lib\" \
  -DCMAKE_MODULE_PATH=\"$DOWNLOADED_PACKAGE_FOLDERS\" \
  -DCURL_INCLUDE_DIR=${CURL_INSTALL}/include \
- -DCURL_LIBRARY=${dep_curl_lib}"
+ -DCURL_LIBRARY=${dep_curl_lib} \
+ -DLEGACY_BUILD=OFF"
 
     echo ${CMD}
     eval ${CMD}
