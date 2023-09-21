@@ -31,7 +31,7 @@ configure_and_build() {
           -DCMAKE_CXX_STANDARD=17 \
           -DCPP_STANDARD=17 \
           -DENABLE_TESTING=OFF \
-          -DENABLE_RTTI=OFF \
+          -DENABLE_RTTI=ON \
           -DCUSTOM_MEMORY_MANAGEMENT=ON \
           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer" \
           -DBUILD_SHARED_LIBS=$build_shared \

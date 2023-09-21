@@ -60,7 +60,7 @@ call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
            -DCPP_STANDARD=17 ^
            -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer" ^
            -DENABLE_TESTING=OFF ^
-           -DENABLE_RTTI=OFF ^
+           -DENABLE_RTTI=ON ^
            -DCUSTOM_MEMORY_MANAGEMENT=ON ^
            -DFORCE_SHARED_CRT=ON ^
            -DBUILD_SHARED_LIBS=%BUILD_SHARED% ^
