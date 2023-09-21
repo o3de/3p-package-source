@@ -62,7 +62,7 @@ call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
            -DCPP_STANDARD=17 ^
            -DCMAKE_C_FLAGS="-fPIC" ^
            -DCMAKE_CXX_FLAGS="-fPIC" ^
-           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer" ^
+           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" ^
            -DENABLE_TESTING=OFF ^
            -DENABLE_RTTI=ON ^
            -DCUSTOM_MEMORY_MANAGEMENT=ON^
