@@ -190,7 +190,7 @@ fi
 # instead of relying on an externally-installed package.
 # This keeps the dependencies self-contained.
 echo "Configuring ${LIB_NAME}"
-CMD=(cmake -B ${BUILD_FOLDER} -S. -DCMAKE-DUSE_INTERNAL_URDF=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${INSTALL_FOLDER} -DCMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH}\")
+CMD=(cmake -B ${BUILD_FOLDER} -S. -DUSE_INTERNAL_URDF=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${INSTALL_FOLDER} -DCMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH}\")
 # Update the RPATH to $ORIGIN to allow sdformat library to find the dependent libgz-utils/gz-math.so files on Linux
 CMD+=(-DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -DCMAKE_INSTALL_RPATH=\$ORIGIN)
 echo "${CMD[@]}"
@@ -212,6 +212,119 @@ eval $CMD
 if [ $? -ne 0 ]
 then
     echo "Error building ${LIB_NAME}"
+    exit 1
+fi
+
+popd
+
+# Finally detach the debug symbols to a separate dbg file for sdformat
+echo "Detaching debug symbols for ${LIB_NAME}"
+SDFORMAT_VERSION=13.5.0
+LIB_FILENAME="lib${LIB_NAME}13.so.${SDFORMAT_VERSION}"
+LIB_DIRECTORY="${INSTALL_FOLDER}/lib"
+LIB_PATH="${LIB_DIRECTORY}/${LIB_FILENAME}"
+CMD="objcopy --only-keep-debug ${LIB_PATH} ${LIB_PATH}.dbg"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error detaching debug symbols for ${LIB_NAME}"
+    exit 1
+fi
+
+CMD="strip --strip-debug ${LIB_PATH}"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error stripping debugging symbols for ${LIB_NAME}"
+    exit 1
+fi
+
+# Change directory to the folder containing the sdformat library
+pushd ${LIB_DIRECTORY}
+CMD="objcopy --add-gnu-debuglink=${LIB_FILENAME}.dbg ${LIB_PATH}"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error adding debug symbol link for ${LIB_NAME}"
+    exit 1
+fi
+
+popd
+
+# Detach the debug symbols to a separate dbg file for gz-math
+DEP_NAME=gz-math7
+echo "Detaching debug symbols for ${DEP_NAME}"
+GZ_MATH_VERSION=7.2.0
+LIB_FILENAME="lib${DEP_NAME}.so.${GZ_MATH_VERSION}"
+LIB_DIRECTORY="${GZ_MATH_INSTALL_FOLDER}/lib"
+LIB_PATH="${LIB_DIRECTORY}/${LIB_FILENAME}"
+CMD="objcopy --only-keep-debug ${LIB_PATH} ${LIB_PATH}.dbg"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error detaching debug symbols for ${DEP_NAME}"
+    exit 1
+fi
+
+CMD="strip --strip-debug ${LIB_PATH}"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error stripping debugging symbols for ${DEP_NAME}"
+    exit 1
+fi
+
+# Change directory to the folder containing the gz-math library
+pushd ${LIB_DIRECTORY}
+CMD="objcopy --add-gnu-debuglink=${LIB_FILENAME}.dbg ${LIB_PATH}"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error adding debug symbol link for ${DEP_NAME}"
+    exit 1
+fi
+
+popd
+
+# Detach the debug symbols to a separate dbg file for gz-utils
+DEP_NAME=gz-utils2
+echo "Detaching debug symbols for ${DEP_NAME}"
+GZ_UTILS_VERSION=2.0.0
+LIB_FILENAME="lib${DEP_NAME}.so.${GZ_UTILS_VERSION}"
+LIB_DIRECTORY="${GZ_UTILS_INSTALL_FOLDER}/lib"
+LIB_PATH="${LIB_DIRECTORY}/${LIB_FILENAME}"
+CMD="objcopy --only-keep-debug ${LIB_PATH} ${LIB_PATH}.dbg"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error detaching debug symbols for ${DEP_NAME}"
+    exit 1
+fi
+
+CMD="strip --strip-debug ${LIB_PATH}"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error stripping debugging symbols for ${DEP_NAME}"
+    exit 1
+fi
+
+# Change directory to the folder containing the gz-utils library
+pushd ${LIB_DIRECTORY}
+CMD="objcopy --add-gnu-debuglink=${LIB_FILENAME}.dbg ${LIB_PATH}"
+echo $CMD
+eval $CMD
+if [ $? -ne 0 ]
+then
+    echo "Error adding debug symbol link for ${DEP_NAME}"
     exit 1
 fi
 

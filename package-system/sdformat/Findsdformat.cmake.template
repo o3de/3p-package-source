@@ -28,6 +28,8 @@ set($${LIB_NAME}_INCLUDE_DIRECTORIES $${$${LIB_NAME}_INCLUDE_DIR_ROOT}
     $${$${LIB_NAME}_INCLUDE_DIR_ROOT}/gz/$${LIB_NAME}$${LIB_VERSION_MAJOR})
 set($${LIB_NAME}_LIBS_DIR $${CMAKE_CURRENT_LIST_DIR}/$${LIB_NAME}/lib)
 set($${LIB_NAME}_LIBRARY_RELEASE $${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${LIB_NAME}$${LIB_VERSION_MAJOR}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${LIB_VERSION_FULL})
+# The path to the dbg symbol file
+set($${LIB_NAME}_LIBRARY_RELEASE_DBG "$${$${LIB_NAME}_LIBRARY_RELEASE}.dbg")
 
 add_library($${SDFORMAT_O3DE_NAMESPACE} SHARED IMPORTED GLOBAL)
 # If the find script is being called in an O3DE context use
@@ -50,14 +52,17 @@ if (COMMAND ly_add_target_files)
     ly_add_target_files(TARGETS $${SDFORMAT_O3DE_NAMESPACE}
         FILES
             "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${LIB_NAME}$${LIB_VERSION_MAJOR}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${LIB_VERSION_MAJOR}"
-            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${LIB_NAME}$${LIB_VERSION_MAJOR}$${CMAKE_SHARED_LIBRARY_SUFFIX}")
+            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${LIB_NAME}$${LIB_VERSION_MAJOR}$${CMAKE_SHARED_LIBRARY_SUFFIX}"
+            # Copy the debug symbol .dbg into the binary directory as well
+            "$${$${LIB_NAME}_LIBRARY_RELEASE_DBG}"
+    )
 endif()
 
 # Add the tinyxml2 dependency
 set(tinyxml2_libname "tinyxml2")
 set(tinyxml2_include_directories "$${$${LIB_NAME}_INCLUDE_DIR_ROOT}")
 # Tinyxml2 is built as a STATIC library
-set(tinyxml2_lib_release "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_STATIC_LIBRARY_PREFIX}$${tinyxml2_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}")
+set(tinyxml2_lib_release "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_STATIC_LIBRARY_PREFIX}$${tinyxml2_libname}$${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
 # Add the 3rdParty::tinyxml2 target STATIC library
 set(tinyxml2_target "tinyxml2")
@@ -84,6 +89,7 @@ set(gz_utils_libname "gz-$${gz_utils_raw_name}")
 set(gz_utils_include_directories "$${$${LIB_NAME}_INCLUDE_DIR_ROOT}/gz/$${gz_utils_raw_name}")
 # gz-utils is built as a SHARED library
 set(gz_utils_lib_release "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_utils_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${gz_utils_version_full}")
+set(gz_utils_lib_release_dbg "$${gz_utils_lib_release}.dbg")
 
 # Add the 3rdParty::gz-utils target library
 set(gz_utils_target "gz-utils")
@@ -106,7 +112,9 @@ if (COMMAND ly_add_target_files)
     ly_add_target_files(TARGETS $${gz_utils_target_namespace}
         FILES
             "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_utils_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${gz_utils_version_major}"
-            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_utils_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}")
+            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_utils_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}"
+            "$${gz_utils_lib_release_dbg}"
+    )
 endif()
 
 # Add the gz-math dependency
@@ -117,6 +125,7 @@ set(gz_math_libname "gz-$${gz_math_raw_name}")
 set(gz_math_include_directories "$${$${LIB_NAME}_INCLUDE_DIR_ROOT}/gz/$${gz_math_raw_name}")
 # gz-math is built as a SHARED library
 set(gz_math_lib_release "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_math_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${gz_math_version_full}")
+set(gz_math_lib_release_dbg "$${gz_math_lib_release}.dbg")
 
 # Add the 3rdParty::gz-math target library
 set(gz_math_target "gz-math")
@@ -139,7 +148,9 @@ if (COMMAND ly_add_target_files)
     ly_add_target_files(TARGETS $${gz_math_target_namespace}
         FILES
             "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_math_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}.$${gz_math_version_major}"
-            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_math_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}")
+            "$${$${LIB_NAME}_LIBS_DIR}/$${CMAKE_SHARED_LIBRARY_PREFIX}$${gz_math_libname}$${CMAKE_SHARED_LIBRARY_SUFFIX}"
+            "$${gz_math_lib_release_dbg}"
+    )
 endif()
 
 # Add the dependent libraries as target_link_libraries
