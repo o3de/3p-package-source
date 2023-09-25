@@ -1,0 +1,155 @@
+# This automation promotes 3p packages based on a merge to default branches
+
+name: Promote 3P Packages
+
+on:
+  # Allows you to run this workflow manually from the Actions tag
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+      - development
+    paths:
+      - 'package_build_list_host_*.json'
+
+jobs:
+  deploy-dev:
+    name: Deploying to dev S3 bucket
+    runs-on: ubuntu-latest
+    environment: development
+    env:
+      PACKAGE_PATH: packages/
+    outputs:
+      filelist: "${{ steps.dev-upload.outputs.filelist }}"
+    steps:          
+      - name: Download packages
+        uses: dawidd6/action-download-artifact@v2.28.0
+        with:
+          workflow: build-pr-packages.yaml
+          workflow_conclusion: success
+          commit: ${{github.event.pull_request.head.sha}}
+          check_artifacts: true
+          path: ${{ env.PACKAGE_PATH }}
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+           aws-access-key-id    :  ${{ secrets.AWS_CREDS_ACCESS_KEY }}
+           aws-secret-access-key:  ${{ secrets.AWS_CREDS_SECRET_KEY }}
+           aws-region           :  ${{ secrets.AWS_CREDS_REGION_NAME }}
+           
+      - name: Copy to S3
+        id: dev-upload
+        shell: bash
+        run: |
+          find ${{ env.PACKAGE_PATH }} -type f | while read file; do
+            filename=$(basename "$file")
+            aws s3 cp "$file" "s3://${{ secrets.AWS_PACKAGE_DEV_S3_BUCKET }}/$filename" --acl bucket-owner-full-control
+            FILELIST="$FILELIST$filename,"
+            echo "filelist=$( echo "$FILELIST" )" >> $GITHUB_OUTPUT
+          done
+
+  create-o3de-3p-pr:
+    name: Create PR in O3DE to update version
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    env:
+      O3DE_REPO_PATH: o3de
+      DEV_CDN: https://d1gg6ket0m44ly.cloudfront.net
+      UPLOADED_FILES: "${{ needs.deploy-dev.outputs.filelist }}"
+
+    steps:
+    - name: Checkout o3de repository
+      uses: actions/checkout@v4
+      with:
+        repository: o3de/o3de
+        token: ${{ secrets.GHA_TOKEN }}
+        path: o3de
+
+    - name: Copy dev package from S3
+      run: |
+        IFS=',' read -ra FILES <<< "$UPLOADED_FILES"
+        for filename in "${FILES[@]}"; do
+            if [[ $filename == *.tar.xz.SHA256SUMS ]]; then
+              wget "${{ env.DEV_CDN }}/$filename"
+            fi
+        done
+        
+    - name: Update BuiltInPackages with new SHA256 and version
+      shell: bash
+      run: |
+        IFS=',' read -ra FILENAMES <<<"$UPLOADED_FILES"
+        for filename in "${FILENAMES[@]}"; do
+          if [[ $filename == *.tar.xz.SHA256SUMS ]]; then
+            content=$(cat "$filename")
+            file=$(echo "$content" | awk -F'*' '{print $2}' | sed 's/.tar.xz//g') # *<package_name>-<version>-o3de-<rev>-<platform>.tar.xz
+            hash=$(echo "$content" | awk '{print $1}') 
+            PACKAGE_NAME=$(echo "$file" | cut -d'-' -f1-2)  # Extract package name without platform
+            PARTIAL_PACKAGE_NAME=$(echo "$PACKAGE_NAME" | cut -d'-' -f1)  # Extract the first part of the package name for matching            
+            PLATFORM=$(echo "$file" | cut -d'-' -f5)
+            
+            # Determine x86 or aarch64 cmake file name based on file suffix
+            if [[ $file == *linux-aarch64 ]]; then
+                CMAKE_FILE=BuiltInPackages_linux_aarch64.cmake
+            elif [[ $file == *linux ]]; then
+                CMAKE_FILE=BuiltInPackages_linux_x86_64.cmake
+            else
+                CMAKE_FILE=BuiltInPackages_$PLATFORM.cmake
+            fi
+
+            FILE_PATH="${{ env.O3DE_REPO_PATH }}/cmake/3rdParty/Platform/${PLATFORM^}/$CMAKE_FILE"
+            
+            # Sample the first line after the comment "# platform-specific" to detect width
+            sample_line=$(awk '/# platform-specific/{getline; print}' "$FILE_PATH")
+            # Detect the width of the line until TARGETS
+            width_before_targets=$(echo "$sample_line" | awk -F'TARGETS' '{print length($1 FS) - length("ly_associate_package(PACKAGE_NAME ") - length(" TARGETS")}')
+            # Construct the new line using printf with the detected width
+            new_line=$(printf "ly_associate_package(PACKAGE_NAME %-*s TARGETS %-27s PACKAGE_HASH %s" $width_before_targets "$file" "$PARTIAL_PACKAGE_NAME" "$hash")
+
+            grep -q "$PARTIAL_PACKAGE_NAME" "$FILE_PATH"
+            if [ $? -eq 0 ]; then
+                sed -i "s|ly_associate_package(PACKAGE_NAME $PARTIAL_PACKAGE_NAME-[^ ]* .*PACKAGE_HASH [a-f0-9]\{64\}|$new_line|g" "$FILE_PATH"
+            else
+                echo "$new_line" >> "$FILE_PATH"
+            fi
+          fi
+        done
+        
+        echo "package_name=$PACKAGE_NAME" >> $GITHUB_ENV
+    
+    - name: Commit and create PR
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GHA_TOKEN }}
+        path: ${{ env.O3DE_REPO_PATH }}
+        base: development
+        branch: "update-3p-${{ env.package_name }}-cmake-file"
+        commit-message: "Update 3P version and SHA256 hash for ${{ env.package_name }}"
+        title: "Update 3P version and SHA256 hash for ${{ env.package_name }}"
+        body: "Automated PR to update 3P version and SHA256 for ${{ env.package_name }}"
+        draft: true
+        signoff: true
+        delete-branch: true
+           
+  deploy-prod:
+    name: Deploying to prod S3 bucket
+    needs: [deploy-dev, create-o3de-3p-pr]
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      UPLOADED_FILES: "${{ needs.deploy-dev.outputs.filelist }}"
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+           aws-access-key-id    :  ${{ secrets.AWS_CREDS_ACCESS_KEY }}
+           aws-secret-access-key:  ${{ secrets.AWS_CREDS_SECRET_KEY }}
+           aws-region           :  ${{ secrets.AWS_CREDS_REGION_NAME }}
+           
+      - name: Promote dev package to prod
+        run: |
+          IFS=',' read -ra FILES <<< "$UPLOADED_FILES"
+          for filename in "${FILES[@]}"; do
+              aws s3 cp "s3://${{ secrets.AWS_PACKAGE_DEV_S3_BUCKET }}/$filename" "s3://${{ secrets.AWS_PACKAGE_PROD_S3_BUCKET }}/$filename" --acl bucket-owner-full-control
+          done
