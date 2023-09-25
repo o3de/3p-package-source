@@ -30,33 +30,32 @@ jobs:
         # Construct the package and os into a json string to be consumed by Github Actions runners
         JSON="{\"include\":["
         for FILE in $CHANGED_FILES; do
-        if [[ $FILE == package_build_list_host_* ]]; then
+          if [[ $FILE == package_build_list_host_* ]]; then
             PLATFORM=$(echo $FILE | sed -n 's/package_build_list_host_\(.*\).json/\1/p')
             case $PLATFORM in
-        linux*)
-            OS_RUNNER="ubuntu-latest"
-           ;;
-        windows)
-            OS_RUNNER="windows-2019"
-            ;;
-        darwin)
-            OS_RUNNER="macos-latest"
-            ;;
-        *)
-            OS_RUNNER="windows-latest" # default
-            ;;
-        esac
+            linux*)
+              OS_RUNNER="ubuntu-latest"
+              ;;
+            windows)
+              OS_RUNNER="windows-2019"
+              ;;
+            darwin)
+              OS_RUNNER="macos-latest"
+              ;;
+            *)
+              OS_RUNNER="windows-latest" # default
+              ;;
+            esac
 
-       DIFF=$(git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --no-ext-diff --unified=0 \
-                    --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts)
-
+            DIFF=$(git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --no-ext-diff --unified=0 \
+                        --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts) # Get oly the changes that can be built
 
             if [[ $? -ne 0 ]]; then
               echo No valid build change found. Exiting with non-zero
             fi
-            
+          
             PACKAGE=$(echo $DIFF | cut -d'"' -f2)
-        
+      
             JSONline="{\"package\": \"$PACKAGE\", \"os\": \"$OS_RUNNER\"},"
             if [[ "$JSON" != *"$JSONline"* ]]; then
               JSON="$JSON$JSONline"
@@ -73,7 +72,6 @@ jobs:
 
         # Set output
         echo "matrix=$( echo "$JSON" )" >> $GITHUB_OUTPUT
-
 
   validate-changes:
     name: Check changes for issues
@@ -99,7 +97,7 @@ jobs:
           echo ${{ matrix.package }} does not exist in CDN, continuing...
           exit 0
         fi
-    
+
     - name: Malware scan of repo
       uses: dell/common-github-actions/malware-scanner@main
       with:
@@ -202,7 +200,7 @@ jobs:
           sccache -z
           ls -lah /workspace
           python3 /scripts/o3de_package_scripts/build_package.py --search_path /source/ ${{ matrix.package }}
-
+          
     - name: Upload packages
       uses: actions/upload-artifact@v3
       with:
@@ -237,4 +235,3 @@ jobs:
         with:
           directories: .
           options: -r
-          
