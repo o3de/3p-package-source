@@ -87,7 +87,7 @@ jobs:
         
     - name: Check if package already exists in prod
       env:
-        PROD_CDN: "https://d3t6xeg4fgfoum.cloudfront.net"
+        PROD_CDN: ${{ vars.PROD_CDN }} # Change this to compare on your own endpoint
       run: |
         url="${{ env.PROD_CDN }}/${{ matrix.package }}"
         if curl --head --silent --fail ${url}.tar.xz > /dev/null 2>&1; then
