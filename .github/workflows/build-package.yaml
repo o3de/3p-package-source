@@ -47,13 +47,8 @@ jobs:
               ;;
             esac
 
-<<<<<<< HEAD
-            DIFF=$(git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --no-ext-diff --unified=0 \
-                        --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts) # Get oly the changes that can be built
-=======
             DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} --no-ext-diff --unified=0 \
-                        --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts) # Get only the changes that can be built
->>>>>>> 1829474 (Add 3 dots to git diff to catch only the changed files at head)
+                        --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts) # Get oly the changes that can be built
 
             if [[ $? -ne 0 ]]; then
               echo No valid build change found. Exiting with non-zero
