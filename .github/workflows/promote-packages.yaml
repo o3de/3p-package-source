@@ -31,6 +31,21 @@ jobs:
           commit: ${{github.event.pull_request.head.sha}}
           check_artifacts: true
           path: ${{ env.PACKAGE_PATH }}
+
+      - name: Check if package already exists in prod
+        env:
+          PROD_CDN: ${{ vars.PROD_CDN }} # Change this to compare on your own endpoint
+        run: |
+          find ${{ env.PACKAGE_PATH }} -type f | while read file; do
+            filename=$(basename "$file")
+            url="${{ env.PROD_CDN }}/${filename}"
+            if curl --head --silent --fail ${url}.tar.xz > /dev/null 2>&1; then
+              echo ${filename} already exists in prod. Check the rev in the json file to ensure it is incremented
+              exit 1
+            else
+              echo ${filename} does not exist in CDN, continuing...
+            fi
+           done
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
