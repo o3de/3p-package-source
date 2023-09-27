@@ -3,8 +3,17 @@
 name: Promote 3P Packages
 
 on:
-  # Allows you to run this workflow manually from the Actions tag
+  # Allows you to run this workflow manually from the Actions screen
   workflow_dispatch:
+    inputs:
+      PR-num:
+        type: string
+        required: false
+        description: PR number to pull from. Leave blank to pull from last successful run
+      Run-id-num:
+        type: string
+        required: false
+        description: Run id number (located in the build url) to pull from. Leave blank to pull from last successful run
 
   push:
     branches:
@@ -27,10 +36,25 @@ jobs:
         uses: dawidd6/action-download-artifact@v2.28.0
         with:
           workflow: build-pr-packages.yaml
-          workflow_conclusion: success
-          commit: ${{github.event.pull_request.head.sha}}
+          pr: ${{ inputs.PR-num }}
+          run_id: ${{ inputs.Run-id-num }}
           check_artifacts: true
           path: ${{ env.PACKAGE_PATH }}
+
+      - name: Check if package already exists in prod
+        env:
+          PROD_CDN: ${{ vars.PROD_CDN }} # Change this to compare on your own endpoint
+        run: |
+          find ${{ env.PACKAGE_PATH }} -type f | while read file; do
+            filename=$(basename "$file")
+            url="${{ env.PROD_CDN }}/${filename}"
+            if curl --head --silent --fail ${url} > /dev/null 2>&1; then
+              echo ${filename} already exists in prod. Check the rev in the json file to ensure it is incremented
+              exit 1
+            else
+              echo ${filename} does not exist in CDN, continuing...
+            fi
+           done
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

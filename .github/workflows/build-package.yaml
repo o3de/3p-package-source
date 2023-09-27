@@ -21,7 +21,7 @@ jobs:
     - name: Checkout 3P source repo
       uses: actions/checkout@v4
       with:
-        fetch-depth: 10
+        fetch-depth: 0
           
     - name: Get package and platform from JSON changes
       id: detect-platform
@@ -48,7 +48,7 @@ jobs:
             esac
 
             DIFF=$(git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --no-ext-diff --unified=0 \
-                        --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts) # Get oly the changes that can be built
+                        --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts) # Get only the changes that can be built
 
             if [[ $? -ne 0 ]]; then
               echo No valid build change found. Exiting with non-zero
@@ -121,6 +121,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         path: 3p-package-source
+        fetch-depth: 0
     
     - name: Checkout 3P scripts repo
       uses: actions/checkout@v4
@@ -154,25 +155,17 @@ jobs:
         restore-keys:
           ${{ matrix.package }}-${{ matrix.os }}
         
-    - name: Run build command (windows)
-      if: contains(matrix.package, 'windows')
+    - name: Run build command
+      if: ${{ !contains(matrix.package, 'aarch64') }}
       env:
         CMAKE_CXX_COMPILER_LAUNCHER: sccache
         CMAKE_C_COMPILER_LAUNCHER: sccache
         CMAKE_GENERATOR: Ninja # ccache/sccache cannot be used as the compiler launcher under cmake if the generator is MSBuild
       run: |
         python3 3p-package-scripts/o3de_package_scripts/build_package.py --search_path 3p-package-source ${{ matrix.package }}
-    
-    - name: Run build command (linux/mac)
-      if: contains(matrix.package, 'linux') && ${{ !contains(matrix.package, 'aarch64') }}
-      env:
-        CMAKE_CXX_COMPILER_LAUNCHER: sccache
-        CMAKE_C_COMPILER_LAUNCHER: sccache
-      run: |
-        python3 3p-package-scripts/o3de_package_scripts/build_package.py --search_path 3p-package-source ${{ matrix.package }}
-    
-    - name: Run build command (linux aarch64)
-      if: contains(matrix.package, 'linux') && contains(matrix.package, 'aarch64')
+
+    - name: Run build command (aarch64)
+      if: contains(matrix.package, 'aarch64')
       uses: uraimo/run-on-arch-action@v2.5.1
       with:
         arch: none
