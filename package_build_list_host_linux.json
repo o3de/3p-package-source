@@ -5,8 +5,8 @@
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
         "assimp-5.2.5-rev1-linux":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Linux --package-root ../../package-system --clean",
-        "AWSGameLiftServerSDK-5.0.0-rev3-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSGameLiftServerSDK --platform-name Linux-aarch64 --clean",
-        "AWSGameLiftServerSDK-5.0.0-rev3-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSGameLiftServerSDK --platform-name Linux --clean",
+        "AWSGameLiftServerSDK-5.1.1-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSGameLiftServerSDK --platform-name Linux-aarch64 --clean",
+        "AWSGameLiftServerSDK-5.1.1-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSGameLiftServerSDK --platform-name Linux --clean",
         "AWSNativeSDK-1.11.144-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Linux --clean",
         "AWSNativeSDK-1.11.144-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Linux-aarch64 --clean",
         "cityhash-1.1-rev1-linux":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/cityhash --platform-name Linux --clean",
@@ -52,8 +52,8 @@
     },
     "build_from_folder": {
         "assimp-5.2.5-rev1-linux": "package-system/assimp-linux",
-        "AWSGameLiftServerSDK-5.0.0-rev3-linux": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux",
-        "AWSGameLiftServerSDK-5.0.0-rev3-linux-aarch64": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux-aarch64",
+        "AWSGameLiftServerSDK-5.1.1-rev1-linux": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux",
+        "AWSGameLiftServerSDK-5.1.1-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux-aarch64",
         "AWSNativeSDK-1.11.144-rev1-linux": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux",
         "AWSNativeSDK-1.11.144-rev1-linux-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-aarch64",
         "cityhash-1.1-rev1-linux": "package-system/cityhash/temp/cityhash-linux",
