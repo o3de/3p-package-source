@@ -26,7 +26,7 @@ jobs:
     - name: Get package and platform from JSON changes
       id: detect-platform
       run: |
-        CHANGED_FILES=$(git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --name-only)
+        CHANGED_FILES=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} --name-only)
         # Construct the package and os into a json string to be consumed by Github Actions runners
         JSON="{\"include\":["
         for FILE in $CHANGED_FILES; do
@@ -47,8 +47,8 @@ jobs:
               ;;
             esac
 
-            DIFF=$(git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --no-ext-diff --unified=0 \
-                        --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts) # Get only the changes that can be built
+            DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} --no-ext-diff --unified=0 \
+                        --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts) # Get oly the changes that can be built
 
             if [[ $? -ne 0 ]]; then
               echo No valid build change found. Exiting with non-zero
