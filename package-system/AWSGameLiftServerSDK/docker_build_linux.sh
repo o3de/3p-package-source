@@ -22,7 +22,7 @@ fi
 # Copy the source folder from the read-only $WORKSPACE/temp/src to $WORKSPACE/src
 # since the build process will write/modify the source path
 echo "Preparing source folder '$WORKSPACE/src'"
-cp -r $WORKSPACE/temp/src/GameLift-SDK-Release-5.0.0/GameLift-SDK-Release-5.0.0/GameLift-Cpp-ServerSDK-5.0.0 $WORKSPACE/src || (echo "Error copying src from $WORKSPACE/temp" && exit 1)
+cp -r $WORKSPACE/temp/src/GameLift-Cpp-ServerSDK-5.1.1/ $WORKSPACE/src || (echo "Error copying src from $WORKSPACE/temp" && exit 1)
 
 SRC_PATH=$WORKSPACE/src
 
