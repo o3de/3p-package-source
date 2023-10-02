@@ -23,26 +23,50 @@ jobs:
       packages: write
     steps:
       - name: Run build command (aarch64)
-        uses: uraimo/run-on-arch-action@v2
+        uses: uraimo/run-on-arch-action@v2.5.1
         with:
           env: |
-            GITHUB_WORKFLOW: ${{ github.workflow }}
-            SCCACHE_VER: 0.5.4
+            GITHUB_WORKFLOW: ${{ github.workflow }} # Sets the docker image to the name of the workflow
           arch: aarch64
-          distro: ubuntu_latest
+          distro: ubuntu20.04
           githubToken: ${{ github.token }}
           shell: /bin/bash
           install: |
+            ## Set variables. "env" not supported in install phase
+            export CLANG_VER=12
+            export GCC_VER=9
+            export SCCACHE_VER=0.5.4
+            export CMAKE_VER=3.27.6
+            ## Install build dependancies from apt
             apt-get update
-            apt-get install -y build-essential cmake curl git libssl-dev libffi-dev libbz2-dev libgdbm-compat-dev libgdbm-dev liblzma-dev libreadline-dev libtool \
-              ninja-build python3 python3-pip tcl8.6-dev tk8.6-dev texinfo software-properties-common
+            apt-get install -y build-essential curl git libssl-dev libffi-dev libbz2-dev libgdbm-compat-dev libgdbm-dev liblzma-dev libreadline-dev libtool \
+              ninja-build python3 python3-pip tcl8.6-dev tk8.6-dev texinfo software-properties-common wget
             python3 -m pip install boto3 certifi
-            curl -L 'https://github.com/mozilla/sccache/releases/download/v0.5.4/sccache-v0.5.4-aarch64-unknown-linux-musl.tar.gz' \
-              | tar xzf - -O --wildcards '*/sccache' > '/usr/local/bin/sccache'
-            chmod +x '/usr/local/bin/sccache'
+            # Install Clang/GCC at specific version
+            apt-get install -y clang-${CLANG_VER} gcc-${GCC_VER} g++-${GCC_VER}
+            update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${CLANG_VER} 10
+            update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${CLANG_VER} 10
+            update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VER} 10
+            update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${GCC_VER} 10
+            ## Install sccache
+            wget -qO- "https://github.com/mozilla/sccache/releases/download/v${SCCACHE_VER}/sccache-v${SCCACHE_VER}-aarch64-unknown-linux-musl.tar.gz" \
+              | tar xzf - -O --wildcards '*/sccache' > '/usr/local/bin/sccache' \
+              && chmod +x '/usr/local/bin/sccache'
+            ## Install cmake  
+            wget -q "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-aarch64.sh" \
+              -O /tmp/cmake-install.sh \
+              && chmod u+x /tmp/cmake-install.sh \
+              && mkdir /opt/cmake-${CMAKE_VER} \
+              && /tmp/cmake-install.sh --skip-license --prefix=/opt/cmake-${CMAKE_VER} \
+              && rm /tmp/cmake-install.sh \
+              && ln -s /opt/cmake-${CMAKE_VER}/bin/* /usr/local/bin
+            rm -rf /var/lib/apt/lists/*
           run: |
             lsb_release -a
             uname -a
+            gcc --version
+            g++ --version
+            clang --version
             sccache --version
             cmake --version
             git --version
