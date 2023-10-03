@@ -34,7 +34,7 @@ jobs:
             PLATFORM=$(echo $FILE | sed -n 's/package_build_list_host_\(.*\).json/\1/p')
             case $PLATFORM in
             linux*)
-              OS_RUNNER="ubuntu-latest"
+              OS_RUNNER="ubuntu-20.04"
               ;;
             windows)
               OS_RUNNER="windows-2019"
@@ -145,6 +145,18 @@ jobs:
     - name: Update msbuild path
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1.12.0
+    
+    - name: Install clang/gcc
+      if: runner.os == 'Linux'
+      env:
+        CLANG_VER: 12
+        GCC_VER: 9
+      run: |
+        sudo apt-get install -y clang-${{ env.CLANG_VER }} gcc-${{ env.GCC_VER }} g++-${{ env.GCC_VER }}
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${{ env.CLANG_VER }} 10
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${{ env.CLANG_VER }} 10
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ env.GCC_VER }} 10
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ env.GCC_VER }} 10
 
     - name: Use sccache
       uses: hendrikmuhs/ccache-action@v1.2.10
@@ -170,7 +182,7 @@ jobs:
       with:
         arch: none
         distro: none
-        base_image: ghcr.io/${{ github.repository }}/run-on-arch-${{ github.repository_owner }}-${{ github.event.repository.name }}-build-container-aarch64-ubuntu-latest:latest # built from build-container.yaml
+        base_image: ghcr.io/${{ github.repository }}/run-on-arch-${{ github.repository_owner }}-${{ github.event.repository.name }}-build-container-aarch64-ubuntu20-04:latest # built from build-container.yaml
         setup: |
           grep -q ${{ matrix.package }} ${PWD}/3p-package-source/package_build_list_host_linux.json || rm ${PWD}/3p-package-source/package_build_list_host_linux.json
         dockerRunArgs: |
