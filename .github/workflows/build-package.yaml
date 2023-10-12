@@ -49,10 +49,6 @@ jobs:
 
             DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} --no-ext-diff --unified=0 \
                         --exit-code -a --no-prefix -- $FILE | egrep "^\+" | grep Scripts) # Get oly the changes that can be built
-
-            if [[ $? -ne 0 ]]; then
-              echo No valid build change found. Exiting with non-zero
-            fi
           
             PACKAGE=$(echo $DIFF | cut -d'"' -f2)
             PACKPATH=$(echo $DIFF | egrep -o "package-system/[^ ]*")
@@ -115,8 +111,10 @@ jobs:
 
     steps:
     - name: Configure
-      id: get-user
-      run: echo "uid_gid=$(id -u):$(id -g)" >> $GITHUB_OUTPUT
+      id: configure
+      run: |
+        git config --global core.longpaths true
+        echo "uid_gid=$(id -u):$(id -g)" >> $GITHUB_OUTPUT
       
     - name: Checkout 3P source repo
       uses: actions/checkout@v4
@@ -166,8 +164,7 @@ jobs:
         max-size: 2048M
         key: ${{ matrix.package }}-${{ matrix.os }}
         restore-keys:
-          ${{ matrix.package }}-${{ matrix.os }}
-        
+          ${{ matrix.package }}-${{ matrix.os }}  
 
     - name: Set up QEMU (aarch64) # Only if the package folder contains a Dockerfile
       if: ${{ (contains(matrix.package, 'aarch64')) && (matrix.dockerfile == '1') }}
