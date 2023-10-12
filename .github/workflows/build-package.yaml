@@ -37,7 +37,7 @@ jobs:
               OS_RUNNER="ubuntu-20.04"
               ;;
             windows)
-              OS_RUNNER="windows-2019"
+              OS_RUNNER="windows-latest" # This is bundled with VS2022
               ;;
             darwin)
               OS_RUNNER="macos-latest"
@@ -55,8 +55,9 @@ jobs:
             fi
           
             PACKAGE=$(echo $DIFF | cut -d'"' -f2)
-      
-            JSONline="{\"package\": \"$PACKAGE\", \"os\": \"$OS_RUNNER\"},"
+            PACKPATH=$(echo $DIFF | egrep -o "package-system/[^ ]*")
+            DOCKER=$(test -f "$PACKPATH/Dockerfile" && echo 1 || echo 0)
+            JSONline="{\"package\": \"$PACKAGE\", \"os\": \"$OS_RUNNER\", \"dockerfile\": \"$DOCKER\"},"
             if [[ "$JSON" != *"$JSONline"* ]]; then
               JSON="$JSON$JSONline"
             fi
@@ -120,14 +121,14 @@ jobs:
     - name: Checkout 3P source repo
       uses: actions/checkout@v4
       with:
-        path: 3p-package-source
+        path: source
         fetch-depth: 0
     
     - name: Checkout 3P scripts repo
       uses: actions/checkout@v4
       with:
         repository: o3de/3p-package-scripts
-        path: 3p-package-scripts
+        path: scripts
       
     - name: Update python
       uses: actions/setup-python@v4
@@ -167,30 +168,36 @@ jobs:
         restore-keys:
           ${{ matrix.package }}-${{ matrix.os }}
         
+
+    - name: Set up QEMU (aarch64) # Only if the package folder contains a Dockerfile
+      if: ${{ (contains(matrix.package, 'aarch64')) && (matrix.dockerfile == '1') }}
+      run: |
+        sudo apt-get install -y qemu qemu-user-static
+
     - name: Run build command
-      if: ${{ !contains(matrix.package, 'aarch64') }}
+      if: ${{ (!contains(matrix.package, 'aarch64')) || (matrix.dockerfile == '1') }}
       env:
         CMAKE_CXX_COMPILER_LAUNCHER: sccache
         CMAKE_C_COMPILER_LAUNCHER: sccache
         CMAKE_GENERATOR: Ninja # ccache/sccache cannot be used as the compiler launcher under cmake if the generator is MSBuild
       run: |
-        python3 3p-package-scripts/o3de_package_scripts/build_package.py --search_path 3p-package-source ${{ matrix.package }}
+        python3 scripts/o3de_package_scripts/build_package.py --search_path source ${{ matrix.package }}
 
-    - name: Run build command (aarch64)
-      if: contains(matrix.package, 'aarch64')
+    - name: Run build command (aarch64) # Generic build for packages without a Dockerfile
+      if: ${{ (contains(matrix.package, 'aarch64')) && (matrix.dockerfile != '1') }}
       uses: uraimo/run-on-arch-action@v2.5.1
       with:
         arch: none
         distro: none
         base_image: ghcr.io/${{ github.repository }}/run-on-arch-${{ github.repository_owner }}-${{ github.event.repository.name }}-build-container-aarch64-ubuntu20-04:latest # built from build-container.yaml
         setup: |
-          grep -q ${{ matrix.package }} ${PWD}/3p-package-source/package_build_list_host_linux.json || rm ${PWD}/3p-package-source/package_build_list_host_linux.json
+          grep -q ${{ matrix.package }} ${PWD}/source/package_build_list_host_linux.json || rm ${PWD}/source/package_build_list_host_linux.json
         dockerRunArgs: |
           --platform=linux/arm64 
-          --user ${{ steps.get-user.outputs.uid_gid }}
+          --user ${{ steps.configure.outputs.uid_gid }}
           --volume "${PWD}:/workspace"
-          --volume "${PWD}/3p-package-scripts:/scripts"
-          --volume "${PWD}/3p-package-source:/source"
+          --volume "${PWD}/scripts:/scripts"
+          --volume "${PWD}/source:/source"
         env: |
           CMAKE_CXX_COMPILER_LAUNCHER: sccache
           CMAKE_C_COMPILER_LAUNCHER: sccache
@@ -210,7 +217,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.package }}
-        path: 3p-package-source/packages/*
+        path: source/packages/*
 
   validate-packages:
     name: Validating ${{ matrix.package }}
