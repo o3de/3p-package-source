@@ -168,7 +168,7 @@ configure_and_build() {
  -DCURL_INCLUDE_DIR=${CURL_INSTALL}/include \
  -DCURL_LIBRARY=${dep_curl_lib} \
  -Dcrypto_INCLUDE_DIR=${DEPENDENT_OPENSSL_BASE}/include \
- -Dcrypto_LIBRARY=$DEPENDENT_OPENSSL_BASE/lib/libcrypto.a \
+ -Dcrypto_LIBRARY=${DEPENDENT_OPENSSL_BASE}/lib/libcrypto.a \
  -DOPENSSL_CRYPTO_LIBRARY=${DEPENDENT_OPENSSL_BASE}/lib/libssl.a \
  -DOPENSSL_INCLUDE_DIR=${DEPENDENT_OPENSSL_BASE}/include \
  -DZLIB_LIBRARY=${DEPENDENT_ZLIB_BASE}/lib/libz.a \
