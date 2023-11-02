@@ -23,7 +23,7 @@ configure_and_build() {
     fi
 
     echo "CMake Configure $build_type $lib_type"
-    CFLAGS="-Wno-deprecated-declarations -fPIC" CXXFLAGS="-Wno-deprecated-declarations -fPIC" cmake -S "$src_path" -B "$bld_path/${build_type}_${lib_type}" \
+    CFLAGS="-Wno-deprecated-declarations -Wno-shorten-64-to-32 -fPIC" CXXFLAGS="-Wno-deprecated-declarations -Wno-shorten-64-to-32 -fPIC" cmake -S "$src_path" -B "$bld_path/${build_type}_${lib_type}" \
           -G "Xcode" \
           -DTARGET_ARCH=APPLE \
           -DCMAKE_OSX_ARCHITECTURES="x86_64" \
@@ -33,7 +33,7 @@ configure_and_build() {
           -DENABLE_TESTING=OFF \
           -DENABLE_RTTI=ON \
           -DCUSTOM_MEMORY_MANAGEMENT=ON \
-          -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" \
+          -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer" \
           -DBUILD_SHARED_LIBS=$build_shared \
           -DCMAKE_BUILD_TYPE=$build_type \
           -DCMAKE_INSTALL_BINDIR="bin" \

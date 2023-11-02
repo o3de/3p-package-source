@@ -160,14 +160,20 @@ configure_and_build() {
  -DENABLE_TESTING=OFF \
  -DENABLE_RTTI=ON \
  -DCUSTOM_MEMORY_MANAGEMENT=ON \
- -DBUILD_ONLY=\"access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer\" \
+ -DBUILD_ONLY=\"access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer\" \
  -DBUILD_SHARED_LIBS=$build_shared \
  -DCMAKE_BUILD_TYPE=Release \
  -DCMAKE_INSTALL_BINDIR=\"bin\" \
  -DCMAKE_INSTALL_LIBDIR=\"lib\" \
- -DCMAKE_MODULE_PATH=\"$DOWNLOADED_PACKAGE_FOLDERS\" \
  -DCURL_INCLUDE_DIR=${CURL_INSTALL}/include \
- -DCURL_LIBRARY=${dep_curl_lib}"
+ -DCURL_LIBRARY=${dep_curl_lib} \
+ -Dcrypto_INCLUDE_DIR=${DEPENDENT_OPENSSL_BASE}/include \
+ -Dcrypto_LIBRARY=${DEPENDENT_OPENSSL_BASE}/lib/libcrypto.a \
+ -DOPENSSL_CRYPTO_LIBRARY=${DEPENDENT_OPENSSL_BASE}/lib/libssl.a \
+ -DOPENSSL_INCLUDE_DIR=${DEPENDENT_OPENSSL_BASE}/include \
+ -DZLIB_LIBRARY=${DEPENDENT_ZLIB_BASE}/lib/libz.a \
+ -DZLIB_INCLUDE_DIR=${DEPENDENT_ZLIB_BASE}/include \
+ -DLEGACY_BUILD=ON"
 
     echo ${CMD}
     eval ${CMD}

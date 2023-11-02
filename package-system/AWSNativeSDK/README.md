@@ -28,8 +28,8 @@ Modify AWSNativeSDK build script by adding ElasticSearch as a build target. The 
             -DTARGET_ARCH=WINDOWS ^
             -DCMAKE_CXX_STANDARD=17 ^
             -DCPP_STANDARD=17 ^
--           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" ^
-+           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;es;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" ^
+-           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer" ^
++           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;es;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer" ^
             -DENABLE_TESTING=OFF ^
             -DENABLE_RTTI=ON ^
             -DCUSTOM_MEMORY_MANAGEMENT=ON ^

@@ -226,12 +226,7 @@ ly_declare_aws_library(
 )
 
 #### MobileAnalytics ####
-ly_declare_aws_library(
-    NAME 
-        MobileAnalytics
-    LIB_FILE 
-        aws-cpp-sdk-mobileanalytics
-)
+# MobileAnalytics library no longer exists and should be replaced with AWS PinPoint or other equivalent API
 
 #### Queues ####
 ly_declare_aws_library(
