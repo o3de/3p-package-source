@@ -16,7 +16,7 @@
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",
-                    "aws_gamelift_5_5_0",
+                    "aws_gamelift_5_1_1",
                     "20.04",
                     "x86_64"
                 ],
