@@ -22,7 +22,7 @@ fi
 # Copy the source folder from the read-only $WORKSPACE/temp/src to $WORKSPACE/src
 # since the build process will write/modify the source path
 echo "Preparing source folder '$WORKSPACE/src'"
-cp -r $WORKSPACE/temp/src/GameLift-SDK-Release-5.1.1/GameLift-SDK-Release-5.1.1/GameLift-Cpp-ServerSDK-5.1.1 $WORKSPACE/src || (echo "Error copying src from $WORKSPACE/temp" && exit 1)
+cp -r $WORKSPACE/temp/src/GameLift-Cpp-ServerSDK-5.1.1/ $WORKSPACE/src || (echo "Error copying src from $WORKSPACE/temp" && exit 1)
 
 SRC_PATH=$WORKSPACE/src
 
@@ -108,8 +108,8 @@ cp -r ${BUILD_PATH_ROOT}/Static/prefix/lib ${BUILD_FOLDER}/
 cp -r ${BUILD_PATH_ROOT}/Shared/prefix/lib ${BUILD_FOLDER}/bin
 
 # Copy the license and notice files
-cp $WORKSPACE/temp/src/GameLift-SDK-Release-5.1.1/GameLift-SDK-Release-5.1.1/GameLift-Cpp-ServerSDK-5.1.1/LICENSE_AMAZON_GAMELIFT_SDK.TXT ${BUILD_FOLDER}/
-cp $WORKSPACE/temp/src/GameLift-SDK-Release-5.1.1/GameLift-SDK-Release-5.1.1/GameLift-Cpp-ServerSDK-5.1.1/NOTICE_C++_AMAZON_GAMELIFT_SDK.TXT ${BUILD_FOLDER}/
+cp $WORKSPACE/temp/src/GameLift-Cpp-ServerSDK-5.1.1/GameLift-SDK-Release-5.1.1/LICENSE_AMAZON_GAMELIFT_SDK.TXT ${BUILD_FOLDER}/
+cp $WORKSPACE/temp/src/GameLift-Cpp-ServerSDK-5.1.1/GameLift-SDK-Release-5.1.1/NOTICE_C++_AMAZON_GAMELIFT_SDK.TXT ${BUILD_FOLDER}/
 
 echo "Build Succeeded."
 
