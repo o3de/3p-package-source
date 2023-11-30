@@ -26,7 +26,7 @@
                     "build-windows.bat"
                 ],
                 "custom_install_cmd": [
-                    "copy_platform_cmakes.py"
+                    "{python}", "copy_platform_cmakes.py"
                 ]
             }
         },
@@ -34,7 +34,7 @@
             "Mac": {
                 "cmake_find_source": "FindQt.cmake.mac",
                 "package_version": "5.15.2-rev8",
-                "patch_file": "qt-image-format.patch",
+                "patch_file": "qt-mac.patch",
                 "depends_on_packages": [
                     ["tiff-4.2.0.15-rev3-mac", "c2615ccdadcc0e1d6c5ed61e5965c4d3a82193d206591b79b805c3b3ff35a4bf", ""],
                     ["zlib-1.2.11-rev5-mac", "b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096", ""]
@@ -43,15 +43,16 @@
                     "./build-darwin.sh"
                 ],
                 "custom_install_cmd": [
-                    "{python} copy_platform_cmakes.py"
+                    "{python}", "copy_platform_cmakes.py"
                 ]
             }
         },
         "Linux": {
             "Linux": {
-                "package_version": "5.15.2-rev8",
-                "patch_file": "qt-image-format.patch",
+                "package_version": "5.15.2-rev9",
+                "patch_file": "qt-linux.patch",
                 "depends_on_packages": [
+                    ["OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", ""],
                     ["tiff-4.2.0.15-rev3-linux", "2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a", ""],
                     ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
                 ],
@@ -59,13 +60,14 @@
                     "./build-linux-x86.sh"
                 ],
                 "custom_install_cmd": [
-                    "{python} copy_platform_cmakes.py"
+                    "{python}", "copy_platform_cmakes.py"
                 ]
             },
 	    "Linux-aarch64": {
-                "package_version": "5.15.2-rev8",
-                "patch_file": "qt-image-format.patch",
+                "package_version": "5.15.2-rev9",
+                "patch_file": "qt-linux.patch",
                 "depends_on_packages": [
+                    ["OpenSSL-1.1.1t-rev1-linux-aarch64", "f32721bec9c82d1bd7fb244d78d5dc4e2a47e7b808bb36027236ad377e241ea5", ""],
                     ["tiff-4.2.0.15-rev3-linux-aarch64", "429461014b21a530dcad597c2d91072ae39d937a04b7bbbf5c34491c41767f7f", ""],
                     ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""]
                 ],
@@ -73,7 +75,7 @@
                     "./build-linux-aarch64.sh"
                 ],
                 "custom_install_cmd": [
-                    "{python} copy_platform_cmakes.py"
+                    "{python}", "copy_platform_cmakes.py"
                 ]
             }
         }

@@ -10,8 +10,9 @@
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
 # Read the dependent 3P library paths from the arguments
-TIFF_PACKAGE_DIR=$1
-ZLIB_PACKAGE_DIR=$2
+TIFF_PACKAGE_DIR=/data/workspace/o3de_tiff
+ZLIB_PACKAGE_DIR=/data/workspace/o3de_zlib
+OPENSSL_PACKAGE_DIR=/data/workspace/o3de_openssl
 
 set -euo pipefail
 
@@ -20,6 +21,7 @@ MAKE_FLAGS=-j32
 echo "Building Qt5 from source with dependencies on"
 echo "    " $TIFF_PACKAGE_DIR
 echo "    " $ZLIB_PACKAGE_DIR
+echo "    " $OPENSSL_PACKAGE_DIR
 
 
 # Base the Tiff of the dependent tiff O3DE package (static)
@@ -27,10 +29,15 @@ TIFF_PREFIX=$TIFF_PACKAGE_DIR/tiff
 TIFF_INCDIR=$TIFF_PREFIX/include
 TIFF_LIBDIR=$TIFF_PREFIX/lib
 
-# We need to also bring in the zlib dependency since Tiff is a static lib dependency
+# Bring in the zlib dependency since Tiff is a static lib dependency
 ZLIB_PREFIX=$ZLIB_PACKAGE_DIR/zlib
 ZLIB_INCDIR=$ZLIB_PREFIX/include
 ZLIB_LIBDIR=$ZLIB_PREFIX/lib
+
+# Bring in the openssl dependency based 
+OPENSSL_PREFIX=$OPENSSL_PACKAGE_DIR/OpenSSL
+OPENSSL_INCDIR=$OPENSSL_PREFIX/include
+OPENSSL_LIBDIR=$OPENSSL_PREFIX/lib
 
 BUILD_PATH=/data/workspace/build
 INSTALL_PATH=/data/workspace/qt
@@ -64,12 +71,14 @@ echo Configuring Qt...
                  -no-egl \
                  -qpa xcb \
                  -xcb-xlib \
+                 -openssl \
                  -I $TIFF_INCDIR \
                  -I $ZLIB_INCDIR \
+                 -I $OPENSSL_INCDIR \
                  -L $TIFF_LIBDIR \
                  -L $ZLIB_LIBDIR \
+                 -L $OPENSSL_LIBDIR \
                  -c++std c++1z \
-                 -openssl \
                  -fontconfig
 if [ $? -ne 0 ]
 then
@@ -99,7 +108,7 @@ for qtlib in "${qtarray[@]}"; do
     echo Installing $qtlib...
     make module-$qtlib-install_subtargets
     
-    if [ ?$ -ne 0 ]
+    if [ $? -ne 0 ]
     then
         echo "Failed installing Qt module $qtlib"
         exit 1

@@ -53,7 +53,9 @@ ARG INPUT_BUILD_FOLDER=build
 ARG INPUT_INSTALL_FOLDER=install
 
 # Provide the default CMAKE_BUILD_TYPE for the 3rdParty
-ARG INPUT_CMAKE_BUILD_TYPE=Release
+# Release with debug info will be built and then the debug information
+# will be detached from the .dso
+ARG INPUT_CMAKE_BUILD_TYPE=RelWithDebInfo
 
 ENV WORKSPACE=/data/workspace
 ENV LOCAL_FILESYSTEM=$WORKSPACE/temp
