@@ -192,7 +192,7 @@ def configure_sdk_project(working_directory: WorkingDirectoryInfo,
 def build_sdk_project(source_folder: str,
                       build_folder: str,
                       build_type: str) -> None:
-    target: str = "--target aws-cpp-sdk-gamelift-server"
+    target = "--target aws-cpp-sdk-gamelift-server"
 
     build_cmd: List[str] = ["cmake",
                             f"--build {build_folder}",
