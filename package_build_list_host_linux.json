@@ -5,7 +5,6 @@
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
         "assimp-5.2.5-rev1-linux":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Linux --package-root ../../package-system --clean",
-        "AWSGameLiftServerSDK-5.1.1-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSGameLiftServerSDK --platform-name Linux-aarch64 --clean",
         "AWSGameLiftServerSDK-5.1.1-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSGameLiftServerSDK --platform-name Linux --clean",
         "AWSNativeSDK-1.11.144-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Linux --clean",
         "AWSNativeSDK-1.11.144-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Linux-aarch64 --clean",
