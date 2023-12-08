@@ -52,7 +52,6 @@
     "build_from_folder": {
         "assimp-5.2.5-rev1-linux": "package-system/assimp-linux",
         "AWSGameLiftServerSDK-5.1.1-rev1-linux": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux",
-        "AWSGameLiftServerSDK-5.1.1-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux-aarch64",
         "AWSNativeSDK-1.11.144-rev1-linux": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux",
         "AWSNativeSDK-1.11.144-rev1-linux-aarch64": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux-aarch64",
         "cityhash-1.1-rev1-linux": "package-system/cityhash/temp/cityhash-linux",
