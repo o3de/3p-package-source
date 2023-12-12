@@ -60,7 +60,6 @@ jobs:
               continue
             fi
 
-
             PACKAGE=$(echo $DIFF | cut -d'"' -f2)
             PACKPATH=$(echo $DIFF | egrep -o "package-system/[^ ]*")
             DOCKER=$(test -f "$PACKPATH/Dockerfile" && echo 1 || echo 0)
