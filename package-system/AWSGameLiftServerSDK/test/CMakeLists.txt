@@ -40,6 +40,7 @@ endfunction()
 
 PROJECT(test_AWSGameLift VERSION 1.0 LANGUAGES CXX)
 
+find_package(Threads REQUIRED)
 find_package(OpenSSL)
 find_package(AWSGameLiftServerSDK)
 
