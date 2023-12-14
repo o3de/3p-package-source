@@ -1,4 +1,4 @@
-#
+m#
 # Copyright (c) Contributors to the Open 3D Engine Project.
 # For complete copyright and license terms please see the LICENSE at the root of this distribution.
 # 
@@ -61,7 +61,7 @@ mkdir $SCRIPT_DIR/package
 echo ""
 echo "---------------- Cloning python 3.10.5 from git ----------------"
 echo ""
-git clone https://github.com/python/cpython.git --branch "v3.10.5" --depth 1
+git clone https://github.com/python/cpython.git --branch "v3.10.13" --depth 1
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error cloning python from https://github.com/python/cpython.git"
@@ -209,9 +209,9 @@ echo ""
 echo "---------------- Removing pip references from ensurepip ----------------"
 echo ""
 rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/_bundled/pip-20*.whl
-cat $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py_temp
-rm $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py
-mv $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py
+# cat $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py_temp
+# rm $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py
+# mv $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py
 
 echo ""
 echo "----------------  Cleaning temp folder ----------------"
