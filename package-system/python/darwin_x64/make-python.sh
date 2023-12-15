@@ -209,9 +209,6 @@ echo ""
 echo "---------------- Removing pip references from ensurepip ----------------"
 echo ""
 rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/_bundled/pip-20*.whl
-# cat $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py_temp
-# rm $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py
-# mv $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py
 
 echo ""
 echo "----------------  Cleaning temp folder ----------------"
