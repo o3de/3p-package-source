@@ -24,7 +24,7 @@ endif()
 # Python_Development_FOUND - The platform we are cross compiling for can link to python
 # and a target called 3rdParty::Python that you can use to depend on
 
-set(${MY}_VERSION 3.10.5)
+set(${MY}_VERSION 3.10.13)
 set(${MY}_INTERPRETER_ID    "Python")
 set(${MY}_EXECUTABLE        ${CMAKE_CURRENT_LIST_DIR}/python/python.exe)
 set(${MY}_HOME              ${CMAKE_CURRENT_LIST_DIR}/python)

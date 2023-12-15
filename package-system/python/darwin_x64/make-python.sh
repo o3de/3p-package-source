@@ -59,7 +59,7 @@ cd temp
 mkdir $SCRIPT_DIR/package
 
 echo ""
-echo "---------------- Cloning python 3.10.5 from git ----------------"
+echo "---------------- Cloning python 3.10.13 from git ----------------"
 echo ""
 git clone https://github.com/python/cpython.git --branch "v3.10.13" --depth 1
 retVal=$?
@@ -167,8 +167,8 @@ cd $RELOC_SRC_DIR
 echo ""
 echo "---------------- Altering the produced framework folder to be relocatable ----------------"
 echo ""
-echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.5 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
-$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.5 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not make python relocatable!"

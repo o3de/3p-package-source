@@ -1,5 +1,5 @@
 {
-    "PackageName" : "python-3.10.5-rev2-linux",
+    "PackageName" : "python-3.10.13-rev1-linux",
     "License"     : "PSF-2.0",
     "URL"         : "https://python.org",
     "LicenseFile" : "python/LICENSE"

@@ -47,10 +47,10 @@ mkdir -p temp
 
 
 echo ""
-echo "--------------- Cloning python 3.10.5 from git ---------------"
+echo "--------------- Cloning python 3.10.13 from git ---------------"
 echo ""
 cd temp
-git clone https://github.com/python/cpython.git --branch v3.10.5 --depth 1
+git clone https://github.com/python/cpython.git --branch v3.10.13 --depth 1
 
 if [[ ! -d "cpython" ]]; then
     echo "Was unable to create cpython dir via git clone.  Is git installed?"
@@ -174,7 +174,7 @@ fi
 # Prepare the package folder
 cd $SCRIPT_DIR
 
-# Install the newly built python 3.10.5 to the package/python folder
+# Install the newly built python 3.10.13 to the package/python folder
 cd $SCRIPT_DIR
 cd temp
 cd cpython
