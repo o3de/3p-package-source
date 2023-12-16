@@ -55,7 +55,5 @@ find_package(AWSGameLiftServerSDK)
 
 add_executable(test_AWSGameLift test_AWSGameLiftServer.cpp)
 
-target_link_libraries(test_AWSGameLift Threads::Threads)
 
-
-target_link_libraries(test_AWSGameLift PRIVATE 3rdParty::OpenSSL 3rdParty::AWSGameLiftServerSDK)
+target_link_libraries(test_AWSGameLift PRIVATE Threads::Threads 3rdParty::OpenSSL 3rdParty::AWSGameLiftServerSDK)
