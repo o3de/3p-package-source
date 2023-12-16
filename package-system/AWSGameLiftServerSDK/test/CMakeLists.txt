@@ -45,9 +45,13 @@ find_package(AWSGameLiftServerSDK)
 
 add_executable(test_AWSGameLift test_AWSGameLiftServer.cpp)
 
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 if (CMAKE_USE_PTHREADS_INIT)
     target_link_libraries(test_AWSGameLift INTERFACE ${CMAKE_THREAD_LIBS_INIT})
+else()
+    message(WARNING "CMAKE_USE_PTHREADS_INIT is undefined!")
 endif ()
 
 target_link_libraries(test_AWSGameLift PRIVATE 3rdParty::OpenSSL 3rdParty::AWSGameLiftServerSDK)
