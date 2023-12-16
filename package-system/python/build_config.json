@@ -35,7 +35,7 @@
                 ],
                "custom_build_cmd": [
                     "./build-linux.sh",
-                    "python_3_10_5",
+                    "python_3_10_13",
                     "20.04",
                     "aarch64"
                 ],
