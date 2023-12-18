@@ -48,6 +48,12 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE} INTERFACE $
 if (LY_MONOLITHIC_GAME)
     target_link_libraries(${TARGET_WITH_NAMESPACE} INTERFACE ${AWSGAMELIFTSERVERSDK_LIBS})
 else()
+    # Modules using aws-cpp-sdk-gamelift-server functionality will needs pThreads to link.
+    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+    find_package(Threads REQUIRED)
+    target_link_libraries(test_AWSGameLift PRIVATE Threads::Threads)
+
     target_link_libraries(${TARGET_WITH_NAMESPACE} INTERFACE ${AWSGAMELIFTSERVERSDK_LIBS})
     ly_add_dependencies(${TARGET_WITH_NAMESPACE} ${AWSGAMELIFTSERVERSDK_LIBS})
 endif()
