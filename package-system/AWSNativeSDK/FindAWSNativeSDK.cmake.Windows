@@ -100,6 +100,7 @@ set(CORE_STATIC_LIBS
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-compression.lib
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-cal.lib
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-common.lib
+    ${AWSNATIVE_SDK_LIB_PATH}/aws-c-sdkutils.lib
     Ncrypt
     Secur32
     Shlwapi
@@ -120,6 +121,7 @@ set(CORE_SHARED_LIBS
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-compression.dll
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-cal.dll
     ${AWSNATIVE_SDK_LIB_PATH}/aws-c-common.dll
+    ${AWSNATIVE_SDK_LIB_PATH}/aws-c-sdkutils.dll
 )
 
 if(LY_MONOLITHIC_GAME)
@@ -244,15 +246,7 @@ ly_declare_aws_library(
 )
 
 #### MobileAnalytics ####
-ly_declare_aws_library(
-    NAME 
-        MobileAnalytics
-    LIB_FILE 
-        aws-cpp-sdk-mobileanalytics
-    BUILD_DEPENDENCIES
-        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
-        3rdParty::AWSNativeSDK::Core 
-)
+# MobileAnalytics library no longer exists and should be replaced with AWS PinPoint or other equivalent API
 
 #### Queues ####
 ly_declare_aws_library(

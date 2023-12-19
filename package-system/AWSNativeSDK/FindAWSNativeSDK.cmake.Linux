@@ -92,6 +92,7 @@ set(CORE_STATIC_LIBS
     ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-compression.a
     ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-cal.a
     ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-common.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-sdkutils.a
     ${AWSNATIVE_SDK_LIB_PATH}/libs2n.a
     ${AWSNATIVE_SDK_LIB_PATH}/libcurl.a
 )
@@ -215,15 +216,7 @@ ly_declare_aws_library(
 )
 
 #### MobileAnalytics ####
-ly_declare_aws_library(
-    NAME 
-        MobileAnalytics
-    LIB_FILE 
-        aws-cpp-sdk-mobileanalytics
-    BUILD_DEPENDENCIES
-        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
-        3rdParty::AWSNativeSDK::Core 
-)
+# MobileAnalytics library no longer exists and should be replaced with AWS PinPoint or other equivalent API
 
 #### Queues ####
 ly_declare_aws_library(

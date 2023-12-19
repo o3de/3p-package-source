@@ -53,12 +53,12 @@ IF %LIB_TYPE% EQU Shared (
 )
 ECHO "CMake Configure %BUILD_TYPE% %LIB_TYPE%"
 call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
-           -G "Visual Studio 16 2019" ^
+           -G "Visual Studio 17 2022" ^
            -A x64 ^
            -DTARGET_ARCH=WINDOWS ^
            -DCMAKE_CXX_STANDARD=17 ^
            -DCPP_STANDARD=17 ^
-           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" ^
+           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer" ^
            -DENABLE_TESTING=OFF ^
            -DENABLE_RTTI=ON ^
            -DCUSTOM_MEMORY_MANAGEMENT=ON ^
@@ -66,7 +66,8 @@ call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
            -DBUILD_SHARED_LIBS=%BUILD_SHARED% ^
            -DCMAKE_BUILD_TYPE="%BUILD_TYPE%" ^
            -DCMAKE_INSTALL_BINDIR="bin" ^
-           -DCMAKE_INSTALL_LIBDIR="lib"
+           -DCMAKE_INSTALL_LIBDIR="lib" ^
+           -DLEGACY_MODE=OFF
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "CMake Configure %BUILD_TYPE% %LIB_TYPE% failed"
     exit /b 1
