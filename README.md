@@ -18,7 +18,7 @@ Some notable examples
  See the documentation (README.md in 3p-package-scripts repo for a full description of how to author packages.)
  
 ## Setup Packages Using Prebuilt Libraries
-3rdParty packages depend on prebuilt libraries. This allows 3rdParty authors to ship their libraries (.dll, .lib, .so, .a, etc) so customers do not need source code. This section covers how to author 3rdParty packages to avoid linker errors.
+3rdParty packages depend on prebuilt libraries. This allows 3rdParty authors to ship their libraries (.dll, .lib, .so, .a, etc) so customers do not need source code. This section covers how to author packages that depend on prebuilt libraries who also have dependencies of their own.
 
 ### The Problem
 There was problems early on with O3DE 3rdParty libraries. Many 3rdParties used [CMake interface libraries](https://cmake.org/cmake/help/latest/command/add_library.html#interface-libraries). The problem is that interfaces can only control their dependencies, not the hierarchy. For example, the O3DE LibTIFF 3rdParty depends on a prebuilt libtiff.a, and libtiff.a depends on ZLib. As an interface, the old LibTIFF used `target_link_libraries` to link in libtiff.a and ZLib. 
