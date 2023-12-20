@@ -21,7 +21,6 @@ Some notable examples
 3rdParty packages depend on prebuilt libraries. This allows 3rdParty authors to ship their libraries (.dll, .lib, .so, .a, etc) so customers do not need source code. This section covers how to author 3rdParty packages to avoid linker errors.
 
 ### The Problem
-
 There was problems early on with O3DE 3rdParty libraries. Many 3rdParties used [CMake interface libraries](https://cmake.org/cmake/help/latest/command/add_library.html#interface-libraries). The problem is that interfaces can only control their dependencies, not the hierarchy. For example, the O3DE LibTIFF 3rdParty depends on a prebuilt libtiff.a, and libtiff.a depends on ZLib. As an interface, the old LibTIFF used `target_link_libraries` to link in libtiff.a and ZLib. 
 
 ```
@@ -35,7 +34,6 @@ target_link_libraries(TIFF::TIFF INTERFACE ZLIB::ZLIB "${TIFF_LIBRARY}")  # No a
 This is a flat dependency list, and so there was no way to tell that libtiff.a depends on ZLib. When CMake generates a Makefile it is free to list those libraries in any order. Depending on the order, libtiff could fail find ZLib definitions. As a result, a program using the LibTIFF 3rdParty would fail to link.
 
 ### The Proper Way to Declare a Prebuilt Library Dependency
-
 Instead of INTERFACE, use whatever library target type has been prebuilt.
 
 - `add_library(<libname> STATIC IMPORTED)` for a static library
