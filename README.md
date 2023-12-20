@@ -43,7 +43,7 @@ Instead of using INTERFACE, use whatever library target type has been prebuilt.
 Today's LibTIFF is a proper example of how to declare static library dependencies. The 3rdParty [specifies the path to the library file on disk](https://cmake.org/cmake/help/latest/prop_tgt/IMPORTED_LOCATION.html). In this case, 3rdParty::TIFF points to the prebuilt libtiff.a. The 3rdParty, now acting as a wrapper, can tack on dependencies required by the static library.
 
 ```
-# Add the CMake standard TIFF::TIFF library. It is a static library. 
+# Add the CMake standard 3rdParty::TIFF library. It is a static library. 
 add_library(3rdParty::TIFF STATIC IMPORTED GLOBAL) 
 
 set_target_properties(3rdParty::TIFF PROPERTIES IMPORTED_LOCATION "${TIFF_LIBRARY}") 
