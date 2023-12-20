@@ -29,10 +29,10 @@ add_library(TIFF::TIFF INTERFACE IMPORTED GLOBAL)
 target_link_libraries(TIFF::TIFF INTERFACE ZLIB::ZLIB "${TIFF_LIBRARY}")  # No actual dependency between ZLib and TIFF and thus has undefined link order.
 ```
 
-This is a flat dependency list, and so there was no way to tell that libtiff.a depends on ZLib. When CMake generates a Makefile it is free to list those libraries in any order. Depending on the order, libtiff could fail find ZLib definitions. As a result, a program using the LibTIFF 3rdParty would fail to link.
+This is a flat dependency list, and so there was no way to tell that libtiff.a depends on ZLib. When CMake generates a Makefile it is free to list those libraries in any order. Depending on the order, LibTIFF could fail find ZLib definitions. As a result, a program using the LibTIFF 3rdParty would fail to link.
 
 ### The Proper Way to Declare a Prebuilt Library Dependency
-Instead of INTERFACE, use whatever library target type has been prebuilt.
+Instead of using INTERFACE, use whatever library target type has been prebuilt.
 
 - `add_library(<libname> STATIC IMPORTED)` for a static library
 
