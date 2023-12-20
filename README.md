@@ -24,9 +24,9 @@ Some notable examples
 There was problems early on with O3DE 3rdParty libraries. Many 3rdParties used [CMake interface libraries](https://cmake.org/cmake/help/latest/command/add_library.html#interface-libraries). The problem is that interfaces can only control their dependencies, not the hierarchy. For example, the O3DE LibTIFF 3rdParty depends on a prebuilt libtiff.a, and libtiff.a depends on ZLib. As an interface, the old LibTIFF used `target_link_libraries` to link in libtiff.a and ZLib. 
 
 ```
-add_library(TIFF::TIFF INTERFACE IMPORTED GLOBAL)
+add_library(3rdParty::TIFF INTERFACE IMPORTED GLOBAL)
 
-target_link_libraries(TIFF::TIFF INTERFACE ZLIB::ZLIB "${TIFF_LIBRARY}")  # No actual dependency between ZLib and TIFF and thus has undefined link order.
+target_link_libraries(3rdParty::TIFF INTERFACE ZLIB::ZLIB "${TIFF_LIBRARY}")  # No actual dependency between ZLib and TIFF and thus has undefined link order.
 ```
 
 This is a flat dependency list, and so there was no way to tell that libtiff.a depends on ZLib. When CMake generates a Makefile it is free to list those libraries in any order. Depending on the order, LibTIFF could fail find ZLib definitions. As a result, a program using the LibTIFF 3rdParty would fail to link.
