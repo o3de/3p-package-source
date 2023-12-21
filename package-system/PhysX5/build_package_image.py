@@ -90,6 +90,8 @@ class PhysXBuilder(object):
         self.check_call(
             ['git', 'checkout', lockToCommit,],
         )
+        # update pacman to according https://github.com/NVIDIA-Omniverse/PhysX/discussions/230
+        self.check_call(['physx/buildtools/packman/packman', 'update', '-y'])
             
     def preparePreset(self, buildAsStaticLibs, config):
         preset_index = 0
