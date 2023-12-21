@@ -30,7 +30,7 @@ PACKAGE_LICENSE: str = "Apache-2.0"
 PACKAGE_LICENSE_FILE: str = "LICENSE_AMAZON_GAMELIFT_SDK.TXT"
 
 GAMELIFT_SERVER_SDK_RELEASE_VERSION: str = O3DE_PACKAGE_NAME_PARTS[1]
-GAMELIFT_SERVER_SDK_DOWNLOAD_URL: str = "https://gamelift-release.s3-us-west-2.amazonaws.com/GameLift-SDK-Release-5.0.0.zip"
+GAMELIFT_SERVER_SDK_DOWNLOAD_URL: str = "https://gamelift-server-sdk-release.s3.us-west-2.amazonaws.com/cpp/GameLift-Cpp-ServerSDK-5.1.1.zip"
 
 PACKAGE_BASE_PATH: pathlib.Path = pathlib.Path(os.path.dirname(__file__))
 PACKAGE_ROOT_PATH: pathlib.Path = PACKAGE_BASE_PATH.parent
@@ -117,8 +117,7 @@ def prepare_working_directory() -> WorkingDirectoryInfo:
         delete_folder(root_directory)
 
     # source and build directory
-    source_directory: pathlib.Path = \
-        root_directory.joinpath(f"GameLift-SDK-Release-{GAMELIFT_SERVER_SDK_RELEASE_VERSION}/GameLift-Cpp-ServerSDK-{GAMELIFT_SERVER_SDK_RELEASE_VERSION}")
+    source_directory = root_directory
     build_directory: pathlib.Path = root_directory.joinpath("build")
     build_directory.mkdir(parents=True)
 
@@ -141,14 +140,8 @@ def download_gamelift_server_sdk(working_directory: WorkingDirectoryInfo) -> Non
 
     # unzip sdk contents
     with zipfile.ZipFile(gamelift_sdk_zip_file, "r") as f:
-        cpp_serversdk_folder = f"GameLift-SDK-Release-{GAMELIFT_SERVER_SDK_RELEASE_VERSION}/GameLift-Cpp-ServerSDK"
         unzip_path = working_directory.root_path.resolve()
-        for file in f.namelist():
-            # Only unzip the GameLift-Cpp-ServerSDK folder, which is the only SDK we build
-            # because other folders inside the zip such as the __MACOSX metadata file structure
-            # and the Go SDK can exceed the max path on windows
-            if file.startswith(cpp_serversdk_folder):
-                f.extract(file, unzip_path)
+        f.extractall(unzip_path)
 
 # get required custom environment for package build
 def get_custom_build_env():
@@ -169,10 +162,7 @@ def configure_sdk_project(working_directory: WorkingDirectoryInfo,
     source_folder: str = working_directory.source_path.resolve()
     build_shared: str = "ON" if lib_type == "Shared" else "OFF"
     if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
-        # We need to explicitly build using the VS 2019 toolset. If we built using VS 2022
-        # then if we try to link against this library from VS 2019 there will be unresolved
-        # symbols for __std_init_once_link_alternate_names_and_abort and __std_find_trivial_1
-        generator: str = "-T v142"
+        generator: str = '-G "Visual Studio 17 2022" -A x64'
     elif PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
         generator: str = "-G \"Unix Makefiles\""
     else:
@@ -202,12 +192,7 @@ def configure_sdk_project(working_directory: WorkingDirectoryInfo,
 def build_sdk_project(source_folder: str,
                       build_folder: str,
                       build_type: str) -> None:
-    if PACKAGE_PLATFORM == PACKAGE_PLATFORM_OPTIONS[0]:
-        target: str = "--target ALL_BUILD"
-    elif PACKAGE_PLATFORM in (PACKAGE_PLATFORM_OPTIONS[1], PACKAGE_PLATFORM_OPTIONS[2]):
-        target: str = ""
-    else:
-        raise Exception(f"Error unsupported platform: {PACKAGE_PLATFORM}")
+    target = "--target aws-cpp-sdk-gamelift-server"
 
     build_cmd: List[str] = ["cmake",
                             f"--build {build_folder}",
@@ -263,7 +248,7 @@ def build_gamelift_server_sdk(working_directory: WorkingDirectoryInfo,
                               lib_type: str) -> None:
     build_folder: pathlib.Path = working_directory.build_path.joinpath(f"{build_type}_{lib_type}").resolve()
 
-    print(f"Generating GameLift Server SDK project with {build_type} {lib_type} configuration...")
+    print(f"Generating GameLift Server SDK project from source ({working_directory.source_path}) with {build_type} {lib_type} configuration...")
     configure_sdk_project(working_directory, build_folder.resolve(), build_type, lib_type)
 
     print(f"Building GameLift Server SDK project with {build_type} {lib_type} configuration...")
