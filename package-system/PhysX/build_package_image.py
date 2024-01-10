@@ -21,6 +21,14 @@ import builders.monkeypatch_tempdir_cleanup
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--package-name',
+        required=True
+    )
+    parser.add_argument(
+        '--package-rev',
+        required=True
+    )
+    parser.add_argument(
         '--platform-name',
         dest='platformName',
         choices=['windows', 'android', 'mac', 'ios', 'linux', 'linux-aarch64'],
@@ -119,7 +127,7 @@ def main():
                 builder.writePackageInfoFile(
                     outputDir,
                     settings={
-                        'PackageName': f'PhysX-4.1.2.29882248-rev6-{args.platformName}',
+                        'PackageName': f'{args.package_name}-{args.package_rev}-{args.platformName}',
                         'URL': 'https://github.com/NVIDIAGameWorks/PhysX',
                         'License': 'BSD-3-Clause',
                         'LicenseFile': 'PhysX/LICENSE.md'
@@ -130,6 +138,7 @@ def main():
                     outputDir,
                     template=cmakeFindFileTemplate,
                     templateEnv=extraLibsPerPlatform[vcpkg_platform],
+                    overwrite_find_file='PhysX4'
                 )
 
             firstTime = False

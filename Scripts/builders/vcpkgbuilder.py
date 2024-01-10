@@ -226,7 +226,7 @@ class VcpkgBuilder(object):
         with (packageDir / 'PackageInfo.json').open('w') as fh:
             json.dump(settings, fh, indent=4)
 
-    def writeCMakeFindFile(self, packageDir: pathlib.Path, template, templateEnv:dict):
-        cmakeFindFile = packageDir / f'Find{self.packageName}.cmake'
+    def writeCMakeFindFile(self, packageDir: pathlib.Path, template, templateEnv:dict, overwrite_find_file:str or None):
+        cmakeFindFile = packageDir / f'Find{overwrite_find_file or self.packageName}.cmake'
         cmakeFindFile.write_text(string.Template(template).substitute(templateEnv))
 
