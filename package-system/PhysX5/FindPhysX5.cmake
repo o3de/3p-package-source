@@ -6,7 +6,7 @@
 #
 #
 
-set(MY_NAME "PhysX")
+set(MY_NAME "PhysX5")
 set(TARGET_WITH_NAMESPACE "3rdParty::${MY_NAME}")
 if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
