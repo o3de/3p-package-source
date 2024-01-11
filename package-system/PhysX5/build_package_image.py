@@ -92,6 +92,10 @@ class PhysXBuilder(object):
         self.check_call(
             ['git', 'checkout', lockToCommit,],
         )
+        self.check_call(
+            ['git', 'apply', '--whitespace=fix', (pathlib.Path(__file__).parent / 'build_fix.patch').absolute()]
+        )
+
             
     def preparePreset(self, buildAsStaticLibs, config):
         preset_index = 0
@@ -111,7 +115,7 @@ class PhysXBuilder(object):
         elif self.platform == 'linux' or self.platform == 'linux-aarch64':
             content = re.sub('name="PX_BUILDSNIPPETS" value="(True|False)"', f'name="PX_BUILDSNIPPETS" value="False"', content, flags = re.M)
             content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="False"', content, flags = re.M)
-            
+    
         self.writeFile(preset_file, content)
 
         # Ignore poison-system-directories warning when building mac/ios caused 
