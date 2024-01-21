@@ -23,7 +23,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent / 'Scripts'))
 import builders.monkeypatch_tempdir_cleanup
 
 class PhysXBuilder(object):
-    def __init__(self, workingDir: pathlib.Path, basePackageSystemDir: pathlib.Path, targetPlatform: str):
+    def __init__(self, workingDir: pathlib.Path, basePackageSystemDir: pathlib.Path, targetPlatform: str, build_static: bool, build_shared: bool):
         self._workingDir = workingDir
         self._packageSystemDir = basePackageSystemDir
         self._platform = targetPlatform
@@ -32,6 +32,11 @@ class PhysXBuilder(object):
         self._env.update(
             GW_DEPS_ROOT=str(workingDir),
         )
+        assert build_static or build_shared, "At least one of 'build_static' or 'build_shared' must be set to True"
+        self._build_static = build_static
+        self._build_shared = build_shared
+
+
 
         self.check_call = functools.partial(subprocess.check_call,
             cwd=self.workingDir,
@@ -133,7 +138,7 @@ class PhysXBuilder(object):
         # Remove dynamic libraries repeated in static folders to save space.
         # Also freeglut is not necessary for PhysX.
         if self.platform == 'windows':
-            if buildAsStaticLibs:
+            if buildAsStaticLib and self._build_shared:
                 for config in ('release', 'profile', 'checked', 'debug'):
                     os.remove(static_bin_dir / config / 'PhysXDevice64.dll')
                     os.remove(static_bin_dir / config / 'PhysXGpu_64.dll')
@@ -149,7 +154,7 @@ class PhysXBuilder(object):
                         os.remove(shared_bin_dir / config / 'freeglut.dll')
             
         elif self.platform == 'linux' or self.platform == 'linux-aarch64':
-            if buildAsStaticLibs:
+            if buildAsStaticLibs and self._build_shared:
                 for config in ('release', 'profile', 'checked', 'debug'):
                     os.remove(static_bin_dir / config / 'libPhysXGpu_64.so')
             
@@ -222,25 +227,39 @@ class PhysXBuilder(object):
              
         self.cleanUpLibs(buildAsStaticLibs)
 
+    def build_all(self):
+        if self._build_static:
+            self.build(buildAsStaticLibs=True)
+        if self._build_shared:
+            self.build(buildAsStaticLibs=False)
+
     def copyBuildOutputTo(self, packageDir: pathlib.Path):
         if packageDir.exists():
             shutil.rmtree(packageDir)
             
-        shutil.copytree(
-            src=self.workingDir / 'physx' / 'install' / 'shared' / 'PhysX',
-            dst=packageDir / 'physx',
-            symlinks=True,
-        )
-        shutil.copytree(
-            src=self.workingDir / 'physx' / 'bin' / 'shared',
-            dst=packageDir / 'physx' / 'bin' / 'shared',
-            symlinks=True,
-        )
-        shutil.copytree(
-            src=self.workingDir / 'physx' / 'bin' / 'static',
-            dst=packageDir / 'physx' / 'bin' / 'static',
-            symlinks=True,
-        )
+
+        if self._build_shared:
+            shutil.copytree(
+                src=self.workingDir / 'physx' / 'install' / 'shared' / 'PhysX',
+                dst=packageDir / 'physx',
+                symlinks=True,
+            )
+            shutil.copytree(
+                src=self.workingDir / 'physx' / 'bin' / 'shared',
+                dst=packageDir / 'physx' / 'bin' / 'shared',
+                symlinks=True,
+            )
+        if self._build_static:
+            shutil.copytree(
+                src=self.workingDir / 'physx' / 'install' / 'static' / 'PhysX',
+                dst=packageDir / 'physx',
+                symlinks=True,
+            )
+            shutil.copytree(
+                src=self.workingDir / 'physx' / 'bin' / 'static',
+                dst=packageDir / 'physx' / 'bin' / 'static',
+                symlinks=True,
+            )
         shutil.copy2(
             src=self.workingDir / 'README.md',
             dst=packageDir / 'README.md',
@@ -273,10 +292,10 @@ class PhysXBuilder(object):
             'windows': [
                 ['\\${EXTRA_SHARED_LIBS}',
                  ''.join(('\n',
-                    '\t${PATH_TO_SHARED_LIBS}/PhysXDevice64.dll\n',
-                    '\t${PATH_TO_SHARED_LIBS}/PhysXGpu_64.dll\n'
+                    '\t${PATH_TO_LIBS}/PhysXDevice64.dll\n',
+                    '\t${PATH_TO_LIBS}/PhysXGpu_64.dll\n'
                 ))],
-                ['\\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}',
+                ['\\${EXTRA_STATIC_LIBS}',
                  ''.join(('\n',
                     '\t${PATH_TO_LIBS}/LowLevel_static_64.lib\n',
                     '\t${PATH_TO_LIBS}/LowLevelAABB_static_64.lib\n',
@@ -287,23 +306,23 @@ class PhysXBuilder(object):
                 ))],
             ],
             'linux': [
-                ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_SHARED_LIBS}/libPhysXGpu_64.so'],
-                ['\\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}', ''],
+                ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_LIBS}/libPhysXGpu_64.so'],
+                ['\\${EXTRA_STATIC_LIBS}', ''],
             ],
             'linux-aarch64': [
-                ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_SHARED_LIBS}/libPhysXGpu_64.so'],
-                ['\\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}', ''],
+                ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_LIBS}/libPhysXGpu_64.so'],
+                ['\\${EXTRA_STATIC_LIBS}', ''],
             ],
             'mac': [
                 ['\\${EXTRA_SHARED_LIBS}', ''],
-                ['\\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}', ''],
+                ['\\${EXTRA_STATIC_LIBS}', ''],
             ],
             # iOS has its own FindPhysX file where it doesn't need to do any adjustments.
             'ios': [
             ],
             'android': [
                 ['\\${EXTRA_SHARED_LIBS}', ''],
-                ['\\${EXTRA_STATIC_LIBS_NON_MONOLITHIC}', ''],
+                ['\\${EXTRA_STATIC_LIBS}', ''],
             ],
         }
         
@@ -360,11 +379,14 @@ def main():
             commit = '0bbcff3d0c541325f4d14c36ee18f24e22e35e6e' # Commit for 5.1.1 version
             
         tempdir = Path(tempdir)
-        builder = PhysXBuilder(workingDir=tempdir, basePackageSystemDir=packageSystemDir, targetPlatform=args.platformName)
+        builder = PhysXBuilder(workingDir=tempdir,
+                               basePackageSystemDir=packageSystemDir,
+                               targetPlatform=args.platformName,
+                               build_shared=False,
+                               build_static=True)
         builder.clone(lockToCommit=commit)
         
-        builder.build(buildAsStaticLibs=False)
-        builder.build(buildAsStaticLibs=True)
+        builder.build_all()
         builder.copyBuildOutputTo(packageRoot/'PhysX')
         
         builder.writePackageInfoFile(

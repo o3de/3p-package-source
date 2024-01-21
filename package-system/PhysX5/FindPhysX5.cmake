@@ -20,7 +20,8 @@ set(${MY_NAME}_INCLUDE_DIR
     ${_PACKAGE_DIR}/include/geometry
 )
 
-set(${MY_NAME}_COMPILE_DEFINITIONS $<$<BOOL:${LY_MONOLITHIC_GAME}>:PX_PHYSX_STATIC_LIB>)
+# We will only use the static libs for linking
+set(${MY_NAME}_COMPILE_DEFINITIONS PX_PHYSX_STATIC_LIB)
 
 # LY_PHYSX_PROFILE_USE_CHECKED_LIBS allows to override what PhysX configuration to use on O3DE profile.
 set(LY_PHYSX_PROFILE_USE_CHECKED_LIBS OFF CACHE BOOL "When ON it uses PhysX SDK checked libraries on O3DE profile configuration")
@@ -30,8 +31,8 @@ else()
     set(PHYSX_PROFILE_CONFIG "profile")
 endif()
 
-set(PATH_TO_LIBS ${_PACKAGE_DIR}/bin/$<IF:$<BOOL:${LY_MONOLITHIC_GAME}>,static,shared>/$<IF:$<CONFIG:profile>,${PHYSX_PROFILE_CONFIG},$<CONFIG>>)
-set(PATH_TO_SHARED_LIBS ${_PACKAGE_DIR}/bin/shared/$<IF:$<CONFIG:profile>,${PHYSX_PROFILE_CONFIG},$<CONFIG>>)
+# Set the generator-expression path to the static libs
+set(PATH_TO_LIBS ${_PACKAGE_DIR}/bin/static/$<IF:$<CONFIG:profile>,${PHYSX_PROFILE_CONFIG},$<CONFIG>>)
 
 if(DEFINED CMAKE_IMPORT_LIBRARY_SUFFIX)
     set(import_lib_prefix ${CMAKE_IMPORT_LIBRARY_PREFIX})
@@ -41,88 +42,73 @@ else()
     set(import_lib_suffix ${CMAKE_SHARED_LIBRARY_SUFFIX})
 endif()
 
-set(${MY_NAME}_LIBRARIES
-    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXCharacterKinematic_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXVehicle_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXExtensions_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
-    ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}PhysXPvdSDK_static_64${CMAKE_STATIC_LIBRARY_SUFFIX}
-)
-
-set(extra_static_libs ${EXTRA_STATIC_LIBS_NON_MONOLITHIC})
+set(extra_static_libs ${EXTRA_STATIC_LIBS})
 set(extra_shared_libs ${EXTRA_SHARED_LIBS})
 
-if(LY_MONOLITHIC_GAME)
-    if(LY_PHYSX_PROFILE_USE_CHECKED_LIBS)
-        set(MONO_PATH_TO_STATIC_LIBS ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/bin/static/checked)
-    else()
-        set(MONO_PATH_TO_STATIC_LIBS ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/bin/static/profile)
-    endif()
-    # The order of PhysX 5.x static libraries is important for monolithic targets.
-    set(IMPORTED_PHYSICS_LIBS_SUFFIX
-        _static_64
-        PvdSDK_static_64
-        Vehicle_static_64
-        CharacterKinematic_static_64
-        Extensions_static_64
-        Cooking_static_64
-        Common_static_64
-        Foundation_static_64
-    )
-    foreach(PHYSICS_LIB_SUFFIX ${IMPORTED_PHYSICS_LIBS_SUFFIX})
-        # To prevent collision of target names for other versions of PhysX that produce the same library files,
-        # use the base ${MY_NAME} to define the cmake target, but retain the original 'PhysX*' filename.
-        set(PHYSICS_LIB ${MY_NAME}${PHYSICS_LIB_SUFFIX})
-        set(PHYSICS_LIB_BASE_FILENAME PhysX${PHYSICS_LIB_SUFFIX})
-        add_library(${PHYSICS_LIB}::imported STATIC IMPORTED GLOBAL)
-        set(${PHYSICS_LIB}_PATH ${MONO_PATH_TO_STATIC_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB_BASE_FILENAME}${CMAKE_STATIC_LIBRARY_SUFFIX})
-        set_target_properties(${PHYSICS_LIB}::imported
-            PROPERTIES
-                IMPORTED_LOCATION_DEBUG   ${${PHYSICS_LIB}_PATH}
-                IMPORTED_LOCATION_PROFILE ${${PHYSICS_LIB}_PATH}
-                IMPORTED_LOCATION_RELEASE ${${PHYSICS_LIB}_PATH}
-        )
-        target_link_libraries(${PHYSICS_LIB}::imported INTERFACE 
-            ${PREVIOUS_PHYSICS_LIB}
-            ${MONO_PATH_TO_STATIC_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB_BASE_FILENAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
-        )
-        set (PREVIOUS_PHYSICS_LIB ${PHYSICS_LIB}::imported)
-    endforeach()
+# The order of PhysX 5.x static libraries is important for static targets. We will loop through in order and define
+# each static library explicitly, while setting their dependency as a chain to ensure the order is preserved
 
-    add_library(Physx5_STATIC_LIBS_FOR_MONOLITHIC::imported INTERFACE IMPORTED GLOBAL)
-        target_link_libraries(Physx5_STATIC_LIBS_FOR_MONOLITHIC::imported INTERFACE
-        ${MY_NAME}Foundation_static_64::imported
+set(IMPORTED_PHYSICS_LIBS_SUFFIX
+    PhysX_static_64
+    PhysXPvdSDK_static_64
+    PhysXVehicle_static_64
+    PhysXCharacterKinematic_static_64
+    PhysXExtensions_static_64
+    PhysXCooking_static_64
+    PhysXCommon_static_64
+    PhysXFoundation_static_64
+)
+
+foreach(PHYSICS_LIB ${IMPORTED_PHYSICS_LIBS_SUFFIX})
+
+    # Set the individual target names to include a ${MY_NAME} prefix in order to prevent collisions
+    # with other 3rd party PhysX Packages of different versions while retaining the same actual
+    # filename
+
+    set(PHYSICS_LIB_NAME ${MY_NAME}${PHYSICS_LIB})
+
+    add_library(${PHYSICS_LIB_NAME}::imported STATIC IMPORTED GLOBAL)
+
+    # Set the import location (note: generator expressions are not supported as properties here, so each config needs to be explicit for its location)
+    set_target_properties(${PHYSICS_LIB_NAME}::imported
+        PROPERTIES
+            IMPORTED_LOCATION_DEBUG   ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/bin/static/debug/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
+            IMPORTED_LOCATION_PROFILE ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/bin/static/${PHYSX_PROFILE_CONFIG}/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
+            IMPORTED_LOCATION_RELEASE ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/bin/static/release/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
 
-    if(extra_shared_libs)
-        set(${MY_NAME}_RUNTIME_DEPENDENCIES
-            ${extra_shared_libs}
-        )
-    endif()
-else()
-    list(APPEND ${MY_NAME}_LIBRARIES
-        ${PATH_TO_LIBS}/${import_lib_prefix}PhysX_64${import_lib_suffix}
-        ${PATH_TO_LIBS}/${import_lib_prefix}PhysXCooking_64${import_lib_suffix}
-        ${PATH_TO_LIBS}/${import_lib_prefix}PhysXFoundation_64${import_lib_suffix}
-        ${PATH_TO_LIBS}/${import_lib_prefix}PhysXCommon_64${import_lib_suffix}
-        ${extra_static_libs}
+    # Set the target libraries dependency on any previous lib to build the order chain
+    target_link_libraries(${PHYSICS_LIB_NAME}::imported INTERFACE
+        ${PREVIOUS_PHYSICS_LIB}
+        ${PATH_TO_LIBS}/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
+    set (PREVIOUS_PHYSICS_LIB ${PHYSICS_LIB_NAME}::imported)
+
+endforeach()
+
+add_library(${MY_NAME}_STATIC_LIBS::imported INTERFACE IMPORTED GLOBAL)
+
+# Set the final ${MY_NAME}_STATIC_LIBS to the last static target defined to complete the chain
+target_link_libraries(${MY_NAME}_STATIC_LIBS::imported INTERFACE
+    ${PREVIOUS_PHYSICS_LIB}
+    ${extra_static_libs}
+)
+
+# Add any optional shared library dependency as a runtime dependency
+if(extra_shared_libs)
     set(${MY_NAME}_RUNTIME_DEPENDENCIES
-        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysX_64${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysXCooking_64${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysXFoundation_64${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${PATH_TO_LIBS}/${CMAKE_SHARED_LIBRARY_PREFIX}PhysXCommon_64${CMAKE_SHARED_LIBRARY_SUFFIX}
         ${extra_shared_libs}
     )
 endif()
 
 add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
+
 ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE} INTERFACE ${${MY_NAME}_INCLUDE_DIR})
-if(LY_MONOLITHIC_GAME)
-    target_link_libraries(${TARGET_WITH_NAMESPACE} INTERFACE Physx5_STATIC_LIBS_FOR_MONOLITHIC::imported)
-else()
-    target_link_libraries(${TARGET_WITH_NAMESPACE} INTERFACE ${${MY_NAME}_LIBRARIES})
-endif()
+
+target_link_libraries(${TARGET_WITH_NAMESPACE} INTERFACE ${MY_NAME}_STATIC_LIBS)
+
 target_compile_definitions(${TARGET_WITH_NAMESPACE} INTERFACE ${${MY_NAME}_COMPILE_DEFINITIONS})
+
 if(DEFINED ${MY_NAME}_RUNTIME_DEPENDENCIES)
     ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES ${${MY_NAME}_RUNTIME_DEPENDENCIES})
 endif()
