@@ -33,6 +33,7 @@ endif()
 
 set(PATH_TO_STATIC_LIBS $${_PACKAGE_DIR}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:$${PHYSX_PROFILE_CONFIG}>>/lib)
 set(PATH_TO_SHARED_LIBS $${_PACKAGE_DIR_SHARED}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:$${PHYSX_PROFILE_CONFIG}>>/bin)
+set(PATH_TO_ADDITIONAL_STATIC_LIBS $${_PACKAGE_DIR_SHARED}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:$${PHYSX_PROFILE_CONFIG}>>/lib)
 
 if(DEFINED CMAKE_IMPORT_LIBRARY_SUFFIX)
     set(PATH_TO_IMPORT_LIBS $${PATH_TO_STATIC_LIBS})
@@ -44,9 +45,13 @@ else()
     set(import_lib_suffix $${CMAKE_SHARED_LIBRARY_SUFFIX})
 endif()
 
-set(extra_static_libs ${EXTRA_STATIC_LIBS})
-set(extra_shared_libs ${EXTRA_SHARED_LIBS})
+set(extra_static_libs
+${EXTRA_STATIC_LIBS}
+)
 
+set(extra_shared_libs
+${EXTRA_SHARED_LIBS}
+)
 
 # The order of PhysX 5.x static libraries is important for static targets. We will loop through in order and define
 # each static library explicitly, while setting their dependency as a chain to ensure the order is preserved

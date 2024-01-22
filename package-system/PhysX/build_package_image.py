@@ -62,7 +62,7 @@ def main():
         'linux': {
             'EXTRA_SHARED_LIBS': '${PATH_TO_SHARED_LIBS}/libPhysXGpu_64.so',
             'EXTRA_STATIC_LIBS': '',
-            'KEEP_SHARED_LIBS': ['libPhysXGpu_64.so'],
+            'KEEP_LIBS': ['libPhysXGpu_64.so'],
         },
         'windows': {
             'EXTRA_SHARED_LIBS': '\n'.join((
@@ -70,29 +70,36 @@ def main():
                 '${PATH_TO_SHARED_LIBS}/PhysXGpu_64.dll'
             )),
             'EXTRA_STATIC_LIBS': '\n'.join((
-                '${PATH_TO_STATIC_LIBS}/LowLevel_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/LowLevelAABB_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/LowLevelDynamics_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/PhysXTask_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/SceneQuery_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/SimulationController_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/LowLevel_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/LowLevelAABB_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/LowLevelDynamics_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/PhysXTask_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/SceneQuery_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/SimulationController_static_64.lib',
             )),
-            'KEEP_SHARED_LIBS': ['PhysXDevice64.dll', 'PhysXGpu_64.dll'],
+            'KEEP_LIBS': ['PhysXDevice64.dll', 
+                          'PhysXGpu_64.dll',
+                          'LowLevel_static_64.lib',
+                          'LowLevelAABB_static_64.lib',
+                          'LowLevelDynamics_static_64.lib',
+                          'PhysXTask_static_64.lib',
+                          'SceneQuery_static_64.lib',
+                          'SimulationController_static_64.lib'],
         },
         'mac': {
             'EXTRA_SHARED_LIBS': '',
             'EXTRA_STATIC_LIBS': '',
-            'KEEP_SHARED_LIBS': [],
+            'KEEP_LIBS': [],
         },
         'ios': {
             'EXTRA_SHARED_LIBS': '',
             'EXTRA_STATIC_LIBS': '',
-            'KEEP_SHARED_LIBS': [],
+            'KEEP_LIBS': [],
         },
         'android': {
             'EXTRA_SHARED_LIBS': '',
             'EXTRA_STATIC_LIBS': '',
-            'KEEP_SHARED_LIBS': [],
+            'KEEP_LIBS': [],
         },
     }
     with TemporaryDirectory() as tempdir:
@@ -128,10 +135,11 @@ def main():
                 subdir=subdir
             )
             if not maybeStatic:
-                # Delete everything in the shared folder except for ones that are marked for keeping
+                # Delete everything in the shared folder except for ones that are marked for keeping (static libraries)
+                # to reduce the size of the package.
                 output_shared_folder = outputDir / builder.packageName / 'shared'
                 for clear_root, clear_dirs, clear_files in os.walk(str(output_shared_folder)):
-                    keep_shared_files = extraLibsPerPlatform[vcpkg_platform]['KEEP_SHARED_LIBS']
+                    keep_shared_files = extraLibsPerPlatform[vcpkg_platform]['KEEP_LIBS']
                     for clear_filename in clear_files:
                         if clear_filename in keep_shared_files:
                             continue
