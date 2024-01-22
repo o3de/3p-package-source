@@ -23,7 +23,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent / 'Scripts'))
 import builders.monkeypatch_tempdir_cleanup
 
 class PhysXBuilder(object):
-    def __init__(self, workingDir: pathlib.Path, basePackageSystemDir: pathlib.Path, targetPlatform: str, build_static: bool, build_shared: bool):
+    def __init__(self, workingDir: pathlib.Path, basePackageSystemDir: pathlib.Path, targetPlatform: str):
         self._workingDir = workingDir
         self._packageSystemDir = basePackageSystemDir
         self._platform = targetPlatform
@@ -32,11 +32,6 @@ class PhysXBuilder(object):
         self._env.update(
             GW_DEPS_ROOT=str(workingDir),
         )
-        assert build_static or build_shared, "At least one of 'build_static' or 'build_shared' must be set to True"
-        self._build_static = build_static
-        self._build_shared = build_shared
-
-
 
         self.check_call = functools.partial(subprocess.check_call,
             cwd=self.workingDir,
@@ -97,9 +92,10 @@ class PhysXBuilder(object):
         self.check_call(
             ['git', 'checkout', lockToCommit,],
         )
-        self.check_call(
-            ['git', 'apply', '--whitespace=fix', (pathlib.Path(__file__).parent / 'build_fix.patch').absolute()]
-        )
+        if self.platform == 'ios':
+            self.check_call(
+                ['git', 'apply', '--whitespace=fix', (pathlib.Path(__file__).parent / 'build_fix.patch').absolute()]
+            )
 
             
     def preparePreset(self, buildAsStaticLibs, config):
@@ -135,26 +131,38 @@ class PhysXBuilder(object):
         static_bin_dir = self.workingDir / 'physx' / 'bin' / 'static'
         shared_bin_dir = self.workingDir / 'physx' / 'bin' / 'shared'
     
-        # Remove dynamic libraries repeated in static folders to save space.
-        # Also freeglut is not necessary for PhysX.
+        # Remove dynamic libraries, but copy some missing static libs from
+        # the shared builds into the static lib folder. Also freeglut is not
+        # necessary for PhysX.
         if self.platform == 'windows':
-            if buildAsStaticLib and self._build_shared:
+            if not buildAsStaticLibs:
+
+                for extra_static_lib_filename in ['LowLevel_static_64',
+                                                  'LowLevelAABB_static_64',
+                                                  'LowLevelDynamics_static_64',
+                                                  'PhysXTask_static_64',
+                                                  'SceneQuery_static_64',
+                                                  'SimulationController_static_64']:
+
+                    for extra_static_lib_ext in ['.lib', '.pdb']:
+
+                        for config in ('release', 'profile', 'checked', 'debug'):
+
+                            src_extra_static_lib = shared_bin_dir / config / f'{extra_static_lib_filename}{extra_static_lib_ext}'
+                            dst_extra_static_lib = static_bin_dir / config / f'{extra_static_lib_filename}{extra_static_lib_ext}'
+                            print(f"Copying {src_extra_static_lib} -> {dst_extra_static_lib}")
+                            shutil.copy2(src=src_extra_static_lib, dst=dst_extra_static_lib)
+
                 for config in ('release', 'profile', 'checked', 'debug'):
-                    os.remove(static_bin_dir / config / 'PhysXDevice64.dll')
-                    os.remove(static_bin_dir / config / 'PhysXGpu_64.dll')
                     if config == 'debug':
                         os.remove(static_bin_dir / config / 'freeglutd.dll')
                     else:
                         os.remove(static_bin_dir / config / 'freeglut.dll')
-            else:
-                for config in ('release', 'profile', 'checked', 'debug'):
-                    if config == 'debug':
-                        os.remove(shared_bin_dir / config / 'freeglutd.dll')
-                    else:
-                        os.remove(shared_bin_dir / config / 'freeglut.dll')
-            
+
+                shutil.rmtree(shared_bin_dir)
+
         elif self.platform == 'linux' or self.platform == 'linux-aarch64':
-            if buildAsStaticLibs and self._build_shared:
+            if buildAsStaticLibs:
                 for config in ('release', 'profile', 'checked', 'debug'):
                     os.remove(static_bin_dir / config / 'libPhysXGpu_64.so')
             
@@ -228,9 +236,10 @@ class PhysXBuilder(object):
         self.cleanUpLibs(buildAsStaticLibs)
 
     def build_all(self):
-        if self._build_static:
-            self.build(buildAsStaticLibs=True)
-        if self._build_shared:
+
+        self.build(buildAsStaticLibs=True)
+
+        if self.platform == 'windows':
             self.build(buildAsStaticLibs=False)
 
     def copyBuildOutputTo(self, packageDir: pathlib.Path):
@@ -238,28 +247,16 @@ class PhysXBuilder(object):
             shutil.rmtree(packageDir)
             
 
-        if self._build_shared:
-            shutil.copytree(
-                src=self.workingDir / 'physx' / 'install' / 'shared' / 'PhysX',
-                dst=packageDir / 'physx',
-                symlinks=True,
-            )
-            shutil.copytree(
-                src=self.workingDir / 'physx' / 'bin' / 'shared',
-                dst=packageDir / 'physx' / 'bin' / 'shared',
-                symlinks=True,
-            )
-        if self._build_static:
-            shutil.copytree(
-                src=self.workingDir / 'physx' / 'install' / 'static' / 'PhysX',
-                dst=packageDir / 'physx',
-                symlinks=True,
-            )
-            shutil.copytree(
-                src=self.workingDir / 'physx' / 'bin' / 'static',
-                dst=packageDir / 'physx' / 'bin' / 'static',
-                symlinks=True,
-            )
+        shutil.copytree(
+            src=self.workingDir / 'physx' / 'install' / 'static' / 'PhysX',
+            dst=packageDir / 'physx',
+            symlinks=True,
+        )
+        shutil.copytree(
+            src=self.workingDir / 'physx' / 'bin' / 'static',
+            dst=packageDir / 'physx' / 'bin' / 'static',
+            symlinks=True,
+        )
         shutil.copy2(
             src=self.workingDir / 'README.md',
             dst=packageDir / 'README.md',
@@ -381,12 +378,11 @@ def main():
         tempdir = Path(tempdir)
         builder = PhysXBuilder(workingDir=tempdir,
                                basePackageSystemDir=packageSystemDir,
-                               targetPlatform=args.platformName,
-                               build_shared=False,
-                               build_static=True)
+                               targetPlatform=args.platformName)
         builder.clone(lockToCommit=commit)
         
         builder.build_all()
+
         builder.copyBuildOutputTo(packageRoot/'PhysX')
         
         builder.writePackageInfoFile(
