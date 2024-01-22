@@ -61,14 +61,14 @@ def main():
     extraLibsPerPlatform = {
         'linux': {
             'EXTRA_SHARED_LIBS': '${PATH_TO_SHARED_LIBS}/libPhysXGpu_64.so',
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '',
+            'EXTRA_STATIC_LIBS': '',
         },
         'windows': {
             'EXTRA_SHARED_LIBS': '\n'.join((
                 '${PATH_TO_SHARED_LIBS}/PhysXDevice64.dll',
                 '${PATH_TO_SHARED_LIBS}/PhysXGpu_64.dll'
             )),
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '\n'.join((
+            'EXTRA_STATIC_LIBS': '\n'.join((
                 '${PATH_TO_STATIC_LIBS}/LowLevel_static_64.lib',
                 '${PATH_TO_STATIC_LIBS}/LowLevelAABB_static_64.lib',
                 '${PATH_TO_STATIC_LIBS}/LowLevelDynamics_static_64.lib',
@@ -79,15 +79,15 @@ def main():
         },
         'mac': {
             'EXTRA_SHARED_LIBS': '',
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '',
+            'EXTRA_STATIC_LIBS': '',
         },
         'ios': {
             'EXTRA_SHARED_LIBS': '',
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '',
+            'EXTRA_STATIC_LIBS': '',
         },
         'android': {
             'EXTRA_SHARED_LIBS': '',
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '',
+            'EXTRA_STATIC_LIBS': '',
         },
     }
     with TemporaryDirectory() as tempdir:
