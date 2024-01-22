@@ -62,6 +62,7 @@ def main():
         'linux': {
             'EXTRA_SHARED_LIBS': '${PATH_TO_SHARED_LIBS}/libPhysXGpu_64.so',
             'EXTRA_STATIC_LIBS': '',
+            'KEEP_SHARED_LIBS': ['libPhysXGpu_64.so'],
         },
         'windows': {
             'EXTRA_SHARED_LIBS': '\n'.join((
@@ -76,18 +77,22 @@ def main():
                 '${PATH_TO_STATIC_LIBS}/SceneQuery_static_64.lib',
                 '${PATH_TO_STATIC_LIBS}/SimulationController_static_64.lib',
             )),
+            'KEEP_SHARED_LIBS': ['PhysXDevice64.dll', 'PhysXGpu_64.dll'],
         },
         'mac': {
             'EXTRA_SHARED_LIBS': '',
             'EXTRA_STATIC_LIBS': '',
+            'KEEP_SHARED_LIBS': [],
         },
         'ios': {
             'EXTRA_SHARED_LIBS': '',
             'EXTRA_STATIC_LIBS': '',
+            'KEEP_SHARED_LIBS': [],
         },
         'android': {
             'EXTRA_SHARED_LIBS': '',
             'EXTRA_STATIC_LIBS': '',
+            'KEEP_SHARED_LIBS': [],
         },
     }
     with TemporaryDirectory() as tempdir:
@@ -122,6 +127,15 @@ def main():
                 },
                 subdir=subdir
             )
+            if not maybeStatic:
+                # Delete everything in the shared folder except for ones that are marked for keeping
+                output_shared_folder = outputDir / builder.packageName / 'shared'
+                for clear_root, clear_dirs, clear_files in os.walk(str(output_shared_folder)):
+                    keep_shared_files = extraLibsPerPlatform[vcpkg_platform]['KEEP_SHARED_LIBS']
+                    for clear_filename in clear_files:
+                        if clear_filename in keep_shared_files:
+                            continue
+                        os.remove(os.path.join(clear_root, clear_filename))
 
             if firstTime:
                 builder.writePackageInfoFile(
