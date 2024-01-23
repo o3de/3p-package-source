@@ -92,7 +92,7 @@ class PhysXBuilder(object):
         self.check_call(
             ['git', 'checkout', lockToCommit,],
         )
-        if self.platform == 'ios':
+        if self.platform in ['ios', 'mac']:
             self.check_call(
                 ['git', 'apply', '--whitespace=fix', (pathlib.Path(__file__).parent / 'build_fix.patch').absolute()]
             )
