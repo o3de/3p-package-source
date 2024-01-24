@@ -109,7 +109,7 @@ def main():
 
         # We package PhysX static and dynamic libraries for all supported platforms
         for maybeStatic in (True, False):
-            if not maybeStatic and vcpkg_platform != 'windows':
+            if not maybeStatic and vcpkg_platform not in ['windows', 'linux']:
                 continue
             builder = VcpkgBuilder(
                 packageName='PhysX',
