@@ -160,11 +160,6 @@ class PhysXBuilder(object):
                         os.remove(static_bin_dir / config / 'freeglut.dll')
 
                 shutil.rmtree(shared_bin_dir)
-
-        elif self.platform == 'linux' or self.platform == 'linux-aarch64':
-            if buildAsStaticLibs:
-                for config in ('release', 'profile', 'checked', 'debug'):
-                    os.remove(static_bin_dir / config / 'libPhysXGpu_64.so')
             
     def build(self, buildAsStaticLibs):
         physx_dir = self.workingDir / 'physx'
