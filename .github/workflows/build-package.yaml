@@ -48,17 +48,9 @@ jobs:
             esac
 
             # Only get the changes that can be built
-            # Check if the diff contains the word "Scripts" to ensure we only build packages that have changed
             # Wrap the grep inside an if-statement to avoid exiting script upon non-zero exitcode.
             DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} --no-ext-diff --unified=0 \
                       --exit-code -a --no-prefix -- $FILE | egrep "^\+")
-                      
-            if echo "$DIFF" | grep Scripts; then
-              DIFF=$(echo "$DIFF" | grep Scripts)
-            else
-              echo "Did not find Scripts changes in file: $FILE. Skipping."
-              continue
-            fi
 
             PACKAGE=$(echo $DIFF | cut -d'"' -f2)
             PACKPATH=$(echo $DIFF | egrep -o "package-system/[^ ]*")
