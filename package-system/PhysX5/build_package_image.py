@@ -320,9 +320,9 @@ def main():
 
     with TemporaryDirectory() as tempdir:
         # Package Name
-        revision = 'rev1'
+        revision = 'rev2'
         if args.platformName == 'windows':
-            revision = 'rev2'
+            revision = 'rev3'
         packageName = f'PhysX-5.1.1-{revision}-{args.platformName}'
         
         # Version 5.1.1 commits
