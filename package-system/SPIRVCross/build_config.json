@@ -12,6 +12,8 @@
          "Windows":{
             "cmake_find_template":"FindSPIRVCross.cmake.Windows",
             "cmake_generate_args_debug":[
+               "-G",
+               "\"Visual Studio 17 2022\"",
                "-A",
                "x64",
                "-T",
@@ -23,6 +25,8 @@
                "-DCMAKE_BUILD_TYPE=Debug"
             ],
             "cmake_generate_args_release":[
+               "-G",
+               "\"Visual Studio 17 2022\"",
                "-A",
                "x64",
                "-T",
