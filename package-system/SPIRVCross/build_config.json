@@ -11,6 +11,17 @@
       "Windows":{
          "Windows":{
             "cmake_find_template":"FindSPIRVCross.cmake.Windows",
+            "cmake_generate_args_debug":[
+               "-A",
+               "x64",
+               "-T",
+               "host=x64",
+               "-DSPIRV_CROSS_CLI=ON",
+               "-DSPIRV_CROSS_SHARED=OFF",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Debug\"",
+               "-DCMAKE_INSTALL_BINDIR=\"bin/Debug\"",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
             "cmake_generate_args_release":[
                "-A",
                "x64",
@@ -27,6 +38,16 @@
       "Darwin":{
          "Mac":{
             "cmake_find_template":"FindSPIRVCross.cmake.Mac",
+            "cmake_generate_args_debug":[
+               "-G",
+               "Xcode",
+               "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
+               "-DSPIRV_CROSS_CLI=ON",
+               "-DSPIRV_CROSS_SHARED=OFF",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Debug\"",
+               "-DCMAKE_INSTALL_BINDIR=\"bin/Debug\"",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
             "cmake_generate_args_release":[
                "-G",
                "Xcode",
@@ -42,6 +63,15 @@
       "Linux":{
          "Linux":{
             "cmake_find_template":"FindSPIRVCross.cmake.Linux",
+            "cmake_generate_args_debug":[
+               "-G",
+               "Ninja",
+               "-DSPIRV_CROSS_CLI=ON",
+               "-DSPIRV_CROSS_SHARED=OFF",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Debug\"",
+               "-DCMAKE_INSTALL_BINDIR=\"bin/Debug\"",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
             "cmake_generate_args_release":[
                "-G",
                "Ninja",
