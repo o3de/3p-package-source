@@ -12,8 +12,6 @@
          "Windows":{
             "cmake_find_template":"FindSPIRVCross.cmake.Windows",
             "cmake_generate_args_release":[
-               "-G",
-               "\"Visual Studio 16 2019\"",
                "-A",
                "x64",
                "-T",
