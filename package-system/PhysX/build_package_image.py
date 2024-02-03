@@ -21,6 +21,14 @@ import builders.monkeypatch_tempdir_cleanup
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--package-name',
+        required=True
+    )
+    parser.add_argument(
+        '--package-rev',
+        required=True
+    )
+    parser.add_argument(
         '--platform-name',
         dest='platformName',
         choices=['windows', 'android', 'mac', 'ios', 'linux', 'linux-aarch64'],
@@ -53,33 +61,45 @@ def main():
     extraLibsPerPlatform = {
         'linux': {
             'EXTRA_SHARED_LIBS': '${PATH_TO_SHARED_LIBS}/libPhysXGpu_64.so',
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '',
+            'EXTRA_STATIC_LIBS': '',
+            'KEEP_LIBS': ['libPhysXGpu_64.so'],
         },
         'windows': {
             'EXTRA_SHARED_LIBS': '\n'.join((
                 '${PATH_TO_SHARED_LIBS}/PhysXDevice64.dll',
                 '${PATH_TO_SHARED_LIBS}/PhysXGpu_64.dll'
             )),
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '\n'.join((
-                '${PATH_TO_STATIC_LIBS}/LowLevel_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/LowLevelAABB_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/LowLevelDynamics_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/PhysXTask_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/SceneQuery_static_64.lib',
-                '${PATH_TO_STATIC_LIBS}/SimulationController_static_64.lib',
+            'EXTRA_STATIC_LIBS': '\n'.join((
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/LowLevel_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/LowLevelAABB_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/LowLevelDynamics_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/PhysXTask_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/SceneQuery_static_64.lib',
+                '${PATH_TO_ADDITIONAL_STATIC_LIBS}/SimulationController_static_64.lib',
             )),
+            'KEEP_LIBS': ['PhysXDevice64.dll', 
+                          'PhysXGpu_64.dll',
+                          'LowLevel_static_64.lib',
+                          'LowLevelAABB_static_64.lib',
+                          'LowLevelDynamics_static_64.lib',
+                          'PhysXTask_static_64.lib',
+                          'SceneQuery_static_64.lib',
+                          'SimulationController_static_64.lib'],
         },
         'mac': {
             'EXTRA_SHARED_LIBS': '',
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '',
+            'EXTRA_STATIC_LIBS': '',
+            'KEEP_LIBS': [],
         },
         'ios': {
             'EXTRA_SHARED_LIBS': '',
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '',
+            'EXTRA_STATIC_LIBS': '',
+            'KEEP_LIBS': [],
         },
         'android': {
             'EXTRA_SHARED_LIBS': '',
-            'EXTRA_STATIC_LIBS_NON_MONOLITHIC': '',
+            'EXTRA_STATIC_LIBS': '',
+            'KEEP_LIBS': [],
         },
     }
     with TemporaryDirectory() as tempdir:
@@ -89,6 +109,8 @@ def main():
 
         # We package PhysX static and dynamic libraries for all supported platforms
         for maybeStatic in (True, False):
+            if not maybeStatic and vcpkg_platform not in ['windows', 'linux']:
+                continue
             builder = VcpkgBuilder(
                 packageName='PhysX',
                 portName='physx',
@@ -114,12 +136,22 @@ def main():
                 },
                 subdir=subdir
             )
+            if not maybeStatic:
+                # Delete everything in the shared folder except for ones that are marked for keeping (static libraries)
+                # to reduce the size of the package.
+                output_shared_folder = outputDir / builder.packageName / 'shared'
+                for clear_root, clear_dirs, clear_files in os.walk(str(output_shared_folder)):
+                    keep_shared_files = extraLibsPerPlatform[vcpkg_platform]['KEEP_LIBS']
+                    for clear_filename in clear_files:
+                        if clear_filename in keep_shared_files:
+                            continue
+                        os.remove(os.path.join(clear_root, clear_filename))
 
             if firstTime:
                 builder.writePackageInfoFile(
                     outputDir,
                     settings={
-                        'PackageName': f'PhysX-4.1.2.29882248-rev6-{args.platformName}',
+                        'PackageName': f'{args.package_name}-{args.package_rev}-{args.platformName}',
                         'URL': 'https://github.com/NVIDIAGameWorks/PhysX',
                         'License': 'BSD-3-Clause',
                         'LicenseFile': 'PhysX/LICENSE.md'
@@ -130,6 +162,7 @@ def main():
                     outputDir,
                     template=cmakeFindFileTemplate,
                     templateEnv=extraLibsPerPlatform[vcpkg_platform],
+                    overwrite_find_file='PhysX4'
                 )
 
             firstTime = False

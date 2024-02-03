@@ -111,11 +111,12 @@ jobs:
             hash=$(echo "$content" | awk '{print $1}') 
             PACKAGE_NAME=$(echo "$file" | cut -d'-' -f1-2)  # Extract package name without platform
             PARTIAL_PACKAGE_NAME=$(echo "$PACKAGE_NAME" | cut -d'-' -f1)  # Extract the first part of the package name for matching            
-            PLATFORM=$(echo "$file" | cut -d'-' -f5)
+            PLATFORM=$(echo "$file" | rev | cut -d'-' -f1 | rev)
             
             # Determine x86 or aarch64 cmake file name based on file suffix
             if [[ $file == *linux-aarch64 ]]; then
                 CMAKE_FILE=BuiltInPackages_linux_aarch64.cmake
+                PLATFORM=linux
             elif [[ $file == *linux ]]; then
                 CMAKE_FILE=BuiltInPackages_linux_x86_64.cmake
             else
