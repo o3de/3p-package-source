@@ -1,0 +1,53 @@
+diff --git a/physx/include/foundation/PxVecQuat.h b/physx/include/foundation/PxVecQuat.h
+index 0822c17..c24ae5f 100644
+--- a/physx/include/foundation/PxVecQuat.h
++++ b/physx/include/foundation/PxVecQuat.h
+@@ -308,7 +308,7 @@ PX_FORCE_INLINE bool isValidQuatV(const QuatV q)
+ 	const FloatV unitTolerance = FLoad(1e-4f);
+ 	const FloatV tmp = FAbs(FSub(QuatLength(q), FOne()));
+ 	const BoolV con = FIsGrtr(unitTolerance, tmp);
+-	return isFiniteVec4V(q) & (BAllEqTTTT(con) == 1);
++	return isFiniteVec4V(q) && (BAllEqTTTT(con) == 1);
+ }
+ 
+ PX_FORCE_INLINE bool isSaneQuatV(const QuatV q)
+@@ -316,7 +316,7 @@ PX_FORCE_INLINE bool isSaneQuatV(const QuatV q)
+ 	const FloatV unitTolerance = FLoad(1e-2f);
+ 	const FloatV tmp = FAbs(FSub(QuatLength(q), FOne()));
+ 	const BoolV con = FIsGrtr(unitTolerance, tmp);
+-	return isFiniteVec4V(q) & (BAllEqTTTT(con) == 1);
++	return isFiniteVec4V(q) && (BAllEqTTTT(con) == 1);
+ }
+ 
+ #if PX_LINUX && PX_CLANG
+diff --git a/physx/include/foundation/PxVecTransform.h b/physx/include/foundation/PxVecTransform.h
+index bd29307..d00a4e0 100644
+--- a/physx/include/foundation/PxVecTransform.h
++++ b/physx/include/foundation/PxVecTransform.h
+@@ -133,7 +133,7 @@ class PxTransformV
+ 	PX_FORCE_INLINE bool isValid() const
+ 	{
+ 		// return p.isFinite() && q.isFinite() && q.isValid();
+-		return isFiniteVec3V(p) & isFiniteQuatV(q) & isValidQuatV(q);
++		return isFiniteVec3V(p) && isFiniteQuatV(q) && isValidQuatV(q);
+ 	}
+ 
+ 	/**
+@@ -144,7 +144,7 @@ class PxTransformV
+ 	PX_FORCE_INLINE bool isSane() const
+ 	{
+ 		// return isFinite() && q.isSane();
+-		return isFinite() & isSaneQuatV(q);
++		return isFinite() && isSaneQuatV(q);
+ 	}
+ 
+ 	/**
+@@ -153,7 +153,7 @@ class PxTransformV
+ 	PX_FORCE_INLINE bool isFinite() const
+ 	{
+ 		// return p.isFinite() && q.isFinite();
+-		return isFiniteVec3V(p) & isFiniteQuatV(q);
++		return isFiniteVec3V(p) && isFiniteQuatV(q);
+ 	}
+ 
+ #if PX_LINUX && PX_CLANG
