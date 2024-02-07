@@ -157,7 +157,7 @@ docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT}\
  --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE}\
  --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE}\
  --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=\"${DEP_PACKAGES_DOCKER_FOLDERNAMES}\"\
- -f Dockerfile.linux -t ${DOCKER_IMAGE_NAME}:latest temp"
+ -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp"
 
 echo $CMD_DOCKER_BUILD
 eval $CMD_DOCKER_BUILD
