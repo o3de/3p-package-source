@@ -43,6 +43,8 @@ PROJECT(test_AWSGameLift VERSION 1.0 LANGUAGES CXX)
 find_package(OpenSSL)
 find_package(AWSGameLiftServerSDK)
 
+
 add_executable(test_AWSGameLift test_AWSGameLiftServer.cpp)
+
 
 target_link_libraries(test_AWSGameLift PRIVATE 3rdParty::OpenSSL 3rdParty::AWSGameLiftServerSDK)

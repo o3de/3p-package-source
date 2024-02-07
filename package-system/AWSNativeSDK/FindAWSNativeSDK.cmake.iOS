@@ -96,6 +96,9 @@ ly_declare_aws_library(
         AccessManagement
     LIB_FILE 
         aws-cpp-sdk-access-management
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### CognitoIdentity ####
@@ -104,6 +107,9 @@ ly_declare_aws_library(
         CognitoIdentity
     LIB_FILE 
         aws-cpp-sdk-cognito-identity
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### CognitoIdp ####
@@ -112,6 +118,9 @@ ly_declare_aws_library(
         CognitoIdp
     LIB_FILE 
         aws-cpp-sdk-cognito-idp
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### DeviceFarm ####
@@ -120,6 +129,9 @@ ly_declare_aws_library(
         DeviceFarm
     LIB_FILE 
         aws-cpp-sdk-devicefarm
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### DynamoDB ####
@@ -128,6 +140,9 @@ ly_declare_aws_library(
         DynamoDB
     LIB_FILE 
         aws-cpp-sdk-dynamodb
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### GameLift ####
@@ -136,6 +151,9 @@ ly_declare_aws_library(
         GameLift
     LIB_FILE 
         aws-cpp-sdk-gamelift
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### IdentityManagement ####
@@ -144,6 +162,9 @@ ly_declare_aws_library(
         IdentityManagement
     LIB_FILE 
         aws-cpp-sdk-identity-management
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### Kinesis ####
@@ -152,6 +173,9 @@ ly_declare_aws_library(
         Kinesis
     LIB_FILE 
         aws-cpp-sdk-kinesis
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### Lambda ####
@@ -160,6 +184,9 @@ ly_declare_aws_library(
         Lambda
     LIB_FILE 
         aws-cpp-sdk-lambda
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### MobileAnalytics ####
@@ -171,6 +198,9 @@ ly_declare_aws_library(
         Queues
     LIB_FILE 
         aws-cpp-sdk-queues
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### S3 ####
@@ -179,6 +209,9 @@ ly_declare_aws_library(
         S3
     LIB_FILE 
         aws-cpp-sdk-s3
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### SNS ####
@@ -187,6 +220,9 @@ ly_declare_aws_library(
         SNS
     LIB_FILE 
         aws-cpp-sdk-sns
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### SQS ####
@@ -195,6 +231,9 @@ ly_declare_aws_library(
         SQS
     LIB_FILE 
         aws-cpp-sdk-sqs
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### STS ####
@@ -203,6 +242,9 @@ ly_declare_aws_library(
         STS
     LIB_FILE 
         aws-cpp-sdk-sts
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 #### Transfer ####
@@ -211,6 +253,9 @@ ly_declare_aws_library(
         Transfer
     LIB_FILE 
         aws-cpp-sdk-transfer
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
 )
 
 

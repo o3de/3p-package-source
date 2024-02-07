@@ -1,11 +1,11 @@
 {
-    "src_package_url": "https://gamelift-release.s3-us-west-2.amazonaws.com/GameLift-SDK-Release-5.0.0.zip",
-    "src_package_sha1": "25cfa89252a934925c14830ba75e91855bf02e5d",
+    "src_package_url": "https://gamelift-server-sdk-release.s3.us-west-2.amazonaws.com/cpp/GameLift-Cpp-ServerSDK-5.1.1.zip",
+    "src_package_sha1": "847dea8ec09b404e2aa6599a436b6c902c4dfe0e",
     "package_name": "AWSGameLiftServerSDK",
-    "package_version": "5.0.0-rev3",
+    "package_version": "5.1.1-rev1",
     "package_url": "https://aws.amazon.com/documentation/gamelift/",
     "package_license": "Apache-2.0",
-    "package_license_file": "GameLift-SDK-Release-5.0.0/GameLift-SDK-Release-5.0.0/GameLift-Cpp-ServerSDK-5.0.0/LICENSE_AMAZON_GAMELIFT_SDK.TXT",
+    "package_license_file": "GameLift-Cpp-ServerSDK-5.1.1/LICENSE_AMAZON_GAMELIFT_SDK.TXT",
     "cmake_find_target": "FindAWSGameLiftServerSDK.cmake",
     "Platforms": {
         "Linux": {
@@ -13,11 +13,10 @@
                 "depends_on_packages": [
                     [ "OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", "" ]
                 ],
-                "patch_file":"aws_gamelift_5.0.0.patch",
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",
-                    "aws_gamelift_5_5_0",
+                    "aws_gamelift_5_1_1",
                     "20.04",
                     "x86_64"
                 ],
@@ -33,11 +32,10 @@
                 "depends_on_packages": [
                     [ "OpenSSL-1.1.1t-rev1-linux-aarch64", "f32721bec9c82d1bd7fb244d78d5dc4e2a47e7b808bb36027236ad377e241ea5", "" ]
                 ],
-                "patch_file":"aws_gamelift_5.0.0.patch",
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",
-                    "aws_gamelift_5_5_0",
+                    "aws_gamelift_5_1_1",
                     "20.04",
                     "aarch64"
                 ],
