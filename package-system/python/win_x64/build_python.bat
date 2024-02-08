@@ -34,11 +34,16 @@ for /f "tokens=*" %%i in ('vswhere -version [16.0^,17.0^) -property installation
 echo Using Visual Studio: %VS2017_LOCATION%
 
 if NOT exist "%VS2017_LOCATION%\Common7\Tools\vsdevcmd.bat" (
-     echo Could not find visual studio 2017 installed
-    exit /B 1
- )
-call "%VS2017_LOCATION%\Common7\Tools\vsdevcmd.bat"
 
+    IF NOT DEFINED VCINSTALLDIR (
+        echo Unable to find visual studio 2017 and the visual studio environment has not been set up
+        exit /B 1
+    ) ELSE (
+        echo Unable to find visual studio 2017 but found Visual Studio installed at %VCINSTALLDIR%
+    )
+ ) ELSE (
+    call "%VS2017_LOCATION%\Common7\Tools\vsdevcmd.bat"
+)
 
 echo Clearing %tempdir% if present...
 rmdir /s /q %tempdir% > NUL
