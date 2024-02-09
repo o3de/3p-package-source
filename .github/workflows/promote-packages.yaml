@@ -119,6 +119,9 @@ jobs:
                 PLATFORM=linux
             elif [[ $file == *linux ]]; then
                 CMAKE_FILE=BuiltInPackages_linux_x86_64.cmake
+            elif [[ $file == *darwin ]]; then
+                CMAKE_FILE=BuiltInPackages_mac.cmake
+                PLATFORM=mac
             else
                 CMAKE_FILE=BuiltInPackages_$PLATFORM.cmake
             fi
@@ -132,8 +135,8 @@ jobs:
             # Construct the new line using printf with the detected width
             new_line=$(printf "ly_associate_package(PACKAGE_NAME %-*s TARGETS %-27s PACKAGE_HASH %s" $width_before_targets "$file" "$PARTIAL_PACKAGE_NAME" "$hash")
 
-            grep -q "$PARTIAL_PACKAGE_NAME" "$FILE_PATH"
-            if [ $? -eq 0 ]; then
+            test_path=$(grep -q "$PARTIAL_PACKAGE_NAME" "$FILE_PATH" && echo 0 || echo 1)
+            if [ $test_path -eq 0 ]; then
                 sed -i "s|ly_associate_package(PACKAGE_NAME $PARTIAL_PACKAGE_NAME-[^ ]* .*PACKAGE_HASH [a-f0-9]\{64\}|$new_line|g" "$FILE_PATH"
             else
                 echo "$new_line" >> "$FILE_PATH"
