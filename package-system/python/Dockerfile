@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 
-
 # The cpu architecture to base the docker base script from
 ARG INPUT_ARCHITECTURE=amd64
 

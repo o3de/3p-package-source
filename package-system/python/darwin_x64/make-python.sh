@@ -106,6 +106,7 @@ echo "---------------- Installing spinx documentation tool into the v-env ------
 echo ""
 $VENV_BIN_DIR/python3 -m pip install sphinx
 
+
 cd $RELOC_SRC_DIR
 
 echo ""
