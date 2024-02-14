@@ -5,8 +5,8 @@
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
         "assimp-5.2.5-rev1-mac":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Mac --package-root ../../package-system --clean",
-        "AWSNativeSDK-1.11.144-rev1-mac": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Mac --package-root ../../package-system --clean",
-        "AWSNativeSDK-1.11.144-rev1-ios": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name iOS --package-root ../../package-system --clean",
+        "AWSNativeSDK-1.11.264-rev1-mac": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Mac --package-root ../../package-system --clean",
+        "AWSNativeSDK-1.11.264-rev1-ios": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name iOS --package-root ../../package-system --clean",
         "Lua-5.4.4-rev1-mac": "Scripts/extras/pull_and_build_from_git.py ../../package-system/Lua --platform-name Mac --package-root ../../package-system/Lua/temp --clean",
         "Lua-5.4.4-rev1-ios": "Scripts/extras/pull_and_build_from_git.py ../../package-system/Lua --platform-name iOS --package-root ../../package-system/Lua/temp --clean",
         "AwsIotDeviceSdkCpp-1.15.2-rev2-mac": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AwsIotDeviceSdkCpp --platform-name Mac --package-root ../../package-system --clean",
@@ -56,8 +56,8 @@
     },
     "build_from_folder": {
         "assimp-5.2.5-rev1-mac": "package-system/assimp-mac",
-        "AWSNativeSDK-1.11.144-rev1-mac": "package-system/AWSNativeSDK-mac",
-        "AWSNativeSDK-1.11.144-rev1-ios": "package-system/AWSNativeSDK-ios",
+        "AWSNativeSDK-1.11.264-rev1-mac": "package-system/AWSNativeSDK-mac",
+        "AWSNativeSDK-1.11.264-rev1-ios": "package-system/AWSNativeSDK-ios",
         "AwsIotDeviceSdkCpp-1.15.2-rev2-mac": "package-system/AwsIotDeviceSdkCpp-mac",
         "Lua-5.4.4-rev1-mac": "package-system/Lua/temp/Lua-mac",
         "Lua-5.4.4-rev1-ios": "package-system/Lua/temp/Lua-ios",
