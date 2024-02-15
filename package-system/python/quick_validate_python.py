@@ -8,15 +8,24 @@
 
 # this script is run on built python executables to make sure they function.
 
+print("Simple import validation started")
+
 import sys
 
 try:
+    print("import tkinter")
     import tkinter
+    print("import ssl")
     import ssl
+    print("import sqlite3")
     import sqlite3
+    print("import encodings")
     import encodings
+    print("import tarfile")
     import tarfile
+    print("import lzma")
     import lzma
+    print("import bz2")
     import bz2
 except Exception as e:
     print("Failed: " + e)

@@ -43,6 +43,7 @@
                     "./package-linux.sh"
                 ],
                 "custom_test_cmd": [
+                    "./test-linux.sh"
                 ]
             }
         }
