@@ -7,8 +7,8 @@
 
 echo "Testing python.."
 
-echo temp/build/python/bin/python3 --version
-temp/build/python/bin/python3 --version
+echo temp/build/python/bin/python3 --version 
+temp/build/python/bin/python3 --version 2>&1
 if [ $? -ne 0 ]
 then
     echo "Error running validating python interpreter version"
@@ -16,7 +16,7 @@ then
 fi
 
 echo temp/build/python/bin/python3 quick_validate_python.py
-temp/build/python/bin/python3 quick_validate_python.py
+temp/build/python/bin/python3 quick_validate_python.py 2>&1
 if [ $? -ne 0 ]
 then
     echo "Error running the python interpreter against quick_validate_python.py"
