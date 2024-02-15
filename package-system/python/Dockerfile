@@ -50,7 +50,6 @@ RUN apt-get install -y autoconf \
                        libreadline-dev \
                        libtool \
                        python3-dev \
-                       python3.10-dev \
                        python3 \
                        tcl8.6-dev \
                        tk8.6-dev \
