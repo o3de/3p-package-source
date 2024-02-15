@@ -12,5 +12,11 @@ export LD_LIBRARY_PATH=temp/build/python/lib
 
 echo temp/build/python/bin/python3 quick_validate_python.py
 temp/build/python/bin/python3 quick_validate_python.py
+if [ $? -ne 0 ]
+then
+    echo "Error running the python interpreter against quick_validate_python.py"
+    exit 1
+fi
 
-exit $?
+
+exit 0
