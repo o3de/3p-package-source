@@ -172,6 +172,8 @@ PYTHONNOUSERSITE=1 ./python3 -m pip install setuptools --upgrade setuptools
 # Update wheel to resolve https://avd.aquasec.com/nvd/2022/cve-2022-40898/
 PYTHONNOUSERSITE=1 ./python3 -m pip install wheel --upgrade wheel
 
+PYTHONNOUSERSITE=1 ./python3 -m pip install psutil --upgrade psutil
+
 popd #python/bin 
 
 # installing pip causes it to put absolute paths to python
