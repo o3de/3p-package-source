@@ -5,7 +5,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
-echo "Testing python.."
+
+# Only run tests for packages on the same architecture
+TARGET_ARCH=$1
+CURRENT_HOST_ARCH=$(uname -m)
+
+if [ "${CURRENT_HOST_ARCH}" != "${TARGET_ARCH}" ]
+then
+    echo Cannot run the test for a ${TARGET_ARCH} on the current ${CURRENT_HOST_ARCH} architecture. Skipping test.
+    exit 0
+fi
+
+echo "Testing python"
+
 
 echo temp/build/python/bin/python3 --version 
 temp/build/python/bin/python3 --version 2>&1
