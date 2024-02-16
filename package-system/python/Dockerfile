@@ -49,7 +49,6 @@ RUN apt-get install -y autoconf \
                        liblzma-dev \
                        libreadline-dev \
                        libtool \
-                       libc6 \
                        python3-dev \
                        python3 \
                        tcl8.6-dev \
