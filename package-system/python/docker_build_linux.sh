@@ -172,6 +172,12 @@ PYTHONNOUSERSITE=1 ./python3 -m pip install setuptools --upgrade setuptools
 # Update wheel to resolve https://avd.aquasec.com/nvd/2022/cve-2022-40898/
 PYTHONNOUSERSITE=1 ./python3 -m pip install wheel --upgrade wheel
 
+# Install PSUtil for aarch64
+if [ "$(uname -m)" = "aarch64" ]
+then
+    LD_LIBRARY_PATH=/data/workspace/build/python/lib PYTHONNOUSERSITE=1 ./python3 -m pip install psutil --upgrade psutil
+fi
+
 popd #python/bin 
 
 # installing pip causes it to put absolute paths to python
