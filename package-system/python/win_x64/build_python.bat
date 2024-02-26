@@ -29,20 +29,20 @@ set vswhere_location=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer
 echo adding %vswhere_location% to PATH
 set PATH=%vswhere_location%;%PATH%
 
-for /f "tokens=*" %%i in ('vswhere -version [16.0^,17.0^) -property installationPath') do set VS2017_LOCATION=%%i
+for /f "tokens=*" %%i in ('vswhere -version [16.0^,17.0^) -property installationPath') do set VS2019_LOCATION=%%i
 
-echo Using Visual Studio: %VS2017_LOCATION%
+echo Using Visual Studio: %VS2019_LOCATION%
 
-if NOT exist "%VS2017_LOCATION%\Common7\Tools\vsdevcmd.bat" (
+if NOT exist "%VS2019_LOCATION%\Common7\Tools\vsdevcmd.bat" (
 
     IF NOT DEFINED VCINSTALLDIR (
-        echo Unable to find visual studio 2017 and the visual studio environment has not been set up
+        echo Unable to find visual studio 2019 and the visual studio environment has not been set up
         exit /B 1
     ) ELSE (
-        echo Unable to find visual studio 2017 but found Visual Studio installed at %VCINSTALLDIR%
+        echo Unable to find visual studio 2019 but found Visual Studio installed at %VCINSTALLDIR%
     )
  ) ELSE (
-    call "%VS2017_LOCATION%\Common7\Tools\vsdevcmd.bat"
+    call "%VS2019_LOCATION%\Common7\Tools\vsdevcmd.bat"
 )
 
 echo Clearing %tempdir% if present...
