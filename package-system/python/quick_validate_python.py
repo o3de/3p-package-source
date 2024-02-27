@@ -8,6 +8,8 @@
 
 # this script is run on built python executables to make sure they function.
 
+print("Simple import validation started")
+
 import sys
 
 try:

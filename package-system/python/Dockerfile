@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 
-
 # The cpu architecture to base the docker base script from
 ARG INPUT_ARCHITECTURE=amd64
 
@@ -39,7 +38,7 @@ RUN apt-get clean && apt-get update
 # Setup time zone and locale data (necessary for SSL and HTTPS packages)
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-configuration
 
-# Install the development packages needed to build AWS Gamelift
+# Install the development packages needed to build python
 RUN apt-get install -y autoconf \
                        build-essential \
                        cmake \
@@ -50,6 +49,7 @@ RUN apt-get install -y autoconf \
                        liblzma-dev \
                        libreadline-dev \
                        libtool \
+                       python3-dev \
                        python3 \
                        tcl8.6-dev \
                        tk8.6-dev \

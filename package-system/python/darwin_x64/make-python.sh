@@ -59,9 +59,9 @@ cd temp
 mkdir $SCRIPT_DIR/package
 
 echo ""
-echo "---------------- Cloning python 3.10.5 from git ----------------"
+echo "---------------- Cloning python 3.10.13 from git ----------------"
 echo ""
-git clone https://github.com/python/cpython.git --branch "v3.10.5" --depth 1
+git clone https://github.com/python/cpython.git --branch "v3.10.13" --depth 1
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error cloning python from https://github.com/python/cpython.git"
@@ -105,6 +105,7 @@ echo ""
 echo "---------------- Installing spinx documentation tool into the v-env ----------------"
 echo ""
 $VENV_BIN_DIR/python3 -m pip install sphinx
+
 
 cd $RELOC_SRC_DIR
 
@@ -167,8 +168,8 @@ cd $RELOC_SRC_DIR
 echo ""
 echo "---------------- Altering the produced framework folder to be relocatable ----------------"
 echo ""
-echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.5 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
-$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.5 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not make python relocatable!"
@@ -209,9 +210,6 @@ echo ""
 echo "---------------- Removing pip references from ensurepip ----------------"
 echo ""
 rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/_bundled/pip-20*.whl
-cat $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py | sed 's/"20.1.1"/"22.0.3"/g' | sed 's/("pip", _PIP_VERSION, "py2.py3"),//g' > $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py_temp
-rm $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py
-mv $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/__init__.py_temp $SCRIPT_DIR/package/python/lib/python3.10/ensurepip/__init__.py
 
 echo ""
 echo "----------------  Cleaning temp folder ----------------"

@@ -7,7 +7,7 @@ index d0e4a86..cb7f933 100644
  
  @rem If we have Python in externals, use that one
 -@if exist "%_Py_EXTERNALS_DIR%\pythonx86\tools\python.exe" (set PYTHON="%_Py_EXTERNALS_DIR%\pythonx86\tools\python.exe") & (set _Py_Python_Source=found in externals directory) & goto :found
-+@if exist "%_Py_EXTERNALS_DIR%\python.3.10.5\tools\python.exe" (set PYTHON="%_Py_EXTERNALS_DIR%\python.3.10.5\tools\python.exe") & (set _Py_Python_Source=found in externals directory) & goto :found
++@if exist "%_Py_EXTERNALS_DIR%\python.3.10.13\tools\python.exe" (set PYTHON="%_Py_EXTERNALS_DIR%\python.3.10.13\tools\python.exe") & (set _Py_Python_Source=found in externals directory) & goto :found
  
  @rem If HOST_PYTHON is recent enough, use that
  @if NOT "%HOST_PYTHON%"=="" @%HOST_PYTHON% -Ec "import sys; assert sys.version_info[:2] >= (3, 8)" >nul 2>nul && (set PYTHON="%HOST_PYTHON%") && (set _Py_Python_Source=found as HOST_PYTHON) && goto :found
@@ -23,10 +23,10 @@ index d0e4a86..cb7f933 100644
  )
  @echo Installing Python via nuget...
 -@"%_Py_NUGET%" install pythonx86 -ExcludeVersion -OutputDirectory "%_Py_EXTERNALS_DIR%"
-+@"%_Py_NUGET%" install python -Version 3.10.5 -OutputDirectory "%_Py_EXTERNALS_DIR%"
++@"%_Py_NUGET%" install python -Version 3.10.13 -OutputDirectory "%_Py_EXTERNALS_DIR%"
  @rem Quote it here; it's not quoted later because "py -x.y" wouldn't work
 -@if not errorlevel 1 (set PYTHON="%_Py_EXTERNALS_DIR%\pythonx86\tools\python.exe") & (set _Py_Python_Source=found on nuget.org) & goto :found
-+@if not errorlevel 1 (set PYTHON="%_Py_EXTERNALS_DIR%\python.3.10.5\tools\python.exe") & (set _Py_Python_Source=found on nuget.org) & goto :found
++@if not errorlevel 1 (set PYTHON="%_Py_EXTERNALS_DIR%\python.3.10.13\tools\python.exe") & (set _Py_Python_Source=found on nuget.org) & goto :found
  
  
  @set _Py_Python_Source=

@@ -1,8 +1,21 @@
 diff --git a/Mac/BuildScript/build-installer.py b/Mac/BuildScript/build-installer.py
-index 4308a20..ec54cfb 100755
+index 8f33537..dad3d0c 100755
 --- a/Mac/BuildScript/build-installer.py
 +++ b/Mac/BuildScript/build-installer.py
-@@ -274,7 +274,7 @@ def library_recipes():
+@@ -264,17 +264,17 @@ def library_recipes():
+             tk_patches = ['tk868_on_10_8_10_9.patch']
+ 
+         else:
+-            tcl_tk_ver='8.6.12'
+-            tcl_checksum='87ea890821d2221f2ab5157bc5eb885f'
++            tcl_tk_ver='8.6.13'
++            tcl_checksum='0e4358aade2f5db8a8b6f2f6d9481ec2'
+ 
+-            tk_checksum='1d6dcf6120356e3d211e056dff5e462a'
++            tk_checksum='95adc33d55a133ee29bc9f81efdf31b2'
+             tk_patches = [ ]
+ 
+ 
          result.extend([
            dict(
                name="Tcl %s"%(tcl_tk_ver,),
@@ -28,7 +41,16 @@ index 4308a20..ec54cfb 100755
                ]
                ),
          ])
-@@ -1005,19 +1006,29 @@ def buildRecipe(recipe, basedir, archList):
+@@ -347,7 +348,7 @@ def library_recipes():
+                   "--libdir=/Library/Frameworks/Python.framework/Versions/%s/lib"%(getVersion(),),
+               ],
+               patchscripts=[
+-                  ("ftp://ftp.invisible-island.net/ncurses//5.9/ncurses-5.9-20120616-patch.sh.bz2",
++                  ("https://src.fedoraproject.org/repo/pkgs/ncurses/ncurses-5.9-20120616-patch.sh.bz2/f54bf02a349f96a7c4f0d00922f3a0d4/ncurses-5.9-20120616-patch.sh.bz2",
+                    "f54bf02a349f96a7c4f0d00922f3a0d4"),
+                    ],
+               useLDFlags=False,
+@@ -1011,19 +1012,29 @@ def buildRecipe(recipe, basedir, archList):
                  configure_args.remove('--disable-shared')
              configure_args.extend(args)
  
@@ -70,7 +92,7 @@ index 4308a20..ec54cfb 100755
          else:
              configure_args.extend([
                  "CFLAGS=%s-mmacosx-version-min=%s -arch %s "
-@@ -1540,8 +1551,9 @@ def buildInstaller():
+@@ -1546,8 +1557,9 @@ def buildInstaller():
      pkgroot = os.path.join(outdir, 'Python.mpkg', 'Contents')
      pkgcontents = os.path.join(pkgroot, 'Packages')
      os.makedirs(pkgcontents)
@@ -81,4 +103,39 @@ index 4308a20..ec54cfb 100755
 +    return
  
      rsrcDir = os.path.join(pkgroot, 'Resources')
- 
+
+diff --git a/Doc/Makefile b/Doc/Makefile
+index 4188f88..324acc4 100644
+--- a/Doc/Makefile
++++ b/Doc/Makefile
+@@ -12,7 +12,7 @@ JOBS         = auto
+ PAPER        =
+ SOURCES      =
+ DISTVERSION  = $(shell $(PYTHON) tools/extensions/patchlevel.py)
+-SPHINXERRORHANDLING = -W
++SPHINXERRORHANDLING =
+
+ # Internal variables.
+ PAPEROPT_a4     = -D latex_elements.papersize=a4paper
+diff --git a/Doc/requirements.txt b/Doc/requirements.txt
+index f43ce2c..2578393 100644
+--- a/Doc/requirements.txt
++++ b/Doc/requirements.txt
+@@ -3,13 +3,13 @@
+ # Sphinx version is pinned so that new versions that introduce new warnings
+ # won't suddenly cause build failures. Updating the version is fine as long
+ # as no warnings are raised by doing so.
+-sphinx==3.4.3
++sphinx
+ # Docutils version is pinned to a version compatible with Sphinx
+ # version <3.5.4. It can be removed after bumping Sphinx version to at
+ # least 3.5.4.
+-docutils==0.17.1
++docutils
+ # Jinja version is pinned to a version compatible with Sphinx version <4.5.
+-jinja2==3.0.3
++jinja2
+
+ blurb
+
+

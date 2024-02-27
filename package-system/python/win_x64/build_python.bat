@@ -29,16 +29,21 @@ set vswhere_location=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer
 echo adding %vswhere_location% to PATH
 set PATH=%vswhere_location%;%PATH%
 
-for /f "tokens=*" %%i in ('vswhere -version [15.0^,16.0^) -property installationPath') do set VS2017_LOCATION=%%i
+for /f "tokens=*" %%i in ('vswhere -version [16.0^,17.0^) -property installationPath') do set VS2019_LOCATION=%%i
 
-echo Using Visual Studio: %VS2017_LOCATION%
+echo Using Visual Studio: %VS2019_LOCATION%
 
-if NOT exist "%VS2017_LOCATION%\Common7\Tools\vsdevcmd.bat" (
-     echo Could not find visual studio 2017 installed
-    exit /B 1
- )
-call "%VS2017_LOCATION%\Common7\Tools\vsdevcmd.bat"
+if NOT exist "%VS2019_LOCATION%\Common7\Tools\vsdevcmd.bat" (
 
+    IF NOT DEFINED VCINSTALLDIR (
+        echo Unable to find visual studio 2019 and the visual studio environment has not been set up
+        exit /B 1
+    ) ELSE (
+        echo Unable to find visual studio 2019 but found Visual Studio installed at %VCINSTALLDIR%
+    )
+ ) ELSE (
+    call "%VS2019_LOCATION%\Common7\Tools\vsdevcmd.bat"
+)
 
 echo Clearing %tempdir% if present...
 rmdir /s /q %tempdir% > NUL
@@ -49,8 +54,8 @@ mkdir %outputdir%
 mkdir %tempdir%
 cd /d %tempdir%
 
-echo Cloning python from git using v3.10.5..
-git clone https://github.com/python/cpython.git --branch "v3.10.5" --depth 1
+echo Cloning python from git using v3.10.13..
+git clone https://github.com/python/cpython.git --branch "v3.10.13" --depth 1
 if %ERRORLEVEL% NEQ 0 (
     echo "Git clone failed"
     exit /B 1
@@ -62,11 +67,13 @@ if %ERRORLEVEL% NEQ 0 (
     echo "Git clone failed"
     exit /B 1
 )
-copy /Y /V libexpat/expat/lib/*.h cpython/Modules/expat/
-copy /Y /V libexpat/expat/lib/*.c cpython/Modules/expat/
+echo copy /Y /V libexpat\expat\lib\*.h cpython\Modules\expat\
+copy /Y /V libexpat\expat\lib\*.h cpython\Modules\expat\
+
+echo copy /Y /V libexpat/expat/lib/*.c cpython/Modules/expat/
+copy /Y /V libexpat\expat\lib\*.c cpython\Modules\expat\
 
 cd /d %python_src%
-
 
 REM If the patch file 'open3d_python.patch' file exists, then apply the patch
 set patch_file=%ScriptDir%\open3d_python.patch
