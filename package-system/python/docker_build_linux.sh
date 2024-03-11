@@ -103,14 +103,11 @@ echo ""
 pushd ${SRC_PATH}
 
 # Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
-CMD="\
 ./configure --prefix=${BUILD_FOLDER}/python\
  --enable-optimizations\
  --with-openssl=${OPENSSL_BASE}\
  --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L'${SQLITE_BASE}'/lib'\
- CPPFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}'' CFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}''"
-echo $CMD
-eval $CMD
+ CPPFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}'' CFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}''
 if [ $? -ne 0 ]
 then
     echo "'configure' failed for cpython at ${SRC_PATH}"
