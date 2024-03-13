@@ -2,7 +2,7 @@
    "git_url":"https://github.com/python/cpython.git",
    "git_tag":"v3.10.13",
    "package_name":"python",
-   "package_version":"3.10.13-rev1",
+   "package_version":"3.10.13-rev2",
    "package_url":"https://python.org",
    "package_license":"PSF-2.0",
    "package_license_file":"LICENSE",
@@ -17,7 +17,7 @@
                 ],
                "custom_build_cmd": [
                     "./build-linux.sh",
-                    "python_3_10_5",
+                    "python_3_10_13",
                     "20.04",
                     "x86_64"
                 ],

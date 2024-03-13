@@ -33,13 +33,14 @@ ENV DOWNLOADED_PACKAGE_FOLDERS=$INPUT_DEPENDENT_PACKAGE_FOLDERS
 WORKDIR $WORKSPACE
 
 # Initilize apt cache
-RUN apt-get clean && apt-get update
+RUN apt-get clean && apt-get update && apt upgrade -y
 
 # Setup time zone and locale data (necessary for SSL and HTTPS packages)
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-configuration
 
+
 # Install the development packages needed to build python
-RUN apt-get install -y autoconf \
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y autoconf \
                        build-essential \
                        cmake \
                        git \
