@@ -163,6 +163,16 @@ ly_declare_aws_library(
         3rdParty::AWSNativeSDK::Core
 )
 
+#### Bedrock ####
+ly_declare_aws_library(
+    NAME
+        Bedrock
+    LIB_FILE 
+        aws-cpp-sdk-bedrock
+    BUILD_DEPENDENCIES
+        3rdParty::AWSNativeSDK::Core
+)
+
 #### CognitoIdentity ####
 ly_declare_aws_library(
     NAME 

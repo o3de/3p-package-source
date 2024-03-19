@@ -1,8 +1,8 @@
 {
    "git_url":"https://github.com/aws/aws-sdk-cpp.git",
-   "git_tag":"1.11.264",
+   "git_tag":"1.11.288",
    "package_name":"AWSNativeSDK",
-   "package_version":"1.11.264-rev1",
+   "package_version":"1.11.288-rev1",
    "package_url":"https://github.com/aws/aws-sdk-cpp",
    "package_license":"Apache-2.0",
    "package_license_file":"LICENSE",
@@ -12,7 +12,7 @@
    "Platforms":{
       "Windows":{
          "Windows":{
-            "package_version":"1.11.264-rev1",
+            "package_version":"1.11.288-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Windows",
             "custom_build_cmd": [
                "build_AWSNativeSDK_windows.cmd"
@@ -22,7 +22,7 @@
             ]
          },
          "Android":{
-            "package_version":"1.11.264-rev1",
+            "package_version":"1.11.288-rev1",
             "depends_on_packages": [
                [ "OpenSSL-1.1.1m-rev1-android", "b11fe493af5d6b03ebbf1a2c97fea443b125e88def5cd1c32b854220b3ad4681", "" ],
                [ "zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", "" ]
@@ -62,7 +62,7 @@
                [ "OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", "" ],
                [ "zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", "" ]
             ],
-            "package_version":"1.11.264-rev1",
+            "package_version":"1.11.288-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build-linux.sh",
@@ -80,7 +80,7 @@
                [ "OpenSSL-1.1.1t-rev1-linux-aarch64", "f32721bec9c82d1bd7fb244d78d5dc4e2a47e7b808bb36027236ad377e241ea5", "" ],
                [ "zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", "" ]
             ],
-            "package_version":"1.11.264-rev1",
+            "package_version":"1.11.288-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build-linux.sh",

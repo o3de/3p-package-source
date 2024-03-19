@@ -127,6 +127,17 @@ ly_declare_aws_library(
         3rdParty::AWSNativeSDK::Core 
 )
 
+#### Bedrock ####
+ly_declare_aws_library(
+    NAME 
+        Bedrock
+    LIB_FILE 
+        aws-cpp-sdk-bedrock
+    BUILD_DEPENDENCIES
+        # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
+        3rdParty::AWSNativeSDK::Core 
+)
+
 #### CognitoIdentity ####
 ly_declare_aws_library(
     NAME 

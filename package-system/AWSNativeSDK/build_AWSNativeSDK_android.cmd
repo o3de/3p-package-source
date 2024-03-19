@@ -8,6 +8,7 @@ REM
 
 SET SRC_PATH=temp\src
 SET BLD_PATH=temp\build
+SET OPENSSL_PATH=temp\OpenSSL-1.1.1m-rev1-android\OpenSSL
 
 set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 
@@ -62,7 +63,7 @@ call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
            -DCPP_STANDARD=17 ^
            -DCMAKE_C_FLAGS="-fPIC" ^
            -DCMAKE_CXX_FLAGS="-fPIC" ^
-           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" ^
+           -DBUILD_ONLY="access-management;bedrock;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" ^
            -DENABLE_TESTING=OFF ^
            -DENABLE_RTTI=ON ^
            -DCUSTOM_MEMORY_MANAGEMENT=ON^
@@ -71,7 +72,13 @@ call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
            -DCMAKE_INSTALL_PREFIX="%BLD_PATH%/%BUILD_TYPE%_%LIB_TYPE%" ^
            -DANDROID_BUILD_OPENSSL=OFF ^
            -DANDROID_BUILD_ZLIB=OFF ^
-           -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%"
+           -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%" ^
+           -Dcrypto_LIBRARY="%OPENSSL_PATH%/lib/libcrypto.a" ^
+           -Dcrypto_INCLUDE_DIR="%OPENSSL_PATH%/include" ^
+           -DOPENSSL_ROOT_DIR="%OPENSSL_PATH%" ^
+           -DOPENSSL_INCLUDE_DIR="%OPENSSL_PATH%/include" ^
+           -DFORCE_CURL=ON
+
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "CMake Configure %BUILD_TYPE% %LIB_TYPE% failed"
     exit /b 1
