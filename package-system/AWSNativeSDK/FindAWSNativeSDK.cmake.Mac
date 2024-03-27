@@ -163,12 +163,12 @@ ly_declare_aws_library(
         3rdParty::AWSNativeSDK::Core
 )
 
-#### Bedrock ####
+#### BedrockRuntime ####
 ly_declare_aws_library(
     NAME
-        Bedrock
+        BedrockRuntime
     LIB_FILE 
-        aws-cpp-sdk-bedrock
+        aws-cpp-sdk-bedrock-runtime
     BUILD_DEPENDENCIES
         3rdParty::AWSNativeSDK::Core
 )

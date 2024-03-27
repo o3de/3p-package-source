@@ -101,12 +101,12 @@ ly_declare_aws_library(
         3rdParty::AWSNativeSDK::Core 
 )
 
-#### Bedrock ####
+#### BedrockRuntime ####
 ly_declare_aws_library(
     NAME 
-        Bedrock
+        BedrockRuntime
     LIB_FILE
-        aws-cpp-sdk-bedrock
+        aws-cpp-sdk-bedrock-runtime
     BUILD_DEPENDENCIES
         # Even though AWS Core is a sibling module, make sure it's linked in first because this module depends on it.
         3rdParty::AWSNativeSDK::Core 
