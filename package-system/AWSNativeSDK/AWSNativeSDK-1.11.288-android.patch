@@ -1,0 +1,13 @@
+diff --git a/tools/android-build/CMakeLists.txt b/tools/android-build/CMakeLists.txt
+index dedf79cec8..14beffaf14 100644
+--- a/tools/android-build/CMakeLists.txt
++++ b/tools/android-build/CMakeLists.txt
+@@ -37,7 +37,7 @@ if(BUILD_OPENSSL)
+     ExternalProject_Add(OPENSSL
+         SOURCE_DIR ${OPENSSL_SOURCE_DIR}
+         GIT_REPOSITORY https://github.com/openssl/openssl.git
+-        GIT_TAG e2e09d9fba1187f8d6aafaa34d4172f56f1ffb72 # 1.1.1g
++        GIT_TAG ca2e0784d2c38edcefd5d68028f4d954bd8faddb # 1.1.1o
+         UPDATE_COMMAND ""
+         PATCH_COMMAND cd ${CMAKE_BINARY_DIR} && python ${AWS_NATIVE_SDK_ROOT}/tools/android-build/configure_openssl_cmake.py --source ${AWS_NATIVE_SDK_ROOT} --dest ${OPENSSL_SOURCE_DIR}
+         CMAKE_ARGS
