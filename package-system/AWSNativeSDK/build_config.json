@@ -85,7 +85,7 @@
             "cmake_find_source":"FindAWSNativeSDK.cmake.Linux",
             "custom_build_cmd": [
                "./build-linux.sh",
-               "aws_native_sdk_1_11_264",
+               "aws_native_sdk_1_11_288",
                "20.04",
                "curl-7_68_0",
                "aarch64"
