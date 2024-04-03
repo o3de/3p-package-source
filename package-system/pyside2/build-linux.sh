@@ -11,11 +11,11 @@
 
 if [ "$(uname -m)" = "aarch64" ]
 then
-    PYTHON_FOLDER_NAME=python-3.10.5-rev2-linux-aarch64
-    QT_FOLDER_NAME=qt-5.15.2-rev8-linux-aarch64
+    PYTHON_FOLDER_NAME=python-3.10.13-rev2-linux-aarch64
+    QT_FOLDER_NAME=qt-5.15.2-rev9-linux-aarch64
 else
-    PYTHON_FOLDER_NAME=python-3.10.5-rev2-linux
-    QT_FOLDER_NAME=qt-5.15.2-rev8-linux
+    PYTHON_FOLDER_NAME=python-3.10.13-rev2-linux
+    QT_FOLDER_NAME=qt-5.15.2-rev9-linux
 fi
 
 DOCKER_BUILD_SCRIPT=docker_build_linux.sh

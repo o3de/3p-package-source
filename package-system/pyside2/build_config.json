@@ -1,8 +1,8 @@
 {
-    "git_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
+    "git_url": "https://code.qt.io/pyside/pyside-setup",
     "git_tag": "v5.15.2.1",
     "package_name": "pyside2",
-    "package_version": "5.15.2.1-py3.10-rev4",
+    "package_version": "5.15.2.1-py3.10-rev5",
     "package_url": "https://code.qt.io/cgit/pyside/pyside-setup.git",
     "package_license": "custom",
     "package_license_file": "pyside2/LICENSE.LGPLv3",
@@ -30,8 +30,8 @@
         "Linux": {
             "Linux": {
                 "depends_on_packages" :[ 
-                    ["python-3.10.5-rev2-linux", "eda1fdc9129fb70df2d63bd21d0876c83c4f7021864f22c85850f4a8ff8cf1bf", ""],
-                    ["qt-5.15.2-rev8-linux", "613d6a404b305ce0e715c57c936dc00318fb9f0d2d3f6609f8454c198f993095", ""]
+                    ["python-3.10.13-rev2-linux", "a7832f9170a3ac93fbe678e9b3d99a977daa03bb667d25885967e8b4977b86f8", ""],
+                    ["qt-5.15.2-rev9-linux", "db4bcd2003262f4d8c7d7da832758824fc24e53da5895edef743f67a64a5c734", ""]
                 ],
                 "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
@@ -43,8 +43,8 @@
             },
 	    "Linux-aarch64":  {
                 "depends_on_packages" :[
-                    ["python-3.10.5-rev2-linux-aarch64", "a02bfb612005af364872aac96e569cef1ad84ba65632d88d04b34a99d45b077c", ""],
-                    ["qt-5.15.2-rev8-linux-aarch64", "c437ee1c7a4fe84002352a2f8ed230c822a13dcc80735a4fecf3b3af6e34bb63", ""]
+                    ["python-3.10.13-rev2-linux-aarch64", "30bc2731e2ac54d8e22d36ab15e30b77aefe2dce146ef92d6f20adc0a9c5b14e", ""],
+                    ["qt-5.15.2-rev9-linux-aarch64", "da80840ecd3f7a074edecbb3dedb1ff36c568cfe4943e18d9559e9fca9f151bc", ""]
                 ],
                 "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [

@@ -75,7 +75,7 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
 # Copy the build script specific to this Docker script in order to execute the build
 ARG CACHEBUST=1
 
-COPY ${DOCKER_BUILD_SCRIPT} /data/workspace/
 COPY src /data/workspace/src/
+COPY ${DOCKER_BUILD_SCRIPT} /data/workspace/
 
 ENTRYPOINT ["/bin/bash"]
