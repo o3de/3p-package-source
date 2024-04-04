@@ -89,6 +89,9 @@ cp -r $INSTALL_SOURCE/share $PACKAGE_BASE
 
 
 # RPATH fixes
+# Note: 'patchelf' is not setting the RPATH correctly, and chrpath by itself cannot add, only change the rpath.
+#       So we are working around this by first using patchelf to create the (incorrect) RPATH, and then we can
+#       us chrpath to change the incorrect RPATH to the correct $ORIGIN one.
 $BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
 chrpath -r \$ORIGIN $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
 
@@ -104,11 +107,9 @@ chrpath -r \$ORIGIN $PACKAGE_BASE/bin/shiboken2
 $BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/bin/pyside2-lupdate
 chrpath -r \$ORIGIN "\$ORIGIN" $PACKAGE_BASE/bin/pyside2-lupdate
 
-# Remove the sym-link python
+# Remove the sym-link python to prevent it from being packaged up in the docker post processing.
 pushd ${BASE_ROOT}/build
 rm python
 popd
 
-
 exit 0
-
