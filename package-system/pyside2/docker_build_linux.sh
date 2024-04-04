@@ -90,10 +90,25 @@ cp -r $INSTALL_SOURCE/share $PACKAGE_BASE
 
 # RPATH fixes
 $BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
+chrpath -r \$ORIGIN $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
+
 $BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/lib/libshiboken2.abi3.so.5.15.2.1
+chrpath -r \$ORIGIN $PACKAGE_BASE/lib/libshiboken2.abi3.so.5.15.2.1
+
 $BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/lib/python3.10/site-packages/shiboken2/shiboken2.abi3.so
+chrpath -r \$ORIGIN $PACKAGE_BASE/lib/python3.10/site-packages/shiboken2/shiboken2.abi3.so
+
 $BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/bin/shiboken2
+chrpath -r \$ORIGIN $PACKAGE_BASE/bin/shiboken2
+
 $BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/bin/pyside2-lupdate
+chrpath -r \$ORIGIN "\$ORIGIN" $PACKAGE_BASE/bin/pyside2-lupdate
+
+# Remove the sym-link python
+pushd ${BASE_ROOT}/build
+rm python
+popd
+
 
 exit 0
 

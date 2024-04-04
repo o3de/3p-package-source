@@ -38,8 +38,8 @@ RUN apt-get install -y cmake \
                        llvm-12 \
                        git \
                        libgl1-mesa-dev \
-                       libpcre2-dev
-
+                       libpcre2-dev \
+                       chrpath
 
 RUN apt-get install -y libclang-12-dev
 
@@ -75,7 +75,7 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
 # Copy the build script specific to this Docker script in order to execute the build
 ARG CACHEBUST=1
 
-COPY src /data/workspace/src/
 COPY ${DOCKER_BUILD_SCRIPT} /data/workspace/
+COPY src /data/workspace/src/
 
 ENTRYPOINT ["/bin/bash"]
