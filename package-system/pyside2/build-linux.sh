@@ -8,6 +8,7 @@
 #
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
+echo "Starting pyside build"
 
 if [ "$(uname -m)" = "aarch64" ]
 then
