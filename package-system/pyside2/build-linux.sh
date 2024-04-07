@@ -10,7 +10,57 @@
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 echo "Starting pyside build"
 
-if [ "$(uname -m)" = "aarch64" ]
+# Determine the host architecture
+CURRENT_HOST_ARCH=$(uname -m)
+
+# Use the host architecture if not supplied
+TARGET_ARCH=${1:-$(uname -m)}
+
+# 
+# Check the target architecture and determine if the necessary cross compilation requirements are met
+#
+
+# If the host and target architecture does not match, make sure the necessary cross compilation packages are installed
+if [ "${CURRENT_HOST_ARCH}" != ${TARGET_ARCH} ]
+then
+    echo "Checking cross compiling requirements."
+    for package_check in docker-ce qemu binfmt-support qemu-user-static
+    do
+        echo "Checking package $package_check"
+        dpkg -s $package_check > /dev/null 2>&1
+        if [ $? -ne 0 ]
+        then
+            echo ""
+            echo "Missing package $package_check. Make sure to install it with your local package manager." 
+            echo ""
+            exit 1
+        fi
+    done
+
+    # Only cross compilation of an ARM64 image on an x86_64 host is supported
+    if [ "${TARGET_ARCH}" = "aarch64" ]
+    then
+        # Make sure qemu-aarch64 is installed properly
+        QEMU_AARCH_COUNT=$(update-binfmts --display | grep qemu-aarch64 | wc -l)
+        if [ $QEMU_AARCH_COUNT -eq 0 ]
+        then
+            echo ""
+            echo "QEMU aarch64 binary format not registered."
+            echo "Run the following command to register"
+            echo ""
+            echo "sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes"
+            echo ""
+            exit 1
+        fi
+        echo ""
+        echo "Cross compiling aarch64 on an amd64 machine validated."
+        echo ""
+    fi
+else
+    echo "Building ${TARGET_ARCH} natively."
+fi
+
+if [ "${TARGET_ARCH}" = "aarch64" ]
 then
     echo "Building pyside2 for Linux aarch64"
     PYTHON_FOLDER_NAME=python-3.10.13-rev2-linux-aarch64

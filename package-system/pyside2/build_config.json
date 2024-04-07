@@ -35,7 +35,8 @@
                 ],
                 "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
-                    "./build-linux.sh"
+                    "./build-linux.sh",
+                    "x86_64"
                 ],
                 "custom_install_cmd": [
                     "./package_linux.sh"
@@ -48,10 +49,11 @@
                 ],
                 "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
-                    "./build-linux.sh"
+                    "./build-linux.sh",
+                    "aarch64"
                 ],
                 "custom_install_cmd": [
-                    "./package_linux_aarch64.sh"
+                    "./package_linux.sh"
                 ]
             }
 
