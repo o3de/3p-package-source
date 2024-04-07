@@ -863,8 +863,6 @@ class BuildInfo(object):
 
             call_result = subprocess.run(full_custom_build_cmd,
                                          shell=True,
-                                         stdout=subprocess.PIPE,
-                                         stderr=subprocess.STDOUT,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
                                          env=env_to_use)
