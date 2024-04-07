@@ -77,5 +77,7 @@ ARG CACHEBUST=1
 
 COPY ${DOCKER_BUILD_SCRIPT} /data/workspace/
 COPY src /data/workspace/src/
+COPY ${PYTHON_FOLDER_NAME} /data/workspace/${PYTHON_FOLDER_NAME}/
+COPY ${QT_FOLDER_NAME} /data/workspace/${QT_FOLDER_NAME}/
 
 ENTRYPOINT ["/bin/bash"]

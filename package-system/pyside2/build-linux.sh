@@ -80,8 +80,8 @@ fi
 
 # Run the Docker Image
 echo "Running build script in the docker image"
-echo docker run -v $TEMP_FOLDER/src:/data/workspace/src -v $TEMP_FOLDER/$QT_FOLDER_NAME:/data/workspace/$QT_FOLDER_NAME -v $TEMP_FOLDER/$PYTHON_FOLDER_NAME:/data/workspace/$PYTHON_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
-docker run -v $TEMP_FOLDER/$QT_FOLDER_NAME:/data/workspace/$QT_FOLDER_NAME -v $TEMP_FOLDER/$PYTHON_FOLDER_NAME:/data/workspace/$PYTHON_FOLDER_NAME --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
+echo docker run -it --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
+docker run --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
 if [ $? -ne 0 ]
 then
     echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest

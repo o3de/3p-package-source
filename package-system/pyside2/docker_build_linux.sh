@@ -20,7 +20,7 @@ echo "Using Qt at ${DEP_QT_BASE}"
 LOCAL_PYTHON3_BIN=${DEP_PYTHON_BASE}/python/bin/python3
 if [ ! -f $LOCAL_PYTHON3_BIN ]
 then
-    echo "Required local 3P python not detected"
+    echo "Required local 3P python not detected at ${LOCAL_PYTHON3_BIN}"
     exit 1
 fi
 
@@ -31,7 +31,7 @@ LOCAL_3P_QTBUILD_QMAKE_PATH=`readlink -f $LOCAL_3P_QTBUILD_PATH/bin/qmake`
 LOCAL_3P_QTBUILD_LIB_PATH=`readlink -f $LOCAL_3P_QTBUILD_PATH/lib`
 if [ ! -f "$LOCAL_3P_QTBUILD_QMAKE_PATH" ]
 then
-    echo "Missing 3P dependency of Qt $LOCAL_3P_QTBUILD_PATH"
+    echo "Missing 3P dependency of Qt ${LOCAL_3P_QTBUILD_PATH}"
     echo
     exit 1
 fi
