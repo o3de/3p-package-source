@@ -9,13 +9,26 @@
 # for its dependencies
 #
 
-FROM public.ecr.aws/ubuntu/ubuntu:20.04_stable
- 
-WORKDIR /data/workspace
+# The cpu architecture to base the docker base script from
+ARG INPUT_ARCHITECTURE=amd64
+
+# The root to base the docker script base from
+ARG INPUT_IMAGE=ubuntu:20.04
 
 ARG PYTHON_FOLDER_NAME
 ARG QT_FOLDER_NAME
 ARG DOCKER_BUILD_SCRIPT
+
+FROM ${INPUT_ARCHITECTURE}/${INPUT_IMAGE}
+
+ARG INPUT_ARCHITECTURE
+ARG INPUT_IMAGE
+
+ARG PYTHON_FOLDER_NAME
+ARG QT_FOLDER_NAME
+ARG DOCKER_BUILD_SCRIPT
+
+WORKDIR /data/workspace
 
 # Initilize apt cache
 RUN apt-get clean && apt-get update
@@ -62,7 +75,7 @@ ENV LLVM_CONFIG=/usr/bin/llvm-config-12
 # paths. To work around this and make it appear that the dependent 3P python package
 # was installed in this docker sctructure, we will instead create a symlink from the
 # 3p package's original path to the actual one mapped to the workspace path
-RUN if [ "$(uname -m)" = "aarch64" ]; then \
+RUN if [ "${INPUT_ARCHITECTURE}" = "aarch64" ]; then \
         mkdir -p /home/ubuntu/github/3p-package-source/package-system/python/linux_aarch64/package && \
         cd /home/ubuntu/github/3p-package-source/package-system/python/linux_aarch64/package && \
         ln -s /data/workspace/${PYTHON_FOLDER_NAME}/python python; \

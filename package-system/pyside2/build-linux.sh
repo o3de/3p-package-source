@@ -8,13 +8,63 @@
 #
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
-echo "Starting pyside build"
+
+# This script will utilize Docker to build on either AMD64 or AARCH64 architectures. 
+
+
+DOCKER_BUILD_SCRIPT=docker_build_linux.sh
+TARGET_BUILD_FOLDER=build
+
+#
+# Collect the required arguments for this ubuntu docker-base build script
+#
+
+# Get the base docker image name
+DOCKER_IMAGE_NAME_BASE=$1
+if [ "${DOCKER_IMAGE_NAME_BASE}" == "" ]
+then
+    echo "Missing argument 1: Docker image name for this this process"
+    exit 1
+fi
+
+# Get the ubuntu base version (16.04|18.04|20.04|22.04)
+UBUNTU_BASE=$2
+if [ "${UBUNTU_BASE}" == "" ]
+then
+    echo "Missing argument 2: Ubuntu docker tag"
+    exit 1
+fi
 
 # Determine the host architecture
 CURRENT_HOST_ARCH=$(uname -m)
 
 # Use the host architecture if not supplied
-TARGET_ARCH=${1:-$(uname -m)}
+TARGET_ARCH=${3:-$(uname -m)}
+
+# Recompute the DOWNLOADED_PACKAGE_FOLDERS to apply to $WORKSPACE/temp inside the Docker script 
+DEP_PACKAGES_FOLDERNAMES_ONLY=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER\//}
+DEP_PACKAGES_DOCKER_FOLDERNAMES=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER/"/data/workspace/temp"}
+
+echo "Executing docker-based build from the following arguments"
+echo "    DOCKER_IMAGE_NAME_BASE     = ${DOCKER_IMAGE_NAME_BASE}"
+echo "    UBUNTU_BASE                = ${UBUNTU_BASE}"
+echo "    DOCKER_BUILD_SCRIPT        = ${DOCKER_BUILD_SCRIPT}"
+echo "    TARGET_BUILD_FOLDER        = ${TARGET_BUILD_FOLDER}"
+echo "    TARGET_ARCH                = ${TARGET_ARCH}"
+echo "    TEMP_FOLDER                = ${TEMP_FOLDER}"
+echo "    DOWNLOADED_PACKAGE_FOLDERS = ${DEP_PACKAGES_FOLDERNAMES_ONLY}"
+
+#
+# Make sure docker is installed
+#
+DOCKER_VERSION=$(docker --version)
+if [ $? -ne 0 ]
+then
+    echo "Required package docker is not installed"
+    echo "Follow instructions on https://docs.docker.com/engine/install/ubuntu/ to install docker properly"
+    exit 1
+fi
+echo "Detected Docker Version $DOCKER_VERSION"
 
 # 
 # Check the target architecture and determine if the necessary cross compilation requirements are met
@@ -60,31 +110,37 @@ else
     echo "Building ${TARGET_ARCH} natively."
 fi
 
-if [ "${TARGET_ARCH}" = "aarch64" ]
+
+# Setup the docker arguments 
+if [ "${TARGET_ARCH}" = "x86_64" ]
 then
-    echo "Building pyside2 for Linux aarch64"
-    PYTHON_FOLDER_NAME=python-3.10.13-rev2-linux-aarch64
-    QT_FOLDER_NAME=qt-5.15.2-rev9-linux-aarch64
-else
-    echo "Building pyside2 for Linux x86_64"
+    echo "Processing Docker for amd64"
+
+    DOCKER_INPUT_ARCHITECTURE=amd64
+    TARGET_DOCKER_PLATFORM_ARG=linux/amd64
     PYTHON_FOLDER_NAME=python-3.10.13-rev2-linux
     QT_FOLDER_NAME=qt-5.15.2-rev9-linux
-fi
 
-DOCKER_BUILD_SCRIPT=docker_build_linux.sh
-DOCKER_IMAGE_NAME=pyside2_linux_3p
-PYSIDE2_TOOL_PATCH=pyside2-tools.patch
-
-
-# Make sure docker is installed
-DOCKER_VERSION=$(docker --version)
-if [ $? -ne 0 ]
+elif [ "${TARGET_ARCH}" = "aarch64" ] 
 then
-    echo "Required package docker is not installed"
-    echo "Follow instructions on https://docs.docker.com/engine/install/ubuntu/ to install docker properly"
+    echo "Processing Docker for aarch64"
+
+    DOCKER_INPUT_ARCHITECTURE=arm64v8
+    TARGET_DOCKER_PLATFORM_ARG=linux/arm64/v8
+    PYTHON_FOLDER_NAME=python-3.10.13-rev2-linux-aarch64
+    QT_FOLDER_NAME=qt-5.15.2-rev9-linux-aarch64
+
+else
+    echo "Unsupported architecture ${TARGET_ARCH}"
     exit 1
 fi
-echo "Detected Docker Version $DOCKER_VERSION"
+
+# Build the Docker Image 
+DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME_BASE}_${DOCKER_INPUT_ARCHITECTURE}_3p
+echo DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}
+
+DOCKER_IMAGE_NAME=pyside2_linux_3p
+PYSIDE2_TOOL_PATCH=pyside2-tools.patch
 
 echo "Using dependent 3rd Party Library ${PYTHON_FOLDER_NAME}"
 echo "Using dependent 3rd Party Library ${QT_FOLDER_NAME}"
@@ -108,11 +164,25 @@ else
 fi
 popd
 
-# Build the Docker Image
-echo "Building the docker build script"
+popd
 
-echo docker build --build-arg PYTHON_FOLDER_NAME=${PYTHON_FOLDER_NAME} --build-arg QT_FOLDER_NAME=${QT_FOLDER_NAME} --build-arg DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest .
-docker build --build-arg PYTHON_FOLDER_NAME=${PYTHON_FOLDER_NAME} --build-arg QT_FOLDER_NAME=${QT_FOLDER_NAME} --build-arg DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT} -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest .
+# Build the Docker Image
+echo "Building the docker build script for ${DOCKER_IMAGE_NAME_BASE} on ${DOCKER_INPUT_ARCHITECTURE} for Ubuntu $1"
+echo ""
+
+CMD_DOCKER_BUILD="\
+docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT}\
+ --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE}\
+ --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE}\
+ --build-arg PYTHON_FOLDER_NAME=\"${PYTHON_FOLDER_NAME}\"\
+ --build-arg QT_FOLDER_NAME=\"${QT_FOLDER_NAME}\"\
+ --build-arg DOCKER_BUILD_SCRIPT=\"${DOCKER_BUILD_SCRIPT}\"\
+ -f Dockerfile -t ${DOCKER_IMAGE_NAME}:latest temp"
+
+echo "CWD=$(pwd)"
+echo $CMD_DOCKER_BUILD
+eval $CMD_DOCKER_BUILD
+
 if [ $? -ne 0 ]
 then
     echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest." 
@@ -130,8 +200,9 @@ fi
 
 # Run the Docker Image
 echo "Running build script in the docker image"
-echo docker run -it --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
-docker run --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
+
+echo docker run -it --platform ${TARGET_DOCKER_PLATFORM_ARG} --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
+docker run --platform ${TARGET_DOCKER_PLATFORM_ARG} --tty ${DOCKER_IMAGE_NAME}:latest /data/workspace/$DOCKER_BUILD_SCRIPT 
 if [ $? -ne 0 ]
 then
     echo Failed to build from docker image ${DOCKER_IMAGE_NAME}:latest

@@ -36,6 +36,8 @@
                 "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
                     "./build-linux.sh",
+                    "pyside2_5_15_2_1",
+                    "20.04",
                     "x86_64"
                 ],
                 "custom_install_cmd": [
@@ -50,6 +52,8 @@
                 "cmake_find_source": "Findpyside2.cmake",
                 "custom_build_cmd": [
                     "./build-linux.sh",
+                    "pyside2_5_15_2_1",
+                    "20.04",
                     "aarch64"
                 ],
                 "custom_install_cmd": [
