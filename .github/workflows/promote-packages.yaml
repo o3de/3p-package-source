@@ -127,6 +127,10 @@ jobs:
             fi
 
             FILE_PATH="${{ env.O3DE_REPO_PATH }}/cmake/3rdParty/Platform/${PLATFORM^}/$CMAKE_FILE"
+
+            if [[ $PLATFORM == ios ]]; then
+                FILE_PATH="${{ env.O3DE_REPO_PATH }}/cmake/3rdParty/Platform/iOS/$CMAKE_FILE"
+            fi
             
             # Sample the first line after the comment "# platform-specific" to detect width
             sample_line=$(awk '/# platform-specific/{getline; print}' "$FILE_PATH")
