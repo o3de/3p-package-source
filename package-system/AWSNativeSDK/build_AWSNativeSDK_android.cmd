@@ -12,7 +12,7 @@ SET BLD_PATH=temp\build
 set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 
 IF "%ANDROID_NDK_ROOT%"=="" (
-    ECHO "Required envrironment variable ANDROID_NDK_ROOT is missing, please set it to local android ndk directory"
+    ECHO "Required envrironment variable ANDROID_NDK_ROOT is missing, please set it to a local android ndk directory that is at least version 25.2.9519653"
     exit /b 1
 )
 
@@ -57,21 +57,25 @@ call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
            -DBUILD_SHARED_LIBS=%BUILD_SHARED% ^
            -DCMAKE_BUILD_TYPE="%BUILD_TYPE%" ^
            -DTARGET_ARCH=ANDROID ^
-           -DANDROID_NATIVE_API_LEVEL=21 ^
+           -DANDROID_NATIVE_API_LEVEL=33 ^
            -DANDROID_ABI=arm64-v8a ^
            -DCPP_STANDARD=17 ^
            -DCMAKE_C_FLAGS="-fPIC" ^
            -DCMAKE_CXX_FLAGS="-fPIC" ^
-           -DBUILD_ONLY="access-management;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;mobileanalytics;queues;s3;sns;sqs;sts;transfer" ^
+           -DBUILD_ONLY="access-management;bedrock-runtime;cognito-identity;cognito-idp;core;devicefarm;dynamodb;gamelift;identity-management;kinesis;lambda;queues;s3;sns;sqs;sts;transfer" ^
            -DENABLE_TESTING=OFF ^
            -DENABLE_RTTI=ON ^
            -DCUSTOM_MEMORY_MANAGEMENT=ON^
            -DCMAKE_INSTALL_BINDIR="bin/%BUILD_TYPE%_%LIB_TYPE%" ^
            -DCMAKE_INSTALL_LIBDIR="lib/%BUILD_TYPE%_%LIB_TYPE%" ^
            -DCMAKE_INSTALL_PREFIX="%BLD_PATH%/%BUILD_TYPE%_%LIB_TYPE%" ^
-           -DANDROID_BUILD_OPENSSL=OFF ^
+           -DANDROID_BUILD_OPENSSL=ON ^
            -DANDROID_BUILD_ZLIB=OFF ^
-           -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%"
+           -DANDROID_BUILD_CURL=ON ^
+           -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%" ^
+           -DLEGACY_MODE=OFF
+           
+
 IF %ERRORLEVEL% NEQ 0 (
     ECHO "CMake Configure %BUILD_TYPE% %LIB_TYPE% failed"
     exit /b 1
