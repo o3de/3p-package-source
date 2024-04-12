@@ -20,7 +20,7 @@ echo "Using Qt at ${DEP_QT_BASE}"
 LOCAL_PYTHON3_BIN=${DEP_PYTHON_BASE}/python/bin/python3
 if [ ! -f $LOCAL_PYTHON3_BIN ]
 then
-    echo "Required local 3P python not detected"
+    echo "Required local 3P python not detected at ${LOCAL_PYTHON3_BIN}"
     exit 1
 fi
 
@@ -31,10 +31,15 @@ LOCAL_3P_QTBUILD_QMAKE_PATH=`readlink -f $LOCAL_3P_QTBUILD_PATH/bin/qmake`
 LOCAL_3P_QTBUILD_LIB_PATH=`readlink -f $LOCAL_3P_QTBUILD_PATH/lib`
 if [ ! -f "$LOCAL_3P_QTBUILD_QMAKE_PATH" ]
 then
-    echo "Missing 3P dependency of Qt $LOCAL_3P_QTBUILD_PATH"
+    echo "Missing 3P dependency of Qt ${LOCAL_3P_QTBUILD_PATH}"
     echo
     exit 1
 fi
+
+echo Sym-linking python
+pushd ${BASE_ROOT}/build
+ln -s ${DEP_PYTHON_BASE}/python python
+popd
 
 echo Building source
 pushd ${BASE_ROOT}/src
@@ -84,11 +89,27 @@ cp -r $INSTALL_SOURCE/share $PACKAGE_BASE
 
 
 # RPATH fixes
-$BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
-$BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/libshiboken2.abi3.so.5.15.2.1
-$BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/lib/python3.10/site-packages/shiboken2/shiboken2.abi3.so
-$BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/bin/shiboken2
-$BASE_ROOT/src/patchelf --set-rpath \$ORIGIN $PACKAGE_BASE/bin/pyside2-lupdate
+# Note: 'patchelf' is not setting the RPATH correctly, and chrpath by itself cannot add, only change the rpath.
+#       So we are working around this by first using patchelf to create the (incorrect) RPATH, and then we can
+#       us chrpath to change the incorrect RPATH to the correct $ORIGIN one.
+$BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
+chrpath -r \$ORIGIN $PACKAGE_BASE/lib/libpyside2.abi3.so.5.15.2.1
+
+$BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/lib/libshiboken2.abi3.so.5.15.2.1
+chrpath -r \$ORIGIN $PACKAGE_BASE/lib/libshiboken2.abi3.so.5.15.2.1
+
+$BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/lib/python3.10/site-packages/shiboken2/shiboken2.abi3.so
+chrpath -r \$ORIGIN $PACKAGE_BASE/lib/python3.10/site-packages/shiboken2/shiboken2.abi3.so
+
+$BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/bin/shiboken2
+chrpath -r \$ORIGIN $PACKAGE_BASE/bin/shiboken2
+
+$BASE_ROOT/src/patchelf --force-rpath --set-rpath "\$ORIGIN" $PACKAGE_BASE/bin/pyside2-lupdate
+chrpath -r \$ORIGIN "\$ORIGIN" $PACKAGE_BASE/bin/pyside2-lupdate
+
+# Remove the sym-link python to prevent it from being packaged up in the docker post processing.
+pushd ${BASE_ROOT}/build
+rm python
+popd
 
 exit 0
-
