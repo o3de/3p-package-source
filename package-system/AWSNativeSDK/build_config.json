@@ -22,7 +22,7 @@
             ]
          },
          "Android":{
-            "package_version":"1.11.288-rev1",
+            "package_version":"1.11.288-rev2",
             "depends_on_packages": [
                [ "zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", "" ]
             ],
@@ -47,6 +47,7 @@
             ]
          },
          "iOS":{
+            "package_version":"1.11.288-rev2",
             "cmake_find_source":"FindAWSNativeSDK.cmake.iOS",
             "custom_build_cmd": [
                "./build_AWSNativeSDK_ios.sh"

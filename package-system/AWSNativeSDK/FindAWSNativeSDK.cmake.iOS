@@ -78,6 +78,7 @@ set(CORE_STATIC_LIBS
     ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-compression.a
     ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-cal.a
     ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-common.a
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-sdkutils.a
     ${AWSNATIVE_SDK_LIB_PATH}/libcurl.a
 )
 

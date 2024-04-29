@@ -57,7 +57,7 @@ call cmake -S %SRC_PATH% -B %BLD_PATH%\%BUILD_TYPE%_%LIB_TYPE% ^
            -DBUILD_SHARED_LIBS=%BUILD_SHARED% ^
            -DCMAKE_BUILD_TYPE="%BUILD_TYPE%" ^
            -DTARGET_ARCH=ANDROID ^
-           -DANDROID_NATIVE_API_LEVEL=33 ^
+           -DANDROID_NATIVE_API_LEVEL=21 ^
            -DANDROID_ABI=arm64-v8a ^
            -DCPP_STANDARD=17 ^
            -DCMAKE_C_FLAGS="-fPIC" ^
