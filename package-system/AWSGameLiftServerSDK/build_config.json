@@ -1,6 +1,6 @@
 {
     "src_package_url": "https://gamelift-server-sdk-release.s3.us-west-2.amazonaws.com/cpp/GameLift-Cpp-ServerSDK-5.1.2.zip",
-    "src_package_sha1": "847dea8ec09b404e2aa6599a436b6c902c4dfe0e",
+    "src_package_sha1": "bb8c492f86ce17e727e0171b986875cd99943656",
     "package_name": "AWSGameLiftServerSDK",
     "package_version": "5.1.2-rev1",
     "package_url": "https://aws.amazon.com/documentation/gamelift/",
