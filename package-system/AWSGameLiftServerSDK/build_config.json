@@ -1,11 +1,11 @@
 {
-    "src_package_url": "https://gamelift-server-sdk-release.s3.us-west-2.amazonaws.com/cpp/GameLift-Cpp-ServerSDK-5.1.1.zip",
+    "src_package_url": "https://gamelift-server-sdk-release.s3.us-west-2.amazonaws.com/cpp/GameLift-Cpp-ServerSDK-5.1.2.zip",
     "src_package_sha1": "847dea8ec09b404e2aa6599a436b6c902c4dfe0e",
     "package_name": "AWSGameLiftServerSDK",
-    "package_version": "5.1.1-rev1",
+    "package_version": "5.1.2-rev1",
     "package_url": "https://aws.amazon.com/documentation/gamelift/",
     "package_license": "Apache-2.0",
-    "package_license_file": "GameLift-Cpp-ServerSDK-5.1.1/LICENSE_AMAZON_GAMELIFT_SDK.TXT",
+    "package_license_file": "GameLift-Cpp-ServerSDK-5.1.2/LICENSE_AMAZON_GAMELIFT_SDK.TXT",
     "cmake_find_target": "FindAWSGameLiftServerSDK.cmake",
     "Platforms": {
         "Linux": {
@@ -16,7 +16,7 @@
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",
-                    "aws_gamelift_5_1_1",
+                    "aws_gamelift_5_1_2",
                     "20.04",
                     "x86_64"
                 ],
@@ -35,7 +35,7 @@
                 "cmake_find_source": "FindAWSGameLiftServerSDK.cmake.Linux",
                 "custom_build_cmd": [
                     "./build-linux.sh",
-                    "aws_gamelift_5_1_1",
+                    "aws_gamelift_5_1_2",
                     "20.04",
                     "aarch64"
                 ],
