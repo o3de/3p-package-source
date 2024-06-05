@@ -30,7 +30,7 @@ PACKAGE_LICENSE: str = "Apache-2.0"
 PACKAGE_LICENSE_FILE: str = "LICENSE_AMAZON_GAMELIFT_SDK.TXT"
 
 GAMELIFT_SERVER_SDK_RELEASE_VERSION: str = O3DE_PACKAGE_NAME_PARTS[1]
-GAMELIFT_SERVER_SDK_DOWNLOAD_URL: str = "https://gamelift-server-sdk-release.s3.us-west-2.amazonaws.com/cpp/GameLift-Cpp-ServerSDK-5.1.1.zip"
+GAMELIFT_SERVER_SDK_DOWNLOAD_URL: str = "https://gamelift-server-sdk-release.s3.us-west-2.amazonaws.com/cpp/GameLift-Cpp-ServerSDK-5.1.2.zip"
 
 PACKAGE_BASE_PATH: pathlib.Path = pathlib.Path(os.path.dirname(__file__))
 PACKAGE_ROOT_PATH: pathlib.Path = PACKAGE_BASE_PATH.parent
