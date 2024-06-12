@@ -12,7 +12,7 @@
    "Platforms":{
       "Windows":{
          "Windows":{
-            "package_version":"1.11.334-rev1",
+            "package_version":"1.11.344-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.Windows",
             "custom_build_cmd": [
                "build_AWSNativeSDK_windows.cmd"
