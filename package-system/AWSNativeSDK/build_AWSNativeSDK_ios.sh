@@ -16,6 +16,7 @@ configure_and_build_static() {
     build_type=$1
 
     echo "CMake Configure $build_type Static"
+    CFLAGS="-DAWS_APPSTORE_SAFE" \
     CXXFLAGS="-Wno-deprecated-declarations -Wno-shorten-64-to-32 -fPIC" \
     cmake -S "$src_path" -B "$bld_path/${build_type}_Static" \
           -DTARGET_ARCH=APPLE \
