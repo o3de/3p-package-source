@@ -1,0 +1,22 @@
+diff --git a/src/aws-cpp-sdk-core/include/aws/core/utils/memory/stl/AWSAllocator.h b/src/aws-cpp-sdk-core/include/aws/core/utils/memory/stl/AWSAllocator.h
+index 90b61ccb0f..294a64afb5 100644
+--- a/src/aws-cpp-sdk-core/include/aws/core/utils/memory/stl/AWSAllocator.h
++++ b/src/aws-cpp-sdk-core/include/aws/core/utils/memory/stl/AWSAllocator.h
+@@ -62,14 +62,14 @@ namespace Aws
+             typedef Allocator<U> other;
+         };
+ 
+-        typename Base::pointer allocate(size_type n, const void *hint = nullptr)
++        typename std::allocator_traits<Base>::pointer allocate(size_type n, const void *hint = nullptr)
+         {
+             AWS_UNREFERENCED_PARAM(hint);
+ 
+-            return reinterpret_cast<typename Base::pointer>(Malloc("AWSSTL", n * sizeof(T)));
++            return reinterpret_cast<typename std::allocator_traits<Base>::pointer>(Malloc("AWSSTL", n * sizeof(T)));
+         }
+ 
+-        void deallocate(typename Base::pointer p, size_type n)
++        void deallocate(typename std::allocator_traits<Base>::pointer p, size_type n)
+         {
+             AWS_UNREFERENCED_PARAM(n);
+ 
