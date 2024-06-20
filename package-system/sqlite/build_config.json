@@ -5,7 +5,6 @@
    "package_url":"https://www.sqlite.org",
    "package_license":"CUSTOM",
    "package_license_file":"copyright.txt",
-   "cmake_find_source":"FindSQLite.cmake",
    "cmake_find_target":"FindSQLite.cmake",
    "additional_src_files":[
       "copyright.txt"
@@ -13,6 +12,7 @@
    "Platforms":{
       "Windows":{
          "Windows":{
+            "cmake_find_source":"FindSQLite.cmake.NonLinux",
             "package_version":"3.37.2-rev1",
             "custom_build_cmd": [
                "build_windows.cmd"
@@ -24,6 +24,7 @@
       },
       "Darwin":{
          "Mac":{
+            "cmake_find_source":"FindSQLite.cmake.NonLinux",
             "package_version":"3.37.2-rev2",
             "custom_build_cmd": [
                "./build_unix_like.sh"
@@ -35,6 +36,7 @@
       },
       "Linux":{
          "Linux":{
+            "cmake_find_source":"FindSQLite.cmake.Linux",
             "package_version":"3.37.2-rev1",
             "custom_build_cmd": [
                "./build_unix_like.sh"
