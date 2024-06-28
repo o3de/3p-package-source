@@ -39,8 +39,13 @@
         "squish-ccr-deb557d-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/squish-ccr --platform-name Linux --clean",
         "squish-ccr-deb557d-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/squish-ccr --platform-name Linux-aarch64 --clean",
         "astc-encoder-3.2-rev3-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/astc-encoder --platform-name Linux --package-root ../../package-system --clean",
+<<<<<<< HEAD
         "DirectXShaderCompilerDxc-1.7.2308-o3de-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/DirectXShaderCompiler --platform-name Linux --package-root ../../package-system --clean",
         "azslc-1.8.20-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/azslc --platform-name Linux --package-root ../../package-system/azslc/temp --clean",
+=======
+        "DirectXShaderCompilerDxc-1.7.2308-o3de-rev2-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/DirectXShaderCompiler --platform-name Linux --package-root ../../package-system --clean",
+        "azslc-1.8.19-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/azslc --platform-name Linux --package-root ../../package-system/azslc/temp --clean",
+>>>>>>> c744591 (Update DirectXShaderCompiler to version 1.7.2308-o3de-rev2)
         "tiff-4.2.0.15-rev3-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name Linux --package-root ../../package-system --clean",
         "python-3.10.13-rev2-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/python --platform-name Linux --clean",
         "python-3.10.13-rev2-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/python --platform-name Linux-aarch64 --clean",
@@ -81,8 +86,8 @@
         "squish-ccr-deb557d-rev1-linux": "package-system/squish-ccr/temp/squish-ccr-linux",
         "squish-ccr-deb557d-rev1-linux-aarch64": "package-system/squish-ccr/temp/squish-ccr-linux-aarch64",
         "astc-encoder-3.2-rev3-linux": "package-system/astc-encoder-linux",
-        "DirectXShaderCompilerDxc-1.7.2308-o3de-rev1-linux": "package-system/DirectXShaderCompilerDxc-linux",
-        "azslc-1.8.20-rev1-linux": "package-system/azslc/temp/azslc-linux",
+        "DirectXShaderCompilerDxc-1.7.2308-o3de-rev2-linux": "package-system/DirectXShaderCompilerDxc-linux",
+        "azslc-1.8.19-rev1-linux": "package-system/azslc/temp/azslc-linux",
         "tiff-4.2.0.15-rev3-linux": "package-system/tiff-linux",
         "python-3.10.13-rev2-linux": "package-system/python/temp/python-linux",
         "python-3.10.13-rev2-linux-aarch64": "package-system/python/temp/python-linux-aarch64",
