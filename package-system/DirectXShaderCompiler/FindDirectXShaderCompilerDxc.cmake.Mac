@@ -20,6 +20,7 @@ add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 set(${MY_NAME}_BIN_RUNTIME_DEPENDENCIES
         ${${MY_NAME}_BINARY_DIR}/dxc
         ${${MY_NAME}_BINARY_DIR}/dxc-3.7
+        ${${MY_NAME}_BINARY_DIR}/dxsc
         )
 ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} OUTPUT_SUBDIRECTORY "${output_subfolder}/bin" FILES ${${MY_NAME}_BIN_RUNTIME_DEPENDENCIES})
 
