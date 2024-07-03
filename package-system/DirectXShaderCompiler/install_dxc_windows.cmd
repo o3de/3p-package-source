@@ -38,7 +38,7 @@ echo Copying %BLD_PATH%\Release\bin\dxsc.exe to %BIN_PATH%\Release\
 copy /Y %BLD_PATH%\Release\bin\dxsc.exe %BIN_PATH%\Release\
 IF %ERRORLEVEL% NEQ 0 (
     ECHO Unable to copy %BLD_PATH%\Release\bin\dxsc.exe
-    exit /b 1
+    REM exit /b 1
 )
 
 ECHO Copying %BLD_PATH%\Release\bin\dxcompiler.dll to %BIN_PATH%\\Release\
