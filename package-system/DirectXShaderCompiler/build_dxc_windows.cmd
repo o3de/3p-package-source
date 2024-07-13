@@ -29,9 +29,9 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 REM Run the build for Release
-call utils\hct\hctbuild.cmd -rel -x64 -vs2022 -spirv
+call utils\hct\hctbuild.cmd -rel -x64 -vs2019 -spirv
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO "Building Release with hctbuild.cmd -rel -x64 -vs2022 Failed"
+    ECHO "Building Release with hctbuild.cmd -rel -x64 -vs2019 Failed"
     exit /b 1
 )
 
