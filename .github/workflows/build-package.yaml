@@ -62,6 +62,12 @@ jobs:
                 DOCKER=$(test -e ${PACKPATH%% }/Dockerfile* && echo 1 || echo 0) # Assume the build scripts will use the Dockerfile if found in the package path
                 DOCKERFILE["$PACKAGE"]=1 # Mark Dockerfile check as done
               fi
+
+              # Special cases for certain packages
+              if [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
+                OS_RUNNER="windows-2019"
+              fi
+              
               PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$OS_RUNNER\", \"dockerfile\": \"$DOCKER\"}"
             done
             unset IFS
