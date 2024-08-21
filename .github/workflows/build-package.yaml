@@ -43,7 +43,7 @@ jobs:
               OS_RUNNER="windows-latest" # This is bundled with VS2022
               ;;
             darwin)
-              OS_RUNNER="macos-latest"
+              OS_RUNNER="macos-13" # Use x86 runner image. Latest uses ARM64
               ;;
             *)
               OS_RUNNER="windows-latest" # default
