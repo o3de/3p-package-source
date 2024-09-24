@@ -18,7 +18,8 @@ cmake -S temp/src ^
     -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%" ^
     -DASSIMP_BUILD_ZLIB=OFF ^
     -DASSIMP_BUILD_ASSIMP_TOOLS=ON ^
-    -ASSIMP_BUILD_USD_IMPORTER=ON ^
+    -DASSIMP_BUILD_USD_IMPORTER=ON ^
+    -DCMAKE_CXX_FLAGS="/EHsc /wd4777 /wd5032" ^ 
     temp/src/CMakeLists.txt || exit /b 1
 cmake --build temp/src --config release || exit /b 1
 cmake --build temp/src --config debug || exit /b 1
@@ -29,7 +30,8 @@ cmake -S temp/src ^
     -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%" ^
     -DASSIMP_BUILD_ZLIB=OFF ^
     -DASSIMP_BUILD_ASSIMP_TOOLS=ON ^
-    -ASSIMP_BUILD_USD_IMPORTER=ON ^
+    -DASSIMP_BUILD_USD_IMPORTER=ON ^
+    -DCMAKE_CXX_FLAGS="/EHsc /wd4777 /wd5032" ^  
     temp/src/CMakeLists.txt || exit /b 1
 cmake --build temp/src --config release || exit /b 1
 cmake --build temp/src --config debug || exit /b 1

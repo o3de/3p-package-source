@@ -17,8 +17,8 @@ then
     cmake_base_command+=" -DCMAKE_TOOLCHAIN_FILE=$PWD/../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
 fi
 
-cmake_no_shared_libs="$cmake_base_command -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=ON"
-cmake_shared_libs="$cmake_base_command -DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_ASSIMP_TOOLS=ON"
+cmake_no_shared_libs="$cmake_base_command -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=ON -DASSIMP_BUILD_USD_IMPORTER=ON"
+cmake_shared_libs="$cmake_base_command -DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_ASSIMP_TOOLS=ON -DASSIMP_BUILD_USD_IMPORTER=ON"
 
 echo "Running first cmake command:"
 echo "$cmake_no_shared_libs"
