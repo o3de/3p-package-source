@@ -7,7 +7,7 @@
 #
 #
 
-cmake_base_command="cmake -S temp/src -B temp/src  -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=\"$DOWNLOADED_PACKAGE_FOLDERS\" -DASSIMP_BUILD_ZLIB=OFF"
+cmake_base_command="cmake -S temp/src -B temp/build temp/src/CMakeLists.txt -DCMAKE_BUILD_TYPE=Release -DCMAKE_MODULE_PATH=\"$DOWNLOADED_PACKAGE_FOLDERS\" -DASSIMP_BUILD_ZLIB=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_NO_EXPORT=ON -DASSIMP_HUNTER_ENABLED=OFF -DASSIMP_BUILD_USD_IMPORTER=ON"
 
 # On Mac, load the toolchain file to make sure
 # the build matches compatibility with other Mac libraries
@@ -17,19 +17,19 @@ then
     cmake_base_command+=" -DCMAKE_TOOLCHAIN_FILE=$PWD/../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
 fi
 
-cmake_no_shared_libs="$cmake_base_command -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=ON -DASSIMP_BUILD_USD_IMPORTER=ON"
-cmake_shared_libs="$cmake_base_command -DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_ASSIMP_TOOLS=ON -DASSIMP_BUILD_USD_IMPORTER=ON"
+cmake_no_shared_libs="$cmake_base_command -DBUILD_SHARED_LIBS=OFF"
+cmake_shared_libs="$cmake_base_command -DBUILD_SHARED_LIBS=ON"
 
 echo "Running first cmake command:"
 echo "$cmake_no_shared_libs"
 
-eval "$cmake_no_shared_libs temp/src/CMakeLists.txt" || exit 1
+eval "$cmake_no_shared_libs" || exit 1
 cmake --build temp/build --config release || exit 1
 
 echo "Running second cmake command:"
 echo "$cmake_shared_libs"
 
-eval "$cmake_shared_libs temp/src/CMakeLists.txt" || exit 1
+eval "$cmake_shared_libs" || exit 1
 cmake --build temp/build --config release || exit 1
 
 mkdir temp/build/port/
