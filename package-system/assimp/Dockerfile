@@ -32,8 +32,12 @@ RUN apt-get install -y build-essential \
                        pkg-config \
                        libminizip-dev \
                        git \
-                       cmake \
                        ninja-build
+
+# Use python-pip to pull CMake. 
+# 20.04 Ubuntu apt-get comes with CMake 3.16, but Assimp requires CMake 3.22+
+RUN apt-get -y install python3-pip
+RUN pip install cmake --upgrade
 
 RUN apt upgrade -y
 
