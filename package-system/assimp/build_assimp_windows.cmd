@@ -20,6 +20,7 @@ cmake -S temp/src ^
     -DASSIMP_BUILD_ZLIB=OFF ^
     -DASSIMP_BUILD_ASSIMP_TOOLS=OFF ^
     -DASSIMP_BUILD_USD_IMPORTER=ON ^
+    -DASSIMP_WARNINGS_AS_ERRORS=OFF ^
     -DCMAKE_CXX_FLAGS="/EHsc /w" ^
     temp/src/CMakeLists.txt || exit /b 1
 cmake --build temp/src --config release --parallel 1 || exit /b 1
@@ -33,6 +34,7 @@ cmake -S temp/src ^
     -DASSIMP_BUILD_ZLIB=OFF ^
     -DASSIMP_BUILD_ASSIMP_TOOLS=OFF ^
     -DASSIMP_BUILD_USD_IMPORTER=ON ^
+    -DASSIMP_WARNINGS_AS_ERRORS=OFF ^
     -DCMAKE_CXX_FLAGS="/EHsc /w" ^
     temp/src/CMakeLists.txt || exit /b 1
 cmake --build temp/src --config release --parallel 1 || exit /b 1
