@@ -10,9 +10,7 @@
 @rem # if they happen to be installed locally, which we don't want.
 
 @rem Install Window's DirectX as required to build Assimp
-powershell -Command "Invoke-WebRequest -Uri 'https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe' -OutFile dxwebsetup.exe"
-dxwebsetup.exe /Q /T:%TEMP%\DXRedist
-%TEMP%\DXRedist\DXSETUP.exe /silent
+choco install directx -y
 
 @rem # cmake expects fowardslashes:
 set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
