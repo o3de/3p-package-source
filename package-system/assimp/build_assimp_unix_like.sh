@@ -32,10 +32,3 @@ echo "$cmake_shared_libs"
 
 eval "$cmake_shared_libs" || exit 1
 cmake --build temp/src --config release || exit 1
-
-if [ "$(uname)" = "Darwin" ];
-then
-    # Printing the minimum OS version here can save some time debugging.
-    echo "Min OS version:"
-    otool -l temp/src/bin/assimp | grep -i minos
-fi
