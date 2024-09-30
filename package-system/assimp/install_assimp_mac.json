@@ -6,7 +6,6 @@
     "bin/libassimp.5.4.3.dylib",
     "bin/libassimp.5.dylib",
     "bin/libassimp.dylib",
-    "bin/assimp",
     "bin/unit",
     "port/PyAssimp/"
   ]

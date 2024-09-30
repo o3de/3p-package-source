@@ -9,10 +9,6 @@
 @rem # except the ones we want.  This prevents the cmake build system from automatically finding things
 @rem # if they happen to be installed locally, which we don't want.
 
-@rem Install Window's DirectX as required to build Assimp
-choco install directx -y
-choco install directx-sdk -y
-
 @rem # cmake expects fowardslashes:
 set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 
@@ -22,7 +18,7 @@ cmake -S temp/src ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%" ^
     -DASSIMP_BUILD_ZLIB=OFF ^
-    -DASSIMP_BUILD_ASSIMP_TOOLS=ON ^
+    -DASSIMP_BUILD_ASSIMP_TOOLS=OFF ^
     -DASSIMP_BUILD_USD_IMPORTER=ON ^
     -DCMAKE_CXX_FLAGS="/EHsc /w" ^
     temp/src/CMakeLists.txt || exit /b 1
@@ -35,7 +31,7 @@ cmake -S temp/src ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%" ^
     -DASSIMP_BUILD_ZLIB=OFF ^
-    -DASSIMP_BUILD_ASSIMP_TOOLS=ON ^
+    -DASSIMP_BUILD_ASSIMP_TOOLS=OFF ^
     -DASSIMP_BUILD_USD_IMPORTER=ON ^
     -DCMAKE_CXX_FLAGS="/EHsc /w" ^
     temp/src/CMakeLists.txt || exit /b 1
