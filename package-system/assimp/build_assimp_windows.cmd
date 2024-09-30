@@ -11,6 +11,7 @@
 
 @rem Install Window's DirectX as required to build Assimp
 choco install directx -y
+choco install directx-sdk -y
 
 @rem # cmake expects fowardslashes:
 set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
