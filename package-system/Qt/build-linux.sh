@@ -18,6 +18,9 @@ ZLIB_FOLDER_NAME=$2
 # Arg 3: The openssl package name
 OPENSSL_FOLDER_NAME=$3
 
+# Arg 4: Addition optional arg
+EXTRA_ARG=$4
+
 # Make sure docker is installed
 DOCKER_VERSION=$(docker --version)
 if [ $? -ne 0 ]
@@ -33,10 +36,19 @@ cp docker_build_qt_linux.sh temp/
 
 pushd temp
 
+# Check if we are building the wayland variation
+if [ "$EXTRA_ARG" = "wayland" ]
+then
+    DOCKERFILE=Dockerfile.wayland
+    DOCKER_IMAGE_NAME=qt_linux_3p_wayland
+else
+    DOCKERFILE=Dockerfile
+    DOCKER_IMAGE_NAME=qt_linux_3p
+fi
+
 # Build the Docker Image
 echo "Building the docker build script"
-DOCKER_IMAGE_NAME=qt_linux_3p
-docker build -f ../Dockerfile -t ${DOCKER_IMAGE_NAME}:latest . 
+docker build -f ../$DOCKERFILE -t ${DOCKER_IMAGE_NAME}:latest . 
 if [ $? -ne 0 ]
 then
     echo "Error occurred creating Docker image ${DOCKER_IMAGE_NAME}:latest."
@@ -74,7 +86,7 @@ fi
 
 # Copy the build artifacts from the Docker Container
 echo "Copying the built contents from the docker container for image ${DOCKER_IMAGE_NAME}"
-docker cp $CONTAINER_ID:/data/workspace/qt/. $TARGET_INSTALL_ROOT
+docker cp --follow-link $CONTAINER_ID:/data/workspace/qt/. $TARGET_INSTALL_ROOT
 if [ $? -ne 0 ]
 then
     echo "Error occurred copying build artifacts from Docker image ${DOCKER_IMAGE_NAME}:latest."
