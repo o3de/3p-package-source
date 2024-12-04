@@ -590,10 +590,36 @@ index 8441b48be..fba81a399 100644
          afSum[pBone->mWeights[i].mVertexId] += pBone->mWeights[i].mWeight;
      }
 diff --git a/contrib/tinyusdz/patches/tinyusdz.patch b/contrib/tinyusdz/patches/tinyusdz.patch
-index e84e9f8fe..2a883d16a 100644
+index e84e9f8fe..7cd703475 100644
 --- a/contrib/tinyusdz/patches/tinyusdz.patch
 +++ b/contrib/tinyusdz/patches/tinyusdz.patch
-@@ -1,7 +1,7 @@
+@@ -1,7 +1,33 @@
++diff -rupN -x .git autoclone/tinyusdz_repo-src/src/io-util.cc tinyusdz_repo_patch/src/io-util.cc
++--- autoclone/tinyusdz_repo-src/src/io-util.cc	2024-10-27 03:26:45.457163600 -0700
+++++ tinyusdz_repo_patch/src/io-util.cc	2024-10-27 03:31:09.255211100 -0700
++@@ -19,6 +19,7 @@
++ 
++ #include <io.h>
++ #include <windows.h>  // include API for expanding a file path
+++#include <tchar.h>
++ 
++ #ifndef TINYUSDZ_MMAP_SUPPORTED
++ #define TINYUSDZ_MMAP_SUPPORTED (1)
++@@ -153,9 +154,10 @@ bool MMapFile(const std::string &filepath, MMapFileHandle *handle,
++ 
++ #if TINYUSDZ_MMAP_SUPPORTED
++ #if defined(_WIN32)
++-  // int fd = open(filepath.c_str(), writable ? O_RDWR : O_RDONLY);
+++  std::basic_string<TCHAR> tFilepath(filepath.begin(), filepath.end());  // Using TCHAR string to automatically use normal or wide characters if UNICODE is enabled
+++
++   HANDLE hFile =
++-      CreateFile(filepath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
+++      CreateFile(tFilepath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
++                  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
++   if (hFile == INVALID_HANDLE_VALUE) {
++     if (err) {
++
++
  diff -rupN -x .git autoclone/tinyusdz_repo-src/src/external/stb_image_resize2.h tinyusdz_repo_patch/src/external/stb_image_resize2.h
 ---- autoclone/tinyusdz_repo-src/src/external/stb_image_resize2.h	2024-07-09 21:29:48.556969900 -0700
 -+++ tinyusdz_repo_patch/src/external/stb_image_resize2.h	2024-07-09 23:03:47.379316700 -0700
@@ -604,7 +630,7 @@ index e84e9f8fe..2a883d16a 100644
       }
     }
   
-@@ -37,6 +37,6 @@ diff -rupN -x .git autoclone/tinyusdz_repo-src/src/external/stb_image_resize2.h
+@@ -37,6 +63,6 @@ diff -rupN -x .git autoclone/tinyusdz_repo-src/src/external/stb_image_resize2.h
  +    return 0;
  +  }
  +
