@@ -18,7 +18,7 @@ if (NOT TARGET ZLIB::ZLIB)
 endif()
 
 # this file actually ingests the library and defines targets.
-set(TARGET_WITH_NAMESPACE "3rdParty::assimplib")
+set(TARGET_WITH_NAMESPACE "3rdParty::assimp")
 if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
 endif()
