@@ -6,8 +6,8 @@
     "package_url":"https://github.com/assimp/assimp",
     "package_license":"BSD-3-Clause",
     "package_license_file":"LICENSE",
-    "cmake_find_source":"Findassimplib.cmake",
-    "cmake_find_target":"Findassimplib.cmake",
+    "cmake_find_source":"Findassimp.cmake",
+    "cmake_find_target":"Findassimp.cmake",
     "patch_file" : "usd_animations-on-top-of-v5.4.3.patch",
     "Platforms":{
         "Windows":{
