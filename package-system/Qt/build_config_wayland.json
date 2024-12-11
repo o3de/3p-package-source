@@ -1,0 +1,53 @@
+{
+    "git_url": "https://github.com/o3de/qt5.git",
+    "git_tag": "5.15.1-o3de",
+    "git_commit": "b3a1a6947422928e8aecb14ad607199e9720d266",
+    "package_name": "qt-wayland",
+    "package_url": "https://www.qt.io/",
+    "package_license": "LGPL-3.0",
+    "package_license_file": "qt/LICENSE.LGPLv3",
+    "cmake_find_source": "FindQt.cmake.wayland",
+    "cmake_find_target": "FindQt.cmake",
+    "Platforms": {
+        "Linux": {
+            "Linux": {
+                "package_version": "5.15.2-rev9",
+                "patch_file": "qt-linux.patch",
+                "depends_on_packages": [
+                    ["OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", ""],
+                    ["tiff-4.2.0.15-rev3-linux", "2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a", ""],
+                    ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
+                ],
+                "custom_build_cmd": [
+                    "./build-linux.sh",
+                    "tiff-4.2.0.15-rev3-linux",
+                    "zlib-1.2.11-rev5-linux",
+                    "OpenSSL-1.1.1t-rev1-linux",
+                    "wayland"
+                ],
+                "custom_install_cmd": [
+                    "{python}", "copy_platform_cmakes.py"
+                ]
+            },
+	    "Linux-aarch64": {
+                "package_version": "5.15.2-rev9",
+                "patch_file": "qt-linux.patch",
+                "depends_on_packages": [
+                    ["OpenSSL-1.1.1t-rev1-linux-aarch64", "f32721bec9c82d1bd7fb244d78d5dc4e2a47e7b808bb36027236ad377e241ea5", ""],
+                    ["tiff-4.2.0.15-rev3-linux-aarch64", "429461014b21a530dcad597c2d91072ae39d937a04b7bbbf5c34491c41767f7f", ""],
+                    ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""]
+                ],
+                "custom_build_cmd": [
+                    "./build-linux.sh",
+                    "tiff-4.2.0.15-rev3-linux-aarch64",
+                    "zlib-1.2.11-rev5-linux-aarch64",
+                    "OpenSSL-1.1.1t-rev1-linux-aarch64",
+                    "wayland"
+                ],
+                "custom_install_cmd": [
+                    "{python}", "copy_platform_cmakes.py"
+                ]
+            }
+        }
+    }
+}

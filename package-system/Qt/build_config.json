@@ -57,7 +57,10 @@
                     ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
                 ],
                 "custom_build_cmd": [
-                    "./build-linux-x86.sh"
+                    "./build-linux.sh",
+                    "tiff-4.2.0.15-rev3-linux",
+                    "zlib-1.2.11-rev5-linux",
+                    "OpenSSL-1.1.1t-rev1-linux"
                 ],
                 "custom_install_cmd": [
                     "{python}", "copy_platform_cmakes.py"
@@ -72,7 +75,10 @@
                     ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""]
                 ],
                 "custom_build_cmd": [
-                    "./build-linux-aarch64.sh"
+                    "./build-linux.sh",
+                    "tiff-4.2.0.15-rev3-linux-aarch64",
+                    "zlib-1.2.11-rev5-linux-aarch64",
+                    "OpenSSL-1.1.1t-rev1-linux-aarch64"
                 ],
                 "custom_install_cmd": [
                     "{python}", "copy_platform_cmakes.py"

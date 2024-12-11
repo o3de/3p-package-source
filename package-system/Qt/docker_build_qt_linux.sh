@@ -23,7 +23,6 @@ echo "    " $TIFF_PACKAGE_DIR
 echo "    " $ZLIB_PACKAGE_DIR
 echo "    " $OPENSSL_PACKAGE_DIR
 
-
 # Base the Tiff of the dependent tiff O3DE package (static)
 TIFF_PREFIX=$TIFF_PACKAGE_DIR/tiff
 TIFF_INCDIR=$TIFF_PREFIX/include
@@ -45,41 +44,81 @@ INSTALL_PATH=/data/workspace/qt
 [[ -d $BUILD_PATH ]] || mkdir $BUILD_PATH
 cd $BUILD_PATH
 
-echo Configuring Qt...
-../src/configure -prefix ${INSTALL_PATH} \
-                 -opensource \
-                 -nomake examples \
-                 -nomake tests \
-                 -confirm-license \
-                 -no-icu \
-                 -dbus \
-                 -no-separate-debug-info \
-                 -release \
-                 -force-debug-info \
-                 -qt-libpng \
-                 -qt-libjpeg \
-                 -no-feature-vnc \
-                 -no-feature-linuxfb \
-                 --tiff=system \
-                 -qt-zlib \
-                 -v \
-                 -no-cups \
-                 -no-glib \
-                 -no-feature-renameat2 \
-                 -no-feature-getentropy \
-                 -no-feature-statx \
-                 -no-egl \
-                 -qpa xcb \
-                 -xcb-xlib \
-                 -openssl \
-                 -I $TIFF_INCDIR \
-                 -I $ZLIB_INCDIR \
-                 -I $OPENSSL_INCDIR \
-                 -L $TIFF_LIBDIR \
-                 -L $ZLIB_LIBDIR \
-                 -L $OPENSSL_LIBDIR \
-                 -c++std c++1z \
-                 -fontconfig
+if [ "$ENABLE_QT_WAYLAND" -eq 1 ]
+then
+    echo Configuring Qt for wayland ...
+
+    ../src/configure -prefix ${INSTALL_PATH} \
+                     -opensource \
+                     -nomake examples \
+                     -nomake tests \
+                     -confirm-license \
+                     -no-icu \
+                     -dbus \
+                     -no-separate-debug-info \
+                     -release \
+                     -force-debug-info \
+                     -qt-libpng \
+                     -qt-libjpeg \
+                     -no-feature-vnc \
+                     -no-feature-linuxfb \
+                     --tiff=system \
+                     -qt-zlib \
+                     -v \
+                     -no-cups \
+                     -no-glib \
+                     -no-feature-renameat2 \
+                     -no-feature-getentropy \
+                     -no-feature-statx \
+                     -no-egl \
+                     -feature-wayland-server \
+                     -qpa wayland \
+                     -I $TIFF_INCDIR \
+                     -I $ZLIB_INCDIR \
+                     -I $OPENSSL_INCDIR \
+                     -L $TIFF_LIBDIR \
+                     -L $ZLIB_LIBDIR \
+                     -L $OPENSSL_LIBDIR \
+                     -c++std c++1z \
+                     -fontconfig    
+else
+    echo Configuring Qt for xcb ...
+
+    ../src/configure -prefix ${INSTALL_PATH} \
+                     -opensource \
+                     -nomake examples \
+                     -nomake tests \
+                     -confirm-license \
+                     -no-icu \
+                     -dbus \
+                     -no-separate-debug-info \
+                     -release \
+                     -force-debug-info \
+                     -qt-libpng \
+                     -qt-libjpeg \
+                     -no-feature-vnc \
+                     -no-feature-linuxfb \
+                     --tiff=system \
+                     -qt-zlib \
+                     -v \
+                     -no-cups \
+                     -no-glib \
+                     -no-feature-renameat2 \
+                     -no-feature-getentropy \
+                     -no-feature-statx \
+                     -no-egl \
+                     -qpa xcb \
+                     -xcb-xlib \
+                     -openssl \
+                     -I $TIFF_INCDIR \
+                     -I $ZLIB_INCDIR \
+                     -I $OPENSSL_INCDIR \
+                     -L $TIFF_LIBDIR \
+                     -L $ZLIB_LIBDIR \
+                     -L $OPENSSL_LIBDIR \
+                     -c++std c++1z \
+                     -fontconfig
+fi
 if [ $? -ne 0 ]
 then
     echo "Failed to configure Qt"
@@ -116,5 +155,35 @@ for qtlib in "${qtarray[@]}"; do
 
     echo $qtlib installed.
 done
+
+if [ "$ENABLE_QT_WAYLAND" -eq 1 ]
+then
+    cd /data/workspace/qtwayland
+
+    /data/workspace/build/qtbase/bin/qmake
+    if [ $? -ne 0 ]
+    then
+        echo "qmake failed for qtwayland"
+        exit 1
+    fi
+    make
+    if [ $? -ne 0 ]
+    then
+        echo "make failed for qtwayland"
+        exit 1
+    fi
+
+    make install
+    if [ $? -ne 0 ]
+    then
+        echo "make install failed for qtwayland"
+        exit 1
+    fi
+
+    rm ${INSTALL_PATH}/include/QtWaylandCompositor/5.15.1/QtWaylandCompositor/private/qwayland-server-qt-texture-sharing-unstable-v1.h
+    cp /data/workspace/qtwayland/include/QtWaylandCompositor/5.15.1/QtWaylandCompositor/private/qwayland-server-qt-texture-sharing-unstable-v1.h ${INSTALL_PATH}/include/QtWaylandCompositor/5.15.1/QtWaylandCompositor/private/
+    rm ${INSTALL_PATH}/include/QtWaylandCompositor/5.15.1/QtWaylandCompositor/private/wayland-qt-texture-sharing-unstable-v1-server-protocol.h
+    cp /data/workspace/qtwayland/include/QtWaylandCompositor/5.15.1/QtWaylandCompositor/private/wayland-qt-texture-sharing-unstable-v1-server-protocol.h ${INSTALL_PATH}/include/QtWaylandCompositor/5.15.1/QtWaylandCompositor/private/
+fi
 
 echo Qt installed successfully!
