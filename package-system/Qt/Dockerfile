@@ -8,12 +8,12 @@
 # This docker file uses ubuntu 20.04 as the base image to install the dependencies to build Qt from source
 #
 
-FROM public.ecr.aws/ubuntu/ubuntu:20.04_stable
+FROM amd64/ubuntu:20.04
  
 WORKDIR /data/workspace
 
 # Initilize apt cache
-RUN apt-get clean && apt-get update
+RUN apt-get clean && apt-get update && apt-get upgrade
 
 # Setup time zone and locale data (necessary for SSL and HTTPS packages)
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-configuration
@@ -41,10 +41,18 @@ RUN apt-get install -y qtbase5-dev \
                        libgbm-dev \
                        libxext-dev \
                        libfontconfig1-dev \ 
-                       libtiff-dev
+                       libtiff-dev \
+                       libwayland-dev \
+                       libwayland-egl1-mesa \
+                       libwayland-server0 \
+                       libgles2-mesa-dev
 
 # Prepare a target folder within the container to install the build artifacts tp
 RUN mkdir -p /data/workspace/qt
+
+RUN git clone --single-branch --recursive --branch v5.15.1 git://code.qt.io/qt/qtwayland.git && \
+    ln -s /data/workspace/qtwayland/include/QtWaylandCompositor/5.15.1/QtWaylandCompositor/private/qwayland-server-qt-texture-sharing-unstable-v1.h /data/workspace/qtwayland/src/compositor/qwayland-server-qt-texture-sharing-unstable-v1.h && \
+    ln -s /data/workspace/qtwayland/include/QtWaylandCompositor/5.15.1/QtWaylandCompositor/private/wayland-qt-texture-sharing-unstable-v1-server-protocol.h /data/workspace/qtwayland/src/compositor/wayland-qt-texture-sharing-unstable-v1-server-protocol.h
 
 # Copy the build script specific to this Docker script in order to execute the build
 COPY docker_build_qt_linux.sh /data/workspace/

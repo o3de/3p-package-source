@@ -36,15 +36,8 @@ cp docker_build_qt_linux.sh temp/
 
 pushd temp
 
-# Check if we are building the wayland variation
-if [ "$EXTRA_ARG" = "wayland" ]
-then
-    DOCKERFILE=Dockerfile.wayland
-    DOCKER_IMAGE_NAME=qt_linux_3p_wayland
-else
-    DOCKERFILE=Dockerfile
-    DOCKER_IMAGE_NAME=qt_linux_3p
-fi
+DOCKERFILE=Dockerfile
+DOCKER_IMAGE_NAME=qt_linux_3p
 
 # Build the Docker Image
 echo "Building the docker build script"
