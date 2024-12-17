@@ -45,7 +45,8 @@ RUN apt-get install -y qtbase5-dev \
                        libwayland-dev \
                        libwayland-egl1-mesa \
                        libwayland-server0 \
-                       libgles2-mesa-dev
+                       libgles2-mesa-dev \
+                       libdrm-dev
 
 # Prepare a target folder within the container to install the build artifacts tp
 RUN mkdir -p /data/workspace/qt
