@@ -68,7 +68,6 @@ echo Configuring Qt  ...
                  -no-feature-renameat2 \
                  -no-feature-getentropy \
                  -no-feature-statx \
-                 -feature-wayland-server \
                  -qpa xcb \
                  -qpa wayland \
                  -xcb-xlib \
