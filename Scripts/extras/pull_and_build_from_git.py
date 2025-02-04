@@ -80,7 +80,11 @@ The following keys can exist at the root level or the target-platform level:
                             platforms and configurations.
                             The final args will be (cmake_build_args || cmake_build_args_CONFIG) + cmake_build_args_common
                             `cmake --build (build folder) --config config` will automatically be supplied.
-* extra_files_to_copy   : (optional) a list of pairs of files to copy [source, destination].
+* extra_files_to_copy   : (optional) a list of pairs or triplets.
+                          if the item is a pair, then it can be (source file, destination file) or
+                                                                (source directory, destination directory).
+                          Directories are always deep copied.
+                          If a triplet is specified, then the third element is another list of file patterns to ignore when copying a directory.
 
 * cmake_install_filter                    : Optional list of filename patterns to filter what is actually copied to the target package based on
                                             the 3rd party library's install definition. (For example, a library may install headers and static
@@ -936,17 +940,45 @@ class BuildInfo(object):
 
         return False
 
+    def copy_file_or_directory(self, src: pathlib.Path, dst: pathlib.Path, ignore_patterns: list[str]):
+        """
+        if @src is a directory, makes a deep copy of it into @dst. In this case @ignore_patterns is used.
+        if @src is a file, copies it as @dst, and will create all intermediate directories in @dst as needed.
+        """
+        print(f"Source file: {src}, Destination file: {dst}")
+        if src.is_dir():
+            # Recursive deep copy. Will create all subdirectories as needed.
+            def custom_copy(src, dst):
+                #If the destination file exists, we'll leave it as is, because
+                #it was generated already by the the build commands.
+                if os.path.exists(dst):
+                   print(f"Destination file '{dst}' already exists. Skipping.")
+                else:
+                    shutil.copy2(src, dst)
+            shutil.copytree(src, dst, ignore=shutil.ignore_patterns(*ignore_patterns), copy_function=custom_copy, dirs_exist_ok=True)
+        else:
+            # If the destination directory doesn't exist, shutil.copy2 raises an exception.
+            # Take care of this first.
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src,dst)
+
     def copy_extra_files(self):
         """
         Copies any extra files specified in the build config into the destination folder for packaging.
         """
         extra_files_to_copy = self.package_info.extra_files_to_copy
         if extra_files_to_copy:
-            for (source, dest) in extra_files_to_copy:
-                print(f"Source file: {self.base_folder / source}, Destination file: {self.package_install_root / dest}")
-                shutil.copy2(
+            for params in extra_files_to_copy:
+                source = params[0]
+                dest = params[1]
+                if len(params) < 3:
+                    ignore_patterns = ["",]
+                else:
+                    ignore_patterns = params[2]
+                self.copy_file_or_directory(
                     self.base_folder / source,
-                    self.package_install_root / dest
+                    self.package_install_root / dest,
+                    ignore_patterns
                 )
 
     def build_for_platform(self):
