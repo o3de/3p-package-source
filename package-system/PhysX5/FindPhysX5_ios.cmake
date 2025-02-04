@@ -35,6 +35,7 @@ set(PATH_TO_LIBS ${_PACKAGE_DIR}/bin/static/$<IF:$<CONFIG:profile>,${PHYSX_PROFI
 set(${MY_NAME}_LIBRARIES
     ${PATH_TO_LIBS}/libPhysXCharacterKinematic_static_64.a
     ${PATH_TO_LIBS}/libPhysXVehicle_static_64.a
+    ${PATH_TO_LIBS}/libPhysXVehicle2_static_64.a
     ${PATH_TO_LIBS}/libPhysXExtensions_static_64.a
     ${PATH_TO_LIBS}/libPhysXPvdSDK_static_64.a
     ${PATH_TO_LIBS}/libPhysX_static_64.a

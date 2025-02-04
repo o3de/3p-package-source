@@ -31,6 +31,7 @@ class PhysXBuilder(object):
         self._env = dict(os.environ)
         self._env.update(
             GW_DEPS_ROOT=str(workingDir),
+            PM_PACKAGES_ROOT=str(workingDir / 'packman-repo'),
         )
 
         self.check_call = functools.partial(subprocess.check_call,
@@ -42,9 +43,9 @@ class PhysXBuilder(object):
         # bin folder names yet, so they appear as UNKNOWN.
         self.platform_params = { 
             # system-name   : (build preset, bin folder name, install folder name, is multiconfig)
-            'windows'       : ('vc16win64', 'win.x86_64.vc142.md', 'vc16win64', True),
-            'linux'         : ('linux', 'linux.clang', 'linux', False),
-            'linux-aarch64' : ('linux-aarch64', 'linux.aarch64', 'linux-aarch64', False),
+            'windows'       : ('vc17win64', 'win.x86_64.vc143.md', 'vc17win64', True),
+            'linux'         : ('linux-gcc', 'linux.x86_64', 'linux', False),
+            'linux-aarch64' : ('linux-aarch64-gcc', 'linux.aarch64', 'linux-aarch64', False),
             'mac'           : ('mac64', 'mac.x86_64', 'mac64', True),
             'ios'           : ('ios64', 'UNKNOWN', 'ios64', True),
             'android'       : ('android-arm64-v8a', 'UNKNOWN', "android-29", False)
@@ -174,6 +175,10 @@ class PhysXBuilder(object):
         if self._hostPlatformLower == 'windows':
             update_pacman_call = [ str(packman_dir / 'packman.cmd'), 'update', '-y']
         else:
+            # Make sure packman has the executable permission
+            self.check_call(
+                ['chmod', '+x', str(packman_dir / 'packman')]
+            )
             update_pacman_call = [ str(packman_dir / 'packman'), 'update', '-y']
 
         check_call_packman_update(update_pacman_call)        
@@ -368,7 +373,7 @@ def main():
         elif args.platformName == 'android':
             commit = '8ac3e3601d1333ae2a967995f49b338d4e188215' # Commit of PR 40 on top of 5.1.1 version
         else:
-            commit = '0bbcff3d0c541325f4d14c36ee18f24e22e35e6e' # Commit for 5.1.1 version
+            commit = '32ae713f6cb35f1df2544ffa499fc98a39639a62' # Commit for 5.5.1 version
             
         tempdir = Path(tempdir)
         builder = PhysXBuilder(workingDir=tempdir,
