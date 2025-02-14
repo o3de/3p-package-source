@@ -46,7 +46,8 @@
             "cmake_generate_args" : [
                "-G",
                "\"Ninja Multi-Config\"",
-               "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake"
+               "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake",
+               "-DANDROID_STL=c++_shared"
             ],
             "custom_test_cmd" : [
            ]
