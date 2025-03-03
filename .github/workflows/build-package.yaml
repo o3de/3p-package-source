@@ -140,7 +140,7 @@ jobs:
       uses: easimon/maximize-build-space@v10
       if: runner.os == 'Linux'
       with:
-        root-reserve-mb: 6000
+        root-reserve-mb: 20000
         swap-size-mb: 200
         remove-dotnet: true
         remove-haskell: true
