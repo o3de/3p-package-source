@@ -164,6 +164,48 @@ jobs:
     - name: Update msbuild path
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1.13.0
+
+    - name: Setup NDK
+      env:
+        ANDROID_NDK_VERSION: 25.1.8937393
+      if: runner.os == 'Windows'
+      run: |
+        $sdkPath = if ($env:ANDROID_HOME) {
+              $env:ANDROID_HOME
+          } else {
+              "$env:LOCALAPPDATA\Android\Sdk"
+          }
+          
+        # Remove versioned NDK directories
+        if (Test-Path "$sdkPath\ndk") {
+            Get-ChildItem "$sdkPath\ndk" -Directory |
+            Where-Object { $_.Name -match '^\d' } |
+            ForEach-Object {
+                Remove-Item $_.FullName -Recurse -Force
+                Write-Host "Removed NDK version: $($_.Name)" -ForegroundColor Green
+            }
+        }
+
+        # Install NDK version based on ANDROID_NDK_VERSION
+        if ($env:ANDROID_NDK_VERSION) {
+          $sdkmanager = "$sdkPath\cmdline-tools\latest\bin\sdkmanager.bat"
+          if (-not (Test-Path $sdkmanager)) {
+              $sdkmanager = "$sdkPath\tools\bin\sdkmanager.bat"
+          }
+          if (Test-Path $sdkmanager) {
+              Write-Host "Installing NDK version $env:ANDROID_NDK_VERSION..." -ForegroundColor Yellow
+              & $sdkmanager --install "ndk;$env:ANDROID_NDK_VERSION" --channel=0
+          } else {
+              Write-Host "sdkmanager not found. Cannot install NDK." -ForegroundColor Red
+              exit 1
+          }
+        }
+
+        # Set NDK folder path in the env vars
+        $ndkRoot = "$sdkPath\ndk\$env:ANDROID_NDK_VERSION"
+        echo ANDROID_NDK=$ndkRoot >> $env:GITHUB_ENV
+        echo ANDROID_NDK_HOME=$ndkRoot >> $env:GITHUB_ENV
+        echo ANDROID_NDK_ROOT=$ndkRoot >> $env:GITHUB_ENV
     
     - name: Install clang/gcc
       if: runner.os == 'Linux'
