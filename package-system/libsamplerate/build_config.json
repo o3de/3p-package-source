@@ -1,8 +1,8 @@
 {
    "git_url":"https://github.com/libsndfile/libsamplerate.git",
-   "git_tag":"0.2.1",
+   "git_tag":"0.2.2",
    "package_name":"libsamplerate",
-   "package_version":"0.2.1-rev2",
+   "package_version":"0.2.2-rev1",
    "package_url":"http://libsndfile.github.io/libsamplerate/",
    "package_license":"BSD-2-Clause",
    "package_license_file":"COPYING",
@@ -89,15 +89,11 @@
             "cmake_generate_args_debug":[
                "-G",
                "Unix\\ Makefiles",
-               "-DCMAKE_C_COMPILER=clang-6.0",
-               "-DCMAKE_CXX_COMPILER=clang++-6.0",
                "-DCMAKE_BUILD_TYPE=Debug"
             ],
             "cmake_generate_args_release":[
                "-G",
                "Unix\\ Makefiles",
-               "-DCMAKE_C_COMPILER=clang-6.0",
-               "-DCMAKE_CXX_COMPILER=clang++-6.0",
                "-DCMAKE_BUILD_TYPE=Release"
             ],
             "cmake_build_args":[
