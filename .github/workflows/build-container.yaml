@@ -28,7 +28,7 @@ jobs:
           env: |
             GITHUB_WORKFLOW: ${{ github.workflow }} # Sets the docker image to the name of the workflow
           arch: aarch64
-          distro: ubuntu20.04
+          distro: ubuntu22.04
           githubToken: ${{ github.token }}
           shell: /bin/bash
           install: |
