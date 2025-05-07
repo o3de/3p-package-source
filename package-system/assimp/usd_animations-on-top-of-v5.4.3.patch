@@ -1,0 +1,1080 @@
+diff --git a/code/AssetLib/USD/USDLoaderImplTinyusdz.cpp b/code/AssetLib/USD/USDLoaderImplTinyusdz.cpp
+index 3e32917f9..b4fd6a51b 100644
+--- a/code/AssetLib/USD/USDLoaderImplTinyusdz.cpp
++++ b/code/AssetLib/USD/USDLoaderImplTinyusdz.cpp
+@@ -58,6 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #include <assimp/importerdesc.h>
+ #include <assimp/IOStreamBuffer.h>
+ #include <assimp/IOSystem.hpp>
++#include "assimp/MemoryIOWrapper.h"
+ #include <assimp/StringUtils.h>
+ #include <assimp/StreamReader.h>
+ 
+@@ -81,7 +82,7 @@ using namespace std;
+ void USDImporterImplTinyusdz::InternReadFile(
+         const std::string &pFile,
+         aiScene *pScene,
+-        IOSystem *) {
++        IOSystem *pIOHandler) {
+     // Grab filename for logging purposes
+     size_t pos = pFile.find_last_of('/');
+     string basePath = pFile.substr(0, pos);
+@@ -91,29 +92,48 @@ void USDImporterImplTinyusdz::InternReadFile(
+     ss << "InternReadFile(): model" << nameWExt;
+     TINYUSDZLOGD(TAG, "%s", ss.str().c_str());
+ 
++    bool is_load_from_mem{ pFile.substr(0, AI_MEMORYIO_MAGIC_FILENAME_LENGTH) == AI_MEMORYIO_MAGIC_FILENAME };
++    std::vector<uint8_t> in_mem_data;
++    if (is_load_from_mem) {
++        auto stream_closer = [pIOHandler](IOStream *pStream) {
++            pIOHandler->Close(pStream);
++        };
++        std::unique_ptr<IOStream, decltype(stream_closer)> file_stream(pIOHandler->Open(pFile, "rb"), stream_closer);
++        if (!file_stream) {
++            throw DeadlyImportError("Failed to open file ", pFile, ".");
++        }
++        size_t file_size{ file_stream->FileSize() };
++        in_mem_data.resize(file_size);
++        file_stream->Read(in_mem_data.data(), 1, file_size);
++    }
++
+     bool ret{ false };
+     tinyusdz::USDLoadOptions options;
+     tinyusdz::Stage stage;
+     std::string warn, err;
+     bool is_usdz{ false };
+     if (isUsdc(pFile)) {
+-        ret = LoadUSDCFromFile(pFile, &stage, &warn, &err, options);
++        ret = is_load_from_mem ? LoadUSDCFromMemory(in_mem_data.data(), in_mem_data.size(), pFile, &stage, &warn, &err, options) :
++                                 LoadUSDCFromFile(pFile, &stage, &warn, &err, options);
+         ss.str("");
+         ss << "InternReadFile(): LoadUSDCFromFile() result: " << ret;
+         TINYUSDZLOGD(TAG, "%s", ss.str().c_str());
+     } else if (isUsda(pFile)) {
+-        ret = LoadUSDAFromFile(pFile, &stage, &warn, &err, options);
++        ret = is_load_from_mem ? LoadUSDAFromMemory(in_mem_data.data(), in_mem_data.size(), pFile, &stage, &warn, &err, options) :
++                                 LoadUSDAFromFile(pFile, &stage, &warn, &err, options);
+         ss.str("");
+         ss << "InternReadFile(): LoadUSDAFromFile() result: " << ret;
+         TINYUSDZLOGD(TAG, "%s", ss.str().c_str());
+     } else if (isUsdz(pFile)) {
+-        ret = LoadUSDZFromFile(pFile, &stage, &warn, &err, options);
++        ret = is_load_from_mem ? LoadUSDZFromMemory(in_mem_data.data(), in_mem_data.size(), pFile, &stage, &warn, &err, options) :
++                                 LoadUSDZFromFile(pFile, &stage, &warn, &err, options);
+         is_usdz = true;
+         ss.str("");
+         ss << "InternReadFile(): LoadUSDZFromFile() result: " << ret;
+         TINYUSDZLOGD(TAG, "%s", ss.str().c_str());
+     } else if (isUsd(pFile)) {
+-        ret = LoadUSDFromFile(pFile, &stage, &warn, &err, options);
++        ret = is_load_from_mem ? LoadUSDFromMemory(in_mem_data.data(), in_mem_data.size(), pFile, &stage, &warn, &err, options) :
++                                 LoadUSDFromFile(pFile, &stage, &warn, &err, options);
+         ss.str("");
+         ss << "InternReadFile(): LoadUSDFromFile() result: " << ret;
+         TINYUSDZLOGD(TAG, "%s", ss.str().c_str());
+@@ -149,7 +169,9 @@ void USDImporterImplTinyusdz::InternReadFile(
+     // NOTE: Pointer address of usdz_asset must be valid until the call of RenderSceneConverter::ConvertToRenderScene.
+     tinyusdz::USDZAsset usdz_asset;
+     if (is_usdz) {
+-        if (!tinyusdz::ReadUSDZAssetInfoFromFile(pFile, &usdz_asset, &warn, &err)) {
++        bool is_read_USDZ_asset = is_load_from_mem ? tinyusdz::ReadUSDZAssetInfoFromMemory(in_mem_data.data(), in_mem_data.size(), false, &usdz_asset, &warn, &err) :
++                                                     tinyusdz::ReadUSDZAssetInfoFromFile(pFile, &usdz_asset, &warn, &err);
++        if (!is_read_USDZ_asset) {
+             if (!warn.empty()) {
+                 ss.str("");
+                 ss << "InternReadFile(): ReadUSDZAssetInfoFromFile: WARNING reported: " << warn;
+@@ -190,18 +212,140 @@ void USDImporterImplTinyusdz::InternReadFile(
+         return;
+     }
+ 
+-//    sanityCheckNodesRecursive(pScene->mRootNode);
++    // sanityCheckNodesRecursive(pScene->mRootNode);
++    animations(render_scene, pScene);
+     meshes(render_scene, pScene, nameWExt);
+     materials(render_scene, pScene, nameWExt);
+     textures(render_scene, pScene, nameWExt);
+     textureImages(render_scene, pScene, nameWExt);
+     buffers(render_scene, pScene, nameWExt);
+-
+-    std::map<size_t, tinyusdz::tydra::Node> meshNodes;
+-    setupNodes(render_scene, pScene, meshNodes, nameWExt);
++    pScene->mRootNode = nodesRecursive(nullptr, render_scene.nodes[0], render_scene.skeletons);
+ 
+     setupBlendShapes(render_scene, pScene, nameWExt);
+ }
++void USDImporterImplTinyusdz::animations(
++    const tinyusdz::tydra::RenderScene& render_scene,
++    aiScene* pScene) {
++    if (render_scene.animations.empty()) {
++        return;
++    }
++
++    pScene->mNumAnimations = render_scene.animations.size();
++    pScene->mAnimations = new aiAnimation *[pScene->mNumAnimations];
++
++    for (int animationIndex = 0; animationIndex < pScene->mNumAnimations; ++animationIndex) {
++
++        const auto &animation = render_scene.animations[animationIndex];
++
++        auto newAiAnimation = new aiAnimation();
++        pScene->mAnimations[animationIndex] = newAiAnimation;
++
++        newAiAnimation->mName = animation.abs_path;
++
++        if (animation.channels_map.empty()) {
++            newAiAnimation->mNumChannels = 0;
++            continue;
++        }
++
++        // each channel affects a node (joint)
++        newAiAnimation->mTicksPerSecond = render_scene.meta.framesPerSecond;
++        newAiAnimation->mNumChannels = animation.channels_map.size();
++        newAiAnimation->mChannels = new aiNodeAnim *[newAiAnimation->mNumChannels];
++        int channelIndex = 0;
++        for (const auto &[jointName, animationChannelMap] : animation.channels_map) {
++            auto newAiNodeAnim = new aiNodeAnim();
++            newAiAnimation->mChannels[channelIndex] = newAiNodeAnim;
++            newAiNodeAnim->mNodeName = jointName;
++            newAiAnimation->mDuration = 0;
++
++            std::vector<aiVectorKey> positionKeys;
++            std::vector<aiQuatKey> rotationKeys;
++            std::vector<aiVectorKey> scalingKeys;
++
++            for (const auto &[channelType, animChannel] : animationChannelMap) {
++                switch (channelType) {
++                case tinyusdz::tydra::AnimationChannel::ChannelType::Rotation:
++                    if (animChannel.rotations.static_value.has_value()) {
++                        rotationKeys.emplace_back(0, tinyUsdzQuatToAiQuat(animChannel.rotations.static_value.value()));
++                    }
++                    for (const auto &rotationAnimSampler : animChannel.rotations.samples) {
++                        if (rotationAnimSampler.t > newAiAnimation->mDuration) {
++                            newAiAnimation->mDuration = rotationAnimSampler.t;
++                        }
++
++                        rotationKeys.emplace_back(rotationAnimSampler.t, tinyUsdzQuatToAiQuat(rotationAnimSampler.value));
++                    }
++                    break;
++                case tinyusdz::tydra::AnimationChannel::ChannelType::Scale:
++                    if (animChannel.scales.static_value.has_value()) {
++                        scalingKeys.emplace_back(0, tinyUsdzScaleOrPosToAssimp(animChannel.scales.static_value.value()));
++                    }
++                    for (const auto &scaleAnimSampler : animChannel.scales.samples) {
++                        if (scaleAnimSampler.t > newAiAnimation->mDuration) {
++                            newAiAnimation->mDuration = scaleAnimSampler.t;
++                        }
++                        scalingKeys.emplace_back(scaleAnimSampler.t, tinyUsdzScaleOrPosToAssimp(scaleAnimSampler.value));
++                    }
++                    break;
++                case tinyusdz::tydra::AnimationChannel::ChannelType::Transform:
++                    if (animChannel.transforms.static_value.has_value()) {
++                        aiVector3D position;
++                        aiVector3D scale;
++                        aiQuaternion rotation;
++                        tinyUsdzMat4ToAiMat4(animChannel.transforms.static_value.value().m).Decompose(scale, rotation, position);
++
++                        positionKeys.emplace_back(0, position);
++                        scalingKeys.emplace_back(0, scale);
++                        rotationKeys.emplace_back(0, rotation);
++                    }
++                    for (const auto &transformAnimSampler : animChannel.transforms.samples) {
++                        if (transformAnimSampler.t > newAiAnimation->mDuration) {
++                            newAiAnimation->mDuration = transformAnimSampler.t;
++                        }
++
++                        aiVector3D position;
++                        aiVector3D scale;
++                        aiQuaternion rotation;
++                        tinyUsdzMat4ToAiMat4(transformAnimSampler.value.m).Decompose(scale, rotation, position);
++
++                        positionKeys.emplace_back(transformAnimSampler.t, position);
++                        scalingKeys.emplace_back(transformAnimSampler.t, scale);
++                        rotationKeys.emplace_back(transformAnimSampler.t, rotation);
++                    }
++                    break;
++                case tinyusdz::tydra::AnimationChannel::ChannelType::Translation:
++                    if (animChannel.translations.static_value.has_value()) {
++                        positionKeys.emplace_back(0, tinyUsdzScaleOrPosToAssimp(animChannel.translations.static_value.value()));
++                    }
++                    for (const auto &translationAnimSampler : animChannel.translations.samples) {
++                        if (translationAnimSampler.t > newAiAnimation->mDuration) {
++                            newAiAnimation->mDuration = translationAnimSampler.t;
++                        }
++
++                        positionKeys.emplace_back(translationAnimSampler.t, tinyUsdzScaleOrPosToAssimp(translationAnimSampler.value));
++                    }
++                    break;
++                default:
++                    TINYUSDZLOGW(TAG, "Unsupported animation channel type (%s). Please update the USD importer to support this animation channel.", tinyusdzAnimChannelTypeFor(channelType).c_str());
++                }
++            }
++
++            newAiNodeAnim->mNumPositionKeys = positionKeys.size();
++            newAiNodeAnim->mPositionKeys = new aiVectorKey[newAiNodeAnim->mNumPositionKeys];
++            std::move(positionKeys.begin(), positionKeys.end(), newAiNodeAnim->mPositionKeys);
++
++            newAiNodeAnim->mNumRotationKeys = rotationKeys.size();
++            newAiNodeAnim->mRotationKeys = new aiQuatKey[newAiNodeAnim->mNumRotationKeys];
++            std::move(rotationKeys.begin(), rotationKeys.end(), newAiNodeAnim->mRotationKeys);
++
++            newAiNodeAnim->mNumScalingKeys = scalingKeys.size();
++            newAiNodeAnim->mScalingKeys = new aiVectorKey[newAiNodeAnim->mNumScalingKeys];
++            std::move(scalingKeys.begin(), scalingKeys.end(), newAiNodeAnim->mScalingKeys);
++
++            ++channelIndex;
++        }
++    }
++}
+ 
+ void USDImporterImplTinyusdz::meshes(
+         const tinyusdz::tydra::RenderScene &render_scene,
+@@ -247,8 +391,66 @@ void USDImporterImplTinyusdz::verticesForMesh(
+         size_t meshIdx,
+         const std::string &nameWExt) {
+     UNUSED(nameWExt);
+-    pScene->mMeshes[meshIdx]->mNumVertices = static_cast<unsigned int>(render_scene.meshes[meshIdx].points.size());
++    const auto numVertices = static_cast<unsigned int>(render_scene.meshes[meshIdx].points.size());
++    pScene->mMeshes[meshIdx]->mNumVertices = numVertices;
+     pScene->mMeshes[meshIdx]->mVertices = new aiVector3D[pScene->mMeshes[meshIdx]->mNumVertices];
++
++    // Check if this is a skinned mesh
++    if (int skeleton_id = render_scene.meshes[meshIdx].skel_id; skeleton_id > -1) {
++        // Recursively iterate to collect all the joints in the hierarchy into a flattened array
++        std::vector<const tinyusdz::tydra::SkelNode *> skeletonNodes;
++        skeletonNodes.push_back(&render_scene.skeletons[skeleton_id].root_node);
++        for (int i = 0; i < skeletonNodes.size(); ++i) {
++            for (const auto &child : skeletonNodes[i]->children) {
++                skeletonNodes.push_back(&child);
++            }
++        }
++
++        // Convert USD skeleton joints to Assimp bones
++        const unsigned int numBones = skeletonNodes.size();
++        pScene->mMeshes[meshIdx]->mNumBones = numBones;
++        pScene->mMeshes[meshIdx]->mBones = new aiBone *[numBones];
++
++        for (unsigned int i = 0; i < numBones; ++i) {
++            const tinyusdz::tydra::SkelNode *skeletonNode = skeletonNodes[i];
++            const int boneIndex = skeletonNode->joint_id;
++
++            // Sorted so that Assimp bone ids align with USD joint id
++            auto outputBone = new aiBone();
++            outputBone->mName = aiString(skeletonNode->joint_name);
++            outputBone->mOffsetMatrix = tinyUsdzMat4ToAiMat4(skeletonNode->bind_transform.m).Inverse();
++            pScene->mMeshes[meshIdx]->mBones[boneIndex] = outputBone;
++        }
++
++        // Vertex weights
++        std::vector<std::vector<aiVertexWeight>> aiBonesVertexWeights;
++        aiBonesVertexWeights.resize(numBones);
++
++        const std::vector<int> &jointIndices = render_scene.meshes[meshIdx].joint_and_weights.jointIndices;
++        const std::vector<float> &jointWeightIndices = render_scene.meshes[meshIdx].joint_and_weights.jointWeights;
++        const int numWeightsPerVertex = render_scene.meshes[meshIdx].joint_and_weights.elementSize;
++
++        for (unsigned int vertexIndex = 0; vertexIndex < numVertices; ++vertexIndex) {
++            for (int weightIndex = 0; weightIndex < numWeightsPerVertex; ++weightIndex) {
++                const unsigned int index = vertexIndex * numWeightsPerVertex + weightIndex;
++                const float jointWeight = jointWeightIndices[index];
++
++                if (jointWeight > 0) {
++                    const int jointIndex = jointIndices[index];
++                    aiBonesVertexWeights[jointIndex].emplace_back(vertexIndex, jointWeight);
++                }
++            }
++        }
++
++        for (int boneIndex = 0; boneIndex < numBones; ++boneIndex) {
++            const unsigned int numWeightsForBone = aiBonesVertexWeights[boneIndex].size();
++            pScene->mMeshes[meshIdx]->mBones[boneIndex]->mWeights = new aiVertexWeight[numWeightsForBone];
++            pScene->mMeshes[meshIdx]->mBones[boneIndex]->mNumWeights = numWeightsForBone;
++
++            std::swap_ranges(aiBonesVertexWeights[boneIndex].begin(), aiBonesVertexWeights[boneIndex].end(), pScene->mMeshes[meshIdx]->mBones[boneIndex]->mWeights);
++        }
++    }  // Skinned mesh end
++
+     for (size_t j = 0; j < pScene->mMeshes[meshIdx]->mNumVertices; ++j) {
+         pScene->mMeshes[meshIdx]->mVertices[j].x = render_scene.meshes[meshIdx].points[j][0];
+         pScene->mMeshes[meshIdx]->mVertices[j].y = render_scene.meshes[meshIdx].points[j][1];
+@@ -595,54 +797,25 @@ void USDImporterImplTinyusdz::buffers(
+     }
+ }
+ 
+-void USDImporterImplTinyusdz::setupNodes(
+-        const tinyusdz::tydra::RenderScene &render_scene,
+-        aiScene *pScene,
+-        std::map<size_t, tinyusdz::tydra::Node> &meshNodes,
+-        const std::string &nameWExt) {
+-    stringstream ss;
+-
+-    pScene->mRootNode = nodes(render_scene, meshNodes, nameWExt);
+-    pScene->mRootNode->mNumMeshes = pScene->mNumMeshes;
+-    pScene->mRootNode->mMeshes = new unsigned int[pScene->mRootNode->mNumMeshes];
+-    ss.str("");
+-    ss << "setupNodes(): pScene->mNumMeshes: " << pScene->mNumMeshes;
+-    if (pScene->mRootNode != nullptr) {
+-        ss << ", mRootNode->mNumMeshes: " << pScene->mRootNode->mNumMeshes;
+-    }
+-    TINYUSDZLOGD(TAG, "%s", ss.str().c_str());
+-
+-    for (unsigned int meshIdx = 0; meshIdx < pScene->mNumMeshes; meshIdx++) {
+-        pScene->mRootNode->mMeshes[meshIdx] = meshIdx;
+-    }
+-
+-}
+-
+-aiNode *USDImporterImplTinyusdz::nodes(
+-        const tinyusdz::tydra::RenderScene &render_scene,
+-        std::map<size_t, tinyusdz::tydra::Node> &meshNodes,
+-        const std::string &nameWExt) {
+-    const size_t numNodes{render_scene.nodes.size()};
+-    (void) numNodes; // Ignore unused variable when -Werror enabled
+-    stringstream ss;
+-    ss.str("");
+-    ss << "nodes(): model" << nameWExt << ", numNodes: " << numNodes;
+-    TINYUSDZLOGD(TAG, "%s", ss.str().c_str());
+-    return nodesRecursive(nullptr, render_scene.nodes[0], meshNodes);
+-}
+-
+ using Assimp::tinyusdzNodeTypeFor;
+ using Assimp::tinyUsdzMat4ToAiMat4;
+ using tinyusdz::tydra::NodeType;
+ aiNode *USDImporterImplTinyusdz::nodesRecursive(
+         aiNode *pNodeParent,
+         const tinyusdz::tydra::Node &node,
+-        std::map<size_t, tinyusdz::tydra::Node> &meshNodes) {
++        const std::vector<tinyusdz::tydra::SkelHierarchy> &skeletons) {
+     stringstream ss;
+     aiNode *cNode = new aiNode();
+     cNode->mParent = pNodeParent;
+     cNode->mName.Set(node.prim_name);
+     cNode->mTransformation = tinyUsdzMat4ToAiMat4(node.local_matrix.m);
++
++    if (node.nodeType == NodeType::Mesh) {
++        cNode->mNumMeshes = 1;
++        cNode->mMeshes = new unsigned int[cNode->mNumMeshes];
++        cNode->mMeshes[0] = node.id;
++    }
++
+     ss.str("");
+     ss << "nodesRecursive(): node " << cNode->mName.C_Str() <<
+             " type: |" << tinyusdzNodeTypeFor(node.nodeType) <<
+@@ -651,21 +824,69 @@ aiNode *USDImporterImplTinyusdz::nodesRecursive(
+         ss << " (parent " << cNode->mParent->mName.C_Str() << ")";
+     }
+     ss << " has " << node.children.size() << " children";
+-    if (node.id > -1) {
++    if (node.nodeType == NodeType::Mesh) {
+         ss << "\n    node mesh id: " << node.id << " (node type: " << tinyusdzNodeTypeFor(node.nodeType) << ")";
+-        meshNodes[node.id] = node;
+     }
+     TINYUSDZLOGD(TAG, "%s", ss.str().c_str());
+-    if (!node.children.empty()) {
+-        cNode->mNumChildren = static_cast<unsigned int>(node.children.size());
+-        cNode->mChildren = new aiNode *[cNode->mNumChildren];
++
++    unsigned int numChildren = node.children.size();
++
++    // Find any tinyusdz skeletons which might begin at this node
++    // Add the skeleton bones as child nodes
++    const tinyusdz::tydra::SkelNode *skelNode = nullptr;
++    for (const auto &skeleton : skeletons) {
++        if (skeleton.abs_path == node.abs_path) {
++            // Add this skeleton's bones as child nodes
++            ++numChildren;
++            skelNode = &skeleton.root_node;
++            break;
++        }
+     }
+ 
+-    size_t i{0};
+-    for (const auto &childNode: node.children) {
+-        cNode->mChildren[i] = nodesRecursive(cNode, childNode, meshNodes);
++    cNode->mNumChildren = numChildren;
++
++    // Done. No more children.
++    if (numChildren == 0) {
++        return cNode;
++    }
++
++    cNode->mChildren = new aiNode *[cNode->mNumChildren];
++
++    size_t i{ 0 };
++    for (const auto &childNode : node.children) {
++        cNode->mChildren[i] = nodesRecursive(cNode, childNode, skeletons);
+         ++i;
+     }
++
++    if (skelNode != nullptr) {
++        // Convert USD skeleton into an Assimp node and make it the last child
++        cNode->mChildren[cNode->mNumChildren-1] = skeletonNodesRecursive(cNode, *skelNode);
++    }
++
++    return cNode;
++}
++
++aiNode *USDImporterImplTinyusdz::skeletonNodesRecursive(
++        aiNode* pNodeParent,
++        const tinyusdz::tydra::SkelNode& joint) {
++    auto *cNode = new aiNode(joint.joint_path);
++    cNode->mParent = pNodeParent;
++    cNode->mNumMeshes = 0; // not a mesh node
++    cNode->mTransformation = tinyUsdzMat4ToAiMat4(joint.rest_transform.m);
++
++    // Done. No more children.
++    if (joint.children.empty()) {
++        return cNode;
++    }
++
++    cNode->mNumChildren = static_cast<unsigned int>(joint.children.size());
++    cNode->mChildren = new aiNode *[cNode->mNumChildren];
++
++    for (int i = 0; i < cNode->mNumChildren; ++i) {
++        const tinyusdz::tydra::SkelNode &childJoint = joint.children[i];
++        cNode->mChildren[i] = skeletonNodesRecursive(cNode, childJoint);
++    }
++
+     return cNode;
+ }
+ 
+diff --git a/code/AssetLib/USD/USDLoaderImplTinyusdz.h b/code/AssetLib/USD/USDLoaderImplTinyusdz.h
+index 69f8c125c..8d52cc383 100644
+--- a/code/AssetLib/USD/USDLoaderImplTinyusdz.h
++++ b/code/AssetLib/USD/USDLoaderImplTinyusdz.h
+@@ -65,6 +65,10 @@ public:
+             aiScene *pScene,
+             IOSystem *pIOHandler);
+ 
++    void animations(
++            const tinyusdz::tydra::RenderScene &render_scene,
++            aiScene *pScene);
++
+     void meshes(
+             const tinyusdz::tydra::RenderScene &render_scene,
+             aiScene *pScene,
+@@ -120,22 +124,14 @@ public:
+             aiScene *pScene,
+             const std::string &nameWExt);
+ 
+-    void setupNodes(
+-            const tinyusdz::tydra::RenderScene &render_scene,
+-            aiScene *pScene,
+-            std::map<size_t, tinyusdz::tydra::Node> &meshNodes,
+-            const std::string &nameWExt
+-            );
+-
+-    aiNode *nodes(
+-            const tinyusdz::tydra::RenderScene &render_scene,
+-            std::map<size_t, tinyusdz::tydra::Node> &meshNodes,
+-            const std::string &nameWExt);
+-
+     aiNode *nodesRecursive(
+             aiNode *pNodeParent,
+             const tinyusdz::tydra::Node &node,
+-            std::map<size_t, tinyusdz::tydra::Node> &meshNodes);
++            const std::vector<tinyusdz::tydra::SkelHierarchy> &skeletons);
++
++    aiNode *skeletonNodesRecursive(
++            aiNode *pNodeParent,
++            const tinyusdz::tydra::SkelNode &joint);
+ 
+     void sanityCheckNodesRecursive(
+             aiNode *pNode);
+diff --git a/code/AssetLib/USD/USDLoaderImplTinyusdzHelper.cpp b/code/AssetLib/USD/USDLoaderImplTinyusdzHelper.cpp
+index 09d692445..6708d7972 100644
+--- a/code/AssetLib/USD/USDLoaderImplTinyusdzHelper.cpp
++++ b/code/AssetLib/USD/USDLoaderImplTinyusdzHelper.cpp
+@@ -100,43 +100,6 @@ std::string Assimp::tinyusdzNodeTypeFor(NodeType type) {
+     }
+ }
+ 
+-aiMatrix4x4 Assimp::tinyUsdzMat4ToAiMat4(const double matIn[4][4]) {
+-    aiMatrix4x4 matOut;
+-    matOut.a1 = matIn[0][0];
+-    matOut.a2 = matIn[0][1];
+-    matOut.a3 = matIn[0][2];
+-    matOut.a4 = matIn[0][3];
+-    matOut.b1 = matIn[1][0];
+-    matOut.b2 = matIn[1][1];
+-    matOut.b3 = matIn[1][2];
+-    matOut.b4 = matIn[1][3];
+-    matOut.c1 = matIn[2][0];
+-    matOut.c2 = matIn[2][1];
+-    matOut.c3 = matIn[2][2];
+-    matOut.c4 = matIn[2][3];
+-    matOut.d1 = matIn[3][0];
+-    matOut.d2 = matIn[3][1];
+-    matOut.d3 = matIn[3][2];
+-    matOut.d4 = matIn[3][3];
+-//    matOut.a1 = matIn[0][0];
+-//    matOut.a2 = matIn[1][0];
+-//    matOut.a3 = matIn[2][0];
+-//    matOut.a4 = matIn[3][0];
+-//    matOut.b1 = matIn[0][1];
+-//    matOut.b2 = matIn[1][1];
+-//    matOut.b3 = matIn[2][1];
+-//    matOut.b4 = matIn[3][1];
+-//    matOut.c1 = matIn[0][2];
+-//    matOut.c2 = matIn[1][2];
+-//    matOut.c3 = matIn[2][2];
+-//    matOut.c4 = matIn[3][2];
+-//    matOut.d1 = matIn[0][3];
+-//    matOut.d2 = matIn[1][3];
+-//    matOut.d3 = matIn[2][3];
+-//    matOut.d4 = matIn[3][3];
+-    return matOut;
+-}
+-
+ aiVector3D Assimp::tinyUsdzScaleOrPosToAssimp(const std::array<float, 3> &scaleOrPosIn) {
+     return aiVector3D(scaleOrPosIn[0], scaleOrPosIn[1], scaleOrPosIn[2]);
+ }
+diff --git a/code/AssetLib/USD/USDLoaderImplTinyusdzHelper.h b/code/AssetLib/USD/USDLoaderImplTinyusdzHelper.h
+index c5eaafd73..42a7b9d9f 100644
+--- a/code/AssetLib/USD/USDLoaderImplTinyusdzHelper.h
++++ b/code/AssetLib/USD/USDLoaderImplTinyusdzHelper.h
+@@ -48,14 +48,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #include <assimp/types.h>
+ #include "tinyusdz.hh"
+ #include "tydra/render-data.hh"
++#include <type_traits>
+ 
+ namespace Assimp {
+ 
+ std::string tinyusdzAnimChannelTypeFor(
+         tinyusdz::tydra::AnimationChannel::ChannelType animChannel);
+ std::string tinyusdzNodeTypeFor(tinyusdz::tydra::NodeType type);
+-aiMatrix4x4 tinyUsdzMat4ToAiMat4(const double matIn[4][4]);
+ 
++template <typename T>
++aiMatrix4x4 tinyUsdzMat4ToAiMat4(const T matIn[4][4]) {
++    static_assert(std::is_floating_point_v<T>, "Only floating-point types are allowed.");
++    aiMatrix4x4 matOut;
++    matOut.a1 = matIn[0][0];
++    matOut.a2 = matIn[1][0];
++    matOut.a3 = matIn[2][0];
++    matOut.a4 = matIn[3][0];
++    matOut.b1 = matIn[0][1];
++    matOut.b2 = matIn[1][1];
++    matOut.b3 = matIn[2][1];
++    matOut.b4 = matIn[3][1];
++    matOut.c1 = matIn[0][2];
++    matOut.c2 = matIn[1][2];
++    matOut.c3 = matIn[2][2];
++    matOut.c4 = matIn[3][2];
++    matOut.d1 = matIn[0][3];
++    matOut.d2 = matIn[1][3];
++    matOut.d3 = matIn[2][3];
++    matOut.d4 = matIn[3][3];
++    return matOut;
++}
+ aiVector3D tinyUsdzScaleOrPosToAssimp(const std::array<float, 3> &scaleOrPosIn);
+ 
+ /**
+diff --git a/code/CMakeLists.txt b/code/CMakeLists.txt
+index 9b2708623..fc6f682ed 100644
+--- a/code/CMakeLists.txt
++++ b/code/CMakeLists.txt
+@@ -946,8 +946,8 @@ IF (ASSIMP_BUILD_USD_IMPORTER)
+     # Note: ALWAYS specify a git commit hash (or tag) instead of a branch name; using a branch
+     #       name can lead to non-deterministic (unpredictable) results since the code is potentially
+     #       in flux
+-    # "dev" branch, 9 Jul 2024
+-    set(TINYUSDZ_GIT_TAG "bd2a1edbbf69f352a6c40730114db9918c384848")
++    # "dev" branch, 28 Oct 2024
++    set(TINYUSDZ_GIT_TAG "36f2aabb256b360365989c01a52f839a57dfe2a6")
+     message("****")
+     message("\n\n**** Cloning tinyusdz repo, git tag ${TINYUSDZ_GIT_TAG}\n\n")
+ 
+diff --git a/code/PostProcessing/ValidateDataStructure.cpp b/code/PostProcessing/ValidateDataStructure.cpp
+index 8441b48be..fba81a399 100644
+--- a/code/PostProcessing/ValidateDataStructure.cpp
++++ b/code/PostProcessing/ValidateDataStructure.cpp
+@@ -447,7 +447,7 @@ void ValidateDSProcess::Validate(const aiMesh *pMesh, const aiBone *pBone, float
+         if (pBone->mWeights[i].mVertexId >= pMesh->mNumVertices) {
+             ReportError("aiBone::mWeights[%i].mVertexId is out of range", i);
+         } else if (!pBone->mWeights[i].mWeight || pBone->mWeights[i].mWeight > 1.0f) {
+-            ReportWarning("aiBone::mWeights[%i].mWeight has an invalid value", i);
++                ReportWarning("aiBone::mWeights[%i].mWeight has an invalid value %i. Value must be greater than zero and less than 1.", i, pBone->mWeights[i].mWeight);
+         }
+         afSum[pBone->mWeights[i].mVertexId] += pBone->mWeights[i].mWeight;
+     }
+diff --git a/contrib/tinyusdz/patches/tinyusdz.patch b/contrib/tinyusdz/patches/tinyusdz.patch
+index e84e9f8fe..7cd703475 100644
+--- a/contrib/tinyusdz/patches/tinyusdz.patch
++++ b/contrib/tinyusdz/patches/tinyusdz.patch
+@@ -1,7 +1,33 @@
++diff -rupN -x .git autoclone/tinyusdz_repo-src/src/io-util.cc tinyusdz_repo_patch/src/io-util.cc
++--- autoclone/tinyusdz_repo-src/src/io-util.cc	2024-10-27 03:26:45.457163600 -0700
+++++ tinyusdz_repo_patch/src/io-util.cc	2024-10-27 03:31:09.255211100 -0700
++@@ -19,6 +19,7 @@
++ 
++ #include <io.h>
++ #include <windows.h>  // include API for expanding a file path
+++#include <tchar.h>
++ 
++ #ifndef TINYUSDZ_MMAP_SUPPORTED
++ #define TINYUSDZ_MMAP_SUPPORTED (1)
++@@ -153,9 +154,10 @@ bool MMapFile(const std::string &filepath, MMapFileHandle *handle,
++ 
++ #if TINYUSDZ_MMAP_SUPPORTED
++ #if defined(_WIN32)
++-  // int fd = open(filepath.c_str(), writable ? O_RDWR : O_RDONLY);
+++  std::basic_string<TCHAR> tFilepath(filepath.begin(), filepath.end());  // Using TCHAR string to automatically use normal or wide characters if UNICODE is enabled
+++
++   HANDLE hFile =
++-      CreateFile(filepath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
+++      CreateFile(tFilepath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
++                  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
++   if (hFile == INVALID_HANDLE_VALUE) {
++     if (err) {
++
++
+ diff -rupN -x .git autoclone/tinyusdz_repo-src/src/external/stb_image_resize2.h tinyusdz_repo_patch/src/external/stb_image_resize2.h
+---- autoclone/tinyusdz_repo-src/src/external/stb_image_resize2.h	2024-07-09 21:29:48.556969900 -0700
+-+++ tinyusdz_repo_patch/src/external/stb_image_resize2.h	2024-07-09 23:03:47.379316700 -0700
+-@@ -2404,6 +2404,38 @@ static stbir__inline stbir_uint8 stbir__
++--- autoclone/tinyusdz_repo-src/src/external/stb_image_resize2.h	2024-10-27 03:26:45.457163600 -0700
+++++ tinyusdz_repo_patch/src/external/stb_image_resize2.h	2024-10-27 03:31:09.255211100 -0700
++@@ -2500,6 +2500,38 @@ static stbir__inline stbir_uint8 stbir__
+      }
+    }
+  
+@@ -37,6 +63,6 @@ diff -rupN -x .git autoclone/tinyusdz_repo-src/src/external/stb_image_resize2.h
+ +    return 0;
+ +  }
+ +
+- #elif defined(STBIR_NEON) && defined(_MSC_VER) && defined(_M_ARM64) && !defined(__clang__) // 64-bit ARM on MSVC (not clang)
++ #endif
++ 
+  
+-   static stbir__inline void stbir__half_to_float_SIMD(float * output, stbir__FP16 const * input)
+diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
+index 7b7fd850a..fe80edcb3 100644
+--- a/test/CMakeLists.txt
++++ b/test/CMakeLists.txt
+@@ -148,7 +148,6 @@ SET( IMPORTERS
+   #unit/utM3DImportExport.cpp
+   unit/utMDCImportExport.cpp
+   unit/utAssbinImportExport.cpp
+-  unit/utUSDImport.cpp
+   unit/ImportExport/utAssjsonImportExport.cpp
+   unit/ImportExport/utCOBImportExport.cpp
+   unit/ImportExport/utOgreImportExport.cpp
+@@ -169,6 +168,12 @@ SET( IMPORTERS
+   unit/ImportExport/Pbrt/utPbrtImportExport.cpp
+ )
+ 
++if(ASSIMP_BUILD_USD_IMPORTER)
++  list( APPEND IMPORTERS
++    unit/utUSDImport.cpp
++  )
++endif()
++
+ SET( MATERIAL
+   unit/utMaterialSystem.cpp
+ )
+diff --git a/test/models-nonbsd/USD/usda/README.md b/test/models-nonbsd/USD/usda/README.md
+index e860175fd..cb5477b26 100644
+--- a/test/models-nonbsd/USD/usda/README.md
++++ b/test/models-nonbsd/USD/usda/README.md
+@@ -1,3 +1,5 @@
+ [blendshape.usda](blendshape.usda) copied from tinyusdz/models (No attribution/license cited in that project)
+ [texturedcube.usda](texturedcube.usda) copied from tinyusdz/models (No attribution/license cited in that project)
+ [translated-cube.usda](translated-cube.usda) copied from tinyusdz/models (No attribution/license cited in that project)
++[simple-skin-test.usda](simple-skin-test.usda) copied from tinyusdz/models (No attribution/license cited in that project)
++[simple-skin-animation-test.usda](simple-skin-animation-test.usda) modified tinyusdz/models (No attribution/license cited in that project)
+diff --git a/test/models-nonbsd/USD/usda/simple-skin-animation-test.usda b/test/models-nonbsd/USD/usda/simple-skin-animation-test.usda
+new file mode 100644
+index 000000000..2324c2064
+--- /dev/null
++++ b/test/models-nonbsd/USD/usda/simple-skin-animation-test.usda
+@@ -0,0 +1,237 @@
++#usda 1.0
++(
++    defaultPrim = "root"
++    doc = "Blender v4.2.3 LTS"
++    endTimeCode = 40
++    metersPerUnit = 1
++    startTimeCode = 0
++    timeCodesPerSecond = 24
++    upAxis = "Z"
++)
++
++def Xform "root" (
++    customData = {
++        dictionary Blender = {
++            bool generated = 1
++        }
++    }
++)
++{
++    def SkelRoot "Armature_001"
++    {
++        custom string userProperties:blender:object_name = "Armature.001"
++        float3 xformOp:rotateXYZ = (-89.99999, 0, 0)
++        float3 xformOp:scale = (1, 1, 1)
++        double3 xformOp:translate = (0, -1.7017418146133423, 0)
++        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
++
++        def Xform "Grid"
++        {
++            custom string userProperties:blender:object_name = "Grid"
++            float3 xformOp:rotateXYZ = (89.99999, -0, 0)
++            float3 xformOp:scale = (1, 1, 1)
++            double3 xformOp:translate = (0, -7.438549687321938e-8, 1.7017418146133423)
++            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
++
++            def Mesh "Grid" (
++                active = true
++                prepend apiSchemas = ["SkelBindingAPI"]
++            )
++            {
++                float3[] extent = [(-1, -1, 0), (1, 1, 0)]
++                int[] faceVertexCounts = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
++                int[] faceVertexIndices = [0, 1, 6, 5, 1, 2, 7, 6, 2, 3, 8, 7, 3, 4, 9, 8, 5, 6, 11, 10, 6, 7, 12, 11, 7, 8, 13, 12, 8, 9, 14, 13, 10, 11, 16, 15, 11, 12, 17, 16, 12, 13, 18, 17, 13, 14, 19, 18, 15, 16, 21, 20, 16, 17, 22, 21, 17, 18, 23, 22, 18, 19, 24, 23]
++                normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
++                    interpolation = "faceVarying"
++                )
++                point3f[] points = [(-1, -1, 0), (-0.5, -1, 0), (0, -1, 0), (0.5, -1, 0), (1, -1, 0), (-1, -0.5, 0), (-0.5, -0.5, 0), (0, -0.5, 0), (0.5, -0.5, 0), (1, -0.5, 0), (-1, 0, 0), (-0.5, 0, 0), (0, 0, 0), (0.5, 0, 0), (1, 0, 0), (-1, 0.5, 0), (-0.5, 0.5, 0), (0, 0.5, 0), (0.5, 0.5, 0), (1, 0.5, 0), (-1, 1, 0), (-0.5, 1, 0), (0, 1, 0), (0.5, 1, 0), (1, 1, 0)]
++                bool[] primvars:sharp_face = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] (
++                    interpolation = "uniform"
++                )
++                matrix4d primvars:skel:geomBindTransform = ( (1, 0, 0, 0), (0, 1.331580543606492e-7, 0.9999999999999911, 0), (0, -0.9999999999999911, 1.331580543606492e-7, 0), (0, -7.438549687321943e-8, 1.701741814613342, 1) )
++                int[] primvars:skel:jointIndices = [0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1] (
++                    elementSize = 2
++                    interpolation = "vertex"
++                )
++                float[] primvars:skel:jointWeights = [0.43767902, 0.56232095, 0.605441, 0.39455906, 1, 0, 0.605441, 0.39455906, 0.43767902, 0.562321, 0.23470172, 0.7652983, 0.18096954, 0.81903046, 1, 0, 0.18096954, 0.81903046, 0.23470171, 0.7652983, 0.114853, 0.88514704, 0.06506716, 0.9349329, 1, 0, 0.06506715, 0.9349329, 0.11485299, 0.88514704, 0.059175473, 0.94082457, 0.009479873, 0.9905201, 1, 0, 0.009479865, 0.9905201, 0.059175465, 0.94082457, 0.031181445, 0.96881855, 1, 0, 1, 0, 1, 0, 0.031181442, 0.9688186] (
++                    elementSize = 2
++                    interpolation = "vertex"
++                )
++                texCoord2f[] primvars:st = [(0, 0), (0.25, 0), (0.25, 0.25), (0, 0.25), (0.25, 0), (0.5, 0), (0.5, 0.25), (0.25, 0.25), (0.5, 0), (0.75, 0), (0.75, 0.25), (0.5, 0.25), (0.75, 0), (1, 0), (1, 0.25), (0.75, 0.25), (0, 0.25), (0.25, 0.25), (0.25, 0.5), (0, 0.5), (0.25, 0.25), (0.5, 0.25), (0.5, 0.5), (0.25, 0.5), (0.5, 0.25), (0.75, 0.25), (0.75, 0.5), (0.5, 0.5), (0.75, 0.25), (1, 0.25), (1, 0.5), (0.75, 0.5), (0, 0.5), (0.25, 0.5), (0.25, 0.75), (0, 0.75), (0.25, 0.5), (0.5, 0.5), (0.5, 0.75), (0.25, 0.75), (0.5, 0.5), (0.75, 0.5), (0.75, 0.75), (0.5, 0.75), (0.75, 0.5), (1, 0.5), (1, 0.75), (0.75, 0.75), (0, 0.75), (0.25, 0.75), (0.25, 1), (0, 1), (0.25, 0.75), (0.5, 0.75), (0.5, 1), (0.25, 1), (0.5, 0.75), (0.75, 0.75), (0.75, 1), (0.5, 1), (0.75, 0.75), (1, 0.75), (1, 1), (0.75, 1)] (
++                    interpolation = "faceVarying"
++                )
++                rel skel:skeleton = </root/Armature_001/Armature/Armature>
++                uniform token subdivisionScheme = "none"
++                custom string userProperties:blender:data_name = "Grid"
++            }
++        }
++
++        def Xform "Armature"
++        {
++            custom string userProperties:blender:object_name = "Armature"
++            float3 xformOp:rotateXYZ.timeSamples = {
++                0: (0, -0, 0),
++            }
++            float3 xformOp:scale.timeSamples = {
++                0: (1, 1, 1),
++            }
++            double3 xformOp:translate.timeSamples = {
++                0: (0, 0, 0),
++            }
++            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
++
++            def Skeleton "Armature" (
++                prepend apiSchemas = ["SkelBindingAPI"]
++            )
++            {
++                uniform matrix4d[] bindTransforms = [( (1, 0, 0, 0), (0, 0, 1, 0), (0, -1, 0, 0), (0, 0, 0, 1) ), ( (1, 0, 0, 0), (0, 0, 1, 0), (0, -1, 0, 0), (0, 0, 1, 1) )]
++                uniform token[] joints = ["Bone", "Bone/Bone_001"]
++                uniform matrix4d[] restTransforms = [( (1, 0, 0, 0), (0, 0, 1, 0), (0, -1, 0, 0), (0, 0, 0, 1) ), ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 1, 0, 1) )]
++                rel skel:animationSource = </root/Armature_001/Armature/Armature/Anim>
++
++                def SkelAnimation "Anim"
++                {
++                    uniform token[] joints = ["Bone", "Bone/Bone_001"]
++                    quatf[] rotations.timeSamples = {
++                        0: [(0.70710677, 0.70710677, 0, 0), (1, 0, 0, 0)],
++                        1: [(0.70710677, 0.70710677, 0, 0), (0.9996082, 0, 0, 0.027989032)],
++                        2: [(0.70710677, 0.70710677, 0, 0), (0.99463546, 0, 0, 0.10344209)],
++                        3: [(0.70710677, 0.70710677, 0, 0), (0.9774578, 0, 0, 0.21113087)],
++                        4: [(0.70710677, 0.70710677, 0, 0), (0.9432686, 0, 0, 0.3320306)],
++                        5: [(0.70710677, 0.70710677, 0, 0), (0.89442724, 0, 0, 0.4472135)],
++                        6: [(0.70710677, 0.70710677, 0, 0), (0.83920974, 0, 0, 0.5438079)],
++                        7: [(0.70710677, 0.70710677, 0, 0), (0.7869733, 0, 0, 0.61698705)],
++                        8: [(0.70710677, 0.70710677, 0, 0), (0.7447736, 0, 0, 0.6673172)],
++                        9: [(0.70710677, 0.70710677, 0, 0), (0.7170745, 0, 0, 0.6969965)],
++                        10: [(0.70710677, 0.70710677, 0, 0), (0.70710677, 0, 0, 0.70710677)],
++                        11: [(0.70710677, 0.70710677, 0, 0), (0.7122517, 0, 0, 0.70192415)],
++                        12: [(0.70710677, 0.70710677, 0, 0), (0.7271744, 0, 0, 0.68645275)],
++                        13: [(0.70710677, 0.70710677, 0, 0), (0.75127214, 0, 0, 0.6599926)],
++                        14: [(0.70710677, 0.70710677, 0, 0), (0.7839187, 0, 0, 0.62086356)],
++                        15: [(0.70710677, 0.70710677, 0, 0), (0.82404196, 0, 0, 0.5665288)],
++                        16: [(0.70710677, 0.70710677, 0, 0), (0.8695245, 0, 0, 0.49388987)],
++                        17: [(0.70710677, 0.70710677, 0, 0), (0.91649354, 0, 0, 0.4000495)],
++                        18: [(0.70710677, 0.70710677, 0, 0), (0.9588755, 0, 0, 0.28382713)],
++                        19: [(0.70710677, 0.70710677, 0, 0), (0.9890088, 0, 0, 0.14785683)],
++                        20: [(0.70710677, 0.70710677, 0, 0), (1, 0, 0, 0)],
++                        21: [(0.70710677, 0.70710677, 0, 0), (0.9890088, 0, 0, -0.14785682)],
++                        22: [(0.70710677, 0.70710677, 0, 0), (0.9588755, 0, 0, -0.28382716)],
++                        23: [(0.70710677, 0.70710677, 0, 0), (0.91649354, 0, 0, -0.40004945)],
++                        24: [(0.70710677, 0.70710677, 0, 0), (0.86952454, 0, 0, -0.49388978)],
++                        25: [(0.70710677, 0.70710677, 0, 0), (0.82404196, 0, 0, -0.5665288)],
++                        26: [(0.70710677, 0.70710677, 0, 0), (0.7839186, 0, 0, -0.6208636)],
++                        27: [(0.70710677, 0.70710677, 0, 0), (0.7512721, 0, 0, -0.65999264)],
++                        28: [(0.70710677, 0.70710677, 0, 0), (0.7271744, 0, 0, -0.68645275)],
++                        29: [(0.70710677, 0.70710677, 0, 0), (0.7122517, 0, 0, -0.70192415)],
++                        30: [(0.70710677, 0.70710677, 0, 0), (0.70710677, 0, 0, -0.70710677)],
++                        31: [(0.70710677, 0.70710677, 0, 0), (0.7170746, 0, 0, -0.69699645)],
++                        32: [(0.70710677, 0.70710677, 0, 0), (0.7447736, 0, 0, -0.6673172)],
++                        33: [(0.70710677, 0.70710677, 0, 0), (0.7869733, 0, 0, -0.61698705)],
++                        34: [(0.70710677, 0.70710677, 0, 0), (0.83920974, 0, 0, -0.5438079)],
++                        35: [(0.70710677, 0.70710677, 0, 0), (0.8944272, 0, 0, -0.44721356)],
++                        36: [(0.70710677, 0.70710677, 0, 0), (0.9432686, 0, 0, -0.3320306)],
++                        37: [(0.70710677, 0.70710677, 0, 0), (0.97745776, 0, 0, -0.21113095)],
++                        38: [(0.70710677, 0.70710677, 0, 0), (0.99463546, 0, 0, -0.10344207)],
++                        39: [(0.70710677, 0.70710677, 0, 0), (0.9996082, 0, 0, -0.027989028)],
++                        40: [(0.70710677, 0.70710677, 0, 0), (1, 0, 0, 0)],
++                    }
++                    half3[] scales.timeSamples = {
++                        0: [(1, 1, 1), (1, 1, 1)],
++                        1: [(1, 1, 1), (1, 1, 1)],
++                        2: [(1, 1, 1), (1, 1, 1)],
++                        3: [(1, 1, 1), (1, 1, 1)],
++                        4: [(1, 1, 1), (1, 1, 1)],
++                        5: [(1, 1, 1), (1, 1, 1)],
++                        6: [(1, 1, 1), (1, 1, 1)],
++                        7: [(1, 1, 1), (1, 1, 1)],
++                        8: [(1, 1, 1), (1, 1, 1)],
++                        9: [(1, 1, 1), (1, 1, 1)],
++                        10: [(1, 1, 1), (1, 1, 1)],
++                        11: [(1, 1, 1), (1, 1, 1)],
++                        12: [(1, 1, 1), (1, 1, 1)],
++                        13: [(1, 1, 1), (1, 1, 1)],
++                        14: [(1, 1, 1), (1, 1, 1)],
++                        15: [(1, 1, 1), (1, 1, 1)],
++                        16: [(1, 1, 1), (1, 1, 1)],
++                        17: [(1, 1, 1), (1, 1, 1)],
++                        18: [(1, 1, 1), (1, 1, 1)],
++                        19: [(1, 1, 1), (1, 1, 1)],
++                        20: [(1, 1, 1), (1, 1, 1)],
++                        21: [(1, 1, 1), (1, 1, 1)],
++                        22: [(1, 1, 1), (1, 1, 1)],
++                        23: [(1, 1, 1), (1, 1, 1)],
++                        24: [(1, 1, 1), (1, 1, 1)],
++                        25: [(1, 1, 1), (1, 1, 1)],
++                        26: [(1, 1, 1), (1, 1, 1)],
++                        27: [(1, 1, 1), (1, 1, 1)],
++                        28: [(1, 1, 1), (1, 1, 1)],
++                        29: [(1, 1, 1), (1, 1, 1)],
++                        30: [(1, 1, 1), (1, 1, 1)],
++                        31: [(1, 1, 1), (1, 1, 1)],
++                        32: [(1, 1, 1), (1, 1, 1)],
++                        33: [(1, 1, 1), (1, 1, 1)],
++                        34: [(1, 1, 1), (1, 1, 1)],
++                        35: [(1, 1, 1), (1, 1, 1)],
++                        36: [(1, 1, 1), (1, 1, 1)],
++                        37: [(1, 1, 1), (1, 1, 1)],
++                        38: [(1, 1, 1), (1, 1, 1)],
++                        39: [(1, 1, 1), (1, 1, 1)],
++                        40: [(1, 1, 1), (1, 1, 1)],
++                    }
++                    float3[] translations.timeSamples = {
++                        0: [(0, 0, 0), (0, 1, 0)],
++                        1: [(0, 0, 0), (0, 1, 0)],
++                        2: [(0, 0, 0), (0, 1, 0)],
++                        3: [(0, 0, 0), (0, 1, 0)],
++                        4: [(0, 0, 0), (0, 1, 0)],
++                        5: [(0, 0, 0), (0, 1, 0)],
++                        6: [(0, 0, 0), (0, 1, 0)],
++                        7: [(0, 0, 0), (0, 1, 0)],
++                        8: [(0, 0, 0), (0, 1, 0)],
++                        9: [(0, 0, 0), (0, 1, 0)],
++                        10: [(0, 0, 0), (0, 1, 0)],
++                        11: [(0, 0, 0), (0, 1, 0)],
++                        12: [(0, 0, 0), (0, 1, 0)],
++                        13: [(0, 0, 0), (0, 1, 0)],
++                        14: [(0, 0, 0), (0, 1, 0)],
++                        15: [(0, 0, 0), (0, 1, 0)],
++                        16: [(0, 0, 0), (0, 1, 0)],
++                        17: [(0, 0, 0), (0, 1, 0)],
++                        18: [(0, 0, 0), (0, 1, 0)],
++                        19: [(0, 0, 0), (0, 1, 0)],
++                        20: [(0, 0, 0), (0, 1, 0)],
++                        21: [(0, 0, 0), (0, 1, 0)],
++                        22: [(0, 0, 0), (0, 1, 0)],
++                        23: [(0, 0, 0), (0, 1, 0)],
++                        24: [(0, 0, 0), (0, 1, 0)],
++                        25: [(0, 0, 0), (0, 1, 0)],
++                        26: [(0, 0, 0), (0, 1, 0)],
++                        27: [(0, 0, 0), (0, 1, 0)],
++                        28: [(0, 0, 0), (0, 1, 0)],
++                        29: [(0, 0, 0), (0, 1, 0)],
++                        30: [(0, 0, 0), (0, 1, 0)],
++                        31: [(0, 0, 0), (0, 1, 0)],
++                        32: [(0, 0, 0), (0, 1, 0)],
++                        33: [(0, 0, 0), (0, 1, 0)],
++                        34: [(0, 0, 0), (0, 1, 0)],
++                        35: [(0, 0, 0), (0, 1, 0)],
++                        36: [(0, 0, 0), (0, 1, 0)],
++                        37: [(0, 0, 0), (0, 1, 0)],
++                        38: [(0, 0, 0), (0, 1, 0)],
++                        39: [(0, 0, 0), (0, 1, 0)],
++                        40: [(0, 0, 0), (0, 1, 0)],
++                    }
++                }
++            }
++        }
++    }
++
++    def DomeLight "env_light"
++    {
++        float inputs:intensity = 1
++        asset inputs:texture:file = @.\textures\color_121212.hdr@
++        float3 xformOp:rotateXYZ = (90, 1.2722219e-14, 90)
++        uniform token[] xformOpOrder = ["xformOp:rotateXYZ"]
++    }
++}
++
+diff --git a/test/models-nonbsd/USD/usda/simple-skin-test.usda b/test/models-nonbsd/USD/usda/simple-skin-test.usda
+new file mode 100644
+index 000000000..501b79b72
+--- /dev/null
++++ b/test/models-nonbsd/USD/usda/simple-skin-test.usda
+@@ -0,0 +1,85 @@
++#usda 1.0
++(
++    defaultPrim = "root"
++    doc = "Blender v4.1.0"
++    metersPerUnit = 1
++    upAxis = "Z"
++)
++
++def Xform "root" (
++    customData = {
++        dictionary Blender = {
++            bool generated = 1
++        }
++    }
++)
++{
++    def SkelRoot "Armature"
++    {
++        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, -4.371138828673793e-8, -1, 0), (0, 1, -4.371138828673793e-8, 0), (0, -1.7017418146133423, 0, 1) )
++        uniform token[] xformOpOrder = ["xformOp:transform"]
++
++        def Skeleton "Armature" (
++            prepend apiSchemas = ["SkelBindingAPI"]
++        )
++        {
++            uniform matrix4d[] bindTransforms = [( (1, 0, 0, 0), (0, 0, 1, 0), (0, -1, 0, 0), (0, 0, 0, 1) ), ( (1, 0, 0, 0), (0, 0, 1, 0), (0, -1, 0, 0), (0, 0, 1, 1) )]
++            uniform token[] joints = ["Bone", "Bone/Bone_001"]
++            uniform matrix4d[] restTransforms = [( (1, 0, 0, 0), (0, 0, 1, 0), (0, -1, 0, 0), (0, 0, 0, 1) ), ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 1, 0, 1) )]
++        }
++
++        def Xform "Grid"
++        {
++            matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, -4.371138828673793e-8, 1, 0), (0, -1, -4.371138828673793e-8, 0), (0, -7.438549687321938e-8, 1.7017418146133423, 1) )
++            uniform token[] xformOpOrder = ["xformOp:transform"]
++
++            def Mesh "Grid" (
++                prepend apiSchemas = ["SkelBindingAPI"]
++            )
++            {
++                float3[] extent = [(-1, -1, 0), (1, 1, 0)]
++                int[] faceVertexCounts = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
++                int[] faceVertexIndices = [0, 1, 6, 5, 1, 2, 7, 6, 2, 3, 8, 7, 3, 4, 9, 8, 5, 6, 11, 10, 6, 7, 12, 11, 7, 8, 13, 12, 8, 9, 14, 13, 10, 11, 16, 15, 11, 12, 17, 16, 12, 13, 18, 17, 13, 14, 19, 18, 15, 16, 21, 20, 16, 17, 22, 21, 17, 18, 23, 22, 18, 19, 24, 23]
++                normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
++                    interpolation = "faceVarying"
++                )
++                point3f[] points = [(-1, -1, 0), (-0.5, -1, 0), (0, -1, 0), (0.5, -1, 0), (1, -1, 0), (-1, -0.5, 0), (-0.5, -0.5, 0), (0, -0.5, 0), (0.5, -0.5, 0), (1, -0.5, 0), (-1, 0, 0), (-0.5, 0, 0), (0, 0, 0), (0.5, 0, 0), (1, 0, 0), (-1, 0.5, 0), (-0.5, 0.5, 0), (0, 0.5, 0), (0.5, 0.5, 0), (1, 0.5, 0), (-1, 1, 0), (-0.5, 1, 0), (0, 1, 0), (0.5, 1, 0), (1, 1, 0)]
++                bool[] primvars:sharp_face = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] (
++                    interpolation = "uniform"
++                )
++                matrix4d primvars:skel:geomBindTransform = ( (1, 0, 0, 0), (0, -4.371138828673793e-8, 1, 0), (0, -1, -4.371138828673793e-8, 0), (0, -7.438549687321938e-8, 1.7017418146133423, 1) )
++                int[] primvars:skel:jointIndices = [0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1] (
++                    elementSize = 2
++                    interpolation = "vertex"
++                )
++                float[] primvars:skel:jointWeights = [0.43767902, 0.56232095, 0.605441, 0.39455906, 1, 0, 0.605441, 0.39455906, 0.43767902, 0.562321, 0.23470172, 0.7652983, 0.18096954, 0.81903046, 1, 0, 0.18096954, 0.81903046, 0.23470171, 0.7652983, 0.114853, 0.88514704, 0.06506716, 0.9349329, 1, 0, 0.06506715, 0.9349329, 0.11485299, 0.88514704, 0.059175473, 0.94082457, 0.009479873, 0.9905201, 1, 0, 0.009479865, 0.9905201, 0.059175465, 0.94082457, 0.031181445, 0.96881855, 1, 0, 1, 0, 1, 0, 0.031181442, 0.9688186] (
++                    elementSize = 2
++                    interpolation = "vertex"
++                )
++                texCoord2f[] primvars:UVMap = [(0, 0), (0.25, 0), (0.25, 0.25), (0, 0.25), (0.25, 0), (0.5, 0), (0.5, 0.25), (0.25, 0.25), (0.5, 0), (0.75, 0), (0.75, 0.25), (0.5, 0.25), (0.75, 0), (1, 0), (1, 0.25), (0.75, 0.25), (0, 0.25), (0.25, 0.25), (0.25, 0.5), (0, 0.5), (0.25, 0.25), (0.5, 0.25), (0.5, 0.5), (0.25, 0.5), (0.5, 0.25), (0.75, 0.25), (0.75, 0.5), (0.5, 0.5), (0.75, 0.25), (1, 0.25), (1, 0.5), (0.75, 0.5), (0, 0.5), (0.25, 0.5), (0.25, 0.75), (0, 0.75), (0.25, 0.5), (0.5, 0.5), (0.5, 0.75), (0.25, 0.75), (0.5, 0.5), (0.75, 0.5), (0.75, 0.75), (0.5, 0.75), (0.75, 0.5), (1, 0.5), (1, 0.75), (0.75, 0.75), (0, 0.75), (0.25, 0.75), (0.25, 1), (0, 1), (0.25, 0.75), (0.5, 0.75), (0.5, 1), (0.25, 1), (0.5, 0.75), (0.75, 0.75), (0.75, 1), (0.5, 1), (0.75, 0.75), (1, 0.75), (1, 1), (0.75, 1)] (
++                    interpolation = "faceVarying"
++                )
++                rel skel:skeleton = </root/Armature/Armature>
++                uniform token subdivisionScheme = "none"
++            }
++        }
++    }
++
++    def Xform "Camera"
++    {
++        matrix4d xformOp:transform = ( (0.6859206557273865, 0.7276763319969177, 0, 0), (-0.32401347160339355, 0.305420845746994, 0.8953956365585327, 0), (0.6515582203865051, -0.6141703724861145, 0.44527140259742737, 0), (7.358891487121582, -6.925790786743164, 4.958309173583984, 1) )
++        uniform token[] xformOpOrder = ["xformOp:transform"]
++
++        def Camera "Camera"
++        {
++            float2 clippingRange = (0.1, 100)
++            float focalLength = 0.5
++            float horizontalAperture = 0.36
++            float horizontalApertureOffset = 0
++            token projection = "perspective"
++            float verticalAperture = 0.2025
++            float verticalApertureOffset = 0
++        }
++    }
++}
++
+diff --git a/test/unit/utUSDImport.cpp b/test/unit/utUSDImport.cpp
+index 2f4ffeaf4..c19ef2679 100644
+--- a/test/unit/utUSDImport.cpp
++++ b/test/unit/utUSDImport.cpp
+@@ -49,18 +49,42 @@ Copyright (c) 2006-2024, assimp team
+ using namespace ::Assimp;
+ 
+ class utUSDImport : public AbstractImportExportBase {
+-public:
+-    virtual bool importerTest() {
+-        Assimp::Importer importer;
+-        const aiScene *scene = importer.ReadFile(ASSIMP_TEST_MODELS_DIR "/../models-nonbsd/USD/suzanne.usdc", aiProcess_ValidateDataStructure);
+-        EXPECT_EQ(1u, scene->mNumMeshes);
+-        EXPECT_NE(nullptr, scene->mMeshes[0]);
+-        if (nullptr == scene->mMeshes[0]) {
+-            return false;
+-        }
+-        EXPECT_EQ(507u, scene->mMeshes[0]->mNumVertices);
+-        EXPECT_EQ(968u, scene->mMeshes[0]->mNumFaces);
+-
+-        return (nullptr != scene);
+-    }
+ };
++
++TEST_F(utUSDImport, meshTest) {
++    Assimp::Importer importer;
++    const aiScene *scene = importer.ReadFile(ASSIMP_TEST_MODELS_DIR "/../models-nonbsd/USD/usdc/suzanne.usdc", aiProcess_ValidateDataStructure);
++    EXPECT_NE(nullptr, scene);
++    EXPECT_EQ(1u, scene->mNumMeshes);
++    EXPECT_NE(nullptr, scene->mMeshes[0]);
++    EXPECT_EQ(1968u, scene->mMeshes[0]->mNumVertices); // Note: suzanne is authored with only 507 vertices, but TinyUSDZ rebuilds the vertex array. see https://github.com/lighttransport/tinyusdz/blob/36f2aabb256b360365989c01a52f839a57dfe2a6/src/tydra/render-data.cc#L2673-L2690 
++    EXPECT_EQ(968u, scene->mMeshes[0]->mNumFaces);
++}
++
++TEST_F(utUSDImport, skinnedMeshTest) {
++    Assimp::Importer importer;
++    const aiScene *scene = importer.ReadFile(ASSIMP_TEST_MODELS_DIR "/../models-nonbsd/USD/usda/simple-skin-test.usda", aiProcess_ValidateDataStructure);
++    EXPECT_NE(nullptr, scene);
++    EXPECT_TRUE(scene->HasMeshes());
++
++    const aiMesh *mesh = scene->mMeshes[0];
++    EXPECT_EQ(2, mesh->mNumBones);
++
++    // Check bone names and make sure scene has nodes of the same name
++    EXPECT_EQ(mesh->mBones[0]->mName, aiString("Bone"));
++    EXPECT_EQ(mesh->mBones[1]->mName, aiString("Bone/Bone_001"));
++
++    EXPECT_NE(nullptr, scene->mRootNode->FindNode("Bone"));
++    EXPECT_NE(nullptr, scene->mRootNode->FindNode("Bone/Bone_001"));
++}
++
++TEST_F(utUSDImport, singleAnimationTest) {
++    Assimp::Importer importer;
++    const aiScene *scene = importer.ReadFile(ASSIMP_TEST_MODELS_DIR "/../models-nonbsd/USD/usda/simple-skin-animation-test.usda", aiProcess_ValidateDataStructure);
++    EXPECT_NE(nullptr, scene);
++    EXPECT_TRUE(scene->HasAnimations());
++    EXPECT_EQ(2, scene->mAnimations[0]->mNumChannels);  // 2 bones. 1 channel for each bone
++}
++
++// Note: Add multi-animation test once supported by USD
++// See https://github.com/lighttransport/tinyusdz/issues/122 for details.

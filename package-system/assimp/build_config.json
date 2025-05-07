@@ -2,12 +2,13 @@
     "git_url":"https://github.com/assimp/assimp",
     "git_tag": "v5.4.3",
     "package_name":"assimp",
-    "package_version":"5.4.3-rev1",
+    "package_version":"5.4.3-rev2",
     "package_url":"https://github.com/assimp/assimp",
     "package_license":"BSD-3-Clause",
     "package_license_file":"LICENSE",
-    "cmake_find_source":"Findassimplib.cmake",
-    "cmake_find_target":"Findassimplib.cmake",
+    "cmake_find_source":"Findassimp.cmake",
+    "cmake_find_target":"Findassimp.cmake",
+    "patch_file" : "usd_animations-on-top-of-v5.4.3.patch",
     "Platforms":{
         "Windows":{
             "Windows":{

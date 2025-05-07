@@ -12,7 +12,6 @@
 @rem # cmake expects fowardslashes:
 set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 
-@rem # /w compiler option. Assimp USD is implemented using TinyUSDZ which, unfortunately, contains compiler warnings
 cmake -S temp/src -G "Visual Studio 17" ^
     -DBUILD_SHARED_LIBS=OFF ^
     -DCMAKE_BUILD_TYPE=Release ^
@@ -21,12 +20,10 @@ cmake -S temp/src -G "Visual Studio 17" ^
     -DASSIMP_BUILD_ASSIMP_TOOLS=OFF ^
     -DASSIMP_BUILD_USD_IMPORTER=ON ^
     -DASSIMP_WARNINGS_AS_ERRORS=OFF ^
-    -DCMAKE_CXX_FLAGS="/EHsc /w" ^
     temp/src/CMakeLists.txt || exit /b 1
 cmake --build temp/src --config release || exit /b 1
 cmake --build temp/src --config debug || exit /b 1
 
-@rem # /w compiler option. Assimp USD is implemented using TinyUSDZ which, unfortunately, contains compiler warnings
 cmake -S temp/src -G "Visual Studio 17" ^
     -DBUILD_SHARED_LIBS=ON ^
     -DCMAKE_BUILD_TYPE=Release ^
@@ -35,7 +32,6 @@ cmake -S temp/src -G "Visual Studio 17" ^
     -DASSIMP_BUILD_ASSIMP_TOOLS=OFF ^
     -DASSIMP_BUILD_USD_IMPORTER=ON ^
     -DASSIMP_WARNINGS_AS_ERRORS=OFF ^
-    -DCMAKE_CXX_FLAGS="/EHsc /w" ^
     temp/src/CMakeLists.txt || exit /b 1
 cmake --build temp/src --config release || exit /b 1
 cmake --build temp/src --config debug || exit /b 1
