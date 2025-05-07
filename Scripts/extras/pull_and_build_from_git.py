@@ -940,7 +940,7 @@ class BuildInfo(object):
 
         return False
 
-    def copy_file_or_directory(self, src: pathlib.Path, dst: pathlib.Path, ignore_patterns: list[str]):
+    def copy_file_or_directory(self, src: pathlib.Path, dst: pathlib.Path, ignore_patterns):
         """
         if @src is a directory, makes a deep copy of it into @dst. In this case @ignore_patterns is used.
         if @src is a file, copies it as @dst, and will create all intermediate directories in @dst as needed.
