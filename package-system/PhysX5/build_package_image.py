@@ -43,9 +43,9 @@ class PhysXBuilder(object):
         # bin folder names yet, so they appear as UNKNOWN.
         self.platform_params = { 
             # system-name   : (build preset, bin folder name, install folder name, is multiconfig)
-            'windows'       : ('vc17win64', 'win.x86_64.vc143.md', 'vc17win64', True),
-            'linux'         : ('linux-clang', 'linux.x86_64', 'linux-clang', False),
-            'linux-aarch64' : ('linux-aarch64-clang', 'linux.aarch64', 'linux-aarch64-clang', False),
+            'windows'       : ('vc17win64-cpu-only', 'win.x86_64.vc143.md', 'vc17win64-cpu-only', True),
+            'linux'         : ('linux-clang-cpu-only', 'linux.x86_64', 'linux-clang-cpu-only', False),
+            'linux-aarch64' : ('linux-aarch64-clang-cpu-only', 'linux.aarch64', 'linux-aarch64-clang-cpu-only', False),
             'mac'           : ('mac64', 'mac.x86_64', 'mac64', True),
             'ios'           : ('ios64', 'UNKNOWN', 'ios64', True),
             'android'       : ('android-arm64-v8a', 'UNKNOWN', "android-29", False)
@@ -287,11 +287,7 @@ class PhysXBuilder(object):
         
         extraLibsPerPlatform = {
             'windows': [
-                ['\\${EXTRA_SHARED_LIBS}',
-                 ''.join(('\n',
-                    '\t${PATH_TO_LIBS}/PhysXDevice64.dll\n',
-                    '\t${PATH_TO_LIBS}/PhysXGpu_64.dll\n'
-                ))],
+                ['\\${EXTRA_SHARED_LIBS}', ''],
                 ['\\${EXTRA_STATIC_LIBS}',
                  ''.join(('\n',
                     '\t${PATH_TO_LIBS}/LowLevel_static_64.lib\n',
@@ -303,11 +299,11 @@ class PhysXBuilder(object):
                 ))],
             ],
             'linux': [
-                ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_LIBS}/libPhysXGpu_64.so'],
+                ['\\${EXTRA_SHARED_LIBS}', ''],
                 ['\\${EXTRA_STATIC_LIBS}', ''],
             ],
             'linux-aarch64': [
-                ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_LIBS}/libPhysXGpu_64.so'],
+                ['\\${EXTRA_SHARED_LIBS}', ''],
                 ['\\${EXTRA_STATIC_LIBS}', ''],
             ],
             'mac': [
