@@ -51,7 +51,6 @@ set(extra_shared_libs ${EXTRA_SHARED_LIBS})
 set(IMPORTED_PHYSICS_LIBS_SUFFIX
     PhysX_static_64
     PhysXPvdSDK_static_64
-    PhysXVehicle_static_64
     PhysXVehicle2_static_64
     PhysXCharacterKinematic_static_64
     PhysXExtensions_static_64
