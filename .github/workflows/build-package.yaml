@@ -36,10 +36,10 @@ jobs:
           if [[ $FILE == package_build_list_host_* ]]; then
             PLATFORM=$(echo $FILE | sed -n 's/package_build_list_host_\(.*\).json/\1/p')
             case $PLATFORM in
-            linux-aarch64)
+            *linux-aarch64)
               OS_RUNNER="ubuntu-22.04-arm"
               ;;
-            linux)
+            *linux)
               OS_RUNNER="ubuntu-22.04"
               ;;
             windows)
@@ -249,36 +249,6 @@ jobs:
         CMAKE_GENERATOR: Ninja # ccache/sccache cannot be used as the compiler launcher under cmake if the generator is MSBuild
       run: |
         python3 scripts/o3de_package_scripts/build_package.py --search_path source ${{ matrix.package }}
-
-    - name: Run build command (Docker) # Generic build for packages without a Dockerfile
-      if: ${{ matrix.dockerfile != '1' }}
-      uses: uraimo/run-on-arch-action@v2.7.1
-      with:
-        arch: none
-        distro: none
-        base_image: ghcr.io/${{ github.repository }}/run-on-arch-${{ github.repository_owner }}-${{ github.event.repository.name }}-build-container-aarch64-ubuntu20-04:latest # built from build-container.yaml
-        setup: |
-          grep -q ${{ matrix.package }} ${PWD}/source/package_build_list_host_linux.json || rm ${PWD}/source/package_build_list_host_linux.json
-        dockerRunArgs: |
-          --platform=linux/arm64 
-          --user ${{ steps.configure.outputs.uid_gid }}
-          --volume "${PWD}:/workspace"
-          --volume "${PWD}/scripts:/scripts"
-          --volume "${PWD}/source:/source"
-        env: |
-          CMAKE_CXX_COMPILER_LAUNCHER: sccache
-          CMAKE_C_COMPILER_LAUNCHER: sccache
-          SCCACHE_IDLE_TIMEOUT: 0 
-          SCCACHE_DIR: /workspace/.sccache
-          SCCACHE_CACHE_SIZE: 2048M
-        shell: /bin/bash
-        run: |
-          lsb_release -a
-          uname -a
-          sccache --start-server
-          sccache -z
-          ls -lah /workspace
-          python3 /scripts/o3de_package_scripts/build_package.py --search_path /source/ ${{ matrix.package }}
           
     - name: Upload packages
       uses: actions/upload-artifact@v4
