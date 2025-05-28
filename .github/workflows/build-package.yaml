@@ -36,7 +36,10 @@ jobs:
           if [[ $FILE == package_build_list_host_* ]]; then
             PLATFORM=$(echo $FILE | sed -n 's/package_build_list_host_\(.*\).json/\1/p')
             case $PLATFORM in
-            linux*)
+            linux-aarch64)
+              OS_RUNNER="ubuntu-22.04-arm"
+              ;;
+            linux)
               OS_RUNNER="ubuntu-22.04"
               ;;
             windows)
@@ -238,13 +241,8 @@ jobs:
         restore-keys:
           ${{ matrix.package }}-${{ matrix.os }}  
 
-    - name: Set up QEMU (aarch64) # Only if the package folder contains a Dockerfile
-      if: ${{ (contains(matrix.package, 'aarch64')) && (matrix.dockerfile == '1') }}
-      run: |
-        sudo apt-get install -y qemu qemu-user-static
-
     - name: Run build command
-      if: ${{ (!contains(matrix.package, 'aarch64')) || (matrix.dockerfile == '1') }}
+      if: ${{ matrix.dockerfile == '1' }}
       env:
         CMAKE_CXX_COMPILER_LAUNCHER: sccache
         CMAKE_C_COMPILER_LAUNCHER: sccache
@@ -252,8 +250,8 @@ jobs:
       run: |
         python3 scripts/o3de_package_scripts/build_package.py --search_path source ${{ matrix.package }}
 
-    - name: Run build command (aarch64) # Generic build for packages without a Dockerfile
-      if: ${{ (contains(matrix.package, 'aarch64')) && (matrix.dockerfile != '1') }}
+    - name: Run build command (Docker) # Generic build for packages without a Dockerfile
+      if: ${{ matrix.dockerfile != '1' }}
       uses: uraimo/run-on-arch-action@v2.7.1
       with:
         arch: none
