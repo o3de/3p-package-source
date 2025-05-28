@@ -243,7 +243,6 @@ jobs:
           ${{ matrix.package }}-${{ matrix.os }}  
 
     - name: Run build command
-      if: ${{ matrix.dockerfile == '1' }}
       env:
         CMAKE_CXX_COMPILER_LAUNCHER: sccache
         CMAKE_C_COMPILER_LAUNCHER: sccache
