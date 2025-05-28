@@ -234,7 +234,7 @@ jobs:
 
     - name: Use sccache
       uses: hendrikmuhs/ccache-action@v1.2.10
-      if: !contains(matrix.os, 'arm')
+      if: ${{ !contains(matrix.os, 'arm') }}
       with:
         variant: sccache
         max-size: 2048M
