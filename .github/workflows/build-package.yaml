@@ -41,6 +41,7 @@ jobs:
               ;;
             linux)
               OS_RUNNER="ubuntu-22.04"
+              ;;
             windows)
               OS_RUNNER="windows-latest" # This is bundled with VS2022
               ;;
