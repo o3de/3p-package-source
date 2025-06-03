@@ -105,15 +105,6 @@ def main():
                 }
             },
             {
-                'dir': port_dir / 'getopt',
-                'settings': {
-                    'PackageName': 'getopt',
-                    'URL': 'https://sourceware.org/legacy-ml/newlib/2005/msg00758.html',
-                    'License': 'custom',
-                    'LicenseFile': 'LICENSE'
-                }
-            },
-            {
                 'dir': port_dir / 'mini_chromium' / 'base' / 'third_party' / 'icu',
                 'settings': {
                     'PackageName': 'ICU',
@@ -130,17 +121,30 @@ def main():
                     'License': 'BSD-3-Clause',
                     'LicenseFile': 'LICENSE'
                 }
-            },
-            {
-                'dir': port_dir / 'zlib',
-                'settings': {
-                    'PackageName': 'zlib',
-                    'URL': 'https://zlib.net/',
-                    'License': 'Zlib',
-                    'LicenseFile': 'LICENSE'
-                }
             }
         ]
+
+        if args.platform_name == 'windows':
+            package_info_list += [
+                {
+                    'dir': port_dir / 'getopt',
+                    'settings': {
+                        'PackageName': 'getopt',
+                        'URL': 'https://sourceware.org/legacy-ml/newlib/2005/msg00758.html',
+                        'License': 'custom',
+                        'LicenseFile': 'LICENSE'
+                    }
+                },
+                {
+                    'dir': port_dir / 'zlib',
+                    'settings': {
+                        'PackageName': 'zlib',
+                        'URL': 'https://zlib.net/',
+                        'License': 'Zlib',
+                        'LicenseFile': 'LICENSE'
+                    }
+                }
+            ]
 
         for package_info in package_info_list:
             builder.writePackageInfoFile(

@@ -91,7 +91,7 @@ index 0000000..199238c
 +     "tool_support.cc",
 +     "tool_support.h",
 diff --git a/ports/crashpad/portfile.cmake b/ports/crashpad/portfile.cmake
-index 6985a8b..c929d75 100644
+index 6985a8b..f45bc36 100644
 --- a/ports/crashpad/portfile.cmake
 +++ b/ports/crashpad/portfile.cmake
 @@ -7,6 +7,7 @@ vcpkg_from_git(
@@ -129,7 +129,7 @@ index 6985a8b..c929d75 100644
 +    if(EXISTS "${PATH}")
 +        return()
      endif()
--
+ 
 -    if(VCPKG_BUILD_TYPE STREQUAL "release")
 -        set(_LIBRARY_DEB ${_LIBRARY_REL})
 -    endif()
@@ -138,7 +138,6 @@ index 6985a8b..c929d75 100644
 -
 -    file(REMOVE "${OUTPUT_FILE}")
 -    configure_file("${INPUT_FILE}" "${OUTPUT_FILE}" @ONLY)
-+    
 +    vcpkg_from_git(
 +        OUT_SOURCE_PATH DEP_SOURCE_PATH
 +        URL "${URL}"
@@ -159,16 +158,23 @@ index 6985a8b..c929d75 100644
  )
  
  set(OPTIONS "target_cpu=\"${VCPKG_TARGET_ARCHITECTURE}\"")
-@@ -129,7 +113,7 @@ vcpkg_gn_configure(
+@@ -127,9 +111,14 @@ vcpkg_gn_configure(
+     OPTIONS_RELEASE "${OPTIONS_REL}"
+ )
  
++set(TARGET_MODULES client client:common util third_party/mini_chromium/mini_chromium/base handler handler:common util:net tools:tool_support compat minidump:format minidump snapshot:context snapshot)
++if(VCPKG_TARGET_IS_WINDOWS)
++    list(APPEND TARGET_MODULES third_party/getopt third_party/zlib)
++endif()
++
  vcpkg_gn_install(
      SOURCE_PATH "${SOURCE_PATH}"
 -    TARGETS client client:common util third_party/mini_chromium/mini_chromium/base handler:crashpad_handler
-+    TARGETS client client:common util third_party/mini_chromium/mini_chromium/base handler handler:common third_party/getopt third_party/zlib util:net tools:tool_support compat minidump:format minidump snapshot:context snapshot
++    TARGETS ${TARGET_MODULES}
  )
  
  message(STATUS "Installing headers...")
-@@ -138,9 +122,15 @@ function(install_headers DIR)
+@@ -138,9 +127,17 @@ function(install_headers DIR)
      file(COPY "${DIR}" DESTINATION "${PACKAGES_INCLUDE_DIR}" FILES_MATCHING PATTERN "*.h")
  endfunction()
  install_headers("${SOURCE_PATH}/client")
@@ -176,17 +182,19 @@ index 6985a8b..c929d75 100644
 +install_headers("${SOURCE_PATH}/handler")
 +install_headers("${SOURCE_PATH}/minidump")
 +install_headers("${SOURCE_PATH}/snapshot")
-+install_headers("${SOURCE_PATH}/third_party/getopt")
 +install_headers("${SOURCE_PATH}/third_party/mini_chromium/mini_chromium")
-+install_headers("${SOURCE_PATH}/third_party/zlib/zlib")
 +install_headers("${SOURCE_PATH}/tools")
  install_headers("${SOURCE_PATH}/util")
 -install_headers("${SOURCE_PATH}/third_party/mini_chromium/mini_chromium/base")
 -install_headers("${SOURCE_PATH}/third_party/mini_chromium/mini_chromium/build")
++if(VCPKG_TARGET_IS_WINDOWS)
++    install_headers("${SOURCE_PATH}/third_party/getopt")
++    install_headers("${SOURCE_PATH}/third_party/zlib/zlib")
++endif()
  
  file(COPY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/gen/build/chromeos_buildflags.h" DESTINATION "${CURRENT_PACKAGES_DIR}/include/${PORT}/build")
  file(COPY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/gen/build/chromeos_buildflags.h.flags" DESTINATION "${CURRENT_PACKAGES_DIR}/include/${PORT}/build")
-@@ -152,18 +142,6 @@ if(VCPKG_TARGET_IS_OSX)
+@@ -152,18 +149,6 @@ if(VCPKG_TARGET_IS_OSX)
      file(COPY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/obj/util/libmig_output.a" DESTINATION "${CURRENT_PACKAGES_DIR}/lib")
  endif()
  
@@ -218,3 +226,6 @@ index c2e9cd5..a0d7bcf 100644
 +    }
    ]
  }
+diff --git a/test.patch b/test.patch
+new file mode 100644
+index 0000000..e69de29

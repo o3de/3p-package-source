@@ -187,7 +187,7 @@ class VcpkgBuilder(object):
         self.remove()
 
         subprocess.check_call(
-            [str(self.vcpkgDir / 'vcpkg'), 'install', f'{self.portName}:{self.triplet}', '--no-binarycaching', f'--overlay-triplets={self.customTripletsDir}'],
+            [str(self.vcpkgDir / 'vcpkg'), 'install', f'{self.portName}:{self.triplet}', '--no-binarycaching', '--allow-unsupported', f'--overlay-triplets={self.customTripletsDir}'],
             cwd=self.vcpkgDir, 
             env=self._customEnviron
         )
