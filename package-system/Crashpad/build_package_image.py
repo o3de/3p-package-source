@@ -82,7 +82,7 @@ def main():
         builder.cloneVcpkg('5c41ff21f6feda702a7d5a1afc765f88d25783c5') # v2024-04-11#7. Crashpad repo at 7e0af1d4d45b526f01677e74a56f4a951b70517d
         builder.bootstrap()
         builder.patch(crashpad_patch)
-        builder.build()
+        builder.build(allow_unsupported=True) # Required for the python package on linux which is in native triplet
 
         builder.copyBuildOutputTo(
             output_dir,
