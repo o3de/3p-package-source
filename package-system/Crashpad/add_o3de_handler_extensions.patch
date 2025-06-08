@@ -1,9 +1,103 @@
 diff --git a/ports/crashpad/o3de_handler_extensions.patch b/ports/crashpad/o3de_handler_extensions.patch
 new file mode 100644
-index 0000000..199238c
+index 00000000..a97813ad
 --- /dev/null
 +++ b/ports/crashpad/o3de_handler_extensions.patch
-@@ -0,0 +1,86 @@
+@@ -0,0 +1,180 @@
++diff --git a/client/crashpad_client.h b/client/crashpad_client.h
++index 3c966686..75d01a84 100644
++--- a/client/crashpad_client.h
+++++ b/client/crashpad_client.h
++@@ -12,6 +12,10 @@
++ // See the License for the specific language governing permissions and
++ // limitations under the License.
++ 
+++// Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
+++// SPDX-License-Identifier: Apache-2.0 OR MIT
+++// (See O3DE tagged section(s) below) 
+++
++ #ifndef CRASHPAD_CLIENT_CRASHPAD_CLIENT_H_
++ #define CRASHPAD_CLIENT_CRASHPAD_CLIENT_H_
++ 
++@@ -771,6 +775,29 @@ class CrashpadClient {
++   static bool DumpAndCrashTargetProcess(HANDLE process,
++                                         HANDLE blame_thread,
++                                         DWORD exception_code);
+++
+++  // O3DE - Handle giving the user the option to react to a crash
+++  //! \brief The type for custom handlers installed by clients.
+++  using FirstChanceHandler = bool (*)(EXCEPTION_POINTERS*);
+++  
+++  //! \brief Installs a custom crash signal handler which runs before the
+++  //!     currently installed Crashpad handler.
+++  //!
+++  //! Handling signals appropriately can be tricky and use of this method
+++  //! should be avoided, if possible.
+++  //!
+++  //! A handler must have already been installed before calling this method.
+++  //!
+++  //! The custom handler runs in a signal handler context and must be safe for
+++  //! that purpose.
+++  //!
+++  //! If the custom handler returns `true`, the signal is considered handled and
+++  //! the signal handler returns. Otherwise, the currently installed Crashpad
+++  //! signal handler is run.
+++  //!
+++  //! \param[in] handler The custom crash signal handler to install.
+++  static void SetFirstChanceExceptionHandler(FirstChanceHandler handler);
+++
++ #endif
++ 
++ #if BUILDFLAG(IS_APPLE) || DOXYGEN
++diff --git a/client/crashpad_client_win.cc b/client/crashpad_client_win.cc
++index c10df2b0..71435039 100644
++--- a/client/crashpad_client_win.cc
+++++ b/client/crashpad_client_win.cc
++@@ -12,6 +12,10 @@
++ // See the License for the specific language governing permissions and
++ // limitations under the License.
++ 
+++// Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
+++// SPDX-License-Identifier: Apache-2.0 OR MIT
+++// (See O3DE tagged section(s) below) 
+++
++ #include "client/crashpad_client.h"
++ 
++ #include <windows.h>
++@@ -84,6 +88,9 @@ WerRegistration g_wer_registration = {WerRegistration::kWerRegistrationVersion,
++                                       {0},
++                                       {0}};
++ 
+++// O3DE - Handle storing the crash reaction handler
+++CrashpadClient::FirstChanceHandler g_first_chance_handler = nullptr;
+++
++ enum class StartupState : int {
++   kNotReady = 0,  // This must be value 0 because it is the initial value of a
++                   // global AtomicWord.
++@@ -134,6 +141,13 @@ LONG WINAPI UnhandledExceptionHandler(EXCEPTION_POINTERS* exception_pointers) {
++     return status;
++ #endif
++ 
+++  // O3DE - User react to a crash
+++  if (g_first_chance_handler && g_first_chance_handler(exception_pointers))
+++  {
+++    SafeTerminateProcess(GetCurrentProcess(), kTerminationCodeCrashNoDump);
+++    return EXCEPTION_CONTINUE_SEARCH;
+++  }
+++
++   if (BlockUntilHandlerStartedOrFailed() == StartupState::kFailed) {
++     // If we know for certain that the handler has failed to start, then abort
++     // here, rather than trying to signal to a handler that will never arrive,
++@@ -1126,4 +1140,9 @@ bool CrashpadClient::DumpAndCrashTargetProcess(HANDLE process,
++   return result;
++ }
++ 
+++void CrashpadClient::SetFirstChanceExceptionHandler(CrashpadClient::FirstChanceHandler handler)
+++{
+++  g_first_chance_handler = handler;
+++}
+++
++ }  // namespace crashpad
 +diff --git a/handler/crash_report_upload_thread.cc b/handler/crash_report_upload_thread.cc
 +index 5bd2889e..397479cb 100644
 +--- a/handler/crash_report_upload_thread.cc
@@ -11,18 +105,18 @@ index 0000000..199238c
 +@@ -12,6 +12,10 @@
 + // See the License for the specific language governing permissions and
 + // limitations under the License.
-+
-++// Modifications Copyright (c) Contributors to the Open 3D Engine Project.
++ 
+++// Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
 ++// SPDX-License-Identifier: Apache-2.0 OR MIT
-++// (See O3DE tagged section(s) below)
+++// (See O3DE tagged section(s) below) 
 ++
 + #include "handler/crash_report_upload_thread.h"
-+
++ 
 + #include <errno.h>
 +@@ -48,6 +52,15 @@
 + #include "util/ios/scoped_background_task.h"
 + #endif  // BUILDFLAG(IS_IOS)
-+
++ 
 ++// O3DE - Handle giving the user the option of whether or not to send the report.
 ++namespace O3de {
 ++    bool CheckConfirmation(const crashpad::CrashReportDatabase::Report& report);
@@ -33,12 +127,12 @@ index 0000000..199238c
 ++}  // namespace O3de
 ++
 + namespace crashpad {
-+
++ 
 + namespace {
 +@@ -205,6 +218,14 @@ void CrashReportUploadThread::ProcessPendingReport(
 +     return;
 +   }
-+
++ 
 ++  // O3DE - Handle giving the user the option of whether or not to send the report.
 ++  if (!O3de::CheckConfirmation(report)) {
 ++    database_->SkipReportUpload(report.uuid,
@@ -49,11 +143,11 @@ index 0000000..199238c
 ++
 +   if (ShouldRateLimitUpload(report))
 +     return;
-+
++ 
 +@@ -327,6 +348,9 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
 +                                            reader,
 +                                            "application/octet-stream");
-+
++ 
 ++  // O3DE
 ++  O3de::AddAttachments(http_multipart_builder);
 ++
@@ -63,7 +157,7 @@ index 0000000..199238c
 +@@ -366,6 +390,9 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
 +   }
 +   http_transport->SetURL(url);
-+
++ 
 ++  // O3DE
 ++  O3de::UpdateHttpTransport(http_transport, url);
 ++
@@ -77,13 +171,13 @@ index 0000000..199238c
 +@@ -12,9 +12,14 @@
 + # See the License for the specific language governing permissions and
 + # limitations under the License.
-+
-++# Modifications Copyright (c) Contributors to the Open 3D Engine Project.
++ 
+++# Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
 ++# SPDX-License-Identifier: Apache-2.0 OR MIT
-++# (See O3DE tagged section(s) below)
+++# (See O3DE tagged section(s) below) 
 ++
 + import("../build/crashpad_buildconfig.gni")
-+
++ 
 +-source_set("tool_support") {
 ++# O3DE - Change the tool_support target type from source set to static library
 ++crashpad_static_library("tool_support") {
@@ -91,7 +185,7 @@ index 0000000..199238c
 +     "tool_support.cc",
 +     "tool_support.h",
 diff --git a/ports/crashpad/portfile.cmake b/ports/crashpad/portfile.cmake
-index 6985a8b..f45bc36 100644
+index 6985a8b6..f45bc362 100644
 --- a/ports/crashpad/portfile.cmake
 +++ b/ports/crashpad/portfile.cmake
 @@ -7,6 +7,7 @@ vcpkg_from_git(
@@ -214,7 +308,7 @@ index 6985a8b..f45bc36 100644
  file(REMOVE_RECURSE
      "${PACKAGES_INCLUDE_DIR}/util/net/testdata"
 diff --git a/ports/crashpad/vcpkg.json b/ports/crashpad/vcpkg.json
-index c2e9cd5..a0d7bcf 100644
+index c2e9cd5b..a0d7bcfb 100644
 --- a/ports/crashpad/vcpkg.json
 +++ b/ports/crashpad/vcpkg.json
 @@ -27,7 +27,6 @@
@@ -226,6 +320,3 @@ index c2e9cd5..a0d7bcf 100644
 +    }
    ]
  }
-diff --git a/test.patch b/test.patch
-new file mode 100644
-index 0000000..e69de29
