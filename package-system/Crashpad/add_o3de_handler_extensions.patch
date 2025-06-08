@@ -1,6 +1,6 @@
 diff --git a/ports/crashpad/o3de_handler_extensions.patch b/ports/crashpad/o3de_handler_extensions.patch
 new file mode 100644
-index 00000000..a97813ad
+index 0000000..6f566f8
 --- /dev/null
 +++ b/ports/crashpad/o3de_handler_extensions.patch
 @@ -0,0 +1,180 @@
@@ -99,7 +99,7 @@ index 00000000..a97813ad
 ++
 + }  // namespace crashpad
 +diff --git a/handler/crash_report_upload_thread.cc b/handler/crash_report_upload_thread.cc
-+index 5bd2889e..397479cb 100644
++index 5bd2889e..e3cc0341 100644
 +--- a/handler/crash_report_upload_thread.cc
 ++++ b/handler/crash_report_upload_thread.cc
 +@@ -12,6 +12,10 @@
@@ -129,9 +129,9 @@ index 00000000..a97813ad
 + namespace crashpad {
 + 
 + namespace {
-+@@ -205,6 +218,14 @@ void CrashReportUploadThread::ProcessPendingReport(
-+     return;
-+   }
++@@ -194,6 +207,14 @@ void CrashReportUploadThread::ProcessPendingReport(
++ 
++   Settings* const settings = database_->GetSettings();
 + 
 ++  // O3DE - Handle giving the user the option of whether or not to send the report.
 ++  if (!O3de::CheckConfirmation(report)) {
@@ -141,9 +141,9 @@ index 00000000..a97813ad
 ++    return;
 ++  }
 ++
-+   if (ShouldRateLimitUpload(report))
-+     return;
-+ 
++   bool uploads_enabled;
++   if (!report.upload_explicitly_requested &&
++       (!settings->GetUploadsEnabled(&uploads_enabled) || !uploads_enabled)) {
 +@@ -327,6 +348,9 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
 +                                            reader,
 +                                            "application/octet-stream");
@@ -185,7 +185,7 @@ index 00000000..a97813ad
 +     "tool_support.cc",
 +     "tool_support.h",
 diff --git a/ports/crashpad/portfile.cmake b/ports/crashpad/portfile.cmake
-index 6985a8b6..f45bc362 100644
+index 6985a8b..f45bc36 100644
 --- a/ports/crashpad/portfile.cmake
 +++ b/ports/crashpad/portfile.cmake
 @@ -7,6 +7,7 @@ vcpkg_from_git(
@@ -308,7 +308,7 @@ index 6985a8b6..f45bc362 100644
  file(REMOVE_RECURSE
      "${PACKAGES_INCLUDE_DIR}/util/net/testdata"
 diff --git a/ports/crashpad/vcpkg.json b/ports/crashpad/vcpkg.json
-index c2e9cd5b..a0d7bcfb 100644
+index c2e9cd5..a0d7bcf 100644
 --- a/ports/crashpad/vcpkg.json
 +++ b/ports/crashpad/vcpkg.json
 @@ -27,7 +27,6 @@
