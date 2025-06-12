@@ -3,7 +3,7 @@
   "Install_Paths": [
     "include/",
     "lib/libassimp.a",
-    "bin/libassimp.so.5.4.3",
+    "bin/libassimp.so.6.0.2",
     "bin/unit",
     "port/PyAssimp/"
   ]

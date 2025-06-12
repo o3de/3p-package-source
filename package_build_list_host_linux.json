@@ -4,8 +4,8 @@
     "comment3" : "build_from_folder is package name --> folder containing built image of package",
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
-        "assimp-5.4.3-rev2-linux":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Linux --package-root ../../package-system --clean",
-        "assimp-5.4.3-rev2-linux-aarch64":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Linux-aarch64 --package-root ../../package-system --clean",
+        "assimp-6.0.2-rev1-linux":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Linux --package-root ../../package-system --clean",
+        "assimp-6.0.2-rev1-linux-aarch64":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Linux-aarch64 --package-root ../../package-system --clean",
         "AWSGameLiftServerSDK-5.1.2-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSGameLiftServerSDK --platform-name Linux --clean",
         "AWSGameLiftServerSDK-5.1.2-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSGameLiftServerSDK --platform-name Linux-aarch64 --clean",
         "AWSNativeSDK-1.11.361-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Linux --clean",
@@ -53,8 +53,8 @@
         "vulkan-validationlayers-1.2.198-rev1-linux": "Scripts/extras/pull_and_build_from_git.py ../../package-system/vulkan-validationlayers --platform-name Linux --package-root ../../package-system/vulkan-validationlayers/temp --clean"
     },
     "build_from_folder": {
-        "assimp-5.4.3-rev2-linux": "package-system/assimp-linux",
-        "assimp-5.4.3-rev2-linux-aarch64": "package-system/assimp-linux-aarch64",
+        "assimp-6.0.2-rev1-linux": "package-system/assimp-linux",
+        "assimp-6.0.2-rev1-linux-aarch64": "package-system/assimp-linux-aarch64",
         "AWSGameLiftServerSDK-5.1.2-rev1-linux": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux",
         "AWSGameLiftServerSDK-5.1.2-rev1-linux-aarch64": "package-system/AWSGameLiftServerSDK/temp/AWSGameLiftServerSDK-linux-aarch64",
         "AWSNativeSDK-1.11.361-rev1-linux": "package-system/AWSNativeSDK/temp/AWSNativeSDK-linux",
