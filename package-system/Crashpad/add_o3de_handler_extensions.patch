@@ -1,40 +1,122 @@
-diff --git a/ports/crashpad/CONTROL b/ports/crashpad/CONTROL
-index dab2671..2275f0a 100644
---- a/ports/crashpad/CONTROL
-+++ b/ports/crashpad/CONTROL
-@@ -1,7 +1,6 @@
- Source: crashpad
--Version: 2020-03-18
-+Version: 2021-04-09
- Homepage: https://chromium.googlesource.com/crashpad/crashpad/+/master/README.md
- Description: Crashpad is a crash-reporting system.
-   Crashpad is a library for capturing, storing and transmitting postmortem crash reports from a client to an upstream collection server. Crashpad aims to make it possible for clients to capture process state at the time of crash with the best possible fidelity and coverage, with the minimum of fuss.
--Build-Depends: zlib
- Supports: x64 & (osx|windows)
 diff --git a/ports/crashpad/o3de_handler_extensions.patch b/ports/crashpad/o3de_handler_extensions.patch
 new file mode 100644
-index 0000000..49ea935
+index 0000000..6f566f8
 --- /dev/null
 +++ b/ports/crashpad/o3de_handler_extensions.patch
-@@ -0,0 +1,84 @@
-+diff --git a/handler/crash_report_upload_thread.cc b/handler/crash_report_upload_thread.cc
-+index b7e445fd..27556a79 100644
-+--- a/handler/crash_report_upload_thread.cc
-++++ b/handler/crash_report_upload_thread.cc
-+@@ -12,6 +12,9 @@
+@@ -0,0 +1,180 @@
++diff --git a/client/crashpad_client.h b/client/crashpad_client.h
++index 3c966686..75d01a84 100644
++--- a/client/crashpad_client.h
+++++ b/client/crashpad_client.h
++@@ -12,6 +12,10 @@
 + // See the License for the specific language governing permissions and
 + // limitations under the License.
-+
-++ // Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
-++ // SPDX-License-Identifier: Apache-2.0 OR MIT
-++ // (See O3DE tagged section(s) below) 
++ 
+++// Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
+++// SPDX-License-Identifier: Apache-2.0 OR MIT
+++// (See O3DE tagged section(s) below) 
+++
++ #ifndef CRASHPAD_CLIENT_CRASHPAD_CLIENT_H_
++ #define CRASHPAD_CLIENT_CRASHPAD_CLIENT_H_
++ 
++@@ -771,6 +775,29 @@ class CrashpadClient {
++   static bool DumpAndCrashTargetProcess(HANDLE process,
++                                         HANDLE blame_thread,
++                                         DWORD exception_code);
+++
+++  // O3DE - Handle giving the user the option to react to a crash
+++  //! \brief The type for custom handlers installed by clients.
+++  using FirstChanceHandler = bool (*)(EXCEPTION_POINTERS*);
+++  
+++  //! \brief Installs a custom crash signal handler which runs before the
+++  //!     currently installed Crashpad handler.
+++  //!
+++  //! Handling signals appropriately can be tricky and use of this method
+++  //! should be avoided, if possible.
+++  //!
+++  //! A handler must have already been installed before calling this method.
+++  //!
+++  //! The custom handler runs in a signal handler context and must be safe for
+++  //! that purpose.
+++  //!
+++  //! If the custom handler returns `true`, the signal is considered handled and
+++  //! the signal handler returns. Otherwise, the currently installed Crashpad
+++  //! signal handler is run.
+++  //!
+++  //! \param[in] handler The custom crash signal handler to install.
+++  static void SetFirstChanceExceptionHandler(FirstChanceHandler handler);
+++
++ #endif
++ 
++ #if BUILDFLAG(IS_APPLE) || DOXYGEN
++diff --git a/client/crashpad_client_win.cc b/client/crashpad_client_win.cc
++index c10df2b0..71435039 100644
++--- a/client/crashpad_client_win.cc
+++++ b/client/crashpad_client_win.cc
++@@ -12,6 +12,10 @@
++ // See the License for the specific language governing permissions and
++ // limitations under the License.
++ 
+++// Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
+++// SPDX-License-Identifier: Apache-2.0 OR MIT
+++// (See O3DE tagged section(s) below) 
+++
++ #include "client/crashpad_client.h"
++ 
++ #include <windows.h>
++@@ -84,6 +88,9 @@ WerRegistration g_wer_registration = {WerRegistration::kWerRegistrationVersion,
++                                       {0},
++                                       {0}};
++ 
+++// O3DE - Handle storing the crash reaction handler
+++CrashpadClient::FirstChanceHandler g_first_chance_handler = nullptr;
+++
++ enum class StartupState : int {
++   kNotReady = 0,  // This must be value 0 because it is the initial value of a
++                   // global AtomicWord.
++@@ -134,6 +141,13 @@ LONG WINAPI UnhandledExceptionHandler(EXCEPTION_POINTERS* exception_pointers) {
++     return status;
++ #endif
++ 
+++  // O3DE - User react to a crash
+++  if (g_first_chance_handler && g_first_chance_handler(exception_pointers))
+++  {
+++    SafeTerminateProcess(GetCurrentProcess(), kTerminationCodeCrashNoDump);
+++    return EXCEPTION_CONTINUE_SEARCH;
+++  }
+++
++   if (BlockUntilHandlerStartedOrFailed() == StartupState::kFailed) {
++     // If we know for certain that the handler has failed to start, then abort
++     // here, rather than trying to signal to a handler that will never arrive,
++@@ -1126,4 +1140,9 @@ bool CrashpadClient::DumpAndCrashTargetProcess(HANDLE process,
++   return result;
++ }
++ 
+++void CrashpadClient::SetFirstChanceExceptionHandler(CrashpadClient::FirstChanceHandler handler)
+++{
+++  g_first_chance_handler = handler;
+++}
+++
++ }  // namespace crashpad
++diff --git a/handler/crash_report_upload_thread.cc b/handler/crash_report_upload_thread.cc
++index 5bd2889e..e3cc0341 100644
++--- a/handler/crash_report_upload_thread.cc
+++++ b/handler/crash_report_upload_thread.cc
++@@ -12,6 +12,10 @@
++ // See the License for the specific language governing permissions and
++ // limitations under the License.
++ 
+++// Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
+++// SPDX-License-Identifier: Apache-2.0 OR MIT
+++// (See O3DE tagged section(s) below) 
+++
 + #include "handler/crash_report_upload_thread.h"
-+
++ 
 + #include <errno.h>
-+@@ -44,6 +47,15 @@
-+ #include "handler/mac/file_limit_annotation.h"
-+ #endif  // OS_APPLE
-+
++@@ -48,6 +52,15 @@
++ #include "util/ios/scoped_background_task.h"
++ #endif  // BUILDFLAG(IS_IOS)
++ 
 ++// O3DE - Handle giving the user the option of whether or not to send the report.
 ++namespace O3de {
 ++    bool CheckConfirmation(const crashpad::CrashReportDatabase::Report& report);
@@ -45,12 +127,12 @@ index 0000000..49ea935
 ++}  // namespace O3de
 ++
 + namespace crashpad {
-+
-+ CrashReportUploadThread::CrashReportUploadThread(CrashReportDatabase* database,
-+@@ -153,6 +165,14 @@ void CrashReportUploadThread::ProcessPendingReport(
-+     return;
-+   }
-+
++ 
++ namespace {
++@@ -194,6 +207,14 @@ void CrashReportUploadThread::ProcessPendingReport(
++ 
++   Settings* const settings = database_->GetSettings();
++ 
 ++  // O3DE - Handle giving the user the option of whether or not to send the report.
 ++  if (!O3de::CheckConfirmation(report)) {
 ++    database_->SkipReportUpload(report.uuid,
@@ -59,23 +141,23 @@ index 0000000..49ea935
 ++    return;
 ++  }
 ++
-+   // This currently implements very simplistic rate-limiting, compatible with
-+   // the Breakpad client, where the strategy is to permit one upload attempt per
-+   // hour, and retire reports that would exceed this limit or for which the
-+@@ -293,6 +313,9 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
++   bool uploads_enabled;
++   if (!report.upload_explicitly_requested &&
++       (!settings->GetUploadsEnabled(&uploads_enabled) || !uploads_enabled)) {
++@@ -327,6 +348,9 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
 +                                            reader,
 +                                            "application/octet-stream");
-+
++ 
 ++  // O3DE
 ++  O3de::AddAttachments(http_multipart_builder);
 ++
 +   std::unique_ptr<HTTPTransport> http_transport(HTTPTransport::Create());
 +   if (!http_transport) {
 +     return UploadResult::kPermanentFailure;
-+@@ -332,6 +355,9 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
++@@ -366,6 +390,9 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
 +   }
 +   http_transport->SetURL(url);
-+
++ 
 ++  // O3DE
 ++  O3de::UpdateHttpTransport(http_transport, url);
 ++
@@ -83,18 +165,19 @@ index 0000000..49ea935
 +     return UploadResult::kRetry;
 +   }
 +diff --git a/tools/BUILD.gn b/tools/BUILD.gn
-+index 7da109bc..3bd0e895 100644
++index 157ee929..14ca33d2 100644
 +--- a/tools/BUILD.gn
 ++++ b/tools/BUILD.gn
-+@@ -12,9 +12,13 @@
++@@ -12,9 +12,14 @@
 + # See the License for the specific language governing permissions and
 + # limitations under the License.
-+
-++ // Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
-++ // SPDX-License-Identifier: Apache-2.0 OR MIT
-++ // (See O3DE tagged section(s) below) 
++ 
+++# Modifications Copyright (c) Contributors to the Open 3D Engine Project. 
+++# SPDX-License-Identifier: Apache-2.0 OR MIT
+++# (See O3DE tagged section(s) below) 
+++
 + import("../build/crashpad_buildconfig.gni")
-+
++ 
 +-source_set("tool_support") {
 ++# O3DE - Change the tool_support target type from source set to static library
 ++crashpad_static_library("tool_support") {
@@ -102,35 +185,31 @@ index 0000000..49ea935
 +     "tool_support.cc",
 +     "tool_support.h",
 diff --git a/ports/crashpad/portfile.cmake b/ports/crashpad/portfile.cmake
-index 30026d5..e286b32 100644
+index 6985a8b..f45bc36 100644
 --- a/ports/crashpad/portfile.cmake
 +++ b/ports/crashpad/portfile.cmake
-@@ -7,7 +7,8 @@ vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
- vcpkg_from_git(
-     OUT_SOURCE_PATH SOURCE_PATH
-     URL https://chromium.googlesource.com/crashpad/crashpad
--    REF 9a31d3f8e9815774026a753a1ff6155347cd549f
-+    REF f1943fcb571c211418657dc614e1cf6f74a2334e
-+    PATCHES "o3de_handler_extensions.patch"
+@@ -7,6 +7,7 @@ vcpkg_from_git(
+     PATCHES
+         fix-linux.patch
+         fix-lib-name-conflict.patch
++        o3de_handler_extensions.patch
  )
  
- function(checkout_in_path PATH URL REF)
-@@ -28,38 +29,13 @@ endfunction()
- checkout_in_path(
-     "${SOURCE_PATH}/third_party/mini_chromium/mini_chromium"
-     "https://chromium.googlesource.com/chromium/mini_chromium"
--    "c426ff98e1d9e9d59777fe8b883a5c0ceeca9ca3"
-+    "329ca82f73a592d832e79334bed842fba85b9fdd"
- )
+ vcpkg_find_acquire_program(PYTHON3)
+@@ -40,41 +41,24 @@ if(NOT EXISTS "${SOURCE_PATH}/third_party/lss/lss/BUILD.gn" AND (VCPKG_TARGET_IS
+     file(RENAME "${lss}" "${SOURCE_PATH}/third_party/lss/lss")
+ endif()
  
 -function(replace_gn_dependency INPUT_FILE OUTPUT_FILE LIBRARY_NAMES)
--    unset(_LIBRARY_DEB CACHE)
--    find_library(_LIBRARY_DEB NAMES ${LIBRARY_NAMES}
--        PATHS "${CURRENT_INSTALLED_DIR}/debug/lib"
--        NO_DEFAULT_PATH)
+-    if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
+-        unset(_LIBRARY_DEB CACHE)
+-        find_library(_LIBRARY_DEB NAMES ${LIBRARY_NAMES}
+-          PATHS "${CURRENT_INSTALLED_DIR}/debug/lib"
+-          NO_DEFAULT_PATH)
 -
--    if(_LIBRARY_DEB MATCHES "-NOTFOUND")
--        message(FATAL_ERROR "Could not find debug library with names: ${LIBRARY_NAMES}")
+-        if(_LIBRARY_DEB MATCHES "-NOTFOUND")
+-            message(FATAL_ERROR "Could not find debug library with names: ${LIBRARY_NAMES}")
+-        endif()
 -    endif()
 -
 -    unset(_LIBRARY_REL CACHE)
@@ -140,14 +219,28 @@ index 30026d5..e286b32 100644
 -
 -    if(_LIBRARY_REL MATCHES "-NOTFOUND")
 -        message(FATAL_ERROR "Could not find library with names: ${LIBRARY_NAMES}")
++function(checkout_in_path PATH URL REF)
++    if(EXISTS "${PATH}")
++        return()
+     endif()
+ 
+-    if(VCPKG_BUILD_TYPE STREQUAL "release")
+-        set(_LIBRARY_DEB ${_LIBRARY_REL})
 -    endif()
 -
 -    set(_INCLUDE_DIR "${CURRENT_INSTALLED_DIR}/include")
 -
 -    file(REMOVE "${OUTPUT_FILE}")
 -    configure_file("${INPUT_FILE}" "${OUTPUT_FILE}" @ONLY)
--endfunction()
--
++    vcpkg_from_git(
++        OUT_SOURCE_PATH DEP_SOURCE_PATH
++        URL "${URL}"
++        REF "${REF}"
++    )
++    file(RENAME "${DEP_SOURCE_PATH}" "${PATH}")
++    file(REMOVE_RECURSE "${DEP_SOURCE_PATH}")
+ endfunction()
+ 
 -replace_gn_dependency(
 -    "${CMAKE_CURRENT_LIST_DIR}/zlib.gn"
 -    "${SOURCE_PATH}/third_party/zlib/BUILD.gn"
@@ -155,20 +248,27 @@ index 30026d5..e286b32 100644
 +checkout_in_path(
 +    "${SOURCE_PATH}/third_party/zlib/zlib"
 +    "https://chromium.googlesource.com/chromium/src/third_party/zlib"
-+    "13dc246a58e4b72104d35f9b1809af95221ebda7"
++    "1e85c01b15363d11fab81c46fe2b5c2179113f70"
  )
  
- set(OPTIONS_DBG "is_debug=true")
-@@ -102,7 +78,7 @@ vcpkg_configure_gn(
+ set(OPTIONS "target_cpu=\"${VCPKG_TARGET_ARCHITECTURE}\"")
+@@ -127,9 +111,14 @@ vcpkg_gn_configure(
+     OPTIONS_RELEASE "${OPTIONS_REL}"
+ )
  
- vcpkg_install_gn(
++set(TARGET_MODULES client client:common util third_party/mini_chromium/mini_chromium/base handler handler:common util:net tools:tool_support compat minidump:format minidump snapshot:context snapshot)
++if(VCPKG_TARGET_IS_WINDOWS)
++    list(APPEND TARGET_MODULES third_party/getopt third_party/zlib)
++endif()
++
+ vcpkg_gn_install(
      SOURCE_PATH "${SOURCE_PATH}"
--    TARGETS client util third_party/mini_chromium/mini_chromium/base handler:crashpad_handler
-+    TARGETS client compat handler minidump:format minidump snapshot:context snapshot third_party/getopt third_party/mini_chromium/mini_chromium/base third_party/zlib tools:tool_support util
+-    TARGETS client client:common util third_party/mini_chromium/mini_chromium/base handler:crashpad_handler
++    TARGETS ${TARGET_MODULES}
  )
  
  message(STATUS "Installing headers...")
-@@ -111,19 +87,40 @@ function(install_headers DIR)
+@@ -138,9 +127,17 @@ function(install_headers DIR)
      file(COPY "${DIR}" DESTINATION "${PACKAGES_INCLUDE_DIR}" FILES_MATCHING PATTERN "*.h")
  endfunction()
  install_headers("${SOURCE_PATH}/client")
@@ -176,59 +276,47 @@ index 30026d5..e286b32 100644
 +install_headers("${SOURCE_PATH}/handler")
 +install_headers("${SOURCE_PATH}/minidump")
 +install_headers("${SOURCE_PATH}/snapshot")
-+install_headers("${SOURCE_PATH}/third_party/getopt")
 +install_headers("${SOURCE_PATH}/third_party/mini_chromium/mini_chromium")
-+install_headers("${SOURCE_PATH}/third_party/zlib/zlib")
 +install_headers("${SOURCE_PATH}/tools")
  install_headers("${SOURCE_PATH}/util")
 -install_headers("${SOURCE_PATH}/third_party/mini_chromium/mini_chromium/base")
 -install_headers("${SOURCE_PATH}/third_party/mini_chromium/mini_chromium/build")
++if(VCPKG_TARGET_IS_WINDOWS)
++    install_headers("${SOURCE_PATH}/third_party/getopt")
++    install_headers("${SOURCE_PATH}/third_party/zlib/zlib")
++endif()
  
+ file(COPY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/gen/build/chromeos_buildflags.h" DESTINATION "${CURRENT_PACKAGES_DIR}/include/${PORT}/build")
+ file(COPY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/gen/build/chromeos_buildflags.h.flags" DESTINATION "${CURRENT_PACKAGES_DIR}/include/${PORT}/build")
+@@ -152,18 +149,6 @@ if(VCPKG_TARGET_IS_OSX)
+     file(COPY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/obj/util/libmig_output.a" DESTINATION "${CURRENT_PACKAGES_DIR}/lib")
+ endif()
+ 
+-vcpkg_copy_tools(
+-    TOOL_NAMES crashpad_handler
+-    SEARCH_DIR "${CURRENT_PACKAGES_DIR}/tools")
+-
+-if(NOT VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_MINGW)
+-    file(CHMOD "${CURRENT_PACKAGES_DIR}/tools/crashpad_handler" FILE_PERMISSIONS
+-      OWNER_READ OWNER_WRITE OWNER_EXECUTE
+-      GROUP_READ GROUP_EXECUTE
+-      WORLD_READ WORLD_EXECUTE
+-    )
+-endif()
+-
  # remove empty directories
  file(REMOVE_RECURSE
      "${PACKAGES_INCLUDE_DIR}/util/net/testdata"
--    "${PACKAGES_INCLUDE_DIR}/build/ios")
--
--configure_file("${CMAKE_CURRENT_LIST_DIR}/crashpadConfig.cmake.in"
--        "${CURRENT_PACKAGES_DIR}/share/${PORT}/crashpadConfig.cmake" @ONLY)
-+    "${PACKAGES_INCLUDE_DIR}/build/ios"
-+    "${PACKAGES_INCLUDE_DIR}/build/config"
-+    "${PACKAGES_INCLUDE_DIR}/compat/ios"
-+    "${PACKAGES_INCLUDE_DIR}/mini_chromium/build/config"
-+    "${PACKAGES_INCLUDE_DIR}/mini_chromium/build/ios"
-+    "${PACKAGES_INCLUDE_DIR}/snapshot/elf/elf_image_reader_fuzzer_corpus"
-+    "${PACKAGES_INCLUDE_DIR}/tools/mac"
-+    "${PACKAGES_INCLUDE_DIR}/zlib/google/test"
-+    )
- 
- vcpkg_copy_pdbs()
- file(INSTALL "${SOURCE_PATH}/LICENSE"
-     DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}"
-     RENAME copyright)
-+
-+message(STATUS "Installing third party licenses...")
-+file(INSTALL "${SOURCE_PATH}/third_party/getopt/LICENSE"
-+    DESTINATION "${PACKAGES_INCLUDE_DIR}/getopt")
-+file(INSTALL "${SOURCE_PATH}/third_party/mini_chromium/mini_chromium/LICENSE"
-+    DESTINATION "${PACKAGES_INCLUDE_DIR}/mini_chromium")
-+file(INSTALL "${SOURCE_PATH}/third_party/mini_chromium/mini_chromium/base/third_party/icu/LICENSE"
-+    DESTINATION "${PACKAGES_INCLUDE_DIR}/mini_chromium/base/third_party/icu")
-+file(INSTALL "${SOURCE_PATH}/third_party/zlib/zlib/LICENSE"
-+    DESTINATION "${PACKAGES_INCLUDE_DIR}/zlib")
-\ No newline at end of file
-diff --git a/scripts/cmake/vcpkg_find_acquire_program.cmake b/scripts/cmake/vcpkg_find_acquire_program.cmake
-index 36bbc6e..3a1eff6 100644
---- a/scripts/cmake/vcpkg_find_acquire_program.cmake
-+++ b/scripts/cmake/vcpkg_find_acquire_program.cmake
-@@ -129,9 +129,9 @@ function(vcpkg_find_acquire_program VAR)
-       set(GN_PLATFORM "mac-amd64")
-       set(HASH "03ee64cb15bae7fceb412900d470601090bce147cfd45eb9b46683ac1a5dca848465a5d74c55a47df7f0e334d708151249a6d37bb021de74dd48b97ed4a07937")
-     else()
--      set(GN_VERSION "qUkAhy9J0P7c5racy-9wB6AHNK_btS18im8S06_ehhwC")
-+      set(GN_VERSION "wQfA3hac83q4RphIC4nawg-fZT4kzjVyTq04gR-3hGAC")
-       set(GN_PLATFORM "windows-amd64")
--      set(HASH "263e02bd79eee0cb7b664831b7898565c5656a046328d8f187ef7ae2a4d766991d477b190c9b425fcc960ab76f381cd3e396afb85cba7408ca9e74eb32c175db")
-+      set(HASH "b6331e74785d5c45b7137a391668c73bec0440613891424d5cc461936993363f01a9030a4ec97d7919ced00adc3890b35a3d51803f46de388a1f7acecc24ce20")
-     endif()
-     set(SUBDIR "${GN_VERSION}")
-     set(URL "${CIPD_DOWNLOAD_GN}/${GN_PLATFORM}/+/${GN_VERSION}")
+diff --git a/ports/crashpad/vcpkg.json b/ports/crashpad/vcpkg.json
+index c2e9cd5..a0d7bcf 100644
+--- a/ports/crashpad/vcpkg.json
++++ b/ports/crashpad/vcpkg.json
+@@ -27,7 +27,6 @@
+     {
+       "name": "vcpkg-tool-gn",
+       "host": true
+-    },
+-    "zlib"
++    }
+   ]
+ }

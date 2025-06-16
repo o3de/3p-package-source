@@ -183,11 +183,22 @@ class VcpkgBuilder(object):
             cwd=self.vcpkgDir,
         )
 
-    def build(self):
+    def build(self, allow_unsupported=False):
         self.remove()
 
+        command = [
+            str(self.vcpkgDir / 'vcpkg'),
+            'install',
+            f'{self.portName}:{self.triplet}',
+            '--no-binarycaching',
+            f'--overlay-triplets={self.customTripletsDir}'
+        ]
+
+        if allow_unsupported:
+            command.append('--allow-unsupported')
+
         subprocess.check_call(
-            [str(self.vcpkgDir / 'vcpkg'), 'install', f'{self.portName}:{self.triplet}', '--no-binarycaching', f'--overlay-triplets={self.customTripletsDir}'],
+            command,
             cwd=self.vcpkgDir, 
             env=self._customEnviron
         )

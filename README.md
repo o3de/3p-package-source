@@ -15,7 +15,7 @@ Some notable examples
  * OpenSSL - this one uses vcpkg to build the package image.
  * Lua - this one uses a script called pull_and_build_from_git.py (in Scripts/extras) to build the package image.
 
- See the documentation (README.md in 3p-package-scripts repo for a full description of how to author packages.)
+ See the documentation (README.md in [3p-package-scripts repo](https://github.com/o3de/3p-package-scripts) for a full description of how to author packages.)
  
 ## Setup Packages Using Prebuilt Libraries
 3rdParty packages depend on prebuilt libraries. This allows 3rdParty authors to ship their libraries (.dll, .lib, .so, .a, etc) so customers do not need source code. This section covers how to author packages that depend on prebuilt libraries who also have dependencies of their own.

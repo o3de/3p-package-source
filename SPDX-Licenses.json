@@ -66,7 +66,7 @@
         "LicenseFile": "civetweb/LICENSE.md"
     },
     {
-        "PackageName": "Crashpad-0.8.0-rev1-windows",
+        "PackageName": "Crashpad-0.8.0-rev2-windows",
         "URL": "https://chromium.googlesource.com/crashpad/crashpad/+/master/README.md",
         "License": "Apache-2.0",
         "LicenseFile": "Crashpad/share/crashpad/copyright"
