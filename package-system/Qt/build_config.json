@@ -60,7 +60,8 @@
                     "./build-linux.sh",
                     "tiff-4.2.0.15-rev3-linux",
                     "zlib-1.2.11-rev5-linux",
-                    "OpenSSL-1.1.1t-rev1-linux"
+                    "OpenSSL-1.1.1t-rev1-linux",
+                    "x86_64"
                 ],
                 "custom_install_cmd": [
                     "{python}", "copy_platform_cmakes.py"
@@ -78,7 +79,8 @@
                     "./build-linux.sh",
                     "tiff-4.2.0.15-rev3-linux-aarch64",
                     "zlib-1.2.11-rev5-linux-aarch64",
-                    "OpenSSL-1.1.1t-rev1-linux-aarch64"
+                    "OpenSSL-1.1.1t-rev1-linux-aarch64",
+                    "aarch64"
                 ],
                 "custom_install_cmd": [
                     "{python}", "copy_platform_cmakes.py"

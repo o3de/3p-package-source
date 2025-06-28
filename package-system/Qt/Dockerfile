@@ -8,12 +8,39 @@
 # This docker file uses ubuntu 20.04 as the base image to install the dependencies to build Qt from source
 #
 
-FROM amd64/ubuntu:20.04
- 
+# The cpu architecture to base the docker base script from
+ARG INPUT_ARCHITECTURE=amd64
+
+# The root to base the docker script base from
+ARG INPUT_IMAGE=ubuntu:20.04
+
+# The build subfolder where the final artifacts are built in this container which will be used to copy the results out of
+ARG INPUT_BUILD_FOLDER=build
+
+# The name of the build script to copy to the docker image to execute
+ARG INPUT_DOCKER_BUILD_SCRIPT=build.sh
+
+# The optional environment variable for list of folders in the mapped temp folders that represent additional 3P dependent packages
+ARG INPUT_DEPENDENT_PACKAGE_FOLDERS
+
+FROM ${INPUT_ARCHITECTURE}/${INPUT_IMAGE}
+
+ARG INPUT_DOCKER_BUILD_SCRIPT
+ARG INPUT_BUILD_FOLDER
+ARG INPUT_DEPENDENT_PACKAGE_FOLDERS
+
+ENV WORKSPACE=/data/workspace
+ENV DOCKER_BUILD_PATH=$WORKSPACE/$INPUT_BUILD_FOLDER
+ENV DOWNLOADED_PACKAGE_FOLDERS=$INPUT_DEPENDENT_PACKAGE_FOLDERS
+
+WORKDIR $WORKSPACE
+
 WORKDIR /data/workspace
 
 # Initilize apt cache
-RUN apt-get clean && apt-get update && apt-get upgrade
+RUN DEBIAN_FRONTEND="noninteractive" apt-get update
+
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y upgrade
 
 # Setup time zone and locale data (necessary for SSL and HTTPS packages)
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-configuration
