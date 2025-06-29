@@ -21,7 +21,7 @@ TARGET_ARCH=${1:-$(uname -m)}
 if [ "${CURRENT_HOST_ARCH}" != ${TARGET_ARCH} ]
 then
     echo "Checking cross compiling requirements."
-    for package_check in docker-ce qemu binfmt-support qemu-user-static
+    for package_check in docker-ce binfmt-support qemu-user-static
     do
         echo "Checking package $package_check"
         dpkg -s $package_check > /dev/null 2>&1
@@ -57,23 +57,26 @@ else
     echo "Building ${TARGET_ARCH} natively."
 fi
 
-# Setup the docker arguments for the target architecture
+# Setup the docker arguments 
 if [ "${TARGET_ARCH}" = "x86_64" ]
 then
-    echo "Processing Docker for x86_64"
-    TARGET_DOCKER_FILE=Dockerfile.x86_64
+    echo "Processing Docker for amd64"
+
+    DOCKER_INPUT_ARCHITECTURE=amd64
     TARGET_DOCKER_PLATFORM_ARG=linux/amd64
-    DOCKER_IMAGE_NAME=${LIB_NAME}_linux_3p
+
 elif [ "${TARGET_ARCH}" = "aarch64" ] 
 then
     echo "Processing Docker for aarch64"
-    TARGET_DOCKER_FILE=Dockerfile.aarch64
+
+    DOCKER_INPUT_ARCHITECTURE=arm64v8
     TARGET_DOCKER_PLATFORM_ARG=linux/arm64/v8
-    DOCKER_IMAGE_NAME=${LIB_NAME}_linux_aarch64_3p
+
 else
     echo "Unsupported architecture ${TARGET_ARCH}"
     exit 1
 fi
+
 
 # Make sure docker is installed
 DOCKER_VERSION=$(docker --version)
