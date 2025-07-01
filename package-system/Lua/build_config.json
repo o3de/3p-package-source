@@ -36,6 +36,14 @@
                "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\"",
                "-DCMAKE_BUILD_TYPE=Release"
             ]
+         },
+         "Emscripten":{
+            "cmake_generate_args": [
+               "-G",
+               "Ninja",
+               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\"",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ]
          }
       },
       "Darwin":{
@@ -77,7 +85,7 @@
                "-DCMAKE_BUILD_TYPE=Release"
             ]
          },
-	 "Linux-aarch64": "@Linux"
+         "Linux-aarch64": "@Linux"
       }
    }
 }
