@@ -52,6 +52,12 @@
             "custom_test_cmd" : [
                 "test_expat_android.cmd"
               ]
+        },
+        "Emscripten": {
+          "cmake_generate_args": [
+              "-G",
+              "Ninja"
+          ]
         }
         },
         "Darwin": {
