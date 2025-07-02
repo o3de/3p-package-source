@@ -8,6 +8,9 @@
    "package_license_file":"LICENSE",
    "cmake_find_template":"Findgoogletest.cmake.template",
    "cmake_find_target":"Findgoogletest.cmake",
+   "cmake_generate_args_common": [
+      "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+    ],
    "Platforms":{
       "Windows":{
          "Windows":{

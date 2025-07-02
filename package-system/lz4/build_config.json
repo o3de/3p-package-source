@@ -13,7 +13,8 @@
     ],
     "cmake_generate_args_common": [
         "-DBUILD_SHARED_LIBS=0",
-        "-DCMAKE_CXX_STANDARD=17"
+        "-DCMAKE_CXX_STANDARD=17",
+        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
     ],
     "cmake_build_args_common": [
         "-j"
