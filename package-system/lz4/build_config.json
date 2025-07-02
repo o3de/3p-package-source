@@ -36,6 +36,13 @@
                     "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake",
                     "-DCMAKE_BUILD_TYPE=Release"
                 ]
+            },
+            "Emscripten": {
+                "cmake_generate_args_release": [
+                    "-G",
+                    "Ninja",
+                    "-DCMAKE_BUILD_TYPE=Release"
+                ]
             }
         },
         "Darwin": {
