@@ -13,6 +13,9 @@
       "CMakeLists.txt",
       "LICENSE.txt"
    ],
+   "cmake_generate_args_common": [
+      "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+    ],
    "cmake_build_args_common": [
       "--parallel"
    ],

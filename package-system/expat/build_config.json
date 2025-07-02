@@ -23,7 +23,8 @@
         "-DEXPAT_BUILD_FUZZERS=OFF",
         "-DEXPAT_BUILD_TESTS=OFF",
         "-DEXPAT_BUILD_TOOLS=OFF",
-        "-DEXPAT_SHARED_LIBS=OFF"
+        "-DEXPAT_SHARED_LIBS=OFF",
+        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
     ],
     "cmake_build_args_common": [
         "--parallel"

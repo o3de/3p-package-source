@@ -12,6 +12,9 @@
     "package_license_file":"LICENSE",
     "cmake_find_source":"FindZLIB.cmake",
     "cmake_find_target":"FindZLIB.cmake",
+    "cmake_generate_args_common": [
+      "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+    ],
     "Platforms":{
         "Windows":{
             "Windows":{
