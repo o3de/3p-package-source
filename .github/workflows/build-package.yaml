@@ -70,7 +70,7 @@ jobs:
               if [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
                 OS_RUNNER="windows-2019"
               fi
-              
+              echo "OS_RUNNER=$OS_RUNNER"
               PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$OS_RUNNER\", \"dockerfile\": \"$DOCKER\"}"
             done
             unset IFS
