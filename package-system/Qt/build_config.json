@@ -1,32 +1,24 @@
 {
-    "git_url": "https://github.com/o3de/qt5.git",
-    "git_tag": "5.15.1-o3de",
-    "git_commit": "b3a1a6947422928e8aecb14ad607199e9720d266",
+    "git_url": "https://github.com/guillaume-haerinck/qt5.git",
+    "git_tag": "6.9.1-o3de",
+    "git_commit": "8251a04bb2ecc41f59771fb3e80a79d5188098c2",
     "package_name": "qt",
     "package_url": "https://www.qt.io/",
     "package_license": "LGPL-3.0",
-    "package_license_file": "qt/LICENSE.LGPLv3",
+    "package_license_file": "LICENSES/LGPL-3.0-only.txt",
     "cmake_find_source": "FindQt.cmake",
     "cmake_find_target": "FindQt.cmake",
     "Platforms": {
         "Windows": {
             "Windows": {
-                "package_version": "5.15.2-rev7",
-                "patch_file": "qt-image-format-windows.patch",
+                "package_version": "6.9.1-rev1",
                 "depends_on_packages": [
-                    ["OpenSSL-1.1.1m-rev1-windows", "7d8d3904c70b7da471f777ee788678614a9b20d3ac926b7c0d60ccf2a17c7959", ""],
+                    ["OpenSSL-1.1.1o-rev1-windows", "52b9d2bc5f3e0c6e405a0f290d1904bf545acc0c73d6a52351247d917c4a06d2", ""],
                     ["tiff-4.2.0.15-rev3-windows", "c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60", ""],
                     ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
                 ],
-                "additional_download_packages":[ 
-                    ["http://download.qt.io/official_releases/jom/jom.zip", "128fdd846fe24f8594eed37d1d8929a0ea78df563537c0c1b1861a635013fff8", "sha256"],
-                    ["https://github.com/unicode-org/icu/releases/download/release-65-1/icu4c-65_1-Win64-MSVC2017.zip", "cfaf7477d65272e9e01c739951f0607642c0510235e46befc109f6a3addd4f43", "sha256"]
-                ],
                 "custom_build_cmd": [
                     "build-windows.bat"
-                ],
-                "custom_install_cmd": [
-                    "{python}", "copy_platform_cmakes.py"
                 ]
             }
         },

@@ -19,18 +19,18 @@ if(NOT EXISTS ${QT_PATH})
 endif()
 
 # Force-set QtCore's version here to ensure CMake detects Qt's existence and allows AUTOMOC to work
-set(Qt5Core_VERSION_MAJOR "5" CACHE STRING "Qt's major version" FORCE)
-set(Qt5Core_VERSION_MINOR "15" CACHE STRING "Qt's minor version" FORCE)
-set(Qt5Core_VERSION_PATCH "2" CACHE STRING "Qt's patch version" FORCE)
-mark_as_advanced(Qt5Core_VERSION_MAJOR)
-mark_as_advanced(Qt5Core_VERSION_MINOR)
-mark_as_advanced(Qt5Core_VERSION_PATCH)
+set(Qt6Core_VERSION_MAJOR "6" CACHE STRING "Qt's major version" FORCE)
+set(Qt6Core_VERSION_MINOR "9" CACHE STRING "Qt's minor version" FORCE)
+set(Qt6Core_VERSION_PATCH "1" CACHE STRING "Qt's patch version" FORCE)
+mark_as_advanced(Qt6Core_VERSION_MAJOR)
+mark_as_advanced(Qt6Core_VERSION_MINOR)
+mark_as_advanced(Qt6Core_VERSION_PATCH)
 
-set(QT5_COMPONENTS
+set(QT6_COMPONENTS
     Core
     Concurrent
     Gui
-    LinguistTools
+    # LinguistTools
     Network
     OpenGL
     Svg
@@ -41,47 +41,42 @@ set(QT5_COMPONENTS
 
 include(${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME}/Qt_${PAL_PLATFORM_NAME_LOWERCASE}.cmake)
 
-list(APPEND CMAKE_PREFIX_PATH ${QT_LIB_PATH}/cmake/Qt5)
+list(APPEND CMAKE_PREFIX_PATH ${QT_LIB_PATH}/cmake/Qt6)
 
 # Clear the cache for found DIRs
-unset(Qt5_DIR CACHE)
-foreach(component ${QT5_COMPONENTS})
-    unset(Qt5${component}_DIR CACHE)
+unset(Qt6_DIR CACHE)
+foreach(component ${QT6_COMPONENTS})
+    unset(Qt6${component}_DIR CACHE)
 endforeach()
-unset(Qt5Positioning_DIR CACHE)
-unset(Qt5PrintSupport_DIR CACHE)
-unset(Qt5Qml_DIR CACHE)
-unset(Qt5QmlModels_DIR CACHE)
-unset(Qt5Quick_DIR CACHE)
 
-# Populate the Qt5 configurations
-find_package(Qt5
-    COMPONENTS ${QT5_COMPONENTS}
+# Populate the Qt6 configurations
+find_package(Qt6
+    COMPONENTS ${QT6_COMPONENTS}
     REQUIRED
     NO_CMAKE_PACKAGE_REGISTRY 
 )
 
 # Now create libraries that wrap the dependency so we can refer to them in our format
-foreach(component ${QT5_COMPONENTS})
-    if(TARGET Qt5::${component})
+foreach(component ${QT6_COMPONENTS})
+    if(TARGET Qt6::${component})
 
         # Convert the includes to system includes
-        get_target_property(system_includes Qt5::${component} INTERFACE_INCLUDE_DIRECTORIES)
-        set_target_properties(Qt5::${component} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "") # Clear it in case someone refers to it
-        ly_target_include_system_directories(TARGET Qt5::${component}
+        get_target_property(system_includes Qt6::${component} INTERFACE_INCLUDE_DIRECTORIES)
+        set_target_properties(Qt6::${component} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "") # Clear it in case someone refers to it
+        ly_target_include_system_directories(TARGET Qt6::${component}
             INTERFACE ${system_includes}
         )
 
         # Alias the target with our prefix
-        add_library(3rdParty::Qt::${component} ALIAS Qt5::${component})
-        mark_as_advanced(Qt5${component}_DIR) # Hiding from GUI
+        add_library(3rdParty::Qt::${component} ALIAS Qt6::${component})
+        mark_as_advanced(Qt6${component}_DIR) # Hiding from GUI
 
         # Qt only has debug and release, we map the configurations we use in o3de. We map all the configurations 
         # except debug to release
         foreach(conf IN LISTS CMAKE_CONFIGURATION_TYPES)
             string(TOUPPER ${conf} UCONF)
             ly_qt_configuration_mapping(${UCONF} MAPPED_CONF)
-            set_target_properties(Qt5::${component} PROPERTIES
+            set_target_properties(Qt6::${component} PROPERTIES
                 MAP_IMPORTED_CONFIG_${UCONF} ${MAPPED_CONF}
             )
         endforeach()
@@ -90,22 +85,17 @@ foreach(component ${QT5_COMPONENTS})
 endforeach()
 
 # Some extra DIR variables we want to hide from GUI
-mark_as_advanced(Qt5_DIR) # Hiding from GUI
-mark_as_advanced(Qt5LinguistTools_DIR) # Hiding from GUI, this variable comes from the LinguistTools module
-mark_as_advanced(Qt5Positioning_DIR)
-mark_as_advanced(Qt5PrintSupport_DIR)
-mark_as_advanced(Qt5Qml_DIR)
-mark_as_advanced(Qt5QmlModels_DIR)
-mark_as_advanced(Qt5Quick_DIR)
+mark_as_advanced(Qt6_DIR) # Hiding from GUI
+# mark_as_advanced(Qt6LinguistTools_DIR) # Hiding from GUI, this variable comes from the LinguistTools module
 
 # Special case for Qt::Gui, we are using the private headers...
-ly_target_include_system_directories(TARGET Qt5::Gui
-   INTERFACE "${Qt5Gui_PRIVATE_INCLUDE_DIRS}"
+ly_target_include_system_directories(TARGET Qt6::Gui
+   INTERFACE "${Qt6Gui_PRIVATE_INCLUDE_DIRS}"
 )
 
 # Another special case: Qt:Widgets, we are also using private headers
-ly_target_include_system_directories(TARGET Qt5::Widgets
-    INTERFACE "${Qt5Widgets_PRIVATE_INCLUDE_DIRS}"
+ly_target_include_system_directories(TARGET Qt6::Widgets
+    INTERFACE "${Qt6Widgets_PRIVATE_INCLUDE_DIRS}"
 )
 
 # Qt plugins/translations/aux files. 
@@ -120,7 +110,7 @@ if(tranlation_files)
         OUTPUT_SUBDIRECTORY translations
     )
 endif()
-ly_add_dependencies(Qt5::Core 3rdParty::Qt::Core::Translations)
+ly_add_dependencies(Qt6::Core 3rdParty::Qt::Core::Translations)
 
 # plugins, each platform will define the files it has and the OUTPUT_SUBDIRECTORY
 set(QT_PLUGINS
@@ -130,7 +120,7 @@ set(QT_PLUGINS
 )
 foreach(plugin ${QT_PLUGINS})
     add_library(3rdParty::Qt::${plugin}::Plugins INTERFACE IMPORTED GLOBAL)
-    ly_add_dependencies(Qt5::${plugin} 3rdParty::Qt::${plugin}::Plugins)
+    ly_add_dependencies(Qt6::${plugin} 3rdParty::Qt::${plugin}::Plugins)
 endforeach()
 include(${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME}/QtPlugin_${PAL_PLATFORM_NAME_LOWERCASE}.cmake)
 
@@ -143,24 +133,24 @@ mark_as_advanced(QT_UIC_EXECUTABLE) # Hiding from GUI
 unset(AUTORCC_EXECUTABLE CACHE)
 find_program(AUTORCC_EXECUTABLE rcc HINTS "${QT_PATH}/bin")
 mark_as_advanced(AUTORCC_EXECUTABLE) # Hiding from GUI
-set(Qt5Core_RCC_EXECUTABLE "${AUTORCC_EXECUTABLE}" CACHE FILEPATH "Qt's resource compiler, used by qt5_add_resources" FORCE)
-mark_as_advanced(Qt5Core_RCC_EXECUTABLE) # Hiding from GUI
+set(Qt6Core_RCC_EXECUTABLE "${AUTORCC_EXECUTABLE}" CACHE FILEPATH "Qt's resource compiler, used by qt_add_resources" FORCE)
+mark_as_advanced(Qt6Core_RCC_EXECUTABLE) # Hiding from GUI
 
 # LRELEASE executable
 unset(QT_LRELEASE_EXECUTABLE CACHE)
 find_program(QT_LRELEASE_EXECUTABLE lrelease HINTS "${QT_PATH}/bin")
 mark_as_advanced(QT_LRELEASE_EXECUTABLE) # Hiding from GUI
-if(NOT QT_LRELEASE_EXECUTABLE)
-    message(FATAL_ERROR "Qt's lrelease executbale not found")
-endif()
-set(Qt5_LRELEASE_EXECUTABLE "${QT_LRELEASE_EXECUTABLE}" CACHE FILEPATH "Qt's lrelease executable, used by qt5_add_translation" FORCE)
-mark_as_advanced(Qt5_LRELEASE_EXECUTABLE) # Hiding from GUI
+#if(NOT QT_LRELEASE_EXECUTABLE)
+#    message(FATAL_ERROR "Qt's lrelease executbale not found")
+#endif()
+set(Qt6_LRELEASE_EXECUTABLE "${QT_LRELEASE_EXECUTABLE}" CACHE FILEPATH "Qt's lrelease executable, used by qt_add_translation" FORCE)
+mark_as_advanced(Qt6_LRELEASE_EXECUTABLE) # Hiding from GUI
 
 #! ly_qt_uic_target: handles qt's ui files by injecting uic generation
 #
 # AUTOUIC has issues to detect changes in UIC files and trigger regeneration:
 # https://gitlab.kitware.com/cmake/cmake/-/issues/18741
-# So instead, we are going to manually wrap the files. We dont use qt5_wrap_ui because
+# So instead, we are going to manually wrap the files. We dont use qt_wrap_ui because
 # it outputs to ${CMAKE_CURRENT_BINARY_DIR}/ui_${outfile}.h and we want to follow the
 # same folder structure that AUTOUIC uses
 #
@@ -253,7 +243,7 @@ function(ly_add_translations)
         message(FATAL_ERROR "You must provide at least a translation file")
     endif()
 
-    qt5_add_translation(TRANSLATED_FILES ${ly_add_translations_FILES})
+    # qt_add_translation(TRANSLATED_FILES ${ly_add_translations_FILES})
 
     set(qrc_file_contents 
 "<RCC>
@@ -279,7 +269,7 @@ function(ly_add_translations)
             GENERATED TRUE
             SKIP_AUTORCC TRUE
     )
-    qt5_add_resources(RESOURCE_FILE ${qrc_file_path})
+    qt_add_resources(RESOURCE_FILE ${qrc_file_path})
 
     foreach(target ${ly_add_translations_TARGETS})
         target_sources(${target} PRIVATE "${TRANSLATED_FILES};${qrc_file_path};${RESOURCE_FILE}")
