@@ -38,7 +38,7 @@ jobs:
             PLATFORM=$(echo $FILE | sed -n 's/package_build_list_host_\(.*\).json/\1/p')
             echo "Using platform $PLATFORM"
             case $PLATFORM in
-            aarch64)
+            *aarch64)
               OS_RUNNER="ubuntu-22.04-arm"
               ;;
             windows)
@@ -49,9 +49,6 @@ jobs:
               ;;
             darwin)
               OS_RUNNER="macos-13" # Use x86 runner image. Latest uses ARM64
-              ;;
-            *)
-              OS_RUNNER="windows-latest" # default
               ;;
             esac
             echo "OS Image selected $OS_RUNNER"
