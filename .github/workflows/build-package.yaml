@@ -39,12 +39,25 @@ jobs:
             echo "Using platform $PLATFORM"
 
             # Only get the changes that can be built
+            # First, get the diff output
+            DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
+                  --no-ext-diff --unified=0 \
+                  --exit-code -a --no-prefix -- $FILE | egrep "^\+[^\+]" | egrep -v "^\+\+\+ ")
+            
+            # Use an associative array to track which packages we've already processed
+            declare -A PROCESSED_PACKAGES
+            
+            # Then, iterate over the lines
             IFS=$'\n' # Process each line in the package build file
-            for LINE in DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
-                      --no-ext-diff --unified=0 \
-                      --exit-code -a --no-prefix -- $FILE | egrep "^\+[^\+]" | egrep -v "^\+\+\+ "); do
+            for LINE in $DIFF; do
               unset IFS # Reset IFS to avoid word splitting
               PACKAGE=$(echo $LINE | cut -d'"' -f2)
+              
+              # Skip if we've already processed this package
+              if [[ -n "${PROCESSED_PACKAGES[$PACKAGE]}" ]]; then
+                continue
+              fi
+              
               PACKPATH=$(echo $LINE | grep -oE "package-system/[^/ ]+" | head -n 1)
               if [[ -z "${DOCKERFILE["$PACKAGE"]}" && -n "$PACKPATH" ]]; then
                 DOCKER=$(test -e ${PACKPATH%% }/Dockerfile* && echo 1 || echo 0) # Assume the build scripts will use the Dockerfile if found in the package path
@@ -73,6 +86,9 @@ jobs:
               fi
               
               PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$PACKAGE_OS\", \"dockerfile\": \"$DOCKER\"}"
+              
+              # Mark as processed
+              PROCESSED_PACKAGES[$PACKAGE]=1
             done
             unset IFS
           fi
