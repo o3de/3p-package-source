@@ -41,11 +41,11 @@ jobs:
             aarch64)
               OS_RUNNER="ubuntu-22.04-arm"
               ;;
-            linux)
-              OS_RUNNER="ubuntu-22.04"
-              ;;
             windows)
               OS_RUNNER="windows-latest" # This is bundled with VS2022
+              ;;
+            linux)
+              OS_RUNNER="ubuntu-22.04"
               ;;
             darwin)
               OS_RUNNER="macos-13" # Use x86 runner image. Latest uses ARM64
@@ -54,6 +54,7 @@ jobs:
               OS_RUNNER="windows-latest" # default
               ;;
             esac
+            echo "OS Image selected $OS_RUNNER"
 
             # Only get the changes that can be built
             IFS=$'\n' # Process each line in the package build file
