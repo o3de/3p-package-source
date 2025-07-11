@@ -41,14 +41,17 @@ jobs:
             *aarch64)
               OS_RUNNER="ubuntu-22.04-arm"
               ;;
-            windows)
-              OS_RUNNER="windows-latest" # This is bundled with VS2022
-              ;;
             linux)
               OS_RUNNER="ubuntu-22.04"
               ;;
+            windows)
+              OS_RUNNER="windows-latest" # This is bundled with VS2022
+              ;;
             darwin)
               OS_RUNNER="macos-13" # Use x86 runner image. Latest uses ARM64
+              ;;
+            *)
+              OS_RUNNER="windows-latest" # Default
               ;;
             esac
             echo "OS Image selected $OS_RUNNER"
@@ -69,6 +72,10 @@ jobs:
               # Special cases for certain packages
               if [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
                 OS_RUNNER="windows-2019"
+              fi
+
+              if [[ $PLATFORM =~ "linux-aarch64" ]]; then
+                OS_RUNNER="ubuntu-22.04-arm"
               fi
               
               PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$OS_RUNNER\", \"dockerfile\": \"$DOCKER\"}"
