@@ -37,24 +37,6 @@ jobs:
             echo "Checking file $FILE"
             PLATFORM=$(echo $FILE | sed -n 's/package_build_list_host_\(.*\).json/\1/p')
             echo "Using platform $PLATFORM"
-            case $PLATFORM in
-            *aarch64)
-              OS_RUNNER="ubuntu-22.04-arm"
-              ;;
-            linux)
-              OS_RUNNER="ubuntu-22.04"
-              ;;
-            windows)
-              OS_RUNNER="windows-latest" # This is bundled with VS2022
-              ;;
-            darwin)
-              OS_RUNNER="macos-13" # Use x86 runner image. Latest uses ARM64
-              ;;
-            *)
-              OS_RUNNER="windows-latest" # Default
-              ;;
-            esac
-            echo "OS Image selected $OS_RUNNER"
 
             # Only get the changes that can be built
             IFS=$'\n' # Process each line in the package build file
@@ -69,16 +51,28 @@ jobs:
                 DOCKERFILE["$PACKAGE"]=1 # Mark Dockerfile check as done
               fi
 
-              # Special cases for certain packages
-              if [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
-                OS_RUNNER="windows-2019"
-              fi
-
-              if [[ $PLATFORM =~ "linux-aarch64" ]]; then
-                OS_RUNNER="ubuntu-22.04-arm"
+              # Determine the OS runner based on the package name
+              if [[ $PACKAGE =~ "aarch64" ]]; then
+                PACKAGE_OS="ubuntu-22.04-arm"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
+                PACKAGE_OS="windows-2019"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "linux" ]]; then
+                PACKAGE_OS="ubuntu-22.04"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "windows" ]]; then
+                PACKAGE_OS="windows-latest"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "darwin" ]]; then
+                PACKAGE_OS="macos-13"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              else
+                PACKAGE_OS="windows-latest" # Default
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS (default)"
               fi
               
-              PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$OS_RUNNER\", \"dockerfile\": \"$DOCKER\"}"
+              PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$PACKAGE_OS\", \"dockerfile\": \"$DOCKER\"}"
             done
             unset IFS
           fi
