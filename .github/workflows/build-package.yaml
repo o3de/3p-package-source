@@ -36,7 +36,7 @@ jobs:
           if [[ $FILE == package_build_list_host_* ]]; then
             PLATFORM=$(echo $FILE | sed -n 's/package_build_list_host_\(.*\).json/\1/p')
             case $PLATFORM in
-            *linux-aarch64)
+            *aarch64)
               OS_RUNNER="ubuntu-22.04-arm"
               ;;
             *linux)
