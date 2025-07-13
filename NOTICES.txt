@@ -3460,7 +3460,7 @@ https://github.com/svaarala/duktape/blob/master/LICENSE.txt
 
 ------------------------------------
 
-Package path: ..\..\..\3rdParty\packages\Crashpad-0.8.0-rev1-windows\Crashpad\share\crashpad\copyright
+Package path: ..\..\..\3rdParty\packages\Crashpad-0.8.0-rev2-windows\Crashpad\share\crashpad\copyright
 
 License:
 

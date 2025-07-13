@@ -34,44 +34,61 @@ jobs:
         
         for FILE in $CHANGED_FILES; do
           if [[ $FILE == package_build_list_host_* ]]; then
+            echo "Checking file $FILE"
             PLATFORM=$(echo $FILE | sed -n 's/package_build_list_host_\(.*\).json/\1/p')
-            case $PLATFORM in
-            *linux-aarch64)
-              OS_RUNNER="ubuntu-22.04-arm"
-              ;;
-            *linux)
-              OS_RUNNER="ubuntu-22.04"
-              ;;
-            windows)
-              OS_RUNNER="windows-latest" # This is bundled with VS2022
-              ;;
-            darwin)
-              OS_RUNNER="macos-13" # Use x86 runner image. Latest uses ARM64
-              ;;
-            *)
-              OS_RUNNER="windows-latest" # default
-              ;;
-            esac
+            echo "Using platform $PLATFORM"
 
             # Only get the changes that can be built
+            # First, get the diff output
+            DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
+                  --no-ext-diff --unified=0 \
+                  --exit-code -a --no-prefix -- $FILE | egrep "^\+[^\+]" | egrep -v "^\+\+\+ ")
+            
+            # Use an associative array to track which packages we've already processed
+            declare -A PROCESSED_PACKAGES
+            
+            # Then, iterate over the lines
             IFS=$'\n' # Process each line in the package build file
-            for LINE in DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
-                      --no-ext-diff --unified=0 \
-                      --exit-code -a --no-prefix -- $FILE | egrep "^\+[^\+]" | egrep -v "^\+\+\+ "); do
+            for LINE in $DIFF; do
               unset IFS # Reset IFS to avoid word splitting
               PACKAGE=$(echo $LINE | cut -d'"' -f2)
-              PACKPATH=$(echo $LINE | egrep -o "package-system/[^/ ]+(?=/| )" | head -n 1)
+              
+              # Skip if we've already processed this package
+              if [[ -n "${PROCESSED_PACKAGES[$PACKAGE]}" ]]; then
+                continue
+              fi
+              
+              PACKPATH=$(echo $LINE | grep -oE "package-system/[^/ ]+" | head -n 1)
               if [[ -z "${DOCKERFILE["$PACKAGE"]}" && -n "$PACKPATH" ]]; then
                 DOCKER=$(test -e ${PACKPATH%% }/Dockerfile* && echo 1 || echo 0) # Assume the build scripts will use the Dockerfile if found in the package path
                 DOCKERFILE["$PACKAGE"]=1 # Mark Dockerfile check as done
               fi
 
-              # Special cases for certain packages
-              if [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
-                OS_RUNNER="windows-2019"
+              # Determine the OS runner based on the package name
+              if [[ $PACKAGE =~ "aarch64" ]]; then
+                PACKAGE_OS="ubuntu-22.04-arm"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
+                PACKAGE_OS="windows-2019"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "linux" ]]; then
+                PACKAGE_OS="ubuntu-22.04"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "windows" ]]; then
+                PACKAGE_OS="windows-latest"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "darwin" ]]; then
+                PACKAGE_OS="macos-13"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              else
+                PACKAGE_OS="windows-latest" # Default
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS (default)"
               fi
               
-              PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$OS_RUNNER\", \"dockerfile\": \"$DOCKER\"}"
+              PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$PACKAGE_OS\", \"dockerfile\": \"$DOCKER\"}"
+              
+              # Mark as processed
+              PROCESSED_PACKAGES[$PACKAGE]=1
             done
             unset IFS
           fi
