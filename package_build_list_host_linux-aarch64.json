@@ -2,7 +2,7 @@
     "comment" : "This is the list that applies to linux arm64 hosts",
     "comment2" : "build_from_source is package name --> build script to call with params",
     "comment3" : "build_from_folder is package name --> folder containing built image of package",
-    "comment4" : "Note:  Build from source occurs before build_from_folder",
+    "comment4" : "Note:  Build from source occurs before build_from_folder test",
     "build_from_source": {
         "assimp-5.4.3-rev2-linux-aarch64":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Linux-aarch64 --clean",
         "astc-encoder-3.2-rev3-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/astc-encoder --platform-name Linux-aarch64 --clean",
