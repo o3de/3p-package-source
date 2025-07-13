@@ -1,0 +1,307 @@
+# This automation builds 3p packages based on a PR
+
+name: Build 3P Packages
+
+on:
+  pull_request:
+    branches:
+      - linux-arm64
+    paths:
+      - 'package_build_list_host_*.json'
+
+jobs:
+  detect-changes:
+    name: Detecting changes in PR to build
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.detect-platform.outputs.matrix }}
+    
+    steps:
+    - name: Checkout 3P source repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+          
+    - name: Get package and platform from JSON changes
+      id: detect-platform
+      run: |
+        CHANGED_FILES=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} --name-only)
+        # Construct the package and os into a json string to be consumed by Github Actions runners
+
+        declare -A PACKAGES_JSON
+        declare -A DOCKERFILE
+        
+        for FILE in $CHANGED_FILES; do
+          if [[ $FILE == package_build_list_host_* ]]; then
+            echo "Checking file $FILE"
+            PLATFORM=$(echo $FILE | sed -n 's/package_build_list_host_\(.*\).json/\1/p')
+            echo "Using platform $PLATFORM"
+
+            # Only get the changes that can be built
+            # First, get the diff output
+            DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
+                  --no-ext-diff --unified=0 \
+                  --exit-code -a --no-prefix -- $FILE | egrep "^\+[^\+]" | egrep -v "^\+\+\+ ")
+            
+            # Use an associative array to track which packages we've already processed
+            declare -A PROCESSED_PACKAGES
+            
+            # Then, iterate over the lines
+            IFS=$'\n' # Process each line in the package build file
+            for LINE in $DIFF; do
+              unset IFS # Reset IFS to avoid word splitting
+              PACKAGE=$(echo $LINE | cut -d'"' -f2)
+              
+              # Skip if we've already processed this package
+              if [[ -n "${PROCESSED_PACKAGES[$PACKAGE]}" ]]; then
+                continue
+              fi
+              
+              PACKPATH=$(echo $LINE | grep -oE "package-system/[^/ ]+" | head -n 1)
+              if [[ -z "${DOCKERFILE["$PACKAGE"]}" && -n "$PACKPATH" ]]; then
+                DOCKER=$(test -e ${PACKPATH%% }/Dockerfile* && echo 1 || echo 0) # Assume the build scripts will use the Dockerfile if found in the package path
+                DOCKERFILE["$PACKAGE"]=1 # Mark Dockerfile check as done
+              fi
+
+              # Determine the OS runner based on the package name
+              if [[ $PACKAGE =~ "aarch64" ]]; then
+                PACKAGE_OS="ubuntu-22.04-arm"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
+                PACKAGE_OS="windows-2019"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "linux" ]]; then
+                PACKAGE_OS="ubuntu-22.04"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "windows" ]]; then
+                PACKAGE_OS="windows-latest"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "darwin" ]]; then
+                PACKAGE_OS="macos-13"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              else
+                PACKAGE_OS="windows-latest" # Default
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS (default)"
+              fi
+              
+              PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$PACKAGE_OS\", \"dockerfile\": \"$DOCKER\"}"
+              
+              # Mark as processed
+              PROCESSED_PACKAGES[$PACKAGE]=1
+            done
+            unset IFS
+          fi
+        done
+
+        # Construct the complete JSON from the array
+        JSON="{\"include\":["
+        for PKG_JSON in "${PACKAGES_JSON[@]}"; do
+          JSON="$JSON$PKG_JSON,"
+        done
+
+        # Remove last "," and add closing brackets
+        if [[ $JSON == *, ]]; then
+          JSON="${JSON%?}"
+        fi
+        JSON="$JSON]}"
+        echo $JSON
+
+        # Set output
+        echo "matrix=$( echo "$JSON" )" >> $GITHUB_OUTPUT
+
+  validate-changes:
+    name: Check changes for issues
+    needs: detect-changes
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.detect-changes.outputs.matrix)}}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout 3P source repo
+      uses: actions/checkout@v4
+        
+    - name: Check if package already exists in prod
+      env:
+        PROD_CDN: ${{ vars.PROD_CDN }} # Change this to compare on your own endpoint
+      run: |
+        url="${{ env.PROD_CDN }}/${{ matrix.package }}"
+        if curl --head --silent --fail ${url}.tar.xz > /dev/null 2>&1; then
+          echo ${{ matrix.package }} already exists in prod. Check the rev in the json file to ensure it is incremented
+          exit 1
+        else
+          echo ${{ matrix.package }} does not exist in CDN, continuing...
+          exit 0
+        fi
+
+    - name: Malware scan of repo
+      uses: dell/common-github-actions/malware-scanner@main
+      with:
+        directories: .
+        options: -r
+
+  build-on-specific-os:
+    name: Build on "${{ matrix.os }}" for "${{ matrix.package }}"
+    needs: [detect-changes, validate-changes]
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.detect-changes.outputs.matrix)}}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Configure
+      id: configure
+      run: |
+        git config --global core.longpaths true
+        echo "uid_gid=$(id -u):$(id -g)" >> $GITHUB_OUTPUT
+
+    - name: Expand disk size for Linux
+      uses: easimon/maximize-build-space@v10
+      if: runner.os == 'Linux' && !contains(matrix.os, 'arm')
+      with:
+        root-reserve-mb: 20000
+        swap-size-mb: 200
+        remove-dotnet: true
+        remove-haskell: true
+        remove-codeql: true
+      
+    - name: Checkout 3P source repo
+      uses: actions/checkout@v4
+      with:
+        path: source
+        fetch-depth: 0
+    
+    - name: Checkout 3P scripts repo
+      uses: actions/checkout@v4
+      with:
+        repository: o3de/3p-package-scripts
+        path: scripts
+      
+    - name: Update python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Install python dependancies
+      run: |
+        python3 -m pip install boto3 certifi
+    
+    - name: Update cmake/ninja
+      uses: lukka/get-cmake@latest
+
+    - name: Update msbuild path
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1.13.0
+
+    - name: Setup NDK
+      env:
+        ANDROID_NDK_VERSION: 25.1.8937393
+      if: runner.os == 'Windows'
+      run: |
+        $sdkPath = if ($env:ANDROID_HOME) {
+              $env:ANDROID_HOME
+          } else {
+              "$env:LOCALAPPDATA\Android\Sdk"
+          }
+          
+        # Remove versioned NDK directories
+        if (Test-Path "$sdkPath\ndk") {
+            Get-ChildItem "$sdkPath\ndk" -Directory |
+            Where-Object { $_.Name -match '^\d' } |
+            ForEach-Object {
+                Remove-Item $_.FullName -Recurse -Force
+                Write-Host "Removed NDK version: $($_.Name)" -ForegroundColor Green
+            }
+        }
+
+        # Install NDK version based on ANDROID_NDK_VERSION
+        if ($env:ANDROID_NDK_VERSION) {
+          $sdkmanager = "$sdkPath\cmdline-tools\latest\bin\sdkmanager.bat"
+          if (-not (Test-Path $sdkmanager)) {
+              $sdkmanager = "$sdkPath\tools\bin\sdkmanager.bat"
+          }
+          if (Test-Path $sdkmanager) {
+              Write-Host "Installing NDK version $env:ANDROID_NDK_VERSION..." -ForegroundColor Yellow
+              & $sdkmanager --install "ndk;$env:ANDROID_NDK_VERSION" --channel=0
+          } else {
+              Write-Host "sdkmanager not found. Cannot install NDK." -ForegroundColor Red
+              exit 1
+          }
+        }
+
+        # Set NDK folder path in the env vars
+        $ndkRoot = "$sdkPath\ndk\$env:ANDROID_NDK_VERSION"
+        echo ANDROID_NDK=$ndkRoot >> $env:GITHUB_ENV
+        echo ANDROID_NDK_HOME=$ndkRoot >> $env:GITHUB_ENV
+        echo ANDROID_NDK_ROOT=$ndkRoot >> $env:GITHUB_ENV
+    
+    - name: Install clang/gcc
+      if: runner.os == 'Linux'
+      env:
+        CLANG_VER: 12
+        GCC_VER: 9
+      run: |
+        sudo apt-get install -y clang-${{ env.CLANG_VER }} gcc-${{ env.GCC_VER }} g++-${{ env.GCC_VER }}
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${{ env.CLANG_VER }} 10
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${{ env.CLANG_VER }} 10
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ env.GCC_VER }} 10
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ env.GCC_VER }} 10
+
+    - name: Use sccache
+      uses: hendrikmuhs/ccache-action@v1.2.10
+      if: ${{ !contains(matrix.os, 'arm') }}
+      with:
+        variant: sccache
+        max-size: 2048M
+        key: ${{ matrix.package }}-${{ matrix.os }}
+        restore-keys:
+          ${{ matrix.package }}-${{ matrix.os }}  
+
+    - name: Set up QEMU (aarch64) # Only if the package folder contains a Dockerfile
+      if: ${{ (contains(matrix.package, 'aarch64')) && (matrix.dockerfile == '1') }}
+      run: |
+        sudo apt-get install -y qemu qemu-user-static
+
+    - name: Run build command
+      env:
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
+        CMAKE_C_COMPILER_LAUNCHER: sccache
+        CMAKE_GENERATOR: Ninja # ccache/sccache cannot be used as the compiler launcher under cmake if the generator is MSBuild
+      run: |
+        python3 scripts/o3de_package_scripts/build_package.py --search_path source ${{ matrix.package }}
+          
+    - name: Upload packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.package }}
+        path: source/packages/*
+
+  validate-packages:
+    name: Validating ${{ matrix.package }}
+    needs: [detect-changes, build-on-specific-os]
+    runs-on: 'ubuntu-latest'
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.detect-changes.outputs.matrix)}}
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.package }}
+          
+      - name: Verify SHA256
+        run: |
+          echo "$(cat ${{ matrix.package }}.tar.xz.SHA256SUMS)"
+          echo "$(cat ${{ matrix.package }}.tar.xz.SHA256SUMS | cut -d" " -f1) ${{ matrix.package }}.tar.xz" | sha256sum --check
+
+      - name: Decompress package
+        if: ${{ !contains(matrix.package, 'aarch64') }}
+        run: |
+          tar -xvf ${{ matrix.package }}.tar.xz
+    
+      - name: Malware scan
+        uses: dell/common-github-actions/malware-scanner@main
+        with:
+          directories: .
+          options: -r
