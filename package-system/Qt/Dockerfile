@@ -38,8 +38,6 @@ WORKDIR $WORKSPACE
 # Initilize apt cache
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update
 
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y upgrade
-
 # Setup time zone and locale data (necessary for SSL and HTTPS packages)
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-configuration
 
