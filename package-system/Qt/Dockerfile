@@ -35,8 +35,6 @@ ENV DOWNLOADED_PACKAGE_FOLDERS=$INPUT_DEPENDENT_PACKAGE_FOLDERS
 
 WORKDIR $WORKSPACE
 
-WORKDIR /data/workspace
-
 # Initilize apt cache
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update
 
