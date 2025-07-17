@@ -28,7 +28,7 @@ jobs:
           env: |
             GITHUB_WORKFLOW: ${{ github.workflow }} # Sets the docker image to the name of the workflow
           arch: aarch64
-          distro: ubuntu20.04
+          distro: ubuntu22.04
           githubToken: ${{ github.token }}
           shell: /bin/bash
           install: |
@@ -61,6 +61,22 @@ jobs:
               && rm /tmp/cmake-install.sh \
               && ln -s /opt/cmake-${CMAKE_VER}/bin/* /usr/local/bin
             rm -rf /var/lib/apt/lists/*
+            # Add Docker's official GPG key:
+            apt-get update
+            sudo apt-get install ca-certificates curl
+            sudo install -m 0755 -d /etc/apt/keyrings
+            sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+            sudo chmod a+r /etc/apt/keyrings/docker.asc
+            # Add the repository to Apt sources:
+            echo \
+              "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+              $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+               tee /etc/apt/sources.list.d/docker.list > /dev/null
+            apt-get update
+            apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            apt-get install -y qemu-user-static binfmt-support
+            update-binfmts --install qemu-aarch64 /usr/bin/qemu-aarch64-static --magic '\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\xb7\x00' --mask '\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff'
+
           run: |
             lsb_release -a
             uname -a
@@ -71,3 +87,4 @@ jobs:
             cmake --version
             git --version
             python3 --version
+            docker --version
