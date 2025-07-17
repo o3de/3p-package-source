@@ -23,7 +23,8 @@
         "-DEXPAT_BUILD_FUZZERS=OFF",
         "-DEXPAT_BUILD_TESTS=OFF",
         "-DEXPAT_BUILD_TOOLS=OFF",
-        "-DEXPAT_SHARED_LIBS=OFF"
+        "-DEXPAT_SHARED_LIBS=OFF",
+        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
     ],
     "cmake_build_args_common": [
         "--parallel"
@@ -52,6 +53,12 @@
             "custom_test_cmd" : [
                 "test_expat_android.cmd"
               ]
+        },
+        "Emscripten": {
+          "cmake_generate_args": [
+              "-G",
+              "Ninja"
+          ]
         }
         },
         "Darwin": {

@@ -69,6 +69,10 @@ class VcpkgBuilder(object):
             'ios': {
                 True: 'arm64-ios',
                 False: 'arm64-ios-dynamic',
+            },
+            'wasm32': {
+                True: 'wasm32-emscripten',
+                False: 'wasm32-emscripten',
             }
         }
         try:

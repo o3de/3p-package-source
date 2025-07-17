@@ -24,7 +24,7 @@ def main():
     parser.add_argument(
         '--platform-name',
         dest='platformName',
-        choices=['windows', 'android', 'mac', 'ios'],
+        choices=['windows', 'android', 'mac', 'ios', 'wasm32'],
         default=VcpkgBuilder.defaultPackagePlatformName(),
     )
     args = parser.parse_args()
@@ -45,20 +45,23 @@ def main():
         'mac': True,
         'ios': True,
         'windows': True,
+        'wasm32': True,
     }
 
     revisionForPlatform = {
         'android': 'rev2',
         'mac': 'rev1',
         'ios': 'rev1',
-        'windows': 'rev1'
+        'windows': 'rev1',
+        "wasm32": 'rev1',
     }
 
     testScriptForPlatform = {
         'android' : opensslPackageSourceDir / 'test_OpenSSL_android.cmd',
         'mac' : opensslPackageSourceDir / 'test_OpenSSL_mac.sh',
         'ios' : opensslPackageSourceDir / 'test_OpenSSL_ios.sh',
-        'windows' : opensslPackageSourceDir / 'test_OpenSSL_windows.cmd'
+        'windows' : opensslPackageSourceDir / 'test_OpenSSL_windows.cmd',
+        'wasm32' : opensslPackageSourceDir / 'test_OpenSSL_wasm32.cmd'
     }
 
     with TemporaryDirectory() as tempdir:

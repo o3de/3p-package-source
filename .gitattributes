@@ -1,1 +1,2 @@
 package-system/Crashpad/add_o3de_handler_extensions.patch eol=lf
+package-system/zlib/emscripten-alias-fix.patch eol=lf
