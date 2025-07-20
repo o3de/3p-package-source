@@ -11,6 +11,7 @@ set(QT_LIB_PATH ${QT_PATH}/lib)
 list(APPEND QT5_COMPONENTS
     DBus
     XcbQpa
+    WaylandClient
 )
 
 function(ly_qt_configuration_mapping in_config out_config)
