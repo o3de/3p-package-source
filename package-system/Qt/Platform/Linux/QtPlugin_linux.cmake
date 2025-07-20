@@ -51,6 +51,8 @@ ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     FILES
         ${QT_PATH}/plugins/platforms/libqminimal.so
         ${QT_PATH}/plugins/platforms/libqxcb.so
+        ${QT_PATH}/plugins/platforms/libqwayland-egl.so
+        ${QT_PATH}/plugins/platforms/libqwayland-generic.so
     OUTPUT_SUBDIRECTORY platforms
 )
 
@@ -60,5 +62,39 @@ ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     OUTPUT_SUBDIRECTORY xcbglintegrations
 )
 
+ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
+    FILES
+        ${QT_PATH}/plugins/wayland-decoration-client/libbradient.so
+    OUTPUT_SUBDIRECTORY wayland-decoration-client
+)
+
+ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
+    FILES
+        ${QT_PATH}/plugins/wayland-graphics-integration-client/libdmabuf-server.so
+        ${QT_PATH}/plugins/wayland-graphics-integration-client/libdrm-egl-server.so
+        ${QT_PATH}/plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so
+        ${QT_PATH}/plugins/wayland-graphics-integration-client/libshm-emulation-server.so
+        ${QT_PATH}/plugins/wayland-graphics-integration-client/libvulkan-server.so
+    OUTPUT_SUBDIRECTORY wayland-graphics-integration-client
+)
+
+ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
+    FILES
+        ${QT_PATH}/plugins/wayland-shell-integration/libfullscreen-shell-v1.so
+        ${QT_PATH}/plugins/wayland-shell-integration/libivi-shell.so
+        ${QT_PATH}/plugins/wayland-shell-integration/libwl-shell.so
+        ${QT_PATH}/plugins/wayland-shell-integration/libxdg-shell.so
+        ${QT_PATH}/plugins/wayland-shell-integration/libxdg-shell-v5.so
+        ${QT_PATH}/plugins/wayland-shell-integration/libxdg-shell-v6.so
+    OUTPUT_SUBDIRECTORY wayland-shell-integration
+)
+
+ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
+    FILES
+        ${QT_PATH}/plugins/platformthemes/libqxdgdesktopportal.so
+    OUTPUT_SUBDIRECTORY platformthemes
+)
+
 ly_add_dependencies(3rdParty::Qt::Widgets::Plugins Qt5::DBus)
 ly_add_dependencies(3rdParty::Qt::Widgets::Plugins Qt5::XcbQpa)
+ly_add_dependencies(3rdParty::Qt::Widgets::Plugins Qt5::WaylandClient)

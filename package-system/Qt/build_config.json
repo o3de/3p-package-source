@@ -49,7 +49,7 @@
         },
         "Linux": {
             "Linux": {
-                "package_version": "5.15.2-rev10",
+                "package_version": "5.15.2-rev11",
                 "patch_file": "qt-linux.patch",
                 "depends_on_packages": [
                     ["OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", ""],
@@ -68,7 +68,7 @@
                 ]
             },
 	    "Linux-aarch64": {
-                "package_version": "5.15.2-rev10",
+                "package_version": "5.15.2-rev11",
                 "patch_file": "qt-linux.patch",
                 "depends_on_packages": [
                     ["OpenSSL-1.1.1t-rev1-linux-aarch64", "f32721bec9c82d1bd7fb244d78d5dc4e2a47e7b808bb36027236ad377e241ea5", ""],
