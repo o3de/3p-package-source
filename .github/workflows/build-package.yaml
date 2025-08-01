@@ -68,9 +68,6 @@ jobs:
               if [[ $PACKAGE =~ "aarch64" ]]; then
                 PACKAGE_OS="ubuntu-22.04-arm"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
-              elif [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
-                PACKAGE_OS="windows-2019"
-                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "linux" ]]; then
                 PACKAGE_OS="ubuntu-22.04"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
@@ -251,7 +248,7 @@ jobs:
 
     - name: Use sccache
       uses: hendrikmuhs/ccache-action@v1.2.10
-      if: ${{ !contains(matrix.os, 'arm') }}
+      if: ${{ !contains(matrix.os, 'arm') }} # Set sccache compiler launcher
       with:
         variant: sccache
         max-size: 2048M
@@ -259,10 +256,14 @@ jobs:
         restore-keys:
           ${{ matrix.package }}-${{ matrix.os }}  
 
+    - name: Set sccache compiler launcher
+      if: ${{ !contains(matrix.os, 'arm') }} # Must match the if in "Use sccache"
+      run: |
+        echo CMAKE_CXX_COMPILER_LAUNCHER=sccache >> $GITHUB_ENV
+        echo CMAKE_C_COMPILER_LAUNCHER=sccache >> $GITHUB_ENV
+
     - name: Run build command
       env:
-        CMAKE_CXX_COMPILER_LAUNCHER: sccache
-        CMAKE_C_COMPILER_LAUNCHER: sccache
         CMAKE_GENERATOR: Ninja # ccache/sccache cannot be used as the compiler launcher under cmake if the generator is MSBuild
       run: |
         python3 scripts/o3de_package_scripts/build_package.py --search_path source ${{ matrix.package }}
