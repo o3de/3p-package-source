@@ -248,13 +248,16 @@ jobs:
 
     - name: Use sccache
       uses: hendrikmuhs/ccache-action@v1.2.10
-      if: ${{ !contains(matrix.os, 'arm') }}
+      if: ${{ !contains(matrix.os, 'arm') }} # Set sccache compiler launcher
       with:
         variant: sccache
         max-size: 2048M
         key: ${{ matrix.package }}-${{ matrix.os }}
         restore-keys:
           ${{ matrix.package }}-${{ matrix.os }}  
+
+    - name: Set sccache compiler launcher
+      if: ${{ !contains(matrix.os, 'arm') }} # Must match the if in "Use sccache"
       run: |
         echo CMAKE_CXX_COMPILER_LAUNCHER=sccache >> $GITHUB_ENV
         echo CMAKE_C_COMPILER_LAUNCHER=sccache >> $GITHUB_ENV
