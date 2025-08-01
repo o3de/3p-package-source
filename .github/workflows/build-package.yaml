@@ -255,11 +255,12 @@ jobs:
         key: ${{ matrix.package }}-${{ matrix.os }}
         restore-keys:
           ${{ matrix.package }}-${{ matrix.os }}  
+      run: |
+        echo CMAKE_CXX_COMPILER_LAUNCHER=sccache >> $GITHUB_ENV
+        echo CMAKE_C_COMPILER_LAUNCHER=sccache >> $GITHUB_ENV
 
     - name: Run build command
       env:
-        CMAKE_CXX_COMPILER_LAUNCHER: sccache
-        CMAKE_C_COMPILER_LAUNCHER: sccache
         CMAKE_GENERATOR: Ninja # ccache/sccache cannot be used as the compiler launcher under cmake if the generator is MSBuild
       run: |
         python3 scripts/o3de_package_scripts/build_package.py --search_path source ${{ matrix.package }}
