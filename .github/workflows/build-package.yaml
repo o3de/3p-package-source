@@ -68,9 +68,6 @@ jobs:
               if [[ $PACKAGE =~ "aarch64" ]]; then
                 PACKAGE_OS="ubuntu-22.04-arm"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
-              elif [[ $PACKAGE =~ "DirectXShaderCompilerDxc" ]] && [[ $PLATFORM =~ "windows" ]]; then
-                PACKAGE_OS="windows-2019"
-                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "linux" ]]; then
                 PACKAGE_OS="ubuntu-22.04"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
