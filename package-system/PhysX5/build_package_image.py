@@ -369,7 +369,7 @@ def main():
         elif args.platformName == 'android':
             commit = '8ac3e3601d1333ae2a967995f49b338d4e188215' # Commit of PR 40 on top of 5.1.1 version
         else:
-            commit = '2264315594478a9aa0bda3464761a666fa107d76' # Commit for 5.6.0 version
+            commit = '5ca9f472105a90d70d957c243cb0ef36fe251a9f' # Commit for 5.6.1 version
             
         tempdir = Path(tempdir)
         builder = PhysXBuilder(workingDir=tempdir,
