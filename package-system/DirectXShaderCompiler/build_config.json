@@ -37,7 +37,8 @@
                "lib/dxil.dll",
                "lib/dxcompiler.dll"
             ]
-         },
+         }
+      },
       "Darwin":{
          "Mac":{
             "build_configs": ["Release"],
