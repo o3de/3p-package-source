@@ -18,10 +18,10 @@ set(${MY_NAME}_BINARY_DIR ${CMAKE_CURRENT_LIST_DIR}/${MY_NAME}/bin)
 add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 
 set(${MY_NAME}_RUNTIME_DEPENDENCIES
-		${${MY_NAME}_BINARY_DIR}/Release/dxc.exe
-		${${MY_NAME}_BINARY_DIR}/Release/dxsc.exe
-		${${MY_NAME}_BINARY_DIR}/Release/dxil.dll
-		${${MY_NAME}_BINARY_DIR}/Release/dxcompiler.dll)
+		${${MY_NAME}_BINARY_DIR}/dxc.exe
+		${${MY_NAME}_BINARY_DIR}/dxsc.exe
+		${${MY_NAME}_BINARY_DIR}/dxil.dll
+		${${MY_NAME}_BINARY_DIR}/dxcompiler.dll)
 ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} OUTPUT_SUBDIRECTORY ${output_subfolder} FILES ${${MY_NAME}_RUNTIME_DEPENDENCIES})
 
 

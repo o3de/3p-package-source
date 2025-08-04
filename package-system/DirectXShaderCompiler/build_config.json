@@ -18,8 +18,6 @@
                "-GNinja",
                "-Csrc/cmake/caches/PredefinedParams.cmake",
                "-DCMAKE_BUILD_TYPE=Release",
-               "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
-               "-DCMAKE_INSTALL_BINDIR=\"bin/Release\"",
                "-DLLVM_INCLUDE_TESTS:BOOL=OFF",
                "-DCLANG_INCLUDE_TESTS:BOOL=OFF",
                "-DHLSL_INCLUDE_TESTS:BOOL=OFF",
@@ -34,8 +32,8 @@
             "cmake_install_filter": [
                "bin/dxc.exe",
                "bin/dxsc.exe",
-               "lib/dxil.dll",
-               "lib/dxcompiler.dll"
+               "bin/dxil.dll",
+               "bin/dxcompiler.dll"
             ]
          }
       },
