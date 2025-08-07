@@ -2,7 +2,7 @@
    "git_url":"https://github.com/o3de/DirectXShaderCompiler.git",
    "git_tag": "release-1.8.2505.1-o3de",
    "package_name":"DirectXShaderCompilerDxc",
-   "package_version": "1.8.2505.1-o3de-rev1",
+   "package_version": "1.8.2505.1-o3de-rev2",
    "package_url":"https://github.com/o3de/DirectXShaderCompiler",
    "package_license":"NCSA",
    "package_license_file":"LICENSE.TXT",
@@ -10,12 +10,30 @@
    "Platforms":{
       "Windows":{
          "Windows":{
-            "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Windows",
-            "custom_build_cmd": [
-               "build_dxc_windows.cmd"
+            "build_configs": [
+               "Release"
             ],
-            "custom_install_cmd": [
-               "install_dxc_windows.cmd"
+            "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Windows",
+            "cmake_generate_args": [
+               "-GNinja",
+               "-Csrc/cmake/caches/PredefinedParams.cmake",
+               "-DCMAKE_BUILD_TYPE=Release",
+               "-DLLVM_INCLUDE_TESTS:BOOL=OFF",
+               "-DCLANG_INCLUDE_TESTS:BOOL=OFF",
+               "-DHLSL_INCLUDE_TESTS:BOOL=OFF",
+               "-DSPIRV_BUILD_TESTS:BOOL=OFF",
+               "-DLLVM_INCLUDE_TOOLS=ON"
+            ],
+            "cmake_build_args": [
+               "--target",
+               "all llvm-as llvm-dis",
+               "--parallel"
+            ],
+            "cmake_install_filter": [
+               "bin/dxc.exe",
+               "bin/dxsc.exe",
+               "bin/dxil.dll",
+               "bin/dxcompiler.dll"
             ]
          }
       },
