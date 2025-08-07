@@ -192,6 +192,11 @@ jobs:
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1.13.0
 
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: 4.0.10
+
     - name: Setup NDK
       env:
         ANDROID_NDK_VERSION: 25.1.8937393
