@@ -18,9 +18,8 @@ import tarfile
 import sys
 from urllib.parse import _splithost
 
-
 # used if LY_PACKAGE_SERVER_URLS is not set.
-DEFAULT_LY_PACKAGE_SERVER_URLS = "https://d2c171ws20a1rv.cloudfront.net;https://d3t6xeg4fgfoum.cloudfront.net"
+DEFAULT_LY_PACKAGE_SERVER_URLS = "https://d1gg6ket0m44ly.cloudfront.net;https://d3t6xeg4fgfoum.cloudfront.net"
 
 possible_download_errors = (ssl.SSLError, URLError, OSError)
 
