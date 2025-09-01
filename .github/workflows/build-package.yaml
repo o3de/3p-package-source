@@ -192,7 +192,7 @@ jobs:
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1.13.0
       with:
-        vsversion: 2019
+        toolset: 14.29
 
     - name: Setup NDK
       env:
