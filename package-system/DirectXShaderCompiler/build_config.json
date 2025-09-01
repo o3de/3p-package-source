@@ -15,7 +15,6 @@
             ],
             "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Windows",
             "cmake_generate_args": [
-               "-GNinja",
                "-Tv142",
                "-Csrc/cmake/caches/PredefinedParams.cmake",
                "-DCMAKE_BUILD_TYPE=Release",
