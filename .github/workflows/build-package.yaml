@@ -191,6 +191,8 @@ jobs:
     - name: Update msbuild path
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1.13.0
+      with:
+        vsversion: 2019
 
     - name: Setup NDK
       env:
