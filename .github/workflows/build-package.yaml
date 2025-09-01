@@ -188,12 +188,6 @@ jobs:
     - name: Update cmake/ninja
       uses: lukka/get-cmake@latest
 
-    - name: Update msbuild path
-      if: runner.os == 'Windows'
-      uses: ilammy/msvc-dev-cmd@v1.13.0
-      with:
-        toolset: 14.29
-      
     - name: Install ATL for VS 2019
       if: ${{ contains(matrix.package, 'DirectXShaderCompilerDxc') && runner.os == 'Windows' }} 
       run: |
@@ -201,8 +195,13 @@ jobs:
         # The windows-2022 runner does have the VS2019 toolset, but without the ATL library. DXC however needs the ATL library to build
         # This is a workaround for for installing ATL taken from https://github.com/actions/runner-images/issues/12486
         echo "Installing ATL library for VS2019"
-        & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL --quiet --norestart
+        & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Component.VC.14.29.16.11.x86.x64 --add Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL --add Microsoft.VisualStudio.Component.VC.14.29.16.11.CLI.Support --add Microsoft.VisualStudio.Component.VC.14.29.16.11.MFC --quiet --norestart
 
+    - name: Update msbuild path
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1.13.0
+      with:
+        toolset: 14.29
     - name: Setup NDK
       env:
         ANDROID_NDK_VERSION: 25.1.8937393
