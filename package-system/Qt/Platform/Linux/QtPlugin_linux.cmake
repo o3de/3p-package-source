@@ -7,26 +7,21 @@
 #
 
 # Not plugins per-se but extra files associated to each component
-foreach(component ${QT5_COMPONENTS})
-    if(TARGET Qt5::${component})
+foreach(component ${QT6_COMPONENTS})
+    if(TARGET Qt6::${component})
 
         # add the IMPORTED_SONAME files as files to copy
         unset(extra_target_files)
-        get_target_property(imported_soname Qt5::${component} IMPORTED_SONAME_RELEASE)
+        get_target_property(imported_soname Qt6::${component} IMPORTED_SONAME_RELEASE)
         if(imported_soname)
             list(APPEND extra_target_files ${QT_LIB_PATH}/${imported_soname})
         endif()
         if(extra_target_files)
-            ly_add_target_files(TARGETS Qt5::${component} FILES ${extra_target_files})
+            ly_add_target_files(TARGETS Qt6::${component} FILES ${extra_target_files})
         endif()
 
     endif()
 endforeach()
-
-ly_add_target_files(TARGETS 3rdParty::Qt::Network::Plugins
-    FILES ${QT_PATH}/plugins/bearer/libqgenericbearer.so
-    OUTPUT_SUBDIRECTORY bearer
-)
 
 ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     FILES ${QT_PATH}/plugins/iconengines/libqsvgicon.so
@@ -60,5 +55,8 @@ ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     OUTPUT_SUBDIRECTORY xcbglintegrations
 )
 
-ly_add_dependencies(3rdParty::Qt::Widgets::Plugins Qt5::DBus)
-ly_add_dependencies(3rdParty::Qt::Widgets::Plugins Qt5::XcbQpa)
+ly_add_dependencies(3rdParty::Qt::Widgets::Plugins Qt6::DBus)
+ly_add_target_files(TARGETS 3rdParty::Qt::Widgets::Plugins
+    FILES
+        ${QT_PATH}/lib/libQt6XcbQpa.so
+)
