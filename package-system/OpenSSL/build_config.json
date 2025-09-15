@@ -10,7 +10,7 @@
    "Platforms":{
       "Linux":{
          "Linux":{
-            "cmake_find_template":"FindOpenSSL.cmake.template",
+            "cmake_find_template":"FindOpenSSL.cmake.Linux.template",
             "custom_build_cmd": [
                "./build-linux.sh",
                "openssl_1_1_1t",
@@ -31,7 +31,7 @@
             }
          },
          "Linux-aarch64":{
-            "cmake_find_template":"FindOpenSSL.cmake.template",
+            "cmake_find_template":"FindOpenSSL.cmake.Linux.template",
             "custom_build_cmd": [
                "./build-linux.sh",
                "openssl_1_1_1t",
