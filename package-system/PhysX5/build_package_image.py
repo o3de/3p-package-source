@@ -35,6 +35,9 @@ class PhysXBuilder(object):
         )
 
         if self.enable_GPU:
+            print(f"NOTE: Building PhysX with GPU support requires a CUDA installation, and has only been tested with CUDA v12.8.1")
+
+        if self.enable_GPU and self._platform in ('windows'):
             if self._env.get("PM_CUDA_PATH") is None:
                 if self._env.get('CUDA_PATH') is None and self._env.get('CUDA_PATH_V12_8') is None:
                     print("Could not find CUDA_PATH or CUDA_PATH_V12_8 environment variable.  Cannot build PhysX with GPU support.")
@@ -51,13 +54,13 @@ class PhysXBuilder(object):
         # nVidia CMakeModules (downloaded while building PhysX) do not cover ios
         # bin folder names yet, so they appear as UNKNOWN.
         self.platform_params = { 
-            # system-name   : (preset,      can use CUDA,     bin folder name,    install folder name, is multiconfig)
-            'windows'       : ('vc16win64',         True,  'win.x86_64.vc142.md', 'vc16win64',          True),
-            'linux'         : ('linux',             True,  'linux.clang',         'linux',              False),
-            'linux-aarch64' : ('linux-aarch64',     True,  'linux.aarch64',       'linux-aarch64',      False),
-            'mac'           : ('mac64',             False, 'mac.x86_64',          'mac64',              True),
-            'ios'           : ('ios64',             False, 'UNKNOWN',             'ios64',              True),
-            'android'       : ('android-arm64-v8a', False, "android.arm64-v8a",   'android-29',         False)
+            # system-name   : (preset,         can use CUDA,     bin folder name,    install folder name, is multiconfig)
+            'windows'       : ('vc16win64',           True,  'win.x86_64.vc142.md', 'vc16win64',            True),
+            'linux'         : ('linux-clang',         True,  'linux.x86_64',        'linux-clang',          False),
+            'linux-aarch64' : ('linux-aarch64-clang', True,  'linux.aarch64',       'linux-aarch64',        False),
+            'mac'           : ('mac64',               False, 'mac.x86_64',          'mac64',                True),
+            'ios'           : ('ios64',               False, 'UNKNOWN',             'ios64',                True),
+            'android'       : ('android-arm64-v8a',   False, "android.arm64-v8a",   'android-29',           False)
         }
 
     @property
@@ -125,7 +128,7 @@ class PhysXBuilder(object):
         
         if self.platform == 'windows':
             content = re.sub('name="PX_BUILDSNIPPETS" value="(True|False)"', f'name="PX_BUILDSNIPPETS" value="False"', content, flags = re.M)
-            content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="False"', content, flags = re.M)
+            content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="True"', content, flags = re.M)
             if config == 'debug':
                 content = re.sub('name="NV_USE_DEBUG_WINCRT" value="(True|False)"', f'name="NV_USE_DEBUG_WINCRT" value="True"', content, flags = re.M)
             else:
@@ -134,7 +137,7 @@ class PhysXBuilder(object):
             
         elif self.platform == 'linux' or self.platform == 'linux-aarch64':
             content = re.sub('name="PX_BUILDSNIPPETS" value="(True|False)"', f'name="PX_BUILDSNIPPETS" value="False"', content, flags = re.M)
-            content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="False"', content, flags = re.M)
+            content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="True"', content, flags = re.M)
     
         self.writeFile(preset_file, content)
 
@@ -193,6 +196,7 @@ class PhysXBuilder(object):
         if self._hostPlatformLower == 'windows':
             update_pacman_call = [ str(packman_dir / 'packman.cmd'), 'update', '-y']
         else:
+            os.chmod(packman_dir / 'packman', 0o755) # ensure packman is executable
             update_pacman_call = [ str(packman_dir / 'packman'), 'update', '-y']
 
         check_call_packman_update(update_pacman_call)        
@@ -303,44 +307,79 @@ class PhysXBuilder(object):
             dst=dst
         )
 
-        extraLibsPerPlatform = {
-            'windows': [
-                ['\\${EXTRA_SHARED_LIBS}',
-                 ''.join(('\n',
-                    '\t${PATH_TO_LIBS}/PhysXDevice64.dll\n',
-                    '\t${PATH_TO_LIBS}/PhysXGpu_64.dll\n'
-                ))],
-                ['\\${EXTRA_STATIC_LIBS}',
-                 ''.join(('\n',
-                    '\t${PATH_TO_LIBS}/LowLevel_static_64.lib\n',
-                    '\t${PATH_TO_LIBS}/LowLevelAABB_static_64.lib\n',
-                    '\t${PATH_TO_LIBS}/LowLevelDynamics_static_64.lib\n',
-                    '\t${PATH_TO_LIBS}/PhysXTask_static_64.lib\n',
-                    '\t${PATH_TO_LIBS}/SceneQuery_static_64.lib\n',
-                    '\t${PATH_TO_LIBS}/SimulationController_static_64.lib\n',
-                ))],
-            ],
-            'linux': [
-                ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_LIBS}/libPhysXGpu_64.so'],
-                ['\\${EXTRA_STATIC_LIBS}', ''],
-            ],
-            'linux-aarch64': [
-                ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_LIBS}/libPhysXGpu_64.so'],
-                ['\\${EXTRA_STATIC_LIBS}', ''],
-            ],
-            'mac': [
-                ['\\${EXTRA_SHARED_LIBS}', ''],
-                ['\\${EXTRA_STATIC_LIBS}', ''],
-            ],
-            # iOS has its own FindPhysX file where it doesn't need to do any adjustments.
-            'ios': [
-            ],
-            'android': [
-                ['\\${EXTRA_SHARED_LIBS}', ''],
-                ['\\${EXTRA_STATIC_LIBS}', ''],
-            ],
-        }
-        
+        # The GPU library is only necessary if PhysX is built with GPU support
+        extraLibsPerPlatform = {}
+
+        if self.enable_GPU:
+            extraLibsPerPlatform = {
+                'windows': [
+                    ['\\${EXTRA_SHARED_LIBS}',
+                    ''.join(('\n',
+                        '\t${PATH_TO_LIBS}/PhysXDevice64.dll\n',
+                        '\t${PATH_TO_LIBS}/PhysXGpu_64.dll\n'
+                    ))],
+                    ['\\${EXTRA_STATIC_LIBS}',
+                    ''.join(('\n',
+                        '\t${PATH_TO_LIBS}/LowLevel_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/LowLevelAABB_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/LowLevelDynamics_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/PhysXTask_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/SceneQuery_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/SimulationController_static_64.lib\n',
+                    ))],
+                ],
+                'linux': [
+                    ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_LIBS}/libPhysXGpu_64.so'],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
+                'linux-aarch64': [
+                    ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_LIBS}/libPhysXGpu_64.so'],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
+                'mac': [
+                    ['\\${EXTRA_SHARED_LIBS}', ''],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
+                # iOS has its own FindPhysX file where it doesn't need to do any adjustments.
+                'ios': [
+                ],
+                'android': [
+                    ['\\${EXTRA_SHARED_LIBS}', ''],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
+            }
+        else:  # only windows needs some extra files included in static lib mode:
+            extraLibsPerPlatform = {
+                'windows': [
+                    ['\\${EXTRA_SHARED_LIBS}', ''],
+                    ['\\${EXTRA_STATIC_LIBS}',
+                    ''.join(('\n',
+                        '\t${PATH_TO_LIBS}/LowLevel_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/LowLevelAABB_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/LowLevelDynamics_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/PhysXTask_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/SceneQuery_static_64.lib\n',
+                        '\t${PATH_TO_LIBS}/SimulationController_static_64.lib\n',
+                    ))],
+                ],
+                'linux': [
+                    ['\\${EXTRA_SHARED_LIBS}', ''],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
+                'linux-aarch64': [
+                    ['\\${EXTRA_SHARED_LIBS}', ''],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
+                'mac': [
+                    ['\\${EXTRA_SHARED_LIBS}', ''],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
+                'ios': [],
+                'android': [
+                    ['\\${EXTRA_SHARED_LIBS}', ''],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
+            }
         content = self.readFile(dst)
         for extraLibs in extraLibsPerPlatform[self.platform]:
             content = re.sub(extraLibs[0], extraLibs[1], content, flags = re.M)
@@ -391,13 +430,13 @@ def main():
         
         # Version 5.6.1 commits
         if args.platformName == 'mac':
-            commit = '47c79b2936b7cfd34abeedf685b70730884afc37'
+            commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
         elif args.platformName == 'ios':
-            commit = '47c79b2936b7cfd34abeedf685b70730884afc37'
+            commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
         elif args.platformName == 'android':
-            commit = '47c79b2936b7cfd34abeedf685b70730884afc37'
+            commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
         else:
-            commit = '47c79b2936b7cfd34abeedf685b70730884afc37'
+            commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
             
         tempdir = Path(tempdir)
         builder = PhysXBuilder(workingDir=tempdir,
