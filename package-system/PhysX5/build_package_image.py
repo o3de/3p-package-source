@@ -23,9 +23,10 @@ sys.path.append(str(Path(__file__).parent.parent.parent / 'Scripts'))
 import builders.monkeypatch_tempdir_cleanup
 
 class PhysXBuilder(object):
-    def __init__(self, workingDir: pathlib.Path, basePackageSystemDir: pathlib.Path, targetPlatform: str):
+    def __init__(self, workingDir: pathlib.Path, basePackageSystemDir: pathlib.Path, targetPlatform: str, enable_GPU: bool = False):
         self._workingDir = workingDir
         self._packageSystemDir = basePackageSystemDir
+        self._enable_GPU = enable_GPU
         self._platform = targetPlatform
         self._hostPlatformLower = platform.system().lower()
         self._env = dict(os.environ)
@@ -33,21 +34,30 @@ class PhysXBuilder(object):
             GW_DEPS_ROOT=str(workingDir),
         )
 
+        if self.enable_GPU:
+            if self._env.get("PM_CUDA_PATH") is None:
+                if self._env.get('CUDA_PATH') is None and self._env.get('CUDA_PATH_V12_8') is None:
+                    print("Could not find CUDA_PATH or CUDA_PATH_V12_8 environment variable.  Cannot build PhysX with GPU support.")
+                    print("CUDA_PATH should point to the root of a CUDA installation, recommend v12.8, for example on Windows, this would be something like")
+                    print("   set CUDA_PATH=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.8")
+                    raise Exception("CUDA_PATH or CUDA_PATH_V12_8 environment variable must be set to build PhysX with GPU support.  Recommend v12.8")
+                self._env['PM_CUDA_PATH'] = self._env.get('CUDA_PATH_V12_8', self._env.get('CUDA_PATH'))
+
         self.check_call = functools.partial(subprocess.check_call,
             cwd=self.workingDir,
             env=self.env
         )
         
-        # nVidia CMakeModules (downloaded while building PhysX) do not cover ios or android
+        # nVidia CMakeModules (downloaded while building PhysX) do not cover ios
         # bin folder names yet, so they appear as UNKNOWN.
         self.platform_params = { 
-            # system-name   : (build preset, bin folder name, install folder name, is multiconfig)
-            'windows'       : ('vc16win64', 'win.x86_64.vc142.md', 'vc16win64', True),
-            'linux'         : ('linux', 'linux.clang', 'linux', False),
-            'linux-aarch64' : ('linux-aarch64', 'linux.aarch64', 'linux-aarch64', False),
-            'mac'           : ('mac64', 'mac.x86_64', 'mac64', True),
-            'ios'           : ('ios64', 'UNKNOWN', 'ios64', True),
-            'android'       : ('android-arm64-v8a', 'UNKNOWN', "android-29", False)
+            # system-name   : (preset,      can use CUDA,     bin folder name,    install folder name, is multiconfig)
+            'windows'       : ('vc16win64',         True,  'win.x86_64.vc142.md', 'vc16win64',          True),
+            'linux'         : ('linux',             True,  'linux.clang',         'linux',              False),
+            'linux-aarch64' : ('linux-aarch64',     True,  'linux.aarch64',       'linux-aarch64',      False),
+            'mac'           : ('mac64',             False, 'mac.x86_64',          'mac64',              True),
+            'ios'           : ('ios64',             False, 'UNKNOWN',             'ios64',              True),
+            'android'       : ('android-arm64-v8a', False, "android.arm64-v8a",   'android-29',         False)
         }
 
     @property
@@ -65,6 +75,10 @@ class PhysXBuilder(object):
     @property
     def env(self):
         return self._env
+    
+    @property
+    def enable_GPU(self):
+        return self._enable_GPU
 
     def readFile(self, file):
         f = open(file, 'r')
@@ -83,7 +97,7 @@ class PhysXBuilder(object):
                 ['git', 'init',],
             )
             self.check_call(
-                ['git', 'remote', 'add', 'origin', 'https://github.com/NVIDIA-Omniverse/PhysX',],
+                ['git', 'remote', 'add', 'origin', 'https://github.com/nick-l-o3de/o3de-physx.git',],
             )
 
         self.check_call(
@@ -92,15 +106,20 @@ class PhysXBuilder(object):
         self.check_call(
             ['git', 'checkout', lockToCommit,],
         )
-        if self.platform in ['ios', 'mac']:
-            self.check_call(
-                ['git', 'apply', '--whitespace=fix', (pathlib.Path(__file__).parent / 'build_fix.patch').absolute()]
-            )
 
-            
     def preparePreset(self, buildAsStaticLibs, config):
-        preset_index = 0
-        preset_file = self.workingDir / 'physx' / 'buildtools' / 'presets' / 'public' / f'{self.platform_params[self.platform][preset_index]}.xml'
+        
+        preset_name = self.platform_params[self.platform][0]
+        supports_gpu_builds = self.platform_params[self.platform][1]
+
+        if (self.enable_GPU and not supports_gpu_builds):
+            raise Exception(f"Platform {self.platform} does not support GPU builds, but --enable_GPU was specified.")
+        
+        # if we're turning GPU off, and we support GPU builds, use the cpu-only preset.  Otherwise such a preset will not exist:
+        if not self.enable_GPU and supports_gpu_builds:
+            preset_name += "-cpu-only"
+
+        preset_file = self.workingDir / 'physx' / 'buildtools' / 'presets' / 'public' / f'{preset_name}.xml'
         content = self.readFile(preset_file)
         content = re.sub('name="PX_GENERATE_STATIC_LIBRARIES" value="(True|False)"', f'name="PX_GENERATE_STATIC_LIBRARIES" value="{buildAsStaticLibs}"', content, flags = re.M)
         
@@ -177,7 +196,12 @@ class PhysXBuilder(object):
             update_pacman_call = [ str(packman_dir / 'packman'), 'update', '-y']
 
         check_call_packman_update(update_pacman_call)        
-        preset, bin_folder, install_folder, is_multiconfig = self.platform_params[self.platform]
+        preset, supports_gpu, bin_folder, install_folder, is_multiconfig = self.platform_params[self.platform]
+
+        # if we are turning the GPU support off, and we are in a preset that supports GPU, we have to append wart to the end of the name
+        if not self.enable_GPU and supports_gpu:
+            preset += "-cpu-only"
+            install_folder += "-cpu-only"
         
         if self._hostPlatformLower == 'windows':
             generate_projects_cmd =  str(physx_dir / 'generate_projects.bat')
@@ -192,7 +216,6 @@ class PhysXBuilder(object):
         for config in ('release', 'profile', 'checked', 'debug'):
             self.preparePreset(buildAsStaticLibs, config);
             
-            # Generate
             generate_call =[generate_projects_cmd, preset,]
             print(generate_call)
             check_call_physx_dir(generate_call)
@@ -202,16 +225,16 @@ class PhysXBuilder(object):
                 build_dir = os.path.join(physx_dir, 'compiler', preset)
                 if config == 'release':
                     # Build install target on release to produce the install folder where all the headers will be generated
-                    cmake_build_call =['cmake', '--build', build_dir, '--config', config, '--target', 'install']
+                    cmake_build_call =['cmake', '--build', build_dir, '--config', config, '--target', 'install', '--parallel']
                 else:
-                    cmake_build_call =['cmake', '--build', build_dir, '--config', config]
+                    cmake_build_call =['cmake', '--build', build_dir, '--config', config, '--parallel']
             else:
                 build_dir = os.path.join(physx_dir, 'compiler', f'{preset}-{config}')
                 if config == 'release':
                     # Build install target on release to produce the install folder where all the headers will be generated
-                    cmake_build_call =['cmake', '--build', build_dir, '--target', 'install']
+                    cmake_build_call =['cmake', '--build', build_dir, '--target', 'install', '--parallel']
                 else:
-                    cmake_build_call =['cmake', '--build', build_dir]
+                    cmake_build_call =['cmake', '--build', build_dir, '--parallel']
             print(cmake_build_call)
             self.check_call(cmake_build_call)
                 
@@ -279,7 +302,7 @@ class PhysXBuilder(object):
             src=cmakeFindFile,
             dst=dst
         )
-        
+
         extraLibsPerPlatform = {
             'windows': [
                 ['\\${EXTRA_SHARED_LIBS}',
@@ -338,6 +361,12 @@ def main():
         dest='platformName',
         choices=['windows', 'linux', 'linux-aarch64', 'android', 'mac', 'ios'],
     )
+
+    parser.add_argument(
+        '--enable-gpu',
+        action='store_true'
+    )
+
     args = parser.parse_args()
 
     if args.platformName == 'mac' or args.platformName == 'ios':
@@ -360,20 +389,21 @@ def main():
         # Package Name
         packageName = f'{args.package_name}-{args.package_rev}-{args.platformName}'
         
-        # Version 5.1.1 commits
+        # Version 5.6.1 commits
         if args.platformName == 'mac':
-            commit = 'bbf7c0de9738c99046c9d6daf57779b4decf95ef' # Commit of PR 51 on top of 5.1.1 version
+            commit = '47c79b2936b7cfd34abeedf685b70730884afc37'
         elif args.platformName == 'ios':
-            commit = '5420931fd1e60aaa4df2688d07557722d021f034' # Commit of PR 49 on top of 5.1.1 version
+            commit = '47c79b2936b7cfd34abeedf685b70730884afc37'
         elif args.platformName == 'android':
-            commit = '8ac3e3601d1333ae2a967995f49b338d4e188215' # Commit of PR 40 on top of 5.1.1 version
+            commit = '47c79b2936b7cfd34abeedf685b70730884afc37'
         else:
-            commit = '0bbcff3d0c541325f4d14c36ee18f24e22e35e6e' # Commit for 5.1.1 version
+            commit = '47c79b2936b7cfd34abeedf685b70730884afc37'
             
         tempdir = Path(tempdir)
         builder = PhysXBuilder(workingDir=tempdir,
                                basePackageSystemDir=packageSystemDir,
-                               targetPlatform=args.platformName)
+                               targetPlatform=args.platformName,
+                               enable_GPU =args.enable_gpu)
         builder.clone(lockToCommit=commit)
         
         builder.build_all()
@@ -384,7 +414,7 @@ def main():
             packageRoot,
             settings={
                 'PackageName': packageName,
-                'URL': 'https://github.com/NVIDIA-Omniverse/PhysX',
+                'URL': 'https://github.com/o3de/PhysX',
                 'License': 'BSD-3-Clause',
                 'LicenseFile': 'PhysX/LICENSE.md'
             },
