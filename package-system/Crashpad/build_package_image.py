@@ -8,6 +8,7 @@
 
 
 import argparse
+import os
 from pathlib import Path
 import re
 import shutil
@@ -37,6 +38,8 @@ def main():
     vcpkg_platform = vcpkg_platform_map[args.platform_name]
     if args.platform_name == 'linux-aarch64':
         os.environ['VCPKG_FORCE_SYSTEM_BINARIES'] = '1'
+    if args.platform_name == 'windows':
+        os.environ['VCPKG_PLATFORM_TOOLSET'] = 'v142'
 
     package_system_dir = Path(__file__).resolve().parents[1]
     crashpad_package_source_dir = package_system_dir / 'Crashpad'
@@ -98,7 +101,7 @@ def main():
             {
                 'dir': output_dir,
                 'settings': {
-                    'PackageName': f'Crashpad-0.8.0-rev2-{args.platform_name}',
+                    'PackageName': f'Crashpad-0.8.0-rev3-{args.platform_name}',
                     'URL': 'https://chromium.googlesource.com/crashpad/crashpad/+/master/README.md',
                     'License': 'Apache-2.0',
                     'LicenseFile': f'{builder.packageName}/share/{builder.portName}/copyright'

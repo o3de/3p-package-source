@@ -10,7 +10,7 @@ azslc-1.7.34-rev1-windows,https://github.com/o3de/o3de-azslc,CUSTOM,azslc/LICENS
 Blast-v1.1.7_rc2-9-geb169fe-rev2-windows,https://github.com/NVIDIAGameWorks/Blast,custom,Blast/license.txt
 cityhash-1.1-multiplatform,http://code.google.com/p/cityhash/,MIT,cityhash/COPYING
 civetweb-1.8-rev1-windows,https://github.com/civetweb/civetweb,custom,civetweb/LICENSE.md
-Crashpad-0.8.0-rev2-windows,https://chromium.googlesource.com/crashpad/crashpad/+/master/README.md,Apache-2.0,Crashpad/share/crashpad/copyright
+Crashpad-0.8.0-rev3-windows,https://chromium.googlesource.com/crashpad/crashpad/+/master/README.md,Apache-2.0,Crashpad/share/crashpad/copyright
 d3dx12-headers-rev1-windows,https://github.com/microsoft/DirectX-Headers,MIT License,d3dx12/license.txt
 DirectXShaderCompilerDxc-1.6.2104-o3de-rev3-windows,https://github.com/aws-lumberyard/DirectXShaderCompiler,NCSA,DirectXShaderCompilerDxc/LICENSE.TXT
 expat-2.4.2-rev1-windows,https://libexpat.github.io/,MIT,expat/COPYING
