@@ -118,17 +118,17 @@ include(${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME}/QtPlugin_${PAL_P
 
 # MOC executable
 unset(QT_MOC_EXECUTABLE CACHE)
-find_program(QT_MOC_EXECUTABLE moc HINTS "${QT_PATH}/bin")
+find_program(QT_MOC_EXECUTABLE moc HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
 mark_as_advanced(QT_MOC_EXECUTABLE) # Hiding from GUI
 
 # UIC executable
 unset(QT_UIC_EXECUTABLE CACHE)
-find_program(QT_UIC_EXECUTABLE uic HINTS "${QT_PATH}/bin")
+find_program(QT_UIC_EXECUTABLE uic HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
 mark_as_advanced(QT_UIC_EXECUTABLE) # Hiding from GUI
 
 # RCC executable
 unset(AUTORCC_EXECUTABLE CACHE)
-find_program(AUTORCC_EXECUTABLE rcc HINTS "${QT_PATH}/bin")
+find_program(AUTORCC_EXECUTABLE rcc HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
 mark_as_advanced(AUTORCC_EXECUTABLE) # Hiding from GUI
 set(Qt6Core_RCC_EXECUTABLE "${AUTORCC_EXECUTABLE}" CACHE FILEPATH "Qt's resource compiler, used by qt_add_resources" FORCE)
 mark_as_advanced(Qt6Core_RCC_EXECUTABLE) # Hiding from GUI
