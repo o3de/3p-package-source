@@ -1,7 +1,7 @@
 {
     "git_url": "https://github.com/qt/qt5.git",
     "git_tag": "6.10.0",
-    "git_commit": "5a8637e4516bc48a0b3f4b5ec3b18618b92e7222",
+    "git_commit": "077347cc6d198053fb61cc0841c5c0c60a7deeb1",
     "package_name": "qt",
     "package_url": "https://www.qt.io/",
     "package_license": "LGPL-3.0",
