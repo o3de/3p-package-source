@@ -75,7 +75,7 @@ jobs:
                 PACKAGE_OS="windows-latest"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "darwin" ]]; then
-                PACKAGE_OS="macos-13"
+                PACKAGE_OS="macos-15"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               else
                 PACKAGE_OS="windows-latest" # Default
