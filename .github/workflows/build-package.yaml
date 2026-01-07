@@ -65,7 +65,7 @@ jobs:
               fi
 
               # Determine the OS runner based on the package name
-              if [[ $PACKAGE =~ "aarch64" ]]; then
+              if [[ $PACKAGE =~ "linux-aarch64" ]]; then
                 PACKAGE_OS="ubuntu-22.04-arm"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "linux" ]]; then
@@ -73,6 +73,9 @@ jobs:
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "windows" ]]; then
                 PACKAGE_OS="windows-latest"
+                echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
+              elif [[ $PLATFORM =~ "darwin-arm64" ]]; then
+                PACKAGE_OS="macos-15"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "darwin" ]]; then
                 PACKAGE_OS="macos-15-intel"
