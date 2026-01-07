@@ -1,5 +1,5 @@
 {
-    "comment" : "This is the list that applies to darwin arm64 hosts",
+    "comment" : "This is the list that applies to darwin arm64 (Mac Silicon) hosts",
     "comment2" : "build_from_source is package name --> build script to call with params",
     "comment3" : "build_from_folder is package name --> folder containing built image of package",
     "comment4" : "Note:  Build from source occurs before build_from_folder",
