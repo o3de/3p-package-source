@@ -1,0 +1,12 @@
+{
+    "comment" : "This is the list that applies to darwin arm64 hosts",
+    "comment2" : "build_from_source is package name --> build script to call with params",
+    "comment3" : "build_from_folder is package name --> folder containing built image of package",
+    "comment4" : "Note:  Build from source occurs before build_from_folder",
+    "build_from_source": {
+        "zlib-1.3.1-rev1-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Mac-arm64 --clean"
+    },
+    "build_from_folder": {
+        "zlib-1.3.1-rev1-mac-arm64": "package-system/zlib/temp/zlib-mac-arm64"
+    }
+}
