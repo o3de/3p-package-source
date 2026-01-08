@@ -65,6 +65,16 @@
                 "./test_expat_mac.sh"
             ]
           },
+          "Mac-arm64": {
+              "cmake_generate_args": [
+                  "-G",
+                  "Xcode",
+                  "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
+              ],
+              "custom_test_cmd" : [
+                "./test_expat_mac.sh"
+            ]
+          },
           "iOS" : {
             "cmake_generate_args": [
                 "-G",
