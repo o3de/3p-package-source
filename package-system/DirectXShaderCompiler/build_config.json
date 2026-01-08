@@ -2,7 +2,7 @@
    "git_url":"https://github.com/o3de/DirectXShaderCompiler.git",
    "git_tag": "release-1.8.2505.1-o3de",
    "package_name":"DirectXShaderCompilerDxc",
-   "package_version": "1.8.2505.1-o3de-rev3",
+   "package_version": "1.8.2505.1-o3de-rev4",
    "package_url":"https://github.com/o3de/DirectXShaderCompiler",
    "package_license":"NCSA",
    "package_license_file":"LICENSE.TXT",
