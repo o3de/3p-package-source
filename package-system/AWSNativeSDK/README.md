@@ -88,7 +88,7 @@ As current version is `1.9.50-rev2`, bump it to `1.9.50-rev3` for example
 +        "AWSNativeSDK-1.9.50-rev3-windows": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Windows --package-root ../../package-system --clean",
          "AWSNativeSDK-1.9.50-rev1-android": "Scripts/extras/pull_and_build_from_git.py ../../package-system/AWSNativeSDK --platform-name Android --package-root ../../package-system --clean",
          "Blast-v1.1.7_rc2-9-geb169fe-rev2-windows": "package-system/Blast/build_package_image.py --platform-name windows",
-         "Crashpad-0.8.0-rev2-windows": "package-system/Crashpad/build_package_image.py",
+         "Crashpad-0.8.0-rev3-windows": "package-system/Crashpad/build_package_image.py",
 @@ -51,7 +51,7 @@
    "build_from_folder": {
      "astc-encoder-3.2-rev2-windows" : "package-system/astc-encoder-windows",
@@ -97,7 +97,7 @@ As current version is `1.9.50-rev2`, bump it to `1.9.50-rev3` for example
 +    "AWSNativeSDK-1.9.50-rev3-windows": "package-system/AWSNativeSDK-windows",
      "AWSNativeSDK-1.9.50-rev1-android": "package-system/AWSNativeSDK-android",
      "Blast-v1.1.7_rc2-9-geb169fe-rev1-windows": "package-system/Blast-windows",
-     "Crashpad-0.8.0-rev2-windows" : "package-system/Crashpad-windows",
+     "Crashpad-0.8.0-rev3-windows" : "package-system/Crashpad-windows",
 ```
 
 ### 5. Follow 3p-package-scripts runbook to build and distribute package

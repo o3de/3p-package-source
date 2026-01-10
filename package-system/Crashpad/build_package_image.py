@@ -98,7 +98,7 @@ def main():
             {
                 'dir': output_dir,
                 'settings': {
-                    'PackageName': f'Crashpad-0.8.0-rev2-{args.platform_name}',
+                    'PackageName': f'Crashpad-0.8.0-rev3-{args.platform_name}',
                     'URL': 'https://chromium.googlesource.com/crashpad/crashpad/+/master/README.md',
                     'License': 'Apache-2.0',
                     'LicenseFile': f'{builder.packageName}/share/{builder.portName}/copyright'
