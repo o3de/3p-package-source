@@ -58,7 +58,7 @@ sudo apt-get install -y libfontconfig1-dev \
     libxkbcommon-x11-dev \
     libxrender-dev
 
-QTARRAY="qtbase,qtimageformats,qtsvg,qtwayland"
+QTARRAY="qtbase,qtimageformats,qtsvg,qttranslations,qtwayland"
 BUILD_ROOT="${TEMP_FOLDER}/src"
 BUILD_PATH="${TEMP_FOLDER}/build"
 
