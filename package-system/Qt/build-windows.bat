@@ -36,14 +36,14 @@ set LIB=%OPENSSL_LIB_DEBUG%;%OPENSSL_LIB_RELEASE%;%LIB%
 
 echo %cd%
 
-echo %TEMP_FOLDER%\..\..\..\..
-cd %TEMP_FOLDER%\..\..\..\..
+echo %TEMP_FOLDER%\..\..\..\..\..
+cd %TEMP_FOLDER%\..\..\..\..\..
 echo "switched folder"
 echo %cd%
-rmdir build /S /Q
-mkdir build
+rmdir b /S /Q
+mkdir b
 echo "build folder created"
-cd build
+cd b
 echo %cd%
 echo "prepare to build"
 
@@ -60,7 +60,7 @@ set _OPTS=-prefix %TARGET_INSTALL_ROOT% ^
     -openssl-linked ^
     -- -Wno-dev
 
-cmd /c ""..\source\package-system\Qt\temp\src\configure.bat" %_OPTS%" || goto FAILURE
+cmd /c ""..\3p-package-source\source\package-system\Qt\temp\src\configure.bat" %_OPTS%" || goto FAILURE
 
 cmd /c cmake --build . --parallel || goto FAILURE
 
