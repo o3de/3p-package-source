@@ -1,0 +1,13 @@
+diff --git a/expat/CMakeLists.txt b/expat/CMakeLists.txt
+index 7e5b9590..1895a874 100644
+--- a/expat/CMakeLists.txt
++++ b/expat/CMakeLists.txt
+@@ -32,7 +32,7 @@
+ # Unlike most of Expat,
+ # this file is copyrighted under the BSD-license for buildsystem files of KDE.
+ 
+-cmake_minimum_required(VERSION 3.1.3)
++cmake_minimum_required(VERSION 3.8.0)
+ 
+ # This allows controlling documented build time switches
+ # when Expat is pulled in using the add_subdirectory function, e.g.
