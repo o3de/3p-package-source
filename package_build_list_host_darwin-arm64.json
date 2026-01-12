@@ -4,9 +4,11 @@
     "comment3" : "build_from_folder is package name --> folder containing built image of package",
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
+        "expat-2.7.3-rev1-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/expat --platform-name Mac-arm64 --clean",
         "zlib-1.3.1-rev2-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Mac-arm64 --clean"
     },
     "build_from_folder": {
+        "expat-2.7.3-rev1-mac-arm64": "package-system/expat/temp/expat-mac-arm64",
         "zlib-1.3.1-rev2-mac-arm64": "package-system/zlib/temp/zlib-mac-arm64"
     }
 }
