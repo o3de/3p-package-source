@@ -65,6 +65,19 @@
                 "./test_expat_mac.sh"
             ]
           },
+          "Mac-arm64": {
+              "git_tag":"R_2_7_3",
+              "package_version":"2.7.3-rev1",
+              "cmake_find_source":"Findexpat_2_7_3.cmake",
+              "cmake_generate_args": [
+                  "-G",
+                  "Xcode",
+                  "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
+              ],
+              "custom_test_cmd" : [
+                "./test_expat_mac.sh"
+            ]
+          },
           "iOS" : {
             "cmake_generate_args": [
                 "-G",
