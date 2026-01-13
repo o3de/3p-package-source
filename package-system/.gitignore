@@ -24,7 +24,6 @@ qt-*
 RapidJSON-*
 SPIRVCross-*
 tiff-*
-v-hacd-*
 zlib-*
 pybind11-multiplatform
 
