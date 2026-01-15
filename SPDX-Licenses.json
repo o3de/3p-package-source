@@ -288,12 +288,6 @@
         "LicenseFile": "tiff/COPYRIGHT"
     },
     {
-        "PackageName": "v-hacd-2.3-1a49edf-rev1-windows",
-        "URL": "https://github.com/kmammou/v-hacd",
-        "License": "BSD-3-Clause",
-        "LicenseFile": "v-hacd/LICENSE"
-    },
-    {
         "PackageName": "xxhash-0.7.4-rev1-multiplatform",
         "URL": "https://github.com/Cyan4973/xxHash",
         "License": "BSD 2-Clause",
