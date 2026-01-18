@@ -1,7 +1,21 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index efe857df..28de8759 100644
+index efe857df..a08e8f8a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
+@@ -23,10 +23,10 @@
+ # LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+ # OF THIS SOFTWARE.
+ 
+-cmake_minimum_required(VERSION 2.8.11) # b/c of use of BUILD_INTERFACE generator expression
++cmake_minimum_required(VERSION 3.5) # b/c of use of BUILD_INTERFACE generator expression
+ 
+-# Default policy is from 2.8.9
+-cmake_policy(VERSION 2.8.9)
++# Default policy is from 3.5
++cmake_policy(VERSION 3.5)
+ # Set MacOSX @rpath usage globally.
+ if (POLICY CMP0020)
+   cmake_policy(SET CMP0020 NEW)
 @@ -309,28 +309,32 @@ elseif(SIZEOF_UNSIGNED_LONG EQUAL 4)
    set(TIFF_UINT32_FORMAT "%lu")
  endif()
