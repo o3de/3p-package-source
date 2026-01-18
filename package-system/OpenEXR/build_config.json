@@ -77,6 +77,22 @@
                "./test_openexr_mac.sh"
             ]
          },
+         "Mac-arm64":{
+            "git_tag":"v3.4.4",
+            "package_version":"3.4.4-rev1",
+            "build_configs" : ["Release"],
+            "depends_on_packages" :[
+               ["zlib-1.3.1-rev2-mac-arm64", "52e62890329d3e003226fca88df30701cdd862a5f137eb5f75dff504377c13b3", ""]
+            ],
+            "custom_toolchain_file" : "../cmake/Platform/Mac/Toolchain_mac.cmake",
+            "cmake_generate_args_release": [
+               "-G",
+               "Xcode"
+            ],
+            "custom_test_cmd" : [
+               "./test_openexr_mac_3_4.sh"
+            ]
+         },
          "iOS":{
             "build_configs" : ["Release"],
             "depends_on_packages" :[ 
