@@ -5,6 +5,7 @@
     "comment4" : "Note:  Build from source occurs before build_from_folder",
     "build_from_source": {
         "assimp-5.4.3-rev3-mac-arm64":  "Scripts/extras/pull_and_build_from_git.py ../../package-system/assimp --platform-name Mac-arm64 --clean",
+        "DirectXShaderCompilerDxc-1.8.2505.1-o3de-rev4-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/DirectXShaderCompiler --platform-name Mac-arm64 --clean",
         "expat-2.7.3-rev1-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/expat --platform-name Mac-arm64 --clean",
         "freetype-2.11.1-rev1-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/freetype --platform-name Mac-arm64 --clean",
         "OpenEXR-3.4.4-rev1-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/OpenEXR --platform-name Mac-arm64 --clean",
@@ -14,6 +15,7 @@
     },
     "build_from_folder": {
         "assimp-5.4.3-rev3-mac-arm64": "package-system/assimp/temp/assimp-mac-arm64",
+        "DirectXShaderCompilerDxc-1.8.2505.1-o3de-rev4-mac-arm64": "package-system/DirectXShaderCompiler/temp/DirectXShaderCompilerDxc-mac-arm64",
         "expat-2.7.3-rev1-mac-arm64": "package-system/expat/temp/expat-mac-arm64",
         "freetype-2.11.1-rev1-mac-arm64": "package-system/freetype/temp/freetype-mac-arm64",
         "OpenEXR-3.4.4-rev1-mac-arm64": "package-system/OpenEXR/temp/OpenEXR-mac-arm64",
