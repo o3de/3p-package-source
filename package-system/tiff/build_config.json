@@ -58,6 +58,20 @@
                     "./test_tiff_mac.sh"
                 ]
             },
+            "Mac-arm64":{
+                "depends_on_packages" :[
+                    ["zlib-1.3.1-rev2-mac-arm64", "52e62890329d3e003226fca88df30701cdd862a5f137eb5f75dff504377c13b3", ""]
+                ],
+                "custom_build_cmd": [
+                    "./build_tiff_mac.sh"
+                 ],
+                 "custom_install_cmd": [
+                    "./install_tiff_mac.sh"
+                 ],
+                 "custom_test_cmd" : [
+                    "./test_tiff_mac.sh"
+                ]
+            },
             "iOS":{
                 "depends_on_packages" :[ 
                     ["zlib-1.2.11-rev5-ios", "c7f10b4d0fe63192054d926f53b08e852cdf472bc2b18e2f7be5aecac1869f7f", ""]

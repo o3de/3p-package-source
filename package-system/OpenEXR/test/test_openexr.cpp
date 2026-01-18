@@ -9,8 +9,13 @@
 #include <ImfHeader.h>
 #include <ImfChannelList.h>
 
+#if defined(OPENEXR_TEST_VER_3_4)
+using namespace Imf_3_4;
+using namespace Imath_3_2;
+#else
 using namespace Imf_3_1;
 using namespace Imath_3_1;
+#endif
 
 int
 readHeader(const char fileName[],
