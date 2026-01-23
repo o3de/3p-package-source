@@ -47,6 +47,14 @@
                "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra -DLUA_USE_MACOSX\""
             ]
          },
+         "Mac-arm64":{
+            "cmake_generate_args":[
+               "-G",
+               "Xcode",
+               "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake",
+               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra -DLUA_USE_MACOSX\""
+            ]
+         },
          "iOS":{
             "custom_cmake_install":true,
             "cmake_generate_args":[

@@ -26,6 +26,10 @@ folder_names = {
     'mac'       : ([
         '-G', 'Xcode'
     ], []),
+   'mac-arm64' : ([
+        '-G', 'Xcode',
+        '-DPACKAGE_PLATFORM=mac-arm64'
+    ], []),
     'ios'       : ([
         '-G', 'Xcode',
         f'-DCMAKE_TOOLCHAIN_FILE={cmake_scripts_path}/Platform/iOS/Toolchain_ios.cmake',

@@ -87,6 +87,28 @@
                "-DCMAKE_BUILD_TYPE=Release"
             ]
          },
+         "Mac-arm64":{
+            "cmake_generate_args_debug":[
+               "-G",
+               "Xcode",
+               "-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DHAVE_STD_REGEX=TRUE",
+               "-DBENCHMARK_ENABLE_TESTING=OFF",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Debug\"",
+               "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "cmake_generate_args_release":[
+               "-G",
+               "Xcode",
+               "-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0",
+               "-DCMAKE_CXX_STANDARD=17",
+               "-DHAVE_STD_REGEX=TRUE",
+               "-DBENCHMARK_ENABLE_TESTING=OFF",
+               "-DCMAKE_INSTALL_LIBDIR=\"lib/Release\"",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ]
+         },
          "iOS":{
             "custom_cmake_install":true,
             "cmake_generate_args_debug":[
