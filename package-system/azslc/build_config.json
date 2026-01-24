@@ -28,7 +28,8 @@
             "custom_install_cmd": [
                "./install_azslc_mac.sh"
             ]
-         }
+         },
+         "Mac-arm64": "@Mac"
       },
       "Linux":{
          "Linux":{

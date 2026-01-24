@@ -46,6 +46,7 @@
                     "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
                 ]
             },
+            "Mac-arm64": "@Mac",
             "iOS": {
                 "cmake_generate_args_release": [
                     "-G",

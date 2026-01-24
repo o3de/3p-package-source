@@ -13,6 +13,17 @@ inst_path=temp/install
 echo "Command: rm -rf $inst_path"
 rm -rf $inst_path || (echo "Command: rm -rf $inst_path failed" ; exit 1)
 
+MACHINE_ARCH=$(machine)
+
+if [ "$MACHINE_ARCH" == "arm64e" ]
+then
+    OSX_ARCH="arm64"
+    echo "Building on Mac Silicon"
+else
+    OSX_ARCH="x86_64"
+    echo "Building on Intel Silicon"
+fi
+
 configure_and_build() {
     build_type=$1
     lib_type=$2
@@ -26,7 +37,7 @@ configure_and_build() {
     CFLAGS="-Wno-deprecated-declarations -Wno-shorten-64-to-32 -fPIC" CXXFLAGS="-Wno-deprecated-declarations -Wno-shorten-64-to-32 -fPIC" cmake -S "$src_path" -B "$bld_path/${build_type}_${lib_type}" \
           -G "Xcode" \
           -DTARGET_ARCH=APPLE \
-          -DCMAKE_OSX_ARCHITECTURES="x86_64" \
+          -DCMAKE_OSX_ARCHITECTURES="${OSX_ARCH}" \
           -DCMAKE_OSX_DEPLOYMENT_TARGET="11.0" \
           -DCMAKE_CXX_STANDARD=17 \
           -DCPP_STANDARD=17 \

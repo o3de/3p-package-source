@@ -186,7 +186,7 @@ jobs:
     
     - name: Install python dependancies
       run: |
-        python3 -m pip install boto3 certifi
+        python3 -m pip install boto3 certifi pyyaml
     
     - name: Update cmake/ninja
       uses: lukka/get-cmake@latest

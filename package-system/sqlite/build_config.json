@@ -31,7 +31,8 @@
             "custom_install_cmd": [
                "./package_unix_like.sh"
             ]
-         }
+         },
+         "Mac-arm64": "@Mac"
       },
       "Linux":{
          "Linux":{
