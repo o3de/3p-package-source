@@ -22,6 +22,7 @@
       "Darwin":{
          "Mac":{
             "cmake_find_template":"Findazslc.cmake.Mac",
+            "patch_file": "azslc-20260124-mac.patch",
             "custom_build_cmd": [
                "./build_azslc_mac.sh"
             ],

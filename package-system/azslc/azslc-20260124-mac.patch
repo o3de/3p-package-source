@@ -1,0 +1,13 @@
+diff --git a/prepare_solution_darwin.sh b/prepare_solution_darwin.sh
+index 843958f..d48c678 100755
+--- a/prepare_solution_darwin.sh
++++ b/prepare_solution_darwin.sh
+@@ -21,7 +21,7 @@ then
+     echo "$OLDCMAKE not found in PATH. Defaulting to: $CMAKE"
+ fi
+ 
+-$CMAKE -G "Xcode" -S "src/" -B $BUILD_DIR
++$CMAKE -G "Xcode" -S "src/" -B $BUILD_DIR -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+ 
+ echo "Xcode project created successfully."
+ 

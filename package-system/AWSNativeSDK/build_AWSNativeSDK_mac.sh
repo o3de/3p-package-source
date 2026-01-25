@@ -40,6 +40,7 @@ configure_and_build() {
           -DCMAKE_OSX_ARCHITECTURES="${OSX_ARCH}" \
           -DCMAKE_OSX_DEPLOYMENT_TARGET="11.0" \
           -DCMAKE_CXX_STANDARD=17 \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DCPP_STANDARD=17 \
           -DENABLE_TESTING=OFF \
           -DENABLE_RTTI=ON \
