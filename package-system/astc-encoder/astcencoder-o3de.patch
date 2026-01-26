@@ -24,6 +24,26 @@ index a90fa27..4e22383 100644
  endif()
  
  if(${DECOMPRESSOR})
+diff --git a/Source/astcenc_color_quantize.cpp b/Source/astcenc_color_quantize.cpp
+index f067c4d..319db95 100644
+--- a/Source/astcenc_color_quantize.cpp
++++ b/Source/astcenc_color_quantize.cpp
+@@ -90,7 +90,6 @@ static void quantize_rgb(
+ 	int ri0b, gi0b, bi0b, ri1b, gi1b, bi1b;
+ 	float rgb0_addon = 0.5f;
+ 	float rgb1_addon = 0.5f;
+-	int iters = 0;
+ 	do
+ 	{
+ 		ri0 = quant_color(quant_level, astc::flt2int_rd(r0 + rgb0_addon));
+@@ -109,7 +108,6 @@ static void quantize_rgb(
+ 
+ 		rgb0_addon -= 0.2f;
+ 		rgb1_addon += 0.2f;
+-		iters++;
+ 	} while (ri0b + gi0b + bi0b > ri1b + gi1b + bi1b);
+ 
+ 	output[0] = static_cast<uint8_t>(ri0);
 diff --git a/Source/cmake_core.cmake b/Source/cmake_core.cmake
 index 5ceb521..f6d2426 100644
 --- a/Source/cmake_core.cmake

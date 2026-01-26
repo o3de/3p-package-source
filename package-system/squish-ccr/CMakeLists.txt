@@ -110,13 +110,15 @@ set(SQUISH_PUBLIC_INCLUDE_FILES
 
 add_library(squish-ccr SHARED ${SQUISH_SOURCE_FILES} ${SQUISH_HEADER_FILES} ${SQUISH_INLINE_FILES})
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        message("FAKE: I am ARM64")
         target_include_directories(squish-ccr PRIVATE ${CMAKE_CURRENT_LIST_DIR} /data/workspace/sse2neon)
         target_compile_definitions(squish-ccr PRIVATE SQUISH_USE_NEON=1 SQUISH_USE_SSE=2 SQUISH_USE_CPP SQUISH_USE_CCR)
         target_compile_options(squish-ccr PRIVATE -march=armv8-a+fp+simd+crypto+crc -Wno-unused-value -Wno-c++20-extensions -Wno-shift-op-parentheses -Wno-tautological-constant-out-of-range-compare -Wno-array-bounds -Wno-switch)
     else()
+        message("FAKE: I am x86_64")
         target_include_directories(squish-ccr PRIVATE ${CMAKE_CURRENT_LIST_DIR})
         target_compile_definitions(squish-ccr PRIVATE SQUISH_USE_NEON=0 SQUISH_USE_SSE=2 SQUISH_USE_CPP SQUISH_USE_CCR)
         target_compile_options(squish-ccr PRIVATE -msse2 -Wno-unused-value -Wno-switch)
