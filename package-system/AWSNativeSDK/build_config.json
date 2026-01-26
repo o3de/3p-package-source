@@ -46,6 +46,7 @@
                "./install_AWSNativeSDK_mac.sh"
             ]
          },
+         "Mac-arm64": "@Mac",
          "iOS":{
             "package_version":"1.11.361-rev1",
             "cmake_find_source":"FindAWSNativeSDK.cmake.iOS",

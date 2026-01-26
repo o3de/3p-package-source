@@ -54,12 +54,14 @@
             ],
             "cmake_generate_args":[
                "-G",
-               "Xcode"
+               "Xcode",
+               "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             ],
             "cmake_build_args":[
                "--target samplerate"
             ]
          },
+         "Mac-arm64": "@Mac",
          "iOS":{
             "build_configs":[
                "Release"

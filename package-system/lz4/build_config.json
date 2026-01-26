@@ -43,9 +43,11 @@
                 "cmake_generate_args_release": [
                     "-G",
                     "Xcode",
-                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
+                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake",
+                    "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
                 ]
             },
+            "Mac-arm64": "@Mac",
             "iOS": {
                 "cmake_generate_args_release": [
                     "-G",
