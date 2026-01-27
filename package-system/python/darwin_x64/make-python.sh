@@ -67,7 +67,6 @@ if [ $retVal -ne 0 ]; then
     echo "Error cloning python from https://github.com/python/cpython.git"
     exit $retVal
 fi
-exit 1
 
 echo ""
 echo "---------------- Cloning libexpat 2.4.6 from git and applying update ----------------"
