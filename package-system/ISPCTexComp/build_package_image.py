@@ -29,6 +29,10 @@ package_license_file = "license.txt"
 cmake_find_file = "FindISPCTexComp.cmake"
 source_patch_file="ISPCTexComp_36b80aa.patch"
 
+opt_arch = ""
+opt_xcode_arch = ""
+opt_platform_preferred_arch=""
+
 if platform.system() == 'Linux':
     ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-linux.tar.gz"
     ispc_compiler_install_dir = "ISPC/linux"
@@ -36,11 +40,21 @@ if platform.system() == 'Linux':
     ispc_compiler = "ispc-v1.16.1-linux/bin/ispc"
     platform_name = "linux"
 elif platform.system() == 'Darwin':
-    ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-macOS.tar.gz"
-    ispc_compiler_install_dir = "ISPC/osx"
-    ispc_compiler_package_file = "ispc-v1.16.1-macOS.tar.gz"
-    ispc_compiler = "ispc-v1.16.1-macOS/bin/ispc"
     platform_name = "mac"
+    if platform.processor() == "arm":
+        ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.29.1/ispc-v1.29.1-macOS.arm64.tar.gz"
+        ispc_compiler_install_dir = "ISPC/osx"
+        ispc_compiler_package_file = "ispc-v1.29.1-macOS.arm64.tar.gz"
+        ispc_compiler = "ispc-v1.29.1-macOS.arm64/bin/ispc"
+        source_patch_file="ISPCTexComp_36b80aa-mac-arm64.patch"
+        opt_arch = "-arm64"
+        opt_xcode_arch_destination = ",arch=arm64"
+        opt_platform_preferred_arch = "PLATFORM_PREFERRED_ARCH=arm64 "
+    else:
+        ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-macOS.tar.gz"
+        ispc_compiler_install_dir = "ISPC/osx"
+        ispc_compiler_package_file = "ispc-v1.16.1-macOS.tar.gz"
+        ispc_compiler = "ispc-v1.16.1-macOS/bin/ispc"
 elif platform.system() == 'Windows':
     ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-windows.zip"
     ispc_compiler_install_dir = "ISPC/win"
@@ -63,6 +77,9 @@ def remove_readonly(func, path, _):
     "Clear the readonly bit and reattempt the removal"
     os.chmod(path, stat.S_IWRITE)
     func(path)
+
+class BuildError(Exception):
+    pass
 
 class IspcTexCompBuilder(object):
     def __init__(self, workingDir: pathlib.Path, packageDir: pathlib.Path):
@@ -148,11 +165,13 @@ class IspcTexCompBuilder(object):
         """
         build ispc_texcomp.xcodeproj
         """
+        xcodeDerivedPath = self.working_dir / "XCode" / "DerivedData"
+        xcodeDerivedPath.mkdir(parents=True, exist_ok=True)
+
         print(f"    > building for macos...")
         os.chdir(self.src_folder)
-        os.system("xcodebuild build  -scheme ispc_texcomp -project ispc_texcomp.xcodeproj -destination 'platform=macOS'")
+        os.system(f"xcodebuild {opt_platform_preferred_arch}build -scheme ispc_texcomp -project ispc_texcomp.xcodeproj -destination 'platform=macOS{opt_xcode_arch_destination}' -derivedDataPath {xcodeDerivedPath.as_posix()}")
         os.chdir(self.working_dir)
-        
 
     def build_linux(self):
         """
@@ -173,7 +192,7 @@ class IspcTexCompBuilder(object):
             
     def write_PackageInfo(self):        
         settings={
-            'PackageName': f'{package_name}-{package_version}-{platform_name}',
+            'PackageName': f'{package_name}-{package_version}-{platform_name}{opt_arch}',
             "URL"         : f'{package_url}',
             "License"     : f'{package_license}',
             'LicenseFile': f'{package_license_file}'
@@ -238,7 +257,7 @@ class IspcTexCompBuilder(object):
 
 def main():
     working_folder = pathlib.Path(os.getcwd()+"/temp")
-    package_folder = pathlib.Path(os.getcwd()).parent.joinpath(f'{package_name}-{platform_name}')
+    package_folder = working_folder / f'{package_name}-{platform_name}{opt_arch}'
     print(f"    > Build ISPCTexComp Package from {working_folder} and saving to {package_folder}")
 
     builder = IspcTexCompBuilder(working_folder, package_folder)

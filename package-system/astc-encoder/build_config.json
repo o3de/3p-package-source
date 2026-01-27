@@ -30,6 +30,16 @@
                 "custom_install_cmd": [
                     "./install_mac.sh"
                 ]
+            },
+            "Mac-arm64": {
+                "cmake_find_template": "Findastc-encoder.cmake.template",
+                "package_version": "3.2-rev5",
+                "custom_build_cmd": [
+                    "./build_mac_arm64.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_mac_arm64.sh"
+                ]
             }
         },
         "Linux": {

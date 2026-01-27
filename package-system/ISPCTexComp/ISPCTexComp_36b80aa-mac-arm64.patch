@@ -1,0 +1,57 @@
+diff --git a/ispc_texcomp.xcodeproj/project.pbxproj b/ispc_texcomp.xcodeproj/project.pbxproj
+index 311f89e..4e7ce47 100644
+--- a/ispc_texcomp.xcodeproj/project.pbxproj
++++ b/ispc_texcomp.xcodeproj/project.pbxproj
+@@ -148,7 +148,7 @@
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 			shellPath = /bin/sh;
+-            shellScript = "chmod 755 ISPC/osx/ispc\nISPC/osx/ispc -O2 ispc_texcomp/kernel.ispc -o \"$OBJROOT/kernel.o\" -h ispc_texcomp/kernel_ispc.h --arch=x86-64 --target=sse2,avx --opt=fast-math\nISPC/osx/ispc -O2 ispc_texcomp/kernel_astc.ispc -o \"$OBJROOT/kernel_astc.o\" -h ispc_texcomp/kernel_astc_ispc.h --arch=x86-64 --target=sse2 --opt=fast-math";
++            shellScript = "chmod 755 ISPC/osx/ispc\nISPC/osx/ispc -O2 ispc_texcomp/kernel.ispc -o \"$OBJROOT/kernel.o\" -h ispc_texcomp/kernel_ispc.h --arch=aarch64 --target=neon --target-os=macos --woff\nISPC/osx/ispc -O2 ispc_texcomp/kernel_astc.ispc -o \"$OBJROOT/kernel_astc.o\" -h ispc_texcomp/kernel_astc_ispc.h --arch=aarch64 --target=neon --target-os=macos --woff";
+ 		};
+ /* End PBXShellScriptBuildPhase section */
+ 
+@@ -201,7 +201,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 10.9;
++				MACOSX_DEPLOYMENT_TARGET = 11.0;
+ 				MTL_ENABLE_DEBUG_INFO = YES;
+ 				ONLY_ACTIVE_ARCH = YES;
+ 				SDKROOT = macosx;
+@@ -238,7 +238,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 10.9;
++				MACOSX_DEPLOYMENT_TARGET = 11.0;
+ 				MTL_ENABLE_DEBUG_INFO = NO;
+ 				SDKROOT = macosx;
+ 			};
+@@ -253,11 +253,9 @@
+ 				DYLIB_INSTALL_NAME_BASE = "";
+ 				EXECUTABLE_PREFIX = lib;
+ 				INSTALL_PATH = "";
+-				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(EXECUTABLE_PATH)";
++				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
+ 				OTHER_LDFLAGS = (
+ 					"$(OBJROOT)/kernel.o",
+-					"$(OBJROOT)/kernel_sse2.o",
+-					"$(OBJROOT)/kernel_avx.o",
+ 					"$(OBJROOT)/kernel_astc.o",
+ 				);
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -273,11 +271,9 @@
+ 				DYLIB_INSTALL_NAME_BASE = "";
+ 				EXECUTABLE_PREFIX = lib;
+ 				INSTALL_PATH = "";
+-				LD_DYLIB_INSTALL_NAME = "@executable_path/../Frameworks/$(EXECUTABLE_PATH)";
++				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
+ 				OTHER_LDFLAGS = (
+ 					"$(OBJROOT)/kernel.o",
+-					"$(OBJROOT)/kernel_sse2.o",
+-					"$(OBJROOT)/kernel_avx.o",
+ 					"$(OBJROOT)/kernel_astc.o",
+ 				);
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
