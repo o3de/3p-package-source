@@ -203,14 +203,14 @@ echo "---------------- Copying Open3DEngine package metadata and license file --
 echo ""
 # the tar contains a 'Python.framework' sub folder
 cd $SCRIPT_DIR/package
-cp $SCRIPT_DIR/package/Python.framework/Versions/3.13/lib/python3.13/LICENSE.txt ./LICENSE
+cp $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/LICENSE.txt ./LICENSE
 cp $SCRIPT_DIR/PackageInfo.json .
 cp $SCRIPT_DIR/*.cmake .
 
 echo ""
 echo "---------------- Removing pip references from ensurepip ----------------"
 echo ""
-rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.13/lib/python3.13/ensurepip/_bundled/pip-20*.whl
+rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/_bundled/pip-20*.whl
 
 echo ""
 echo "----------------  Cleaning temp folder ----------------"
