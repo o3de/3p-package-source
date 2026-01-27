@@ -165,12 +165,13 @@ class IspcTexCompBuilder(object):
         """
         build ispc_texcomp.xcodeproj
         """
+        xcodeDerivedPath = self.working_dir / "XCode" / "DerivedData"
+        xcodeDerivedPath.mkdir(parents=True, exist_ok=True)
+
         print(f"    > building for macos...")
         os.chdir(self.src_folder)
-        os.system(f"xcodebuild {opt_platform_preferred_arch}build -scheme ispc_texcomp -project ispc_texcomp.xcodeproj -destination 'platform=macOS{opt_xcode_arch_destination}'")
+        os.system(f"xcodebuild {opt_platform_preferred_arch}build -scheme ispc_texcomp -project ispc_texcomp.xcodeproj -destination 'platform=macOS{opt_xcode_arch_destination}' -derivedDataPath {xcodeDerivedPath.as_posix()}")
         os.chdir(self.working_dir)
-        
-        
 
     def build_linux(self):
         """

@@ -1,5 +1,5 @@
 diff --git a/ispc_texcomp.xcodeproj/project.pbxproj b/ispc_texcomp.xcodeproj/project.pbxproj
-index 311f89e..5bd04ff 100644
+index 311f89e..4e7ce47 100644
 --- a/ispc_texcomp.xcodeproj/project.pbxproj
 +++ b/ispc_texcomp.xcodeproj/project.pbxproj
 @@ -148,7 +148,7 @@
@@ -29,7 +29,7 @@ index 311f89e..5bd04ff 100644
  				MTL_ENABLE_DEBUG_INFO = NO;
  				SDKROOT = macosx;
  			};
-@@ -253,7 +253,7 @@
+@@ -253,11 +253,9 @@
  				DYLIB_INSTALL_NAME_BASE = "";
  				EXECUTABLE_PREFIX = lib;
  				INSTALL_PATH = "";
@@ -37,8 +37,12 @@ index 311f89e..5bd04ff 100644
 +				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
  				OTHER_LDFLAGS = (
  					"$(OBJROOT)/kernel.o",
- 					"$(OBJROOT)/kernel_sse2.o",
-@@ -273,7 +273,7 @@
+-					"$(OBJROOT)/kernel_sse2.o",
+-					"$(OBJROOT)/kernel_avx.o",
+ 					"$(OBJROOT)/kernel_astc.o",
+ 				);
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -273,11 +271,9 @@
  				DYLIB_INSTALL_NAME_BASE = "";
  				EXECUTABLE_PREFIX = lib;
  				INSTALL_PATH = "";
@@ -46,4 +50,8 @@ index 311f89e..5bd04ff 100644
 +				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
  				OTHER_LDFLAGS = (
  					"$(OBJROOT)/kernel.o",
- 					"$(OBJROOT)/kernel_sse2.o",
+-					"$(OBJROOT)/kernel_sse2.o",
+-					"$(OBJROOT)/kernel_avx.o",
+ 					"$(OBJROOT)/kernel_astc.o",
+ 				);
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
