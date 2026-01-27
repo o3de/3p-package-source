@@ -39,15 +39,20 @@ if platform.system() == 'Linux':
     ispc_compiler = "ispc-v1.16.1-linux/bin/ispc"
     platform_name = "linux"
 elif platform.system() == 'Darwin':
-    ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-macOS.tar.gz"
-    ispc_compiler_install_dir = "ISPC/osx"
-    ispc_compiler_package_file = "ispc-v1.16.1-macOS.tar.gz"
-    ispc_compiler = "ispc-v1.16.1-macOS/bin/ispc"
     platform_name = "mac"
     if platform.processor() == "arm":
+        ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.29.1/ispc-v1.29.1-macOS.arm64.tar.gz"
+        ispc_compiler_install_dir = "ISPC/osx"
+        ispc_compiler_package_file = "ispc-v1.29.1-macOS.arm64.tar.gz"
+        ispc_compiler = "ispc-v1.29.1-macOS.arm64/bin/ispc"
         source_patch_file="ISPCTexComp_36b80aa-mac-arm64.patch"
         opt_arch = "-arm64"
         opt_xcode_arch_destination = ",arch=arm64"
+    else:
+        ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-macOS.tar.gz"
+        ispc_compiler_install_dir = "ISPC/osx"
+        ispc_compiler_package_file = "ispc-v1.16.1-macOS.tar.gz"
+        ispc_compiler = "ispc-v1.16.1-macOS/bin/ispc"
 elif platform.system() == 'Windows':
     ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-windows.zip"
     ispc_compiler_install_dir = "ISPC/win"
