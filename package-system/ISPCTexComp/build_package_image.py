@@ -31,6 +31,7 @@ source_patch_file="ISPCTexComp_36b80aa.patch"
 
 opt_arch = ""
 opt_xcode_arch = ""
+opt_platform_preferred_arch=""
 
 if platform.system() == 'Linux':
     ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-linux.tar.gz"
@@ -48,6 +49,7 @@ elif platform.system() == 'Darwin':
         source_patch_file="ISPCTexComp_36b80aa-mac-arm64.patch"
         opt_arch = "-arm64"
         opt_xcode_arch_destination = ",arch=arm64"
+        opt_platform_preferred_arch = "PLATFORM_PREFERRED_ARCH=arm64 "
     else:
         ispc_compiler_url = "https://github.com/ispc/ispc/releases/download/v1.16.1/ispc-v1.16.1-macOS.tar.gz"
         ispc_compiler_install_dir = "ISPC/osx"
@@ -165,8 +167,9 @@ class IspcTexCompBuilder(object):
         """
         print(f"    > building for macos...")
         os.chdir(self.src_folder)
-        os.system(f"xcodebuild build -scheme ispc_texcomp -project ispc_texcomp.xcodeproj -destination 'platform=macOS{opt_xcode_arch_destination}'")
+        os.system(f"xcodebuild {opt_platform_preferred_arch}build -scheme ispc_texcomp -project ispc_texcomp.xcodeproj -destination 'platform=macOS{opt_xcode_arch_destination}'")
         os.chdir(self.working_dir)
+        
         
 
     def build_linux(self):
