@@ -15,6 +15,7 @@ import platform
 
 folder_names = { #   subfolder     interpreter     build script 
     'darwin'        : ('darwin_x64' , 'Python.framework/Versions/3.10/bin/python3', 'make-python.sh'),
+    'darwin-arm64'  : ('darwin_arm64' , 'Python.framework/Versions/3.13/bin/python3', 'make-python.sh'),
     'linux'         : ('linux_x64'  , 'python/bin/python', 'make-python.sh'),
     'windows'       : ('win_x64'    , 'python/python.exe', 'build_python.bat')
 }
@@ -24,6 +25,8 @@ platformsys = platform.system().lower()
 if platformsys == 'linux' and platform.machine() == 'aarch64':
     print("Linux aarch64 builds not supported by this script")
     sys.exit(1)
+if platformsys == 'darwin' and platform.machine() == 'arm64':
+    platformsys = 'darwin-arm64'
 
 # intentionally generate a keyerror if its not a good platform:
 subfolder_name, binary_relpath, build_script = folder_names[platformsys]

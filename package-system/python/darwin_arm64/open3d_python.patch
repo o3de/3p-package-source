@@ -1,0 +1,36 @@
+diff --git a/Mac/BuildScript/build-installer.py b/Mac/BuildScript/build-installer.py
+index 8f33537..bf55db8 100755
+--- a/Mac/BuildScript/build-installer.py
++++ b/Mac/BuildScript/build-installer.py
+@@ -265,9 +265,9 @@ def library_recipes():
+ 
+         else:
+             tcl_tk_ver='8.6.12'
+-            tcl_checksum='87ea890821d2221f2ab5157bc5eb885f'
++            tcl_checksum='cloned'
+ 
+-            tk_checksum='1d6dcf6120356e3d211e056dff5e462a'
++            tk_checksum='cloned'
+             tk_patches = [ ]
+ 
+ 
+@@ -347,7 +347,7 @@ def library_recipes():
+                   "--libdir=/Library/Frameworks/Python.framework/Versions/%s/lib"%(getVersion(),),
+               ],
+               patchscripts=[
+-                  ("ftp://ftp.invisible-island.net/ncurses//5.9/ncurses-5.9-20120616-patch.sh.bz2",
++                  ("https://invisible-island.net/archives/ncurses/5.9/ncurses-5.9-20120616-patch.sh.bz2",
+                    "f54bf02a349f96a7c4f0d00922f3a0d4"),
+                    ],
+               useLDFlags=False,
+@@ -797,6 +797,10 @@ def verifyThirdPartyFile(url, checksum, fname):
+         algo = 'md5'
+     elif len(checksum) == 64:
+         algo = 'sha256'
++    elif checksum == 'cloned':
++        print("Skipping verification for %s, locally packaged from git"%name)
++        # Special case, the 3p file was cloned from git and packaged locally
++        return
+     else:
+         raise ValueError(checksum)
+     if os.system(

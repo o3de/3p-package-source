@@ -1,0 +1,6 @@
+{
+    "PackageName" : "python-3.10.19-rev1-mac-arm64",
+    "License"     : "PSF-2.0",
+    "URL"         : "https://python.org",
+    "LicenseFile" : "LICENSE"
+}

@@ -33,6 +33,8 @@
 # and a subfolder containing the official python but patched so that they work in that folder structure
 # regardless of where the folder is, instead of having absolute paths baked in.
 
+set -o pipefail
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 
@@ -59,15 +61,14 @@ cd temp
 mkdir $SCRIPT_DIR/package
 
 echo ""
-echo "---------------- Cloning python 3.10.13 from git ----------------"
+echo "---------------- Cloning python 3.10.19 from git ----------------"
 echo ""
-git clone https://github.com/python/cpython.git --branch "v3.10.13" --depth 1
+git clone https://github.com/python/cpython.git --branch "v3.10.19" --depth 1
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error cloning python from https://github.com/python/cpython.git"
     exit $retVal
 fi
-exit 1
 
 echo ""
 echo "---------------- Cloning libexpat 2.4.6 from git and applying update ----------------"
@@ -79,6 +80,28 @@ if [ $retVal -ne 0 ]; then
 fi
 cp -f -v libexpat/expat/lib/*.h cpython/Modules/expat/
 cp -f -v libexpat/expat/lib/*.c cpython/Modules/expat/
+
+echo ""
+echo "---------------- Cloning tcl 8.6.12 from git compressing to downloaded packages ----------------"
+echo ""
+mkdir cloned_packages
+mkdir downloaded_packages
+git clone https://github.com/tcltk/tcl.git --branch "core-8-6-12" --depth 1 cloned_packages/tcl8.6.12
+cd cloned_packages
+tar cvzf tcl8.6.12-src.tar.gz tcl8.6.12
+cd ..
+mv cloned_packages/tcl8.6.12-src.tar.gz downloaded_packages/
+
+echo ""
+echo "---------------- Cloning tk 8.6.12 from git compressing to downloaded packages ----------------"
+echo ""
+mkdir cloned_packages
+mkdir downloaded_packages
+git clone https://github.com/tcltk/tk.git --branch "core-8-6-12" --depth 1 cloned_packages/tk8.6.12
+cd cloned_packages
+tar cvzf tk8.6.12-src.tar.gz tk8.6.12
+cd ..
+mv cloned_packages/tk8.6.12-src.tar.gz downloaded_packages/
 
 
 echo ""
@@ -107,20 +130,19 @@ echo "---------------- Installing spinx documentation tool into the v-env ------
 echo ""
 $VENV_BIN_DIR/python3 -m pip install sphinx
 
-
 cd $RELOC_SRC_DIR
 
-echo ""
-echo "---------------- Checking out specific commit hash of relocatable-python ----------------"
-echo ""
+#echo ""
+#echo "---------------- Checking out specific commit hash of relocatable-python ----------------"
+#echo ""
 # the hash is a known good commit hash.  This also causes it to fail if someone
 # tampers the repo!
-git reset --hard 5e459c3ccea0daaf181f3b1ef2773dbefce1a563
-retVal=$?
-if [ $retVal -ne 0 ]; then
-    echo "Error resetting to specific change!"
-    exit $retVal
-fi
+#git reset --hard 5e459c3ccea0daaf181f3b1ef2773dbefce1a563
+#retVal=$?
+#if [ $retVal -ne 0 ]; then
+#    echo "Error resetting to specific change!"
+#    exit $retVal
+#fi
 
 echo ""
 echo "---------------- patching the relocator ----------------"
@@ -154,7 +176,7 @@ cd Mac
 cd BuildScript
 
 # the following env vars get around a problem compiling tcl/tk
-ac_cv_header_libintl_h=no ac_cv_lib_intl_textdomain=no tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN=$VENV_BIN_DIR $VENV_BIN_DIR/python3 ./build-installer.py --universal-archs=intel-64 --build-dir $SCRIPT_DIR/temp/python_build --third-party=$SCRIPT_DIR/temp/downloaded_packages --dep-target=10.15
+ac_cv_header_libintl_h=no ac_cv_lib_intl_textdomain=no tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN=$VENV_BIN_DIR $VENV_BIN_DIR/python3 ./build-installer.py --universal-archs=universal2 --build-dir $SCRIPT_DIR/temp/python_build --third-party=$SCRIPT_DIR/temp/downloaded_packages --dep-target=11.0
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not build python!"
@@ -165,12 +187,18 @@ fi
 # we use the --use-existing-framework to point the script at that framework we just made:
 FRAMEWORK_OUTPUT_FOLDER=$SCRIPT_DIR/temp/python_build/_root/Library/Frameworks
 echo Framework output folder: $FRAMEWORK_OUTPUT_FOLDER
+
+# Run ensurepip to make sure pip is available
+
+echo "$FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.10/bin/python3.10 -m ensurepip"
+$FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.10/bin/python3.10 -m ensurepip
+
 cd $RELOC_SRC_DIR
 echo ""
 echo "---------------- Altering the produced framework folder to be relocatable ----------------"
 echo ""
-echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
-$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --install-wheel --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --upgrade-pip --python-version 3.10.19 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --upgrade-pip --python-version 3.10.19 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not make python relocatable!"
@@ -203,19 +231,19 @@ echo "---------------- Copying Open3DEngine package metadata and license file --
 echo ""
 # the tar contains a 'Python.framework' sub folder
 cd $SCRIPT_DIR/package
-cp $SCRIPT_DIR/package/Python.framework/Versions/3.13/lib/python3.13/LICENSE.txt ./LICENSE
+cp $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/LICENSE.txt ./LICENSE
 cp $SCRIPT_DIR/PackageInfo.json .
 cp $SCRIPT_DIR/*.cmake .
 
 echo ""
 echo "---------------- Removing pip references from ensurepip ----------------"
 echo ""
-rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.13/lib/python3.13/ensurepip/_bundled/pip-20*.whl
+rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/_bundled/pip-20*.whl
 
 echo ""
 echo "----------------  Cleaning temp folder ----------------"
 echo ""
-rm -rf $SCRIPT_DIR/temp
+# rm -rf $SCRIPT_DIR/temp
 
 echo ""
 echo "DONE! Package layout folder has been created in $SCRIPT_DIR/package"

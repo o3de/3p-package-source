@@ -1,0 +1,64 @@
+diff --git a/locallibs/relocatablizer.py b/locallibs/relocatablizer.py
+index 6968564..10e05a9 100644
+--- a/locallibs/relocatablizer.py
++++ b/locallibs/relocatablizer.py
+@@ -92,6 +92,19 @@ def fix_dep(some_file, old_install_name, new_install_name):
+     ]
+     run(cmd)
+ 
++    add_framework_rpath(some_file)
++
++def add_framework_rpath(some_file):
++    """Adds a RPATH that refers to the framework root so that the binary can run
++    even if invoked from another binary (ie, for embedding) that is not in the framework root"""
++    framework_loc = framework_dir(some_file)
++    rpath = os.path.join(
++            "@loader_path/",
++            os.path.relpath(framework_loc, os.path.dirname(some_file))
++        )
++    if rpath not in get_rpaths(some_file):
++        cmd = [INSTALL_NAME_TOOL, "-add_rpath", rpath, some_file]
++        run(cmd)
+ 
+ def get_rpaths(some_file):
+     """returns rpaths stored in an executable"""
+@@ -266,7 +279,7 @@ def relocatablize(framework_path):
+         print()
+     # add rpaths to executables
+     for item in framework_data["executables"]:
+-        add_rpath(item["path"])
++        #add_rpath(item["path"])
+         files_changed.add(item["path"])
+ 
+     return files_changed
+diff --git a/make_relocatable_python_framework.py b/make_relocatable_python_framework.py
+index fdca736..89cf98f 100755
+--- a/make_relocatable_python_framework.py
++++ b/make_relocatable_python_framework.py
+@@ -78,13 +78,21 @@ def main():
+         action="store_true",
+         help="Do not install pip."
+     )
++    parser.add_option(
++        "--use-existing-framework",
++        default=None,
++        help="Specify a path to a Python.framework folder instead of downloading"
++    )    
+     parser.set_defaults(unsign=True)
+     options, _arguments = parser.parse_args()
+-    framework_path = get.FrameworkGetter(
+-        python_version=options.python_version,
+-        os_version=options.os_version,
+-        base_url=options.baseurl,
+-    ).download_and_extract(destination=options.destination)
++    framework_path = options.use_existing_framework
++
++    if not framework_path:
++        framework_path = get.FrameworkGetter(
++            python_version=options.python_version,
++            os_version=options.os_version,
++            base_url=options.baseurl,
++        ).download_and_extract(destination=options.destination)    
+ 
+     if framework_path:
+         files_relocatablized = relocatablize(framework_path)
