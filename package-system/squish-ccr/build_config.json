@@ -39,7 +39,8 @@
             "cmake_generate_args_release": [
                 "-G",
                 "Xcode",
-                "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.12",
+                "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+                "-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0",
                 "-DCMAKE_OSX_ARCHITECTURES=x86_64",
                 "-DCMAKE_CXX_FLAGS=\"-fPIC -O2\"",
                 "-DCMAKE_CXX_STANDARD=17",
@@ -51,6 +52,13 @@
             ],
             "build_configs": [
                 "Release"
+            ]
+        },
+        "Mac-arm64": {
+            "custom_cmake_install": true,
+            "custom_build_cmd": [
+                "./build-mac-arm64.sh",
+                "x86_64"
             ]
         }
       },

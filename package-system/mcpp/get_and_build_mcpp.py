@@ -31,6 +31,7 @@ SOURCEFORGE_DOWNLOAD_URL = f"{SOURCEFORGE_URL}/{SOURCE_TAR_FILE}/download"
 PLATFORM_LINUX = 'linux'
 PLATFORM_LINUX_ARM64 = 'linux-aarch64'
 PLATFORM_MAC = 'mac'
+PLATFORM_MAC_ARM64 = 'mac-arm64'
 PLATFORM_WINDOWS = 'windows'
 
 if platform.system() == 'Linux':
@@ -41,7 +42,10 @@ if platform.system() == 'Linux':
     shared_lib_name = 'libmcpp.so'
     static_lib_name = 'libmcpp.a'
 elif platform.system() == 'Darwin':
-    platform_name = PLATFORM_MAC
+    if platform.processor() == 'arm':
+        platform_name = PLATFORM_MAC_ARM64
+    else:
+        platform_name = PLATFORM_MAC
     shared_lib_name = 'libmcpp.dylib'
     static_lib_name = 'libmcpp.a'
 elif platform.system() == 'Windows':
@@ -69,9 +73,9 @@ elif platform.system() == 'Windows':
 else:
     assert False, "Invalid platform"
 
-assert platform_name in (PLATFORM_LINUX, PLATFORM_LINUX_ARM64, PLATFORM_MAC, PLATFORM_WINDOWS), f"Invalid platform_name {platform_name}"
+assert platform_name in (PLATFORM_LINUX, PLATFORM_LINUX_ARM64, PLATFORM_MAC, PLATFORM_MAC_ARM64, PLATFORM_WINDOWS), f"Invalid platform_name {platform_name}"
 
-TARGET_3PP_PACKAGE_FOLDER = SCRIPT_PATH.parent / f'mcpp-{platform_name}'
+TARGET_3PP_PACKAGE_FOLDER = SCRIPT_PATH.parent / 'temp' / f'mcpp-{platform_name}'
 
 MCPP_DETAIL = f"""
 The MCPP package will be patched and built from the following sources
@@ -224,7 +228,7 @@ def configure_build(temp_folder):
             dst_visualc_mak = temp_folder / SOURCE_NAME / 'src' / 'visualc.mak'
             shutil.copyfile(str(src_visualc_mak.resolve()), str(dst_visualc_mak.resolve()))
         else:
-            if platform_name == PLATFORM_MAC:
+            if platform_name in (PLATFORM_MAC, PLATFORM_MAC_ARM64):
                 # For mac, we need to disable the 'implicit-function-declaration' or else the build will fail
                 env_copy = os.environ.copy()
                 env_copy['CFLAGS'] = '-Wno-implicit-function-declaration'

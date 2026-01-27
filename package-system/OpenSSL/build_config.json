@@ -8,6 +8,21 @@
    "package_license_file":"LICENSE",
    "cmake_find_target":"FindOpenSSL.cmake",
    "Platforms":{
+      "Darwin":{
+         "Mac":{
+            "package_version": "1.1.1w-rev1",
+            "git_tag":"OpenSSL_1_1_1w",
+            "cmake_find_template":"FindOpenSSL.cmake.template",
+            "custom_build_cmd": [
+               "./build-mac.sh"
+            ],
+            "custom_additional_template_map": {
+               "OPENSSL_VERSION_STRING": "1.1.1w",
+               "CRYPTO_LIBRARY_DEPENDENCIES": ""
+            }
+         },
+         "Mac-arm64": "@Mac"
+      },
       "Linux":{
          "Linux":{
             "cmake_find_template":"FindOpenSSL.cmake.template",
