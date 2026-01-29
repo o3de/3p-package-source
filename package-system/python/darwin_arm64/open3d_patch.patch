@@ -1,8 +1,35 @@
+diff --git a/locallibs/install.py b/locallibs/install.py
+index 64593a2..0162761 100644
+--- a/locallibs/install.py
++++ b/locallibs/install.py
+@@ -23,7 +23,7 @@ import sys
+ 
+ PYTHON2_EXTRA_PKGS = ["xattr==0.6.4", "pyobjc"]
+ 
+-PYTHON3_EXTRA_PKGS = ["cffi", "xattr", "pyobjc", "six"]
++PYTHON3_EXTRA_PKGS = []
+ 
+ 
+ def ensure_pip(framework_path, version):
 diff --git a/locallibs/relocatablizer.py b/locallibs/relocatablizer.py
-index 6968564..10e05a9 100644
+index 6968564..4057558 100644
 --- a/locallibs/relocatablizer.py
 +++ b/locallibs/relocatablizer.py
-@@ -92,6 +92,19 @@ def fix_dep(some_file, old_install_name, new_install_name):
+@@ -29,8 +29,11 @@ FILETOOL = "/usr/bin/file"
+ 
+ def run(cmd):
+     """Prints and executes cmd"""
+-    print(" ".join(cmd))
+-    subprocess.check_call(cmd)
++    try:
++        print(" ".join(cmd))
++        subprocess.check_call(cmd)
++    except Exception as e:
++        print(f"Warning: '{cmd}' failed ('{e}'), but we will continue")
+ 
+ 
+ def fix_modes(framework_dir):
+@@ -92,6 +95,19 @@ def fix_dep(some_file, old_install_name, new_install_name):
      ]
      run(cmd)
  
@@ -22,30 +49,23 @@ index 6968564..10e05a9 100644
  
  def get_rpaths(some_file):
      """returns rpaths stored in an executable"""
-@@ -266,7 +279,7 @@ def relocatablize(framework_path):
-         print()
-     # add rpaths to executables
-     for item in framework_data["executables"]:
--        add_rpath(item["path"])
-+        #add_rpath(item["path"])
-         files_changed.add(item["path"])
- 
-     return files_changed
 diff --git a/make_relocatable_python_framework.py b/make_relocatable_python_framework.py
-index fdca736..89cf98f 100755
+index f3767a3..bb49acb 100755
 --- a/make_relocatable_python_framework.py
 +++ b/make_relocatable_python_framework.py
-@@ -78,13 +78,21 @@ def main():
+@@ -79,14 +79,23 @@ def main():
          action="store_true",
-         help="Do not install pip."
+         help="Upgrade pip prior to installing extra python modules."
      )
 +    parser.add_option(
 +        "--use-existing-framework",
 +        default=None,
 +        help="Specify a path to a Python.framework folder instead of downloading"
-+    )    
++    )
++
      parser.set_defaults(unsign=True)
      options, _arguments = parser.parse_args()
+ 
 -    framework_path = get.FrameworkGetter(
 -        python_version=options.python_version,
 -        os_version=options.os_version,
@@ -58,7 +78,7 @@ index fdca736..89cf98f 100755
 +            python_version=options.python_version,
 +            os_version=options.os_version,
 +            base_url=options.baseurl,
-+        ).download_and_extract(destination=options.destination)    
++        ).download_and_extract(destination=options.destination)
  
      if framework_path:
          files_relocatablized = relocatablize(framework_path)

@@ -61,9 +61,9 @@ cd temp
 mkdir $SCRIPT_DIR/package
 
 echo ""
-echo "---------------- Cloning python 3.10.19 from git ----------------"
+echo "---------------- Cloning python 3.10.13 from git ----------------"
 echo ""
-git clone https://github.com/python/cpython.git --branch "v3.10.19" --depth 1
+git clone https://github.com/python/cpython.git --branch "v3.10.13" --depth 1
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error cloning python from https://github.com/python/cpython.git"
@@ -88,7 +88,7 @@ mkdir cloned_packages
 mkdir downloaded_packages
 git clone https://github.com/tcltk/tcl.git --branch "core-8-6-12" --depth 1 cloned_packages/tcl8.6.12
 cd cloned_packages
-tar cvzf tcl8.6.12-src.tar.gz tcl8.6.12
+tar czf tcl8.6.12-src.tar.gz tcl8.6.12
 cd ..
 mv cloned_packages/tcl8.6.12-src.tar.gz downloaded_packages/
 
@@ -99,7 +99,7 @@ mkdir cloned_packages
 mkdir downloaded_packages
 git clone https://github.com/tcltk/tk.git --branch "core-8-6-12" --depth 1 cloned_packages/tk8.6.12
 cd cloned_packages
-tar cvzf tk8.6.12-src.tar.gz tk8.6.12
+tar czf tk8.6.12-src.tar.gz tk8.6.12
 cd ..
 mv cloned_packages/tk8.6.12-src.tar.gz downloaded_packages/
 
@@ -132,23 +132,23 @@ $VENV_BIN_DIR/python3 -m pip install sphinx
 
 cd $RELOC_SRC_DIR
 
-#echo ""
-#echo "---------------- Checking out specific commit hash of relocatable-python ----------------"
-#echo ""
+echo ""
+echo "---------------- Checking out specific commit hash of relocatable-python ----------------"
+echo ""
 # the hash is a known good commit hash.  This also causes it to fail if someone
 # tampers the repo!
-#git reset --hard 5e459c3ccea0daaf181f3b1ef2773dbefce1a563
-#retVal=$?
-#if [ $retVal -ne 0 ]; then
-#    echo "Error resetting to specific change!"
-#    exit $retVal
-#fi
+git reset --hard 5e459c3ccea0daaf181f3b1ef2773dbefce1a563
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error resetting to specific change!"
+    exit $retVal
+fi
 
-echo ""
-echo "---------------- patching the relocator ----------------"
-echo ""
-echo Currently in `pwd`
-echo patch -p1 $SCRIPT_DIR/open3d_patch.patch
+#echo ""
+#echo "---------------- patching the relocator ----------------"
+#echo ""
+#echo Currently in `pwd`
+#echo patch -p1 $SCRIPT_DIR/open3d_patch.patch
 patch -p1 < $SCRIPT_DIR/open3d_patch.patch
 retVal=$?
 if [ $retVal -ne 0 ]; then
@@ -176,7 +176,7 @@ cd Mac
 cd BuildScript
 
 # the following env vars get around a problem compiling tcl/tk
-ac_cv_header_libintl_h=no ac_cv_lib_intl_textdomain=no tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN=$VENV_BIN_DIR $VENV_BIN_DIR/python3 ./build-installer.py --universal-archs=universal2 --build-dir $SCRIPT_DIR/temp/python_build --third-party=$SCRIPT_DIR/temp/downloaded_packages --dep-target=11.0
+ac_cv_header_libintl_h=no ac_cv_lib_intl_textdomain=no tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN=$VENV_BIN_DIR $VENV_BIN_DIR/python3 ./build-installer.py --universal-archs=arm64 --build-dir $SCRIPT_DIR/temp/python_build --third-party=$SCRIPT_DIR/temp/downloaded_packages
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not build python!"
@@ -197,8 +197,8 @@ cd $RELOC_SRC_DIR
 echo ""
 echo "---------------- Altering the produced framework folder to be relocatable ----------------"
 echo ""
-echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --upgrade-pip --python-version 3.10.19 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
-$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --upgrade-pip --python-version 3.10.19 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --no-unsign --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --no-unsign --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not make python relocatable!"

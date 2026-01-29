@@ -1,8 +1,50 @@
+diff --git a/Doc/conf.py b/Doc/conf.py
+index 178e520..b68cdcf 100644
+--- a/Doc/conf.py
++++ b/Doc/conf.py
+@@ -45,7 +45,7 @@
+ highlight_language = 'python3'
+ 
+ # Minimum version of sphinx required
+-needs_sphinx = '3.2'
++needs_sphinx = '5.0'
+ 
+ # Ignore any .rst files in the venv/ directory.
+ exclude_patterns = ['venv/*', 'README.rst']
+diff --git a/Doc/requirements.txt b/Doc/requirements.txt
+index f43ce2c..ea46010 100644
+--- a/Doc/requirements.txt
++++ b/Doc/requirements.txt
+@@ -3,7 +3,7 @@
+ # Sphinx version is pinned so that new versions that introduce new warnings
+ # won't suddenly cause build failures. Updating the version is fine as long
+ # as no warnings are raised by doing so.
+-sphinx==3.4.3
++sphinx==5.0.2
+ # Docutils version is pinned to a version compatible with Sphinx
+ # version <3.5.4. It can be removed after bumping Sphinx version to at
+ # least 3.5.4.
 diff --git a/Mac/BuildScript/build-installer.py b/Mac/BuildScript/build-installer.py
-index 8f33537..bf55db8 100755
+index 8f33537..5972b3d 100755
 --- a/Mac/BuildScript/build-installer.py
 +++ b/Mac/BuildScript/build-installer.py
-@@ -265,9 +265,9 @@ def library_recipes():
+@@ -121,6 +121,7 @@ def getFullVersion():
+ DEPSRC = os.path.expanduser('~/Universal/other-sources')
+ 
+ universal_opts_map = { 'universal2': ('arm64', 'x86_64'),
++                       'arm64': ('arm64',),
+                        '32-bit': ('i386', 'ppc',),
+                        '64-bit': ('x86_64', 'ppc64',),
+                        'intel':  ('i386', 'x86_64'),
+@@ -130,6 +131,7 @@ def getFullVersion():
+                        'all':    ('i386', 'ppc', 'x86_64', 'ppc64',) }
+ default_target_map = {
+         'universal2': '10.9',
++        'arm64': '10.10',
+         '64-bit': '10.5',
+         '3-way': '10.5',
+         'intel': '10.5',
+@@ -265,9 +267,9 @@ def library_recipes():
  
          else:
              tcl_tk_ver='8.6.12'
@@ -14,7 +56,7 @@ index 8f33537..bf55db8 100755
              tk_patches = [ ]
  
  
-@@ -347,7 +347,7 @@ def library_recipes():
+@@ -347,7 +349,7 @@ def library_recipes():
                    "--libdir=/Library/Frameworks/Python.framework/Versions/%s/lib"%(getVersion(),),
                ],
                patchscripts=[
@@ -23,7 +65,7 @@ index 8f33537..bf55db8 100755
                     "f54bf02a349f96a7c4f0d00922f3a0d4"),
                     ],
                useLDFlags=False,
-@@ -797,6 +797,10 @@ def verifyThirdPartyFile(url, checksum, fname):
+@@ -797,6 +799,10 @@ def verifyThirdPartyFile(url, checksum, fname):
          algo = 'md5'
      elif len(checksum) == 64:
          algo = 'sha256'
@@ -34,3 +76,146 @@ index 8f33537..bf55db8 100755
      else:
          raise ValueError(checksum)
      if os.system(
+@@ -1019,7 +1025,7 @@ def buildRecipe(recipe, basedir, archList):
+                         DEPTARGET,
+                         ' -arch '.join(archList),
+                         shellQuote(basedir)[1:-1],),
+-                "LDFLAGS=-mmacosx-version-min=%s -L%s/usr/local/lib -arch %s"%(
++                "LDFLAGS=-Wl,-headerpad_max_install_names -mmacosx-version-min=%s -L%s/usr/local/lib -arch %s"%(
+                     DEPTARGET,
+                     shellQuote(basedir)[1:-1],
+                     ' -arch '.join(archList)),
+diff --git a/Misc/NEWS.d/3.10.0b1.rst b/Misc/NEWS.d/3.10.0b1.rst
+index 345a917..e909cc8 100644
+--- a/Misc/NEWS.d/3.10.0b1.rst
++++ b/Misc/NEWS.d/3.10.0b1.rst
+@@ -941,7 +941,7 @@ result from ``entry_points()`` as deprecated.
+ 
+ ..
+ 
+-.. gh: 47383
++.. gh-issue: 47383
+ .. date: 2021-04-08-19-32-26
+ .. nonce: YI1hdL
+ .. section: Library
+diff --git a/Misc/NEWS.d/3.5.3.rst b/Misc/NEWS.d/3.5.3.rst
+index c3fcb67..2897e9e 100644
+--- a/Misc/NEWS.d/3.5.3.rst
++++ b/Misc/NEWS.d/3.5.3.rst
+@@ -3,5 +3,6 @@
+ .. no changes: True
+ .. nonce: zYPqUK
+ .. release date: 2017-01-17
++.. section: All
+ 
+ There were no code changes between 3.5.3rc1 and 3.5.3 final.
+diff --git a/Misc/NEWS.d/3.6.0.rst b/Misc/NEWS.d/3.6.0.rst
+index f9805ca..aeae35f 100644
+--- a/Misc/NEWS.d/3.6.0.rst
++++ b/Misc/NEWS.d/3.6.0.rst
+@@ -3,5 +3,5 @@
+ .. no changes: True
+ .. nonce: F9ENBV
+ .. release date: 2016-12-23
+-
++.. section: All
+ No changes since release candidate 2
+diff --git a/Misc/NEWS.d/3.6.2.rst b/Misc/NEWS.d/3.6.2.rst
+index dba43d1..a34a1cc 100644
+--- a/Misc/NEWS.d/3.6.2.rst
++++ b/Misc/NEWS.d/3.6.2.rst
+@@ -3,5 +3,6 @@
+ .. no changes: True
+ .. nonce: F9ENBV
+ .. release date: 2017-07-17
++.. section: All
+ 
+ No changes since release candidate 2
+diff --git a/configure b/configure
+index 4b71c4e..909ae05 100755
+--- a/configure
++++ b/configure
+@@ -6755,7 +6755,7 @@ $as_echo "$as_me: llvm-ar found via xcrun: ${LLVM_AR}" >&6;}
+       case $ac_sys_system in
+         Darwin*)
+           # Any changes made here should be reflected in the GCC+Darwin case below
+-          LTOFLAGS="-flto -Wl,-export_dynamic"
++          LTOFLAGS="-flto -Wl,-export_dynamic -Wl,-headerpad_max_install_names"
+           LTOCFLAGS="-flto"
+           ;;
+         *)
+@@ -6766,7 +6766,7 @@ $as_echo "$as_me: llvm-ar found via xcrun: ${LLVM_AR}" >&6;}
+     *gcc*)
+       case $ac_sys_system in
+         Darwin*)
+-          LTOFLAGS="-flto -Wl,-export_dynamic"
++          LTOFLAGS="-flto -Wl,-export_dynamic -Wl,-headerpad_max_install_names"
+           LTOCFLAGS="-flto"
+           ;;
+         *)
+@@ -7578,6 +7578,12 @@ $as_echo "$CC" >&6; }
+                LIPO_INTEL64_FLAGS="-extract x86_64"
+                ARCH_RUN_32BIT="true"
+                ;;
++            arm64)
++               UNIVERSAL_ARCH_FLAGS="-arch arm64"
++               LIPO_32BIT_FLAGS=""
++               LIPO_INTEL64_FLAGS=""
++               ARCH_RUN_32BIT="true"
++               ;;
+             intel)
+                UNIVERSAL_ARCH_FLAGS="-arch i386 -arch x86_64"
+                LIPO_32BIT_FLAGS="-extract i386"
+@@ -7599,7 +7605,7 @@ $as_echo "$CC" >&6; }
+                ARCH_RUN_32BIT="/usr/bin/arch -i386 -ppc"
+                ;;
+             *)
+-               as_fn_error $? "proper usage is --with-universal-arch=universal2|32-bit|64-bit|all|intel|3-way" "$LINENO" 5
++               as_fn_error $? "proper usage is --with-universal-arch=universal2|32-bit|64-bit|all|intel|3-way|arm64" "$LINENO" 5
+                ;;
+             esac
+ 
+diff --git a/configure.ac b/configure.ac
+index ac3be38..be927a3 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1412,7 +1412,7 @@ if test "$Py_LTO" = 'true' ; then
+       case $ac_sys_system in
+         Darwin*)
+           # Any changes made here should be reflected in the GCC+Darwin case below
+-          LTOFLAGS="-flto -Wl,-export_dynamic"
++          LTOFLAGS="-flto -Wl,-export_dynamic -Wl,-headerpad_max_install_names"
+           LTOCFLAGS="-flto"
+           ;;
+         *)
+@@ -1423,7 +1423,7 @@ if test "$Py_LTO" = 'true' ; then
+     *gcc*)
+       case $ac_sys_system in
+         Darwin*)
+-          LTOFLAGS="-flto -Wl,-export_dynamic"
++          LTOFLAGS="-flto -Wl,-export_dynamic -Wl,-headerpad_max_install_names"
+           LTOCFLAGS="-flto"
+           ;;
+         *)
+@@ -1911,6 +1911,12 @@ yes)
+                LIPO_INTEL64_FLAGS="-extract x86_64"
+                ARCH_RUN_32BIT="true"
+                ;;
++            arm64)
++               UNIVERSAL_ARCH_FLAGS="-arch arm64"
++               LIPO_32BIT_FLAGS=""
++               LIPO_INTEL64_FLAGS=""
++               ARCH_RUN_32BIT="true"
++               ;;
+             intel)
+                UNIVERSAL_ARCH_FLAGS="-arch i386 -arch x86_64"
+                LIPO_32BIT_FLAGS="-extract i386"
+@@ -1932,7 +1938,7 @@ yes)
+                ARCH_RUN_32BIT="/usr/bin/arch -i386 -ppc"
+                ;;
+             *)
+-               AC_MSG_ERROR([proper usage is --with-universal-arch=universal2|32-bit|64-bit|all|intel|3-way])
++               AC_MSG_ERROR([proper usage is --with-universal-arch=universal2|32-bit|64-bit|all|intel|3-way|arm64])
+                ;;
+             esac
+ 
