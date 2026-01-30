@@ -85,6 +85,16 @@ dependencies = {
             'expat' :    ('expat-2.4.2-rev2-mac',              '70f195977a17b08a4dc8687400fd7f2589e3b414d4961b562129166965b6f658'),
             'freetype' : ('freetype-2.11.1-rev1-mac',          'b66107d3499f2e9c072bd88db26e0e5c1b8013128699393c6a8495afca3d2548')
         },
+    'darwin-arm64' :
+        {
+            'zlib' :     ('zlib-1.3.1-rev1-mac-arm64',         '8acd93c8044ceab5ce0da7e7a9b801b9eae2ef92bc70e4e5525934cd62dac8d3'),
+            'openexr' :  ('OpenEXR-3.4.4-rev1-mac-arm64',      '4a093f5ca03836631dc66166b8f493925d0445467219efcbca3a5a0ee2ccbf4b'),
+            'python' :   ('python-3.10.13-rev1-mac-arm64',     '282a7980925e901fc2f613adebaf923e4be8c358099d34ee4c5f6c4dd2496f93'),
+            'tiff' :     ('tiff-4.2.0.15-rev3-mac-arm64',      'bffbf8bf099ae5d3d49967536a8fcd7fcf747fd6fa92ba945a0e64eead9636d9'),
+            'libpng' :   ('png-1.6.53-rev1-mac-arm64',         '2d7bad5c91d8b115183b392cc771e73d16147db27d057a441ab586ce4a202763'),
+            'expat' :    ('expat-2.7.3-rev1-mac-arm64',        '76a6793f180f6df456394d02d9a23df585af6a10689308e539b50e26c5edf437'),
+            'freetype' : ('freetype-2.11.1-rev1-mac-arm64',    'eae257c78c2da47ca02ca17e949c665c28a59215d756c137c87220c85a7f8488')
+        },
     'windows' :
         {
             'zlib' :     ('zlib-1.2.11-rev5-windows',          '8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd'),
@@ -221,7 +231,7 @@ if not sys.version.startswith(expected_python_version):
 result = exec_and_exit_if_failed(['nasm', '-v'])
 if result != 0:
     print("Missing nasm install on system")
-    if args.platform == "darwin":
+    if args.platform in ("darwin", "darwin-arm64"):
         print("Please run: 'brew install nasm' and then run the build again")
     elif args.platform in ("linux", "linux-aarch64"):
         print("Please use your linux package manager to install the nasm package and then run the build again")
@@ -328,7 +338,7 @@ def BuildOpenColorIO(module_paths_to_use, release=True):
             '-G', 'Ninja'
         ]
 
-    if args.platform == "darwin":
+    if args.platform in ("darwin", "darwin-arm64"):
         opencolorio_configure_command += [
             f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
         ]
@@ -360,7 +370,7 @@ def BuildOpenColorIO(module_paths_to_use, release=True):
             f'-DPython_INCLUDE_DIR={python_include}',
             f'-DPython_EXECUTABLE={python_exe}'
         ]
-    elif args.platform == "darwin":
+    elif args.platform in ["darwin", "darwin-arm64"]:
         python_root /= "Python.framework/Versions/3.10"
         python_exe = python_root / "bin/Python3"
 
@@ -495,6 +505,17 @@ if not SKIP_BOOST:
     print("\n-------------------------------- BUILD BOOST ---------------------------------")
     clone_repo(boost_repository_url, boost_repository_tag, source_folder_path / 'boost')
 
+    # Patch to fix and issue with boost (https://github.com/boostorg/mpl/issues/74)
+    #
+    boost_patches = [ (script_folder / "temp" / "src" / "boost"/ "libs"/ "numeric" / "conversion", 
+                       script_folder / "clang16_mac_boost_numeric.patch"),
+                      (script_folder / "temp" / "src" / "boost"/ "libs"/ "container_hash",
+                       script_folder / "clang16_mac_boost_container_hash.patch") ] 
+    for (git_root, patch_file) in boost_patches:
+        print(f"Applying {patch_file} to {git_root}")
+        boost_patch_cmd = ['git', 'apply', '--ignore-whitespace', str(patch_file.absolute())]
+        exec_and_exit_if_failed(boost_patch_cmd, cwd=git_root)
+
     if boost_build_folder.exists():
         shutil.rmtree(str(boost_build_folder.resolve()), ignore_errors=True)
 
@@ -539,7 +560,7 @@ if not SKIP_LIBJPEGTURBO:
             '-G', 'Ninja'
         ]
 
-    if args.platform == "darwin":
+    if args.platform in ("darwin", "darwin-arm64"):
         libjpegturbo_configure_command += [
             f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
         ]
@@ -606,6 +627,7 @@ def BuildOpenImageIO(release=True):
         f'-DUSE_R3DSDK=OFF',
         f'-DUSE_WebP=OFF',
         f'-DUSE_TBB=OFF',
+        f'-DBUILD_FMT_FORCE=ON',
         f'-DCMAKE_MODULE_PATH={module_path_string_with_custom_find_files}',
         f'-DVERBOSE=ON' # reveals problems with library inclusion
     ]
@@ -622,7 +644,7 @@ def BuildOpenImageIO(release=True):
             '-G', 'Ninja'
         ]
 
-    if args.platform == "darwin":
+    if args.platform in ("darwin", "darwin-arm64"):
         # Make sure to use the mac toolchain
         # Also, we need to set the RPATH to use relative @loader_path, or
         # else the RPATH will contain absolute paths
@@ -656,7 +678,7 @@ def BuildOpenImageIO(release=True):
             f'-DPython_INCLUDE_DIR={python_include}',
             f'-DPython_EXECUTABLE={python_exe}'
         ]
-    elif args.platform == "darwin":
+    elif args.platform in ("darwin", "darwin-arm64"):
         python_root /= "Python.framework/Versions/3.10"
         python_exe = python_root / "bin/Python3"
 
@@ -846,8 +868,7 @@ os.makedirs(private_deps_folder / 'yaml-cpp', exist_ok=True)
 shutil.copy2(src=yamlcpp_install_path / 'LICENSE', dst=private_deps_folder / 'yaml-cpp')
 
 print("\n----------------------------- Test package image -----------------------------")
-
-if args.platform == 'darwin':
+if args.platform in ('darwin', 'darwin-arm64'):
     shared_lib_suffix = '.dylib'
 elif args.platform == 'windows':
     shared_lib_suffix = '.dll'
@@ -875,7 +896,7 @@ def TestOpenImageIO(release=True):
             '-G', 'Ninja'
         ]
 
-    if args.platform == "darwin":
+    if args.platform in ("darwin", "darwin-arm64"):
         test_configure_command += [
             f'-DCMAKE_TOOLCHAIN_FILE={repo_root_path / "Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"}'
         ]
@@ -894,7 +915,7 @@ def TestOpenImageIO(release=True):
     exec_and_exit_if_failed(test_build_command)
 
     test_executable_path = ''
-    if args.platform == 'darwin':
+    if args.platform in ['darwin', 'darwin-arm64']:
         test_executable_path = test_build_folder / 'test_OpenImageIO.app' / 'Contents' / 'MacOS' / 'test_OpenImageIO'
     elif args.platform == 'windows':
         test_executable_path = test_build_folder / f'{build_type}' / 'test_OpenImageIO.exe'
