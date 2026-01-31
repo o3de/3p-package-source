@@ -206,6 +206,10 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1.13.0
       with:
         toolset: 14.29
+    - name: Install nasm on macos
+      if: runner.os == 'macOS'
+      run: |
+        brew install nasm
     - name: Setup NDK
       env:
         ANDROID_NDK_VERSION: 25.1.8937393
