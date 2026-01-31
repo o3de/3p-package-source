@@ -21,7 +21,7 @@ endif()
 # Force-set QtCore's version here to ensure CMake detects Qt's existence and allows AUTOMOC to work
 set(Qt6Core_VERSION_MAJOR "6" CACHE STRING "Qt's major version" FORCE)
 set(Qt6Core_VERSION_MINOR "10" CACHE STRING "Qt's minor version" FORCE)
-set(Qt6Core_VERSION_PATCH "1" CACHE STRING "Qt's patch version" FORCE)
+set(Qt6Core_VERSION_PATCH "2" CACHE STRING "Qt's patch version" FORCE)
 mark_as_advanced(Qt6Core_VERSION_MAJOR)
 mark_as_advanced(Qt6Core_VERSION_MINOR)
 mark_as_advanced(Qt6Core_VERSION_PATCH)
@@ -135,6 +135,11 @@ unset(AUTORCC_EXECUTABLE CACHE)
 find_program(AUTORCC_EXECUTABLE rcc HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
 mark_as_advanced(AUTORCC_EXECUTABLE) # Hiding from GUI
 
+# LUPDATE executable
+unset(QT_LUPDATE_EXECUTABLE CACHE)
+find_program(QT_LUPDATE_EXECUTABLE lupdate HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
+mark_as_advanced(QT_LUPDATE_EXECUTABLE) # Hiding from GUI
+
 # LRELEASE executable
 unset(QT_LRELEASE_EXECUTABLE CACHE)
 find_program(QT_LRELEASE_EXECUTABLE lrelease HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
@@ -212,60 +217,102 @@ endfunction()
 
 #! ly_add_translations: adds translations (ts) to a target.
 #
-# This wrapper will generate a qrc file with those translations and add the files under "prefix" and add them to
-# the indicated targets. These files will be added under the "Generated Files" filter
+#  Convert .ts input files into .qm files. These files are them embedded within a .qrc added as a target.
+#  Within the .qrc, translation files are under the "Translations" prefix.
 #
-# \arg:TARGETS name of the targets that the translations will be added to
-# \arg:PREFIX prefix where the translation will be located within the qrc file
+#  Additionally, this function creates a new target to update .ts files if they are missing.
+#  This script will be located under "scripts/translations/update_translations_yourtarget"
+# 
+# \arg:TARGET name of the targets that the translation will be added to
 # \arg:FILES translation files to add
 #
 function(ly_add_translations)
-
     set(options)
-    set(oneValueArgs PREFIX)
-    set(multiValueArgs TARGETS FILES)
+    set(oneValueArgs TARGET)
+    set(multiValueArgs FILES)
 
     cmake_parse_arguments(ly_add_translations "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     # Validate input arguments
-    if(NOT ly_add_translations_TARGETS)
-        message(FATAL_ERROR "You must provide at least one target")
+    if(NOT ly_add_translations_TARGET)
+        message(FATAL_ERROR "You must provide a target")
     endif()
     if(NOT ly_add_translations_FILES)
         message(FATAL_ERROR "You must provide at least a translation file")
     endif()
 
-    qt_add_translations(TRANSLATED_FILES ${ly_add_translations_FILES})
+    if(AUTOGEN_BUILD_DIR)
+        set(gen_dir ${AUTOGEN_BUILD_DIR})
+    else()
+        set(gen_dir ${CMAKE_CURRENT_BINARY_DIR}/${ly_add_translations_TARGET}_autogen/include)
+    endif()
 
-    set(qrc_file_contents 
+    # (Optional) Allow to create or update translation files
+    set(stamp_file ${gen_dir}/update_translations_${ly_add_translations_TARGET}.stamp)
+    add_custom_command(
+        OUTPUT ${stamp_file}
+        COMMAND ${QT_LUPDATE_EXECUTABLE}
+            $<TARGET_PROPERTY:${ly_add_translations_TARGET},SOURCES>
+            -ts ${ly_add_translations_FILES}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+        COMMAND_EXPAND_LISTS
+        COMMAND ${CMAKE_COMMAND} -E touch ${stamp_file}
+        COMMENT "Updating translation source files for ${ly_add_translations_TARGET}"
+    )
+    add_custom_target(update_translations_${ly_add_translations_TARGET}
+        DEPENDS ${stamp_file}
+    )
+    set_target_properties(
+        update_translations_${ly_add_translations_TARGET}
+        PROPERTIES
+            FOLDER "scripts/translations"
+    )
+
+    # Generate .qm file from .ts file
+    set(TRANSLATED_FILES)
+    foreach(ts_file ${ly_add_translations_FILES})
+        get_filename_component(infile ${ts_file} ABSOLUTE BASE_DIR ${CMAKE_CURRENT_LIST_DIR})
+        get_filename_component(ts_name ${infile} NAME_WE)
+        set(qm_file ${gen_dir}/${ts_name}.qm)
+        add_custom_command(
+            OUTPUT ${qm_file}
+            COMMAND ${QT_LRELEASE_EXECUTABLE} ${infile} -qm ${qm_file}
+            DEPENDS ${infile}
+            COMMENT "Generating translation ${qm_file}"
+            VERBATIM
+        )
+        list(APPEND TRANSLATED_FILES ${qm_file})
+    endforeach()
+
+    # Generate qrc file
+    set(qrc_file_contents
 "<RCC>
-    <qresource prefix=\"/${ly_add_translations_PREFIX}\">
+    <qresource prefix=\"Translations\">
 ")
+
     foreach(file ${TRANSLATED_FILES})
         get_filename_component(filename ${file} NAME)
-        string(APPEND qrc_file_contents "        <file>${filename}</file>
+        string(APPEND qrc_file_contents
+"        <file>${filename}</file>
 ")
     endforeach()
-    string(APPEND qrc_file_contents "    </qresource>
+
+    string(APPEND qrc_file_contents
+"    </qresource>
 </RCC>
 ")
-    set(qrc_file_path ${CMAKE_CURRENT_BINARY_DIR}/i18n_${ly_add_translations_PREFIX}.qrc)
-    file(WRITE 
-        ${qrc_file_path}
-        ${qrc_file_contents}
-    )
+    set(qrc_file_path ${gen_dir}/i18n_${ly_add_translations_TARGET}.qrc)
+    file(WRITE ${qrc_file_path} ${qrc_file_contents})
     set_source_files_properties(
-            ${TRANSLATED_FILES}
-            ${qrc_file_path}
-        PROPERTIES 
+        ${TRANSLATED_FILES}
+        ${qrc_file_path}
+        PROPERTIES
             GENERATED TRUE
             SKIP_AUTORCC TRUE
     )
-    qt_add_resources(RESOURCE_FILE ${qrc_file_path})
 
-    foreach(target ${ly_add_translations_TARGETS})
-        target_sources(${target} PRIVATE "${TRANSLATED_FILES};${qrc_file_path};${RESOURCE_FILE}")
-    endforeach()
+    target_sources(${ly_add_translations_TARGET} PRIVATE ${TRANSLATED_FILES})
+    ly_qt_qrc_target(${ly_add_translations_TARGET} ${qrc_file_path})
 
 endfunction()
 
