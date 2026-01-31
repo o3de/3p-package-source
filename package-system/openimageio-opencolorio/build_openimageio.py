@@ -89,9 +89,9 @@ dependencies = {
         {
             'zlib' :     ('zlib-1.3.1-rev1-mac-arm64',         '8acd93c8044ceab5ce0da7e7a9b801b9eae2ef92bc70e4e5525934cd62dac8d3'),
             'openexr' :  ('OpenEXR-3.4.4-rev1-mac-arm64',      '4a093f5ca03836631dc66166b8f493925d0445467219efcbca3a5a0ee2ccbf4b'),
-            'python' :   ('python-3.10.13-rev1-mac-arm64',     '282a7980925e901fc2f613adebaf923e4be8c358099d34ee4c5f6c4dd2496f93'),
+            'python' :   ('python-3.10.13-rev1-mac-arm64',     '2d572bc5f6aac243051eea0e13544564d02d0af0dc1e78024d0136a5abf7a8ec'),
             'tiff' :     ('tiff-4.2.0.15-rev3-mac-arm64',      'bffbf8bf099ae5d3d49967536a8fcd7fcf747fd6fa92ba945a0e64eead9636d9'),
-            'libpng' :   ('png-1.6.53-rev1-mac-arm64',         '2d7bad5c91d8b115183b392cc771e73d16147db27d057a441ab586ce4a202763'),
+            'libpng' :   ('png-1.6.53-rev2-mac-arm64',         'e778f60475c9582e840b73543d5081c8e4e8a4115badfe3db394d46f6dc87496'),
             'expat' :    ('expat-2.7.3-rev1-mac-arm64',        '76a6793f180f6df456394d02d9a23df585af6a10689308e539b50e26c5edf437'),
             'freetype' : ('freetype-2.11.1-rev1-mac-arm64',    'eae257c78c2da47ca02ca17e949c665c28a59215d756c137c87220c85a7f8488')
         },
@@ -370,7 +370,7 @@ def BuildOpenColorIO(module_paths_to_use, release=True):
             f'-DPython_INCLUDE_DIR={python_include}',
             f'-DPython_EXECUTABLE={python_exe}'
         ]
-    elif args.platform in ["darwin", "darwin-arm64"]:
+    elif args.platform in ("darwin", "darwin-arm64"):
         python_root /= "Python.framework/Versions/3.10"
         python_exe = python_root / "bin/Python3"
 
