@@ -2,7 +2,7 @@
     "git_url":"https://github.com/assimp/assimp",
     "git_tag": "v5.4.3",
     "package_name":"assimp",
-    "package_version":"5.4.3-rev2",
+    "package_version":"5.4.3-rev3",
     "package_url":"https://github.com/assimp/assimp",
     "package_license":"BSD-3-Clause",
     "package_license_file":"LICENSE",
