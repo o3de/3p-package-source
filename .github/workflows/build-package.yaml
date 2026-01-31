@@ -283,6 +283,8 @@ jobs:
     - name: Run build command
       env:
         CMAKE_GENERATOR: Ninja # ccache/sccache cannot be used as the compiler launcher under cmake if the generator is MSBuild
+        CMAKE_POLICY_VERSION_MINIMUM: 3.5  # Prevent CMake Error at CMakeLists.txt:5 (cmake_minimum_required):
+                                           # Compatibility with CMake < 3.5 has been removed from CMake.
       run: |
         python3 scripts/o3de_package_scripts/build_package.py --search_path source ${{ matrix.package }}
           
