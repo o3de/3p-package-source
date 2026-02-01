@@ -32,7 +32,10 @@ set(QT6_COMPONENTS
     Gui
     LinguistTools
     Network
+    OpenGL
+    OpenGLWidgets
     Svg
+    SvgWidgets
     Test
     Widgets
     Xml
