@@ -2,7 +2,7 @@
    "git_url":"https://github.com/google/benchmark.git",
    "git_tag":"v1.7.0",
    "package_name":"googlebenchmark",
-   "package_version":"1.7.0-rev1",
+   "package_version":"1.7.0-rev2",
    "package_url":"https://github.com/google/benchmark",
    "package_license":"Apache-2.0",
    "package_license_file":"LICENSE",
