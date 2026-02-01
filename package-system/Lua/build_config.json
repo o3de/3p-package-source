@@ -2,7 +2,7 @@
    "git_url":"https://github.com/lua/lua.git",
    "git_tag":"v5.4.4",
    "package_name":"Lua",
-   "package_version":"5.4.4-rev1",
+   "package_version":"5.4.4-rev2",
    "package_url":"https://github.com/lua/lua",
    "package_license":"MIT",
    "package_license_file":"LICENSE.txt",
