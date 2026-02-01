@@ -40,6 +40,16 @@
                 "custom_install_cmd": [
                     "{python}", "copy_platform_cmakes.py"
                 ]
+            },
+            "Mac-arm64": {
+                "cmake_find_source": "FindQt.cmake.mac",
+                "package_version": "6.10.2-rev1",
+                "custom_build_cmd": [
+                    "./build-darwin-arm64.sh"
+                ],
+                "custom_install_cmd": [
+                    "{python}", "copy_platform_cmakes.py"
+                ]
             }
         },
         "Linux": {
