@@ -23,7 +23,7 @@ set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PUBLIC_HEADER mikktspace.
 include(../../Scripts/cmake/package.cmake)
 package_install(
     NAME ${CMAKE_PROJECT_NAME}
-    VERSION 1.0.0.4
+    VERSION 1.0.0.5
     URL "https://github.com/mmikk/MikkTSpace"
     LICENSE Zlib
     LICENSE_FILE LICENSE.txt
