@@ -69,9 +69,8 @@ cd ${BUILD_PATH}
 _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -submodules ${QTARRAY} \
     -platform linux-clang \
-    -debug-and-release \
+    -release \
     -c++std c++20 \
-    -force-debug-info \
     -opensource \
     -confirm-license "
 
@@ -89,16 +88,9 @@ then
     exit 1
 fi
 
-cmake --install . --config Debug
+cmake --install . --config Release
 if [ $? -ne 0 ]
 then
-    echo "Failed to install QT Debug."
-    exit 1
-fi
-
-cmake --install . --config RelWithDebInfo
-if [ $? -ne 0 ]
-then
-    echo "Failed to install QT RelWithDebInfo."
+    echo "Failed to install QT Release."
     exit 1
 fi
