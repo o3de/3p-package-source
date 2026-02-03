@@ -23,7 +23,7 @@ def main():
     parser.add_argument(
         '--platform-name',
         dest='platformName',
-        choices=['windows', 'mac', 'linux', 'linux-aarch64'],
+        choices=['windows', 'mac', 'mac-arm64', 'linux', 'linux-aarch64'],
         default=VcpkgBuilder.defaultPackagePlatformName(),
     )
     args = parser.parse_args()
@@ -31,6 +31,7 @@ def main():
     vcpkg_platform_map = {
             'windows': 'windows',
             'android': 'android',
+            'mac-arm64': 'mac-arm64',
             'mac': 'mac',
             'ios': 'ios',
             'linux': 'linux',
