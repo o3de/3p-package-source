@@ -31,7 +31,7 @@ def main():
     parser.add_argument(
         '--platform-name',
         dest='platformName',
-        choices=['windows', 'android', 'mac', 'ios', 'linux', 'linux-aarch64'],
+        choices=['windows', 'android', 'mac', 'mac-arm64', 'ios', 'linux', 'linux-aarch64'],
         default=VcpkgBuilder.defaultPackagePlatformName(),
     )
     args = parser.parse_args()
@@ -39,12 +39,13 @@ def main():
             'windows': 'windows',
             'android': 'android',
             'mac': 'mac',
+            'mac-arm64': 'mac',
             'ios': 'ios',
             'linux': 'linux',
             'linux-aarch64': 'linux' }
 
     vcpkg_platform = vcpkg_platform_map[args.platformName]
-    if args.platformName == 'linux-aarch64':
+    if args.platformName in ('linux-aarch64', 'mac-arm64'):
         os.environ['VCPKG_FORCE_SYSTEM_BINARIES'] = '1'
 
     packageSystemDir = Path(__file__).resolve().parents[1]
@@ -87,6 +88,11 @@ def main():
                           'SimulationController_static_64.lib'],
         },
         'mac': {
+            'EXTRA_SHARED_LIBS': '',
+            'EXTRA_STATIC_LIBS': '',
+            'KEEP_LIBS': [],
+        },
+        'mac-arm64': {
             'EXTRA_SHARED_LIBS': '',
             'EXTRA_STATIC_LIBS': '',
             'KEEP_LIBS': [],
