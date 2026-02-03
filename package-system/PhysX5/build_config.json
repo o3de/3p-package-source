@@ -1,0 +1,24 @@
+{
+    "git_url": "https://github.com/o3de/PhysX.git",
+    "git_tag": "release/104.1",
+    "package_name": "PhysX",
+    "package_url": "https://github.com/NVIDIA-Omniverse/PhysX",
+    "package_license": "BSD-3-Clause",
+    "package_license_file": "PhysX/LICENSE.md",
+    "cmake_find_source": "FindPhysX5.cmake",
+    "cmake_find_target": "FindPhysX5.cmake",
+    "Platforms": {
+        "Darwin": {
+            "Mac-arm64": {
+                "patch_file": "physx5_mac.patch",
+                "package_version": "5.1.1-rev4",
+                "custom_build_cmd": [
+                    "./build-darwin-arm64.sh"
+                ],
+                 "custom_install_cmd": [
+                    "./install-darwin-arm64.sh"
+                ]
+            }
+        }
+    }
+}
