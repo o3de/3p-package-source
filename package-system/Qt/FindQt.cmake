@@ -217,7 +217,7 @@ endfunction()
 
 #! ly_add_translations: adds translations (ts) to a target.
 #
-#  Convert .ts input files into .qm files. These files are them embedded within a .qrc added as a target.
+#  Convert .ts input files into .qm files. These files are then embedded within a .qrc added as a target.
 #  Within the .qrc, translation files are under the "Translations" prefix.
 #
 #  Additionally, this function creates a new target to update .ts files if they are missing.
@@ -384,7 +384,7 @@ function(ly_qt_qrc_target TARGET all_qrc_sources)
 endfunction()
 
 #! ly_qt_moc_target: handles qt's .h files by injecting moc generation
-#! Detect all of your .h/.hxx files with Q_OBJECT macro. Q_OBJECT instead of .cpp files won't be catched.
+#! Detect all of your .h/.hxx files with Q_OBJECT macro. Q_OBJECT inside of .cpp files won't be catched.
 #! You don't need to include the generated moc file anywhere
 #! (old code might include them at the end of their .cpp, this is legacy and should be removed).
 function(ly_qt_moc_target TARGET all_moc_sources)

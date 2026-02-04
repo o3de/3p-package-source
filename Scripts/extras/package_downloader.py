@@ -184,7 +184,7 @@ class PackageDownloader():
                 print("    - Checking hash ... ")
                 hash_result = PackageDownloader.ComputeHashOfFile(str(package_download_name))
                 if hash_result != package_hash:
-                    print("    - Warning: Hash of package does not match - will not use it")
+                    print(f"   - Warning: Hash of package does not match - ({hash_result} != {package_hash}) will not use it")
                     continue
 
                 # hash matched.  Unpack and return!
