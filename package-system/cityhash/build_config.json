@@ -5,7 +5,7 @@
     "package_name":"cityhash",
     "package_version":"1.1-rev1",
     "package_url":"https://github.com/google/cityhash",
-    "package_license":"BSD-3-Clause",
+    "package_license":"MIT",
     "package_license_file":"COPYING",
     "Platforms":{
         "Linux":{
@@ -20,6 +20,18 @@
                 ]
             },
             "Linux-aarch64": "@Linux"
+        },
+        "Darwin": {
+            "Mac-arm64": {
+                "cmake_find_source":"Findcityhash.cmake.mac",
+                "cmake_find_target":"Findcityhash.cmake",
+                "custom_build_cmd": [
+                    "./build_cityhash_mac.sh"
+                ],
+                "custom_install_cmd": [
+                    "./install_cityhash_mac.sh"
+                ]
+            }
         }
     }
 }
