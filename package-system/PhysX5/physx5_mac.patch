@@ -1,0 +1,1786 @@
+diff --git a/blast/include/globals/NvBlastGlobals.h b/blast/include/globals/NvBlastGlobals.h
+index f5833c4..47c35b4 100644
+--- a/blast/include/globals/NvBlastGlobals.h
++++ b/blast/include/globals/NvBlastGlobals.h
+@@ -203,6 +203,7 @@ NV_INLINE void logLL(int type, const char* msg, const char* file, int line)
+     case NvBlastMessage::Warning:   errorCode = ErrorCode::eDEBUG_WARNING;      break;
+     case NvBlastMessage::Info:      errorCode = ErrorCode::eDEBUG_INFO;         break;
+     case NvBlastMessage::Debug:     errorCode = ErrorCode::eNO_ERROR;           break;
++    default:                        errorCode = ErrorCode::eNO_ERROR;           break;
+     }
+ 
+     NvBlastGlobalGetErrorCallback()->reportError(errorCode, msg, file, line);
+diff --git a/blast/source/sdk/extensions/authoring/NvBlastExtAuthoring.cpp b/blast/source/sdk/extensions/authoring/NvBlastExtAuthoring.cpp
+index a8279f5..4447f27 100644
+--- a/blast/source/sdk/extensions/authoring/NvBlastExtAuthoring.cpp
++++ b/blast/source/sdk/extensions/authoring/NvBlastExtAuthoring.cpp
+@@ -304,6 +304,7 @@ static float getGeometryVolumeAndCentroid(NvcVec3& centroid, const Nv::Blast::Tr
+             case 0: return tri.a.p;
+             case 1: return tri.b.p;
+             case 2: return tri.c.p;
++            default: break;
+             }
+             return NvcVec3({0.0f, 0.0f, 0.0f});
+         }
+diff --git a/blast/source/sdk/extensions/authoring/NvBlastExtAuthoringBondGeneratorImpl.cpp b/blast/source/sdk/extensions/authoring/NvBlastExtAuthoringBondGeneratorImpl.cpp
+index 00953cb..676b790 100644
+--- a/blast/source/sdk/extensions/authoring/NvBlastExtAuthoringBondGeneratorImpl.cpp
++++ b/blast/source/sdk/extensions/authoring/NvBlastExtAuthoringBondGeneratorImpl.cpp
+@@ -1445,6 +1445,8 @@ int32_t BlastBondGeneratorImpl::bondsFromPrefractured(uint32_t meshCount, const
+     case BondGenerationConfig::EXACT:
+         ret_val = createFullBondListExact(meshCount, geometryCount, geometry, chunkIsSupport, resultBondDescs, conf);
+         break;
++    default
++        break
+     }
+     return ret_val;
+ }
+diff --git a/blast/source/sdk/extensions/authoring/NvBlastExtAuthoringVSA.h b/blast/source/sdk/extensions/authoring/NvBlastExtAuthoringVSA.h
+index 2521e31..4c0abd1 100644
+--- a/blast/source/sdk/extensions/authoring/NvBlastExtAuthoringVSA.h
++++ b/blast/source/sdk/extensions/authoring/NvBlastExtAuthoringVSA.h
+@@ -259,6 +259,8 @@ static bool vs3d_update(Vec4& p, Vec4 S[4], int& plane_count, const Vec4& q, rea
+             index[0] = index_max;
+         }
+         break;
++    default:
++        break;
+     }
+ 
+     // Transform r back to 3D space
+diff --git a/blast/source/sdk/extensions/authoring/VHACD/src/FloatMath.inl b/blast/source/sdk/extensions/authoring/VHACD/src/FloatMath.inl
+index 6fdc5cd..8da193c 100644
+--- a/blast/source/sdk/extensions/authoring/VHACD/src/FloatMath.inl
++++ b/blast/source/sdk/extensions/authoring/VHACD/src/FloatMath.inl
+@@ -2335,6 +2335,8 @@ public:
+             mRight = node;
+         }
+         break;
++      default:
++        break;
+     }
+ 
+   }
+@@ -2394,6 +2396,8 @@ public:
+             mRight = node;
+         }
+         break;
++      default:
++        break;
+     }
+ 
+   }
+@@ -2460,6 +2464,8 @@ public:
+         }
+         axis = X_AXIS;
+         break;
++      default:
++        break;
+     }
+ 
+     double r2 = radius*radius;
+@@ -2599,6 +2605,8 @@ public:
+         }
+         axis = X_AXIS;
+         break;
++      default:
++        break;
+     }
+ 
+     float r2 = radius*radius;
+@@ -3541,6 +3549,8 @@ void splitRect(uint32_t axis,
+             b2.SetMin( source.mMin[0], source.mMin[1], midpoint[2] );
+             b2.SetMax(source.mMax);
+ 
++            break;
++        default:
+             break;
+     }
+ }
+@@ -3650,6 +3660,8 @@ bool fm_computeSplitPlane(uint32_t vcount,
+         p3[1] = bmax[1];
+       }
+ 
++      break;
++    default:
+       break;
+   }
+ 
+@@ -3998,6 +4010,8 @@ public:
+             tesselate(splits,p2,p3, recurse+1 );
+                 }
+                 break;
++            default:
++                break;
+         }
+     }
+     else
+@@ -4069,6 +4083,8 @@ public:
+             tesselate(splits,p2,p3, recurse+1 );
+                 }
+                 break;
++            default:
++                break;
+         }
+     }
+     else
+@@ -4551,6 +4567,8 @@ void fm_computeBestFitCapsule(uint32_t vcount,const REAL *points,uint32_t pstrid
+       }
+       height = sides[2];
+       break;
++    default:
++      break;
+   }
+   radius = (REAL)sqrt(maxDist);
+   height = (maxLen*2)-(radius*2);
+diff --git a/blast/source/sdk/extensions/authoring/VHACD/src/btConvexHullComputer.cpp b/blast/source/sdk/extensions/authoring/VHACD/src/btConvexHullComputer.cpp
+index 23bd0df..aa44067 100644
+--- a/blast/source/sdk/extensions/authoring/VHACD/src/btConvexHullComputer.cpp
++++ b/blast/source/sdk/extensions/authoring/VHACD/src/btConvexHullComputer.cpp
+@@ -1229,6 +1229,8 @@ fallthrough:   // Needed to silence gcc
+ 
+         return;
+     }
++    default:
++        break;
+     }
+ 
+     int32_t split0 = start + n / 2;
+diff --git a/blast/source/sdk/extensions/authoringCommon/NvBlastExtAuthoringAcceleratorImpl.cpp b/blast/source/sdk/extensions/authoringCommon/NvBlastExtAuthoringAcceleratorImpl.cpp
+index f1aef08..32ba2e0 100644
+--- a/blast/source/sdk/extensions/authoringCommon/NvBlastExtAuthoringAcceleratorImpl.cpp
++++ b/blast/source/sdk/extensions/authoringCommon/NvBlastExtAuthoringAcceleratorImpl.cpp
+@@ -227,6 +227,9 @@ void GridAccelerator::setState(const NvcVec3& point)
+         break;
+     case -1:
+         ke = (int32_t)std::max(0.f, (point.z - m_grid->m_spos.z + 0.001f) * m_grid->m_deltas.z);
++        break;
++    default:
++        break;
+     }
+ 
+     for (int32_t i = is; i < m_grid->m_resolution && i <= ie; ++i)
+diff --git a/blast/source/shared/filebuf/include/PsFileBuffer.h b/blast/source/shared/filebuf/include/PsFileBuffer.h
+index 17d6ae8..8b38d65 100644
+--- a/blast/source/shared/filebuf/include/PsFileBuffer.h
++++ b/blast/source/shared/filebuf/include/PsFileBuffer.h
+@@ -68,6 +68,8 @@ public:
+ 				break;
+ 			case OPEN_FILE_NOT_FOUND:
+ 				break;
++			default:
++				break;
+ 		}
+ 		if ( mFph )
+ 		{
+diff --git a/blast/source/test/src/BlastBaseTest.h b/blast/source/test/src/BlastBaseTest.h
+index e19cfec..051ad52 100644
+--- a/blast/source/test/src/BlastBaseTest.h
++++ b/blast/source/test/src/BlastBaseTest.h
+@@ -73,6 +73,8 @@ public:
+             case NvBlastMessage::Warning:   EXPECT_TRUE(false) << "NvBlast Warning message in " << file << "(" << line << "): " << msg << "\n"; break;
+             case NvBlastMessage::Info:      EXPECT_TRUE(false) << "NvBlast Info message in " << file << "(" << line << "): " << msg << "\n";    break;
+             case NvBlastMessage::Debug:     EXPECT_TRUE(false) << "NvBlast Debug message in " << file << "(" << line << "): " << msg << "\n";   break;
++            default:    break;
++
+             }
+         }
+         else
+@@ -84,6 +86,7 @@ public:
+             case NvBlastMessage::Warning:   std::cout << "NvBlast Warning message in " << file << "(" << line << "): " << msg << "\n";  break;
+             case NvBlastMessage::Info:      std::cout << "NvBlast Info message in " << file << "(" << line << "): " << msg << "\n";     break;
+             case NvBlastMessage::Debug:     std::cout << "NvBlast Debug message in " << file << "(" << line << "): " << msg << "\n";    break;
++            default:    break;
+             }
+         }
+     }
+diff --git a/blast/source/test/src/unit/CoreTests.cpp b/blast/source/test/src/unit/CoreTests.cpp
+index c8f9ee2..d7c4640 100644
+--- a/blast/source/test/src/unit/CoreTests.cpp
++++ b/blast/source/test/src/unit/CoreTests.cpp
+@@ -46,6 +46,8 @@ static void messageLog(int type, const char* msg, const char* file, int line)
+         case NvBlastMessage::Warning:   std::cout << "NvBlast Warning message in " << file << "(" << line << "): " << msg << "\n";  break;
+         case NvBlastMessage::Info:  std::cout << "NvBlast Info message in " << file << "(" << line << "): " << msg << "\n";     break;
+         case NvBlastMessage::Debug: std::cout << "NvBlast Debug message in " << file << "(" << line << "): " << msg << "\n";    break;
++        default:
++            break;
+         }
+     }
+ }
+diff --git a/flow/external/imgui/imgui.cpp b/flow/external/imgui/imgui.cpp
+index 4f55e4a..e08ea02 100644
+--- a/flow/external/imgui/imgui.cpp
++++ b/flow/external/imgui/imgui.cpp
+@@ -2590,8 +2590,10 @@ void ImGui::RenderArrow(ImDrawList* draw_list, ImVec2 pos, ImU32 col, ImGuiDir d
+         break;
+     case ImGuiDir_None:
+     case ImGuiDir_COUNT:
++    default:
+         IM_ASSERT(0);
+         break;
++        
+     }
+     draw_list->AddTriangleFilled(center + a, center + b, center + c, col);
+ }
+@@ -6430,6 +6432,7 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
+     case ImGuiCol_NavWindowingHighlight: return "NavWindowingHighlight";
+     case ImGuiCol_NavWindowingDimBg: return "NavWindowingDimBg";
+     case ImGuiCol_ModalWindowDimBg: return "ModalWindowDimBg";
++    default:    break;
+     }
+     IM_ASSERT(0);
+     return "Unknown";
+@@ -9236,6 +9239,7 @@ void ImGui::LogFinish()
+             SetClipboardText(g.LogBuffer.begin());
+         break;
+     case ImGuiLogType_None:
++    default:
+         IM_ASSERT(0);
+         break;
+     }
+diff --git a/flow/external/imgui/imgui_demo.cpp b/flow/external/imgui/imgui_demo.cpp
+index 89e0f30..d6d9e9a 100644
+--- a/flow/external/imgui/imgui_demo.cpp
++++ b/flow/external/imgui/imgui_demo.cpp
+@@ -3074,6 +3074,7 @@ bool ImGui::ShowStyleSelector(const char* label)
+         case 0: ImGui::StyleColorsClassic(); break;
+         case 1: ImGui::StyleColorsDark(); break;
+         case 2: ImGui::StyleColorsLight(); break;
++        default:    break;
+         }
+         return true;
+     }
+@@ -3763,6 +3764,7 @@ struct ExampleAppConsole
+                     data->InsertChars(0, history_str);
+                 }
+             }
++        default:    break;
+         }
+         return 0;
+     }
+@@ -4112,6 +4114,7 @@ static void ShowExampleAppLongText(bool* p_open)
+             ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
+         ImGui::PopStyleVar();
+         break;
++    default:    break;
+     }
+     ImGui::EndChild();
+     ImGui::End();
+diff --git a/flow/external/imgui/imgui_draw.cpp b/flow/external/imgui/imgui_draw.cpp
+index 45f997b..278f077 100644
+--- a/flow/external/imgui/imgui_draw.cpp
++++ b/flow/external/imgui/imgui_draw.cpp
+@@ -3048,6 +3048,7 @@ void ImGui::RenderArrowPointingAt(ImDrawList* draw_list, ImVec2 pos, ImVec2 half
+     case ImGuiDir_Up:    draw_list->AddTriangleFilled(ImVec2(pos.x + half_sz.x, pos.y + half_sz.y), ImVec2(pos.x - half_sz.x, pos.y + half_sz.y), pos, col); return;
+     case ImGuiDir_Down:  draw_list->AddTriangleFilled(ImVec2(pos.x - half_sz.x, pos.y - half_sz.y), ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), pos, col); return;
+     case ImGuiDir_None: case ImGuiDir_COUNT: break; // Fix warnings
++    default:    break;
+     }
+ }
+ 
+diff --git a/flow/external/imgui/imgui_widgets.cpp b/flow/external/imgui/imgui_widgets.cpp
+index ba58bce..5db9f5b 100644
+--- a/flow/external/imgui/imgui_widgets.cpp
++++ b/flow/external/imgui/imgui_widgets.cpp
+@@ -1726,6 +1726,7 @@ void ImGui::DataTypeApplyOp(ImGuiDataType data_type, int op, void* output, void*
+             if (op == '-') { *(double*)output = *(const double*)arg1 - *(const double*)arg2; }
+             return;
+         case ImGuiDataType_COUNT: break;
++        default:    break;
+     }
+     IM_ASSERT(0);
+ }
+@@ -2023,6 +2024,7 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* v, float v_s
+     case ImGuiDataType_Float:  return DragBehaviorT<float, float, float >(data_type, (float*)v,  v_speed, v_min ? *(const float* )v_min : -FLT_MAX,   v_max ? *(const float* )v_max : FLT_MAX,    format, power, flags);
+     case ImGuiDataType_Double: return DragBehaviorT<double,double,double>(data_type, (double*)v, v_speed, v_min ? *(const double*)v_min : -DBL_MAX,   v_max ? *(const double*)v_max : DBL_MAX,    format, power, flags);
+     case ImGuiDataType_COUNT:  break;
++    default:    break;
+     }
+     IM_ASSERT(0);
+     return false;
+@@ -2475,6 +2477,7 @@ bool ImGui::SliderBehavior(const ImRect& bb, ImGuiID id, ImGuiDataType data_type
+         IM_ASSERT(*(const double*)v_min >= -DBL_MAX/2.0f && *(const double*)v_max <= DBL_MAX/2.0f);
+         return SliderBehaviorT<double,double,double>(bb, id, data_type, (double*)v, *(const double*)v_min, *(const double*)v_max, format, power, flags, out_grab_bb);
+     case ImGuiDataType_COUNT: break;
++    default:    break;
+     }
+     IM_ASSERT(0);
+     return false;
+diff --git a/flow/external/imgui/imstb_truetype.h b/flow/external/imgui/imstb_truetype.h
+index c1cdb18..e1207d1 100644
+--- a/flow/external/imgui/imstb_truetype.h
++++ b/flow/external/imgui/imstb_truetype.h
+@@ -1449,6 +1449,8 @@ static int stbtt_InitFont_internal(stbtt_fontinfo *info, unsigned char *data, in
+             // all the encodingIDs are unicode, so we don't bother to check it
+             info->index_map = cmap + ttULONG(data+encoding_record+4);
+             break;
++         default:
++            break;
+       }
+    }
+    if (info->index_map == 0)
+@@ -3518,6 +3520,8 @@ static stbtt__point *stbtt_FlattenCurves(stbtt_vertex *vertices, int num_verts,
+                                         objspace_flatness_squared, 0);
+                x = vertices[i].x, y = vertices[i].y;
+                break;
++            default:
++               break;      
+          }
+       }
+       (*contour_lengths)[n] = num_points - start;
+diff --git a/physx/include/PxSimulationStatistics.h b/physx/include/PxSimulationStatistics.h
+index a73fa82..5a919f2 100644
+--- a/physx/include/PxSimulationStatistics.h
++++ b/physx/include/PxSimulationStatistics.h
+@@ -227,6 +227,8 @@ public:
+ 			case eTRIGGER_PAIRS:
+ 				nbPairs = nbTriggerPairs[g0][g1];
+ 				break;
++			default:
++				break;
+ 		}
+ 		return nbPairs;
+ 	}
+diff --git a/physx/include/common/PxRenderOutput.h b/physx/include/common/PxRenderOutput.h
+index 2478402..d8380ec 100644
+--- a/physx/include/common/PxRenderOutput.h
++++ b/physx/include/common/PxRenderOutput.h
+@@ -314,6 +314,8 @@ namespace physx
+ 				(mVertexCount & 0x1) ? mVertex0 : mVertex1,
+ 					(mVertexCount & 0x1) ? mVertex1 : mVertex0, vertex, mColor));
+ 			break;
++		default:
++			break;
+ 		}
+ 
+ 		// cache the last 2 vertices (for strips)
+diff --git a/physx/include/foundation/PxVecQuat.h b/physx/include/foundation/PxVecQuat.h
+index 0822c17..c24ae5f 100644
+--- a/physx/include/foundation/PxVecQuat.h
++++ b/physx/include/foundation/PxVecQuat.h
+@@ -308,7 +308,7 @@ PX_FORCE_INLINE bool isValidQuatV(const QuatV q)
+ 	const FloatV unitTolerance = FLoad(1e-4f);
+ 	const FloatV tmp = FAbs(FSub(QuatLength(q), FOne()));
+ 	const BoolV con = FIsGrtr(unitTolerance, tmp);
+-	return isFiniteVec4V(q) & (BAllEqTTTT(con) == 1);
++	return isFiniteVec4V(q) && (BAllEqTTTT(con) == 1);
+ }
+ 
+ PX_FORCE_INLINE bool isSaneQuatV(const QuatV q)
+@@ -316,7 +316,7 @@ PX_FORCE_INLINE bool isSaneQuatV(const QuatV q)
+ 	const FloatV unitTolerance = FLoad(1e-2f);
+ 	const FloatV tmp = FAbs(FSub(QuatLength(q), FOne()));
+ 	const BoolV con = FIsGrtr(unitTolerance, tmp);
+-	return isFiniteVec4V(q) & (BAllEqTTTT(con) == 1);
++	return isFiniteVec4V(q) && (BAllEqTTTT(con) == 1);
+ }
+ 
+ #if PX_LINUX && PX_CLANG
+diff --git a/physx/include/foundation/PxVecTransform.h b/physx/include/foundation/PxVecTransform.h
+index bd29307..d00a4e0 100644
+--- a/physx/include/foundation/PxVecTransform.h
++++ b/physx/include/foundation/PxVecTransform.h
+@@ -133,7 +133,7 @@ class PxTransformV
+ 	PX_FORCE_INLINE bool isValid() const
+ 	{
+ 		// return p.isFinite() && q.isFinite() && q.isValid();
+-		return isFiniteVec3V(p) & isFiniteQuatV(q) & isValidQuatV(q);
++		return isFiniteVec3V(p) && isFiniteQuatV(q) && isValidQuatV(q);
+ 	}
+ 
+ 	/**
+@@ -144,7 +144,7 @@ class PxTransformV
+ 	PX_FORCE_INLINE bool isSane() const
+ 	{
+ 		// return isFinite() && q.isSane();
+-		return isFinite() & isSaneQuatV(q);
++		return isFinite() && isSaneQuatV(q);
+ 	}
+ 
+ 	/**
+@@ -153,7 +153,7 @@ class PxTransformV
+ 	PX_FORCE_INLINE bool isFinite() const
+ 	{
+ 		// return p.isFinite() && q.isFinite();
+-		return isFiniteVec3V(p) & isFiniteQuatV(q);
++		return isFiniteVec3V(p) && isFiniteQuatV(q);
+ 	}
+ 
+ #if PX_LINUX && PX_CLANG
+diff --git a/physx/include/geometry/PxGeometryHelpers.h b/physx/include/geometry/PxGeometryHelpers.h
+index dcd8231..72f31cc 100644
+--- a/physx/include/geometry/PxGeometryHelpers.h
++++ b/physx/include/geometry/PxGeometryHelpers.h
+@@ -141,7 +141,8 @@ public:
+ 		case PxGeometryType::eHAIRSYSTEM:		put<PxHairSystemGeometry>(geometry);		break;
+ 		case PxGeometryType::eCUSTOM:			put<PxCustomGeometry>(geometry);			break;
+ 		case PxGeometryType::eGEOMETRY_COUNT:
+-		case PxGeometryType::eINVALID:														break;
++		case PxGeometryType::eINVALID:
++		default:																			break;
+ 		}
+ 	}
+ 
+diff --git a/physx/snippets/snippetccd/SnippetCCD.cpp b/physx/snippets/snippetccd/SnippetCCD.cpp
+index cff45ea..12603e2 100644
+--- a/physx/snippets/snippetccd/SnippetCCD.cpp
++++ b/physx/snippets/snippetccd/SnippetCCD.cpp
+@@ -280,6 +280,7 @@ void renderText()
+ 		case 2:	{ Snippets::print("Current scenario: linear + angular CCD");	}break;
+ 		case 3:	{ Snippets::print("Current scenario: raycast CCD");				}break;
+ 		case 4:	{ Snippets::print("Current scenario: no CCD");					}break;
++		default:	break;
+ 	}
+ #endif
+ }
+diff --git a/physx/snippets/snippetcustomconvex/SnippetCustomConvex.cpp b/physx/snippets/snippetcustomconvex/SnippetCustomConvex.cpp
+index 5b13392..c075e12 100644
+--- a/physx/snippets/snippetcustomconvex/SnippetCustomConvex.cpp
++++ b/physx/snippets/snippetcustomconvex/SnippetCustomConvex.cpp
+@@ -262,6 +262,8 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch (toupper(key))
+ 	{
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(1.0f), camera.rotate(PxVec3(0, 0, -1)) * 100, 3.0f);	break;
++	default:
++		break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetcustomgeometry/SnippetCustomGeometry.cpp b/physx/snippets/snippetcustomgeometry/SnippetCustomGeometry.cpp
+index a33fc86..4eacd6d 100644
+--- a/physx/snippets/snippetcustomgeometry/SnippetCustomGeometry.cpp
++++ b/physx/snippets/snippetcustomgeometry/SnippetCustomGeometry.cpp
+@@ -296,6 +296,8 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch (toupper(key))
+ 	{
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0, 0, -1)) * 200, 3.0f);	break;
++	default:
++		break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetcustomgeometrycollision/SnippetCustomGeometryCollision.cpp b/physx/snippets/snippetcustomgeometrycollision/SnippetCustomGeometryCollision.cpp
+index 9bab769..b763194 100644
+--- a/physx/snippets/snippetcustomgeometrycollision/SnippetCustomGeometryCollision.cpp
++++ b/physx/snippets/snippetcustomgeometrycollision/SnippetCustomGeometryCollision.cpp
+@@ -279,6 +279,8 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch (toupper(key))
+ 	{
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0, 0, -1)) * 200, 3.0f);	break;
++	default:
++		break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetcustomgeometryqueries/SnippetCustomGeometryQueries.cpp b/physx/snippets/snippetcustomgeometryqueries/SnippetCustomGeometryQueries.cpp
+index 7b09da8..dc90899 100644
+--- a/physx/snippets/snippetcustomgeometryqueries/SnippetCustomGeometryQueries.cpp
++++ b/physx/snippets/snippetcustomgeometryqueries/SnippetCustomGeometryQueries.cpp
+@@ -241,6 +241,8 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch (toupper(key))
+ 	{
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0, 0, -1)) * 200, 3.0f);	break;
++	default:
++		break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetcustomprofiler/SnippetCustomProfiler.cpp b/physx/snippets/snippetcustomprofiler/SnippetCustomProfiler.cpp
+index 5f59105..426fad5 100644
+--- a/physx/snippets/snippetcustomprofiler/SnippetCustomProfiler.cpp
++++ b/physx/snippets/snippetcustomprofiler/SnippetCustomProfiler.cpp
+@@ -197,6 +197,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	{
+ 	case 'B':	createStack(PxTransform(PxVec3(0,0,stackZ-=10.0f)), 10, 2.0f);						break;
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0,0,-1))*200);	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetdeformablemesh/SnippetDeformableMesh.cpp b/physx/snippets/snippetdeformablemesh/SnippetDeformableMesh.cpp
+index f367630..1933b9a 100644
+--- a/physx/snippets/snippetdeformablemesh/SnippetDeformableMesh.cpp
++++ b/physx/snippets/snippetdeformablemesh/SnippetDeformableMesh.cpp
+@@ -304,6 +304,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch(toupper(key))
+ 	{
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0,0,-1))*200, 3.0f);	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetdelayloadhook/SnippetDelayLoadHook.cpp b/physx/snippets/snippetdelayloadhook/SnippetDelayLoadHook.cpp
+index 943f100..b8fe60d 100644
+--- a/physx/snippets/snippetdelayloadhook/SnippetDelayLoadHook.cpp
++++ b/physx/snippets/snippetdelayloadhook/SnippetDelayLoadHook.cpp
+@@ -306,6 +306,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	{
+ 	case 'B':	createStack(PxTransform(PxVec3(0,0,stackZ-=10.0f)), 10, 2.0f);						break;
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0,0,-1))*200);	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetgeometryquery/SnippetGeometryQuery.cpp b/physx/snippets/snippetgeometryquery/SnippetGeometryQuery.cpp
+index 10bffd7..06ea809 100644
+--- a/physx/snippets/snippetgeometryquery/SnippetGeometryQuery.cpp
++++ b/physx/snippets/snippetgeometryquery/SnippetGeometryQuery.cpp
+@@ -116,6 +116,8 @@ const PxGeometry& getTestGeometry()
+ 			gMeshGeom.triangleMesh = gTriangleMesh;
+ 			gMeshGeom.scale.scale = PxVec3(2.0f);
+ 			return gMeshGeom;
++		default:
++			break;
+ 	}
+ 	static PxSphereGeometry pt(0.0f);
+ 	return pt;
+diff --git a/physx/snippets/snippethellogrb/SnippetHelloGRB.cpp b/physx/snippets/snippethellogrb/SnippetHelloGRB.cpp
+index 687464b..960cd9a 100644
+--- a/physx/snippets/snippethellogrb/SnippetHelloGRB.cpp
++++ b/physx/snippets/snippethellogrb/SnippetHelloGRB.cpp
+@@ -173,6 +173,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	{
+ 	case 'B':	createStack(PxTransform(PxVec3(0,0,stackZ-=10.0f)), 10, 2.0f);						break;
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0,0,-1))*200);	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippethelloworld/SnippetHelloWorld.cpp b/physx/snippets/snippethelloworld/SnippetHelloWorld.cpp
+index 2413795..dce5599 100644
+--- a/physx/snippets/snippethelloworld/SnippetHelloWorld.cpp
++++ b/physx/snippets/snippethelloworld/SnippetHelloWorld.cpp
+@@ -142,6 +142,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	{
+ 	case 'B':	createStack(PxTransform(PxVec3(0,0,stackZ-=10.0f)), 10, 2.0f);						break;
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0,0,-1))*200);	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetimmediatemode/SnippetImmediateMode.cpp b/physx/snippets/snippetimmediatemode/SnippetImmediateMode.cpp
+index ec0abe9..5acc67e 100644
+--- a/physx/snippets/snippetimmediatemode/SnippetImmediateMode.cpp
++++ b/physx/snippets/snippetimmediatemode/SnippetImmediateMode.cpp
+@@ -1139,6 +1139,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch(toupper(key))
+ 	{
+ 		case ' ':	createDynamic(camera, PxSphereGeometry(3.0f*gUnitScale), camera.rotate(PxVec3(0, 0, -1)) * 200*gUnitScale);	updateContactPairs();  break;
++		default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetjoint/SnippetJoint.cpp b/physx/snippets/snippetjoint/SnippetJoint.cpp
+index daece93..2ff3fbb 100644
+--- a/physx/snippets/snippetjoint/SnippetJoint.cpp
++++ b/physx/snippets/snippetjoint/SnippetJoint.cpp
+@@ -174,6 +174,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch(toupper(key))
+ 	{
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0,0,-1))*200);	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetmassproperties/SnippetMassProperties.cpp b/physx/snippets/snippetmassproperties/SnippetMassProperties.cpp
+index d54f31f..33ba505 100644
+--- a/physx/snippets/snippetmassproperties/SnippetMassProperties.cpp
++++ b/physx/snippets/snippetmassproperties/SnippetMassProperties.cpp
+@@ -323,6 +323,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch(toupper(key))
+ 	{
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(0.1f), camera.rotate(PxVec3(0,0,-1))*20);	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetmbp/SnippetMBP.cpp b/physx/snippets/snippetmbp/SnippetMBP.cpp
+index ec1fade..78d1804 100644
+--- a/physx/snippets/snippetmbp/SnippetMBP.cpp
++++ b/physx/snippets/snippetmbp/SnippetMBP.cpp
+@@ -200,6 +200,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	{
+ 	case 'B':	createStack(PxTransform(PxVec3(0,0,stackZ-=10.0f)), 10, 2.0f);						break;
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0,0,-1))*200);	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetomnipvd/SnippetOmniPvd.cpp b/physx/snippets/snippetomnipvd/SnippetOmniPvd.cpp
+index c0c5b28..36c48cd 100644
+--- a/physx/snippets/snippetomnipvd/SnippetOmniPvd.cpp
++++ b/physx/snippets/snippetomnipvd/SnippetOmniPvd.cpp
+@@ -160,6 +160,8 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch (toupper(key))
+ 	{
+ 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0, 0, -1)) * 200);	break;
++	default:
++		break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetpbdcloth/SnippetPBDCloth.cpp b/physx/snippets/snippetpbdcloth/SnippetPBDCloth.cpp
+index 9ce4c84..68d4105 100644
+--- a/physx/snippets/snippetpbdcloth/SnippetPBDCloth.cpp
++++ b/physx/snippets/snippetpbdcloth/SnippetPBDCloth.cpp
+@@ -337,6 +337,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
+ 	switch(toupper(key))
+ 	{
+ 	case 'P':	gIsRunning = !gIsRunning;	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetpbdinflatable/SnippetPBDInflatable.cpp b/physx/snippets/snippetpbdinflatable/SnippetPBDInflatable.cpp
+index c7aeecf..ad28490 100644
+--- a/physx/snippets/snippetpbdinflatable/SnippetPBDInflatable.cpp
++++ b/physx/snippets/snippetpbdinflatable/SnippetPBDInflatable.cpp
+@@ -361,6 +361,7 @@ void keyPress(unsigned char key, const PxTransform& /*camera*/)
+ 	switch(toupper(key))
+ 	{
+ 	case 'P':	gIsRunning = !gIsRunning;	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetpbf/SnippetPBF.cpp b/physx/snippets/snippetpbf/SnippetPBF.cpp
+index 6ab08e1..beca993 100644
+--- a/physx/snippets/snippetpbf/SnippetPBF.cpp
++++ b/physx/snippets/snippetpbf/SnippetPBF.cpp
+@@ -356,6 +356,7 @@ void keyPress(unsigned char key, const PxTransform& /*camera*/)
+ 	{
+ 	case 'P':	gIsRunning = !gIsRunning;	break;
+ 	case 'O':	gIsRunning = false; gStep = true;	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetpbfmultimat/SnippetPBFMultiMat.cpp b/physx/snippets/snippetpbfmultimat/SnippetPBFMultiMat.cpp
+index 5aedd3d..ceb4f49 100644
+--- a/physx/snippets/snippetpbfmultimat/SnippetPBFMultiMat.cpp
++++ b/physx/snippets/snippetpbfmultimat/SnippetPBFMultiMat.cpp
+@@ -255,6 +255,7 @@ void keyPress(unsigned char key, const PxTransform& /*camera*/)
+ 	switch(toupper(key))
+ 	{
+ 	case 'P':	gIsRunning = !gIsRunning;	break;
++	default:	break;
+ 	}
+ }
+ 
+diff --git a/physx/snippets/snippetpointdistancequery/SnippetPointDistanceQuery.cpp b/physx/snippets/snippetpointdistancequery/SnippetPointDistanceQuery.cpp
+index c8b12bf..ff00715 100644
+--- a/physx/snippets/snippetpointdistancequery/SnippetPointDistanceQuery.cpp
++++ b/physx/snippets/snippetpointdistancequery/SnippetPointDistanceQuery.cpp
+@@ -145,6 +145,8 @@ const PxGeometry& getTestGeometry()
+ 			gMeshGeom.triangleMesh = gTriangleMesh;
+ 			gMeshGeom.scale.scale = PxVec3(2.0f);
+ 			return gMeshGeom;
++		default:
++			break;
+ 	}
+ 	static PxSphereGeometry pt(0.0f);
+ 	return pt;
+diff --git a/physx/snippets/snippetquerysystemallqueries/SnippetQuerySystemAllQueries.cpp b/physx/snippets/snippetquerysystemallqueries/SnippetQuerySystemAllQueries.cpp
+index 2930e17..148af40 100644
+--- a/physx/snippets/snippetquerysystemallqueries/SnippetQuerySystemAllQueries.cpp
++++ b/physx/snippets/snippetquerysystemallqueries/SnippetQuerySystemAllQueries.cpp
+@@ -907,6 +907,9 @@ void CustomScene::runQueries()
+ 		{
+ 		}
+ 		break;
++
++		default:
++			break;
+ 	}
+ }
+ 
+@@ -1010,6 +1013,7 @@ void renderScene()
+ 		case SWEEP_MULTIPLE:	{ Snippets::print("Current scenario: sweep multiple");		}break;
+ 		case OVERLAP_ANY:		{ Snippets::print("Current scenario: overlap any");			}break;
+ 		case OVERLAP_MULTIPLE:	{ Snippets::print("Current scenario: overlap multiple");	}break;
++		default:	break;
+ 	}
+ #endif
+ }
+diff --git a/physx/snippets/snippetquerysystemcustomcompound/SnippetQuerySystemCustomCompound.cpp b/physx/snippets/snippetquerysystemcustomcompound/SnippetQuerySystemCustomCompound.cpp
+index f7b9ab2..e39573b 100644
+--- a/physx/snippets/snippetquerysystemcustomcompound/SnippetQuerySystemCustomCompound.cpp
++++ b/physx/snippets/snippetquerysystemcustomcompound/SnippetQuerySystemCustomCompound.cpp
+@@ -1190,6 +1190,9 @@ void CustomScene::runQueries()
+ 		{
+ 		}
+ 		break;
++		
++		default:
++			break;
+ 	}
+ }
+ 
+@@ -1300,6 +1303,7 @@ void renderScene()
+ 		case SWEEP_MULTIPLE:	{ Snippets::print("Current scenario: sweep multiple");		}break;
+ 		case OVERLAP_ANY:		{ Snippets::print("Current scenario: overlap any");			}break;
+ 		case OVERLAP_MULTIPLE:	{ Snippets::print("Current scenario: overlap multiple");	}break;
++		default:	break;
+ 	}
+ #endif
+ }
+diff --git a/physx/snippets/snippetrender/SnippetRender.cpp b/physx/snippets/snippetrender/SnippetRender.cpp
+index 7e1d141..d122a10 100644
+--- a/physx/snippets/snippetrender/SnippetRender.cpp
++++ b/physx/snippets/snippetrender/SnippetRender.cpp
+@@ -477,6 +477,7 @@ static void defaultSpecialCallback(int key, int x, int y)
+ 		case GLUT_KEY_DOWN:		key='S'; break;
+ 		case GLUT_KEY_LEFT:		key='A'; break;
+ 		case GLUT_KEY_RIGHT:	key='D'; break;
++		default:	break;
+ 	}
+ 
+ 	const bool status = gCamera ? gCamera->handleKey((unsigned char)key, x, y) : false;
+diff --git a/physx/source/filebuf/include/PsFileBuffer.h b/physx/source/filebuf/include/PsFileBuffer.h
+index cf5e13d..35b596e 100644
+--- a/physx/source/filebuf/include/PsFileBuffer.h
++++ b/physx/source/filebuf/include/PsFileBuffer.h
+@@ -65,6 +65,8 @@ public:
+ 				break;
+ 			case OPEN_FILE_NOT_FOUND:
+ 				break;
++			default:
++				break;
+ 		}
+ 		if ( mFph )
+ 		{
+diff --git a/physx/source/geomutils/src/GuCookingSDF.cpp b/physx/source/geomutils/src/GuCookingSDF.cpp
+index 3a62532..c3a7df9 100644
+--- a/physx/source/geomutils/src/GuCookingSDF.cpp
++++ b/physx/source/geomutils/src/GuCookingSDF.cpp
+@@ -95,7 +95,9 @@ namespace physx
+ 				break;
+ 			case PxSdfBitsPerSubgridPixel::e32_BIT_PER_PIXEL:
+ 				ptr32[i] = v;
+-				break;			
++				break;
++			default:
++				break;
+ 			}
+ 		}
+ 	}
+diff --git a/physx/source/geomutils/src/GuGeometryQuery.cpp b/physx/source/geomutils/src/GuGeometryQuery.cpp
+index 14c7184..8858be2 100644
+--- a/physx/source/geomutils/src/GuGeometryQuery.cpp
++++ b/physx/source/geomutils/src/GuGeometryQuery.cpp
+@@ -83,6 +83,7 @@ bool PxGeometryQuery::isValid(const PxGeometry& g)
+ 		case PxGeometryType::ePARTICLESYSTEM:	return static_cast<const PxParticleSystemGeometry&>(g).isValid();
+ 		case PxGeometryType::eHAIRSYSTEM:		return static_cast<const PxHairSystemGeometry&>(g).isValid();
+ 		case PxGeometryType::eCUSTOM:			return static_cast<const PxCustomGeometry&>(g).isValid();
++		default:	break;
+ 	}
+ 	return false;
+ }
+diff --git a/physx/source/geomutils/src/GuSDF.cpp b/physx/source/geomutils/src/GuSDF.cpp
+index 8a671e4..4c2741b 100644
+--- a/physx/source/geomutils/src/GuSDF.cpp
++++ b/physx/source/geomutils/src/GuSDF.cpp
+@@ -1391,8 +1391,12 @@ namespace Gu
+ 		case 4:
+ 			//If 4 bytes per subgrid pixel are available, then normal floats are used. No need to 
+ 			//de-normalize integer values since the floats already contain real distance values
+-			PxReal* ptr = reinterpret_cast<PxReal*>(data);
+-			return ptr[0];
++			{
++				PxReal* ptr = reinterpret_cast<PxReal*>(data);
++				return ptr[0];
++			}
++		default:
++			break;
+ 		}
+ 		return 0;
+ 	}
+diff --git a/physx/source/geomutils/src/GuSecondaryPruner.cpp b/physx/source/geomutils/src/GuSecondaryPruner.cpp
+index 27bce29..a6d0f2e 100644
+--- a/physx/source/geomutils/src/GuSecondaryPruner.cpp
++++ b/physx/source/geomutils/src/GuSecondaryPruner.cpp
+@@ -1065,6 +1065,7 @@ CompanionPruner* physx::Gu::createCompanionPruner(PxU64 contextID, CompanionPrun
+ 		case COMPANION_PRUNER_BUCKET:		return PX_NEW(CompanionPrunerBucket);
+ 		case COMPANION_PRUNER_INCREMENTAL:	return PX_NEW(CompanionPrunerIncremental)(pool);
+ 		case COMPANION_PRUNER_AABB_TREE:	return PX_NEW(CompanionPrunerAABBTree)(contextID, pool);
++		default:	break;
+ 	}
+ 	return NULL;
+ }
+diff --git a/physx/source/geomutils/src/contact/GuContactConvexMesh.cpp b/physx/source/geomutils/src/contact/GuContactConvexMesh.cpp
+index a646b01..463f55f 100644
+--- a/physx/source/geomutils/src/contact/GuContactConvexMesh.cpp
++++ b/physx/source/geomutils/src/contact/GuContactConvexMesh.cpp
+@@ -1182,6 +1182,8 @@ void ConvexMeshContactGeneration::generateLastContacts()
+ 					break;
+ 				case FC_UNDEFINED:
+ 					break;
++				default:
++					break;
+ 			};
+ 
+ 			if(!generateContact)
+diff --git a/physx/source/geomutils/src/contact/GuContactSphereMesh.cpp b/physx/source/geomutils/src/contact/GuContactSphereMesh.cpp
+index bd38570..8d999ba 100644
+--- a/physx/source/geomutils/src/contact/GuContactSphereMesh.cpp
++++ b/physx/source/geomutils/src/contact/GuContactSphereMesh.cpp
+@@ -395,6 +395,7 @@ struct SphereMeshContactGeneration
+ 
+ 				case FC_FACE:
+ 				case FC_UNDEFINED:
++				default:
+ 					PX_ASSERT(0);	// PT: should not be possible
+ 					break;
+ 			};
+diff --git a/physx/source/geomutils/src/contact/GuFeatureCode.cpp b/physx/source/geomutils/src/contact/GuFeatureCode.cpp
+index b77c7fb..2f5ac61 100644
+--- a/physx/source/geomutils/src/contact/GuFeatureCode.cpp
++++ b/physx/source/geomutils/src/contact/GuFeatureCode.cpp
+@@ -121,6 +121,8 @@ bool Gu::selectNormal(PxU8 data, PxReal u, PxReal v)
+ 			break;
+ 		case FC_UNDEFINED:
+ 			break;
++		default:
++			break;
+ 	};
+ 	return useFaceNormal;
+ }
+diff --git a/physx/source/geomutils/src/cooking/GuCookingConvexHullUtils.cpp b/physx/source/geomutils/src/cooking/GuCookingConvexHullUtils.cpp
+index bfe7f80..8944990 100644
+--- a/physx/source/geomutils/src/cooking/GuCookingConvexHullUtils.cpp
++++ b/physx/source/geomutils/src/cooking/GuCookingConvexHullUtils.cpp
+@@ -454,6 +454,8 @@ ConvexHull* physx::convexHullCrop(const ConvexHull& convex, const PxPlane& slice
+ 			vertFlag[i].undermap = PxTo8(vertCountUnder++);
+ 			vertFlag[i].overmap = invalidIndex;
+ 			break;
++		default:
++			break;
+ 		}
+ 		vertFlag[i].planetest = PxU8(vertexClipFlag);
+ 		convexClipFlags |= vertexClipFlag;
+diff --git a/physx/source/geomutils/src/cooking/GuCookingQuickHullConvexHullLib.cpp b/physx/source/geomutils/src/cooking/GuCookingQuickHullConvexHullLib.cpp
+index c7aee41..d969238 100644
+--- a/physx/source/geomutils/src/cooking/GuCookingQuickHullConvexHullLib.cpp
++++ b/physx/source/geomutils/src/cooking/GuCookingQuickHullConvexHullLib.cpp
+@@ -1894,6 +1894,8 @@ PxConvexMeshCookingResult::Enum QuickHullConvexHullLib::createConvexHull()
+ 		break;
+ 	case local::QuickHullResult::eFAILURE:
+ 		break;
++	default:
++		break;
+ 	};
+ 
+ 	// check if we need to build GRB compatible mesh
+@@ -2175,6 +2177,8 @@ PxConvexMeshCookingResult::Enum QuickHullConvexHullLib::expandHull()
+ 			PX_DELETE(newHull);
+ 			return PxConvexMeshCookingResult::eFAILURE;
+ 		}
++	default:	
++		break;
+ 	};
+ 
+ 	return PxConvexMeshCookingResult::eSUCCESS;
+diff --git a/physx/source/geomutils/src/gjk/GuEPA.cpp b/physx/source/geomutils/src/gjk/GuEPA.cpp
+index b460de0..1aedac6 100644
+--- a/physx/source/geomutils/src/gjk/GuEPA.cpp
++++ b/physx/source/geomutils/src/gjk/GuEPA.cpp
+@@ -482,6 +482,8 @@ namespace Gu
+ 
+ 				break;
+ 			}
++			default:
++				break;
+ 		}
+ 
+ 	
+diff --git a/physx/source/geomutils/src/gjk/GuGJKSimplex.h b/physx/source/geomutils/src/gjk/GuGJKSimplex.h
+index acc0002..5479961 100644
+--- a/physx/source/geomutils/src/gjk/GuGJKSimplex.h
++++ b/physx/source/geomutils/src/gjk/GuGJKSimplex.h
+@@ -149,6 +149,8 @@ namespace Gu
+ 				closestA = V3Add(A[0], V3Add(V3Scale(av0, v), V3Scale(av1, w)));
+ 				closestB = V3Add(B[0], V3Add(V3Scale(bv0, v), V3Scale(bv1, w)));
+ 			}
++		default:
++			break;
+ 		};
+ 	}
+ 
+diff --git a/physx/source/geomutils/src/hf/GuHeightField.cpp b/physx/source/geomutils/src/hf/GuHeightField.cpp
+index a383766..76ddc35 100644
+--- a/physx/source/geomutils/src/hf/GuHeightField.cpp
++++ b/physx/source/geomutils/src/hf/GuHeightField.cpp
+@@ -571,6 +571,8 @@ static PxU32 getEdgeTriangleIndices(const HeightField& heightfield, const EdgeDa
+ 				}
+ 			}
+ 			break;
++		default:
++			break;	
+ 	}
+ 
+ 	return count;
+diff --git a/physx/source/geomutils/src/hf/GuHeightField.h b/physx/source/geomutils/src/hf/GuHeightField.h
+index cbbd366..c4b8583 100644
+--- a/physx/source/geomutils/src/hf/GuHeightField.h
++++ b/physx/source/geomutils/src/hf/GuHeightField.h
+@@ -353,6 +353,8 @@ PX_INLINE bool Gu::HeightField::isValidEdge(PxU32 edgeIndex) const
+ 			if (row >= mData.rows - 1) return false;
+ 			if (column > mData.columns - 1) return false;
+ 			break;
++		default:
++			break;
+ 	}
+ 	return true;
+ }
+@@ -403,6 +405,8 @@ PX_INLINE PxU32 Gu::HeightField::getEdgeTriangleIndices(PxU32 edgeIndex, PxU32 t
+ 					triangleIndices[count++] = cell << 1;
+ 			}
+ 			break;
++		default:
++			break;
+ 	}
+ 	return count;
+ }
+@@ -453,6 +457,8 @@ PX_INLINE PxU32 Gu::HeightField::getEdgeTriangleIndices(PxU32 edgeIndex, PxU32 t
+ 					triangleIndices[count++] = cell << 1;
+ 			}
+ 			break;
++		default:
++			break;
+ 	}
+ 	return count;
+ }
+@@ -488,6 +494,8 @@ PX_INLINE void Gu::HeightField::getEdgeVertexIndices(PxU32 edgeIndex, PxU32& ver
+ 			vertexIndex0 = cell;
+ 			vertexIndex1 = cell + mData.columns;
+ 			break;
++		default:
++			break;
+ 	}
+ }
+ 
+@@ -706,6 +714,8 @@ PX_INLINE bool Gu::HeightField::isConvexEdge(PxU32 edgeIndex, PxU32 cell, PxU32
+ 			convexity = (h1-h0) - (h3-h2);
+ 			}
+ 			break;
++		default:
++			break;
+ 	}
+ 
+ 	const PxI32 threshold = PxI32(mData.convexEdgeThreshold);
+diff --git a/physx/source/geomutils/src/mesh/GuBV4Build.cpp b/physx/source/geomutils/src/mesh/GuBV4Build.cpp
+index ab15498..797af21 100644
+--- a/physx/source/geomutils/src/mesh/GuBV4Build.cpp
++++ b/physx/source/geomutils/src/mesh/GuBV4Build.cpp
+@@ -396,7 +396,7 @@ bool BV4_AABBTree::buildFromMesh(SourceMeshBase& mesh, PxU32 limit, BV4_BuildStr
+ 	PX_FREE(boxes);
+ 
+ 	if(0)
+-		printf("Tree depth: %d\n", walk(NULL, NULL));
++		printf("Tree depth: %u\n", walk(NULL, NULL));
+ 
+ 	return true;
+ }
+diff --git a/physx/source/geomutils/src/mesh/GuBV4_SphereOverlap.cpp b/physx/source/geomutils/src/mesh/GuBV4_SphereOverlap.cpp
+index 38f1436..f4477ea 100644
+--- a/physx/source/geomutils/src/mesh/GuBV4_SphereOverlap.cpp
++++ b/physx/source/geomutils/src/mesh/GuBV4_SphereOverlap.cpp
+@@ -505,6 +505,8 @@ namespace
+ 					stack[nb++] = next[3];
+ 					break;
+ 				}
++				default:
++					break;
+ 			}
+ 		}
+ 	}
+diff --git a/physx/source/geomutils/src/pcm/GuPCMContactSphereMesh.cpp b/physx/source/geomutils/src/pcm/GuPCMContactSphereMesh.cpp
+index 87e31fb..9153662 100644
+--- a/physx/source/geomutils/src/pcm/GuPCMContactSphereMesh.cpp
++++ b/physx/source/geomutils/src/pcm/GuPCMContactSphereMesh.cpp
+@@ -483,6 +483,7 @@ void Gu::PCMSphereVsMeshContactGeneration::generateLastContacts()
+ 
+ 					case FC_FACE:
+ 					case FC_UNDEFINED:
++					default:
+ 						PX_ASSERT(0);	// PT: should not be possible
+ 						break;
+ 				};
+diff --git a/physx/source/lowlevel/software/include/PxsMaterialCombiner.h b/physx/source/lowlevel/software/include/PxsMaterialCombiner.h
+index 6de4f66..c00b5f0 100644
+--- a/physx/source/lowlevel/software/include/PxsMaterialCombiner.h
++++ b/physx/source/lowlevel/software/include/PxsMaterialCombiner.h
+@@ -86,6 +86,8 @@ namespace physx
+ 				dynFriction = PxMax(mat0.dynamicFriction, mat1.dynamicFriction);
+ 				staFriction = PxMax(mat0.staticFriction, mat1.staticFriction);
+ 				break;
++			default:
++				break;
+ 			}   
+ 
+ 			//isotropic case
+diff --git a/physx/source/lowleveldynamics/src/DyFeatherstoneArticulation.cpp b/physx/source/lowleveldynamics/src/DyFeatherstoneArticulation.cpp
+index 06df354..5a9c644 100644
+--- a/physx/source/lowleveldynamics/src/DyFeatherstoneArticulation.cpp
++++ b/physx/source/lowleveldynamics/src/DyFeatherstoneArticulation.cpp
+@@ -2577,6 +2577,7 @@ namespace Dy
+ 			case PxArticulationDriveType::eTARGET:
+ 			case PxArticulationDriveType::eVELOCITY:
+ 			case PxArticulationDriveType::eNONE:
++			default:
+ 				break;
+ 
+ 			}
+diff --git a/physx/source/physx/src/NpCheck.cpp b/physx/source/physx/src/NpCheck.cpp
+index 8714c20..637ded9 100644
+--- a/physx/source/physx/src/NpCheck.cpp
++++ b/physx/source/physx/src/NpCheck.cpp
+@@ -105,6 +105,8 @@ NpWriteCheck::NpWriteCheck(NpScene* scene, const char* functionName, bool allowR
+ 				"Note that write operations to the SDK are not permitted between the start of fetchResultsStart() and end of fetchResultsFinish(). "
+ 				"Behavior will be undefined. ", mName, PxU32(PxThread::getId()));
+ 			break;
++		default:
++			break;
+ 		}
+ 
+ 		// Record the NpScene read/write error counter which is
+diff --git a/physx/source/physx/src/NpDebugViz.cpp b/physx/source/physx/src/NpDebugViz.cpp
+index d76db7c..316da12 100644
+--- a/physx/source/physx/src/NpDebugViz.cpp
++++ b/physx/source/physx/src/NpDebugViz.cpp
+@@ -278,11 +278,15 @@ PX_FORCE_INLINE PxReal decode(PxU8* data, PxU32 bytesPerSparsePixel, PxReal subg
+ 		return PxReal(ptr[0]) * (1.0f / 65535.0f) * (subgridsMaxSdfValue - subgridsMinSdfValue) + subgridsMinSdfValue;
+ 	}
+ 	case 4:
++	{
+ 		//If 4 bytes per subgrid pixel are available, then normal floats are used. No need to 
+ 		//de-normalize integer values since the floats already contain real distance values
+ 		PxReal* ptr = reinterpret_cast<PxReal*>(data);
+ 		return ptr[0];
+ 	}
++	default:
++		break;
++	}
+ 	return 0;
+ }
+ 
+@@ -715,6 +719,8 @@ static void visualize(const PxGeometry& geometry, PxRenderOutput& out, const PxT
+ 		break;
+ 	case PxGeometryType::eGEOMETRY_COUNT:
+ 		break;
++	default:
++		break;
+ 	}
+ }
+ 
+diff --git a/physx/source/physx/src/NpPvdSceneClient.cpp b/physx/source/physx/src/NpPvdSceneClient.cpp
+index 0124044..7fd8e64 100644
+--- a/physx/source/physx/src/NpPvdSceneClient.cpp
++++ b/physx/source/physx/src/NpPvdSceneClient.cpp
+@@ -190,6 +190,7 @@ namespace
+ 			break;
+ 		case PxActorType::eACTOR_COUNT:
+ 		case PxActorType::eACTOR_FORCE_DWORD:
++		default:
+ 			PX_ASSERT(false);
+ 			break;
+ 		};
+diff --git a/physx/source/physx/src/NpRigidBodyTemplate.h b/physx/source/physx/src/NpRigidBodyTemplate.h
+index af3fe5e..b469ba4 100644
+--- a/physx/source/physx/src/NpRigidBodyTemplate.h
++++ b/physx/source/physx/src/NpRigidBodyTemplate.h
+@@ -551,6 +551,8 @@ void NpRigidBodyTemplate<APIClass>::addSpatialForce(const PxVec3* force, const P
+ 		case PxForceMode::eVELOCITY_CHANGE:
+ 			scAddSpatialVelocity(force, torque);
+ 		break;
++		default:
++			break;
+ 	}
+ }
+ 
+@@ -602,6 +604,8 @@ void NpRigidBodyTemplate<APIClass>::setSpatialForce(const PxVec3* force, const P
+ 	case PxForceMode::eVELOCITY_CHANGE:
+ 		scAddSpatialVelocity(force, torque);
+ 		break;
++	default:
++		break;
+ 	}
+ }
+ 
+@@ -620,6 +624,8 @@ void NpRigidBodyTemplate<APIClass>::clearSpatialForce(PxForceMode::Enum mode, bo
+ 	case PxForceMode::eVELOCITY_CHANGE:
+ 		scClearSpatialVelocity(force, torque);
+ 		break;
++	default:
++		break;
+ 	}
+ }
+ 
+diff --git a/physx/source/physx/src/NpScene.cpp b/physx/source/physx/src/NpScene.cpp
+index 58f9f31..fc9f2d4 100644
+--- a/physx/source/physx/src/NpScene.cpp
++++ b/physx/source/physx/src/NpScene.cpp
+@@ -2853,6 +2853,8 @@ bool NpScene::resetFiltering(PxRigidActor& actor, PxShape*const* shapes, PxU32 s
+ 			}
+ 		}
+ 		break;
++		default:
++		break;
+ 	}
+ 	return status;
+ }
+@@ -2968,6 +2970,8 @@ static void updateLowLevelMaterials(NpPhysics& physics, PxMutex& sceneMaterialBu
+ 				}
+ 			}
+ 			break;
++		default:	
++			break;
+ 		};
+ 	}
+ 
+diff --git a/physx/source/physx/src/NpSceneQueries.cpp b/physx/source/physx/src/NpSceneQueries.cpp
+index d1a6143..3dbb653 100644
+--- a/physx/source/physx/src/NpSceneQueries.cpp
++++ b/physx/source/physx/src/NpSceneQueries.cpp
+@@ -362,6 +362,7 @@ namespace
+ 				case PxSceneQueryUpdateMode::eBUILD_ENABLED_COMMIT_ENABLED:		SQ().afterSync(true, true);	break;
+ 				case PxSceneQueryUpdateMode::eBUILD_ENABLED_COMMIT_DISABLED:	SQ().afterSync(true, false);	break;
+ 				case PxSceneQueryUpdateMode::eBUILD_DISABLED_COMMIT_DISABLED:	SQ().afterSync(false, false);	break;
++				default:				break;
+ 			}
+ 		}
+ 
+@@ -444,6 +445,7 @@ static CompanionPrunerType getCompanionType(PxDynamicTreeSecondaryPruner::Enum t
+ 		case PxDynamicTreeSecondaryPruner::eINCREMENTAL:	return COMPANION_PRUNER_INCREMENTAL;
+ 		case PxDynamicTreeSecondaryPruner::eBVH:			return COMPANION_PRUNER_AABB_TREE;
+ 		case PxDynamicTreeSecondaryPruner::eLAST:			return COMPANION_PRUNER_NONE;
++		default:	break;
+ 	}
+ 	return COMPANION_PRUNER_NONE;
+ }
+@@ -456,6 +458,7 @@ static BVHBuildStrategy getBuildStrategy(PxBVHBuildStrategy::Enum bs)
+ 		case PxBVHBuildStrategy::eDEFAULT:	return BVH_SPLATTER_POINTS_SPLIT_GEOM_CENTER;
+ 		case PxBVHBuildStrategy::eSAH:		return BVH_SAH;
+ 		case PxBVHBuildStrategy::eLAST:		return BVH_SPLATTER_POINTS;
++		default:	break;
+ 	}
+ 	return BVH_SPLATTER_POINTS;
+ }
+@@ -478,6 +481,7 @@ static Pruner* create(PxPruningStructureType::Enum type, PxU64 contextID, PxDyna
+ 		// PT: for tests
+ 		case PxPruningStructureType::eLAST:					{ pruner = createIncrementalPruner(contextID);									break;	}
+ //		case PxPruningStructureType::eLAST:					break;
++		default:	break;
+ 	}
+ 	return pruner;
+ }
+diff --git a/physx/source/physx/src/NpShape.cpp b/physx/source/physx/src/NpShape.cpp
+index a2065bd..35e612d 100644
+--- a/physx/source/physx/src/NpShape.cpp
++++ b/physx/source/physx/src/NpShape.cpp
+@@ -147,6 +147,8 @@ void NpShape::requiresObjects(PxProcessPxBaseCallback& c)
+ 	case PxGeometryType::eHEIGHTFIELD:		mesh = static_cast<const PxHeightFieldGeometry&>(geometry).heightField;			break;
+ 	case PxGeometryType::eTRIANGLEMESH:		mesh = static_cast<const PxTriangleMeshGeometry&>(geometry).triangleMesh;		break;
+ 	case PxGeometryType::eTETRAHEDRONMESH:	mesh = static_cast<const PxTetrahedronMeshGeometry&>(geometry).tetrahedronMesh;	break;
++	default:
++		break;
+ 	}
+ 	
+ 	if(mesh)
+diff --git a/physx/source/physx/src/PvdMetaDataPvdBinding.cpp b/physx/source/physx/src/PvdMetaDataPvdBinding.cpp
+index 4a0cc27..04b7f33 100644
+--- a/physx/source/physx/src/PvdMetaDataPvdBinding.cpp
++++ b/physx/source/physx/src/PvdMetaDataPvdBinding.cpp
+@@ -1140,6 +1140,7 @@ static void setGeometry(PvdMetaDataBinding& metaBind, PvdDataStream& inStream, c
+ 		break;
+ 	case PxGeometryType::eGEOMETRY_COUNT:
+ 	case PxGeometryType::eINVALID:
++	default:
+ 		PX_ASSERT(false);
+ 		break;
+ 	}
+@@ -2008,6 +2009,7 @@ void PvdMetaDataBinding::sendSceneQueries(PvdDataStream& inStream, const PxScene
+ 			case PxGeometryType::eCUSTOM:
+ 			case PxGeometryType::eGEOMETRY_COUNT:
+ 			case PxGeometryType::eINVALID:
++			default:	
+ 				PX_ALWAYS_ASSERT_MESSAGE("unsupported scene query geometry type");
+ 				break;
+ 			}
+diff --git a/physx/source/physx/src/omnipvd/OmniPvdPxSampler.cpp b/physx/source/physx/src/omnipvd/OmniPvdPxSampler.cpp
+index 677127c..32ff5dd 100644
+--- a/physx/source/physx/src/omnipvd/OmniPvdPxSampler.cpp
++++ b/physx/source/physx/src/omnipvd/OmniPvdPxSampler.cpp
+@@ -1049,6 +1049,8 @@ void OmniPvdPxSampler::onObjectAdd(const physx::PxBase* object)
+ 		streamRigidStatic(static_cast<const physx::PxRigidStatic*>(object));
+ 		OMNI_PVD_ADD(physics, rigidStatics, static_cast<PxPhysics&>(NpPhysics::getInstance()), static_cast<const physx::PxRigidStatic&>(*object));
+ 		break;
++	default:
++		break;
+ 	}
+ }
+ 
+@@ -1137,6 +1139,8 @@ void OmniPvdPxSampler::onObjectRemove(const physx::PxBase* object)
+ 		OMNI_PVD_REMOVE(physics, rigidStatics, static_cast<PxPhysics&>(NpPhysics::getInstance()), static_cast<const physx::PxRigidStatic&>(*object));
+ 		OMNI_PVD_DESTROY(actor, static_cast<const physx::PxRigidStatic&>(*object));
+ 		break;
++	default:
++		break;
+ 	}
+ }
+ 
+diff --git a/physx/source/physxcharacterkinematic/src/CctCharacterControllerCallbacks.cpp b/physx/source/physxcharacterkinematic/src/CctCharacterControllerCallbacks.cpp
+index 8a14164..8dd6ffa 100644
+--- a/physx/source/physxcharacterkinematic/src/CctCharacterControllerCallbacks.cpp
++++ b/physx/source/physxcharacterkinematic/src/CctCharacterControllerCallbacks.cpp
+@@ -174,6 +174,9 @@ static void tessellateTriangleRecursive(TessParams* tp, const PxVec3& v0, const
+ 			tessellateTriangleRecursive(tp, m0, m1, m2);
+ 		}
+ 		break;
++		default:
++			break;
++
+ 	};
+ }
+ 
+diff --git a/physx/source/physxextensions/src/ExtCustomGeometryExt.cpp b/physx/source/physxextensions/src/ExtCustomGeometryExt.cpp
+index 51a7c98..42c4193 100644
+--- a/physx/source/physxextensions/src/ExtCustomGeometryExt.cpp
++++ b/physx/source/physxextensions/src/ExtCustomGeometryExt.cpp
+@@ -483,6 +483,8 @@ PxVec3 PxCustomGeometryExt::CylinderCallbacks::supportLocal(const PxVec3& dir) c
+ 		if (PxSign2(d.x) == 0 && PxSign2(d.y) == 0 && PxSign2(d.z) != 0) return PxVec3(0, 0, PxSign2(d.z) * halfHeight);
+ 		return PxVec3(0, 0, PxSign2(d.z) * halfHeight) + PxVec3(d.x, d.y, 0).getNormalized() * radius;
+ 	}
++	default:
++		break;
+ 	}
+ 
+ 	return PxVec3(0);
+@@ -563,6 +565,7 @@ bool PxCustomGeometryExt::CylinderCallbacks::useSubstituteGeometry(PxGeometryHol
+ 		case 0: preTransform = PxTransform(PxIdentity); break;
+ 		case 1: preTransform = PxTransform(PxQuat(PxPi * 0.5f, PxVec3(0, 0, 1))); break;
+ 		case 2: preTransform = PxTransform(PxQuat(PxPi * 0.5f, PxVec3(0, 1, 0))); break;
++		default:	break;
+ 		}
+ 		return true;
+ 	}
+@@ -667,6 +670,7 @@ PxVec3 PxCustomGeometryExt::ConeCallbacks::supportLocal(const PxVec3& dir) const
+ 		if (d.z > cosAlph || (PxSign2(d.z) != 0 && PxSign2(d.x) == 0 && PxSign2(d.y) == 0)) return PxVec3(0, 0, PxSign2(d.z) * halfHeight);
+ 		return PxVec3(0, 0, -halfHeight) + PxVec3(d.x, d.y, 0).getNormalized() * radius;
+ 	}
++	default: break;
+ 	}
+ 
+ 	return PxVec3(0);
+@@ -770,6 +774,8 @@ bool PxCustomGeometryExt::ConeCallbacks::useSubstituteGeometry(PxGeometryHolder&
+ 			preTransform = PxTransform(capC, PxQuat(-coneAng, PxVec3(0, 1, 0)) * PxQuat(PxPiDivTwo, PxVec3(0, 1, 0)));
+ 			break;
+ 		}
++		default:
++			break;
+ 		}
+ 		PxVec3 axisDir(PxZero); axisDir[axis] = 1.0f;
+ 		float n1 = -locN[(axis + 1) % 3], n2 = -locN[(axis + 2) % 3];
+diff --git a/physx/source/physxextensions/src/ExtCustomSceneQuerySystem.cpp b/physx/source/physxextensions/src/ExtCustomSceneQuerySystem.cpp
+index 22974b3..914d34c 100644
+--- a/physx/source/physxextensions/src/ExtCustomSceneQuerySystem.cpp
++++ b/physx/source/physxextensions/src/ExtCustomSceneQuerySystem.cpp
+@@ -62,6 +62,7 @@ static CompanionPrunerType getCompanionType(PxDynamicTreeSecondaryPruner::Enum t
+ 		case PxDynamicTreeSecondaryPruner::eINCREMENTAL:	return COMPANION_PRUNER_INCREMENTAL;
+ 		case PxDynamicTreeSecondaryPruner::eBVH:			return COMPANION_PRUNER_AABB_TREE;
+ 		case PxDynamicTreeSecondaryPruner::eLAST:			return COMPANION_PRUNER_NONE;
++		default:	break;
+ 	}
+ 	return COMPANION_PRUNER_NONE;
+ }
+@@ -74,6 +75,7 @@ static BVHBuildStrategy getBuildStrategy(PxBVHBuildStrategy::Enum bs)
+ 		case PxBVHBuildStrategy::eDEFAULT:	return BVH_SPLATTER_POINTS_SPLIT_GEOM_CENTER;
+ 		case PxBVHBuildStrategy::eSAH:		return BVH_SAH;
+ 		case PxBVHBuildStrategy::eLAST:		return BVH_SPLATTER_POINTS;
++		default:	break;
+ 	}
+ 	return BVH_SPLATTER_POINTS;
+ }
+@@ -93,6 +95,7 @@ static Pruner* create(PxPruningStructureType::Enum type, PxU64 contextID, PxDyna
+ 		case PxPruningStructureType::eDYNAMIC_AABB_TREE:	{ pruner = createAABBPruner(contextID, true, cpType, bs, nbObjectsPerNode);		break;	}
+ 		case PxPruningStructureType::eSTATIC_AABB_TREE:		{ pruner = createAABBPruner(contextID, false, cpType, bs, nbObjectsPerNode);	break;	}
+ 		case PxPruningStructureType::eLAST:					break;
++		default:	break;
+ 	}
+ 	return pruner;
+ }
+@@ -421,6 +424,8 @@ void CustomPxSQ::finalizeUpdates()
+ 		case PxSceneQueryUpdateMode::eBUILD_ENABLED_COMMIT_ENABLED:		SQ().afterSync(true, true);	break;
+ 		case PxSceneQueryUpdateMode::eBUILD_ENABLED_COMMIT_DISABLED:	SQ().afterSync(true, false);	break;
+ 		case PxSceneQueryUpdateMode::eBUILD_DISABLED_COMMIT_DISABLED:	SQ().afterSync(false, false);	break;
++		default:	break;
++
+ 	}
+ }
+ 
+diff --git a/physx/source/physxextensions/src/ExtD6Joint.cpp b/physx/source/physxextensions/src/ExtD6Joint.cpp
+index 8903512..e77cde1 100644
+--- a/physx/source/physxextensions/src/ExtD6Joint.cpp
++++ b/physx/source/physxextensions/src/ExtD6Joint.cpp
+@@ -790,6 +790,8 @@ static void D6JointVisualize(PxConstraintVisualizer& viz, const void* constantBl
+ 				case 1<<PxD6Axis::eX|1<<PxD6Axis::eY|1<<PxD6Axis::eZ:
+ 					visualizeBox(viz, cA2w.p, cA2w_m.column0, data.linearLimitX, cB2cA.p.x, cA2w_m.column1, data.linearLimitY, cB2cA.p.y, cA2w_m.column2, data.linearLimitZ, cB2cA.p.z);
+ 				break;
++				default:
++				break;
+ 			}
+ 		}
+ 
+diff --git a/physx/source/physxextensions/src/ExtDefaultErrorCallback.cpp b/physx/source/physxextensions/src/ExtDefaultErrorCallback.cpp
+index ba70128..1ac0290 100644
+--- a/physx/source/physxextensions/src/ExtDefaultErrorCallback.cpp
++++ b/physx/source/physxextensions/src/ExtDefaultErrorCallback.cpp
+@@ -78,6 +78,7 @@ void PxDefaultErrorCallback::reportError(PxErrorCode::Enum e, const char* messag
+ 		errorCode = "internal error";
+ 		break;
+ 	case PxErrorCode::eMASK_ALL:
++	default:
+ 		errorCode = "unknown error";
+ 		break;
+ 	}
+diff --git a/physx/source/physxextensions/src/ExtSceneQuerySystem.cpp b/physx/source/physxextensions/src/ExtSceneQuerySystem.cpp
+index 08e08d1..07c9c47 100644
+--- a/physx/source/physxextensions/src/ExtSceneQuerySystem.cpp
++++ b/physx/source/physxextensions/src/ExtSceneQuerySystem.cpp
+@@ -348,6 +348,7 @@ void ExternalPxSQ::finalizeUpdates()
+ 		case PxSceneQueryUpdateMode::eBUILD_ENABLED_COMMIT_ENABLED:		SQ().afterSync(true, true);	break;
+ 		case PxSceneQueryUpdateMode::eBUILD_ENABLED_COMMIT_DISABLED:	SQ().afterSync(true, false);	break;
+ 		case PxSceneQueryUpdateMode::eBUILD_DISABLED_COMMIT_DISABLED:	SQ().afterSync(false, false);	break;
++		default:	break;
+ 	}
+ }
+ 
+@@ -420,6 +421,8 @@ static CompanionPrunerType getCompanionType(PxDynamicTreeSecondaryPruner::Enum t
+ 		case PxDynamicTreeSecondaryPruner::eINCREMENTAL:	return COMPANION_PRUNER_INCREMENTAL;
+ 		case PxDynamicTreeSecondaryPruner::eBVH:			return COMPANION_PRUNER_AABB_TREE;
+ 		case PxDynamicTreeSecondaryPruner::eLAST:			return COMPANION_PRUNER_NONE;
++		default:	break;
++
+ 	}
+ 	return COMPANION_PRUNER_NONE;
+ }
+@@ -432,6 +435,7 @@ static BVHBuildStrategy getBuildStrategy(PxBVHBuildStrategy::Enum bs)
+ 		case PxBVHBuildStrategy::eDEFAULT:	return BVH_SPLATTER_POINTS_SPLIT_GEOM_CENTER;
+ 		case PxBVHBuildStrategy::eSAH:		return BVH_SAH;
+ 		case PxBVHBuildStrategy::eLAST:		return BVH_SPLATTER_POINTS;
++		default:	break;
+ 	}
+ 	return BVH_SPLATTER_POINTS;
+ }
+@@ -451,6 +455,7 @@ static Pruner* create(PxPruningStructureType::Enum type, PxU64 contextID, PxDyna
+ 		case PxPruningStructureType::eDYNAMIC_AABB_TREE:	{ pruner = createAABBPruner(contextID, true, cpType, bs, nbObjectsPerNode);		break;	}
+ 		case PxPruningStructureType::eSTATIC_AABB_TREE:		{ pruner = createAABBPruner(contextID, false, cpType, bs, nbObjectsPerNode);	break;	}
+ 		case PxPruningStructureType::eLAST:					break;
++		default:	break;
+ 	}
+ 	return pruner;
+ }
+diff --git a/physx/source/physxextensions/src/serialization/Binary/SnConvX_MetaData.cpp b/physx/source/physxextensions/src/serialization/Binary/SnConvX_MetaData.cpp
+index c4ff996..bc40b55 100644
+--- a/physx/source/physxextensions/src/serialization/Binary/SnConvX_MetaData.cpp
++++ b/physx/source/physxextensions/src/serialization/Binary/SnConvX_MetaData.cpp
+@@ -946,6 +946,8 @@ PxU64 physx::Sn::peek(int size, const char* buffer, int flags)
+ 				return 0;
+ 			return value;
+ 		}
++		default:
++			break;
+ 	};
+ 	PX_ASSERT(0);
+ 	return PxU64(-1);
+diff --git a/physx/source/physxextensions/src/serialization/Xml/SnRepXCoreSerializer.cpp b/physx/source/physxextensions/src/serialization/Xml/SnRepXCoreSerializer.cpp
+index cf5d50f..d0b53fe 100644
+--- a/physx/source/physxextensions/src/serialization/Xml/SnRepXCoreSerializer.cpp
++++ b/physx/source/physxextensions/src/serialization/Xml/SnRepXCoreSerializer.cpp
+@@ -100,6 +100,7 @@ namespace physx {
+ 
+ 		case PxGeometryType::eGEOMETRY_COUNT:
+ 		case PxGeometryType::eINVALID:
++		default:
+ 			PX_ASSERT(0);			
+ 		}		
+ 		inAllocator.getAllocator().deallocate(geometry);
+diff --git a/physx/source/physxextensions/src/serialization/Xml/SnXmlVisitorReader.h b/physx/source/physxextensions/src/serialization/Xml/SnXmlVisitorReader.h
+index d2d1ab6..2ed734b 100644
+--- a/physx/source/physxextensions/src/serialization/Xml/SnXmlVisitorReader.h
++++ b/physx/source/physxextensions/src/serialization/Xml/SnXmlVisitorReader.h
+@@ -316,6 +316,7 @@ namespace physx { namespace Sn {
+ 
+ 					case PxGeometryType::eGEOMETRY_COUNT:
+ 					case PxGeometryType::eINVALID:
++					default:
+ 						PX_ASSERT(0);			
+ 					}		
+ 					visitor.mAllocator.getAllocator().deallocate(geometry);
+diff --git a/physx/source/physxextensions/src/tet/ExtDelaunayBoundaryInserter.cpp b/physx/source/physxextensions/src/tet/ExtDelaunayBoundaryInserter.cpp
+index 155bf06..520a6ca 100644
+--- a/physx/source/physxextensions/src/tet/ExtDelaunayBoundaryInserter.cpp
++++ b/physx/source/physxextensions/src/tet/ExtDelaunayBoundaryInserter.cpp
+@@ -1095,17 +1095,17 @@ namespace Ext
+ 		fprintf(fp, "# Tetrahedral mesh generated using\n\n");
+ 
+ 
+-		fprintf(fp, "# %d vertices\n", tetPoints.size());
++		fprintf(fp, "# %u vertices\n", tetPoints.size());
+ 		for (PxU32 i = 0; i < tetPoints.size(); ++i)
+ 		{
+ 			fprintf(fp, "v %f %f %f\n", PxF64(tetPoints[i].x), PxF64(tetPoints[i].y), PxF64(tetPoints[i].z));
+ 		}
+ 
+ 		fprintf(fp, "\n");
+-		fprintf(fp, "# %d tetrahedra\n", (tets.size() / 4));
++		fprintf(fp, "# %u tetrahedra\n", (tets.size() / 4));
+ 		for (PxU32 i = 0; i < tets.size(); i += 4)
+ 		{
+-			fprintf(fp, "t %d %d %d %d\n", tets[i], tets[i + 1], tets[i + 2], tets[i + 3]);
++			fprintf(fp, "t %u %u %u %u\n", tets[i], tets[i + 1], tets[i + 2], tets[i + 3]);
+ 		}
+ 
+ 		fclose(fp);
+@@ -1119,7 +1119,7 @@ namespace Ext
+ 		fp = fopen(path, "w+");
+ 		fprintf(fp, "OFF\n");
+ 
+-		fprintf(fp, "%d %d 0\n", vertices.size() / 3, tris.size() / 3);
++		fprintf(fp, "%u %u 0\n", vertices.size() / 3, tris.size() / 3);
+ 		for (PxU32 i = 0; i < vertices.size(); i += 3)
+ 		{
+ 			fprintf(fp, "%f %f %f\n", PxF64(vertices[i]), PxF64(vertices[i + 1]), PxF64(vertices[i + 2]));
+diff --git a/physx/source/physxextensions/src/tet/ExtTetSplitting.cpp b/physx/source/physxextensions/src/tet/ExtTetSplitting.cpp
+index 44f746b..dce77ca 100644
+--- a/physx/source/physxextensions/src/tet/ExtTetSplitting.cpp
++++ b/physx/source/physxextensions/src/tet/ExtTetSplitting.cpp
+@@ -207,6 +207,8 @@ namespace Ext
+ 			return Edge(tet[1], tet[3]);
+ 		case CD:
+ 			return Edge(tet[2], tet[3]);
++		default:
++			break;
+ 		}
+ 		return Edge(-1, -1);
+ 	}
+@@ -227,6 +229,8 @@ namespace Ext
+ 			return B;
+ 		case CD:
+ 			return C;
++		default:
++			break;
+ 		}
+ 		return None;
+ 	}
+@@ -247,6 +251,8 @@ namespace Ext
+ 			return D;
+ 		case CD:
+ 			return D;
++		default:
++			break;
+ 		}
+ 		return None;
+ 	}
+@@ -299,6 +305,8 @@ namespace Ext
+ 				++cornerAccessCounter[2];
+ 				++cornerAccessCounter[3];
+ 				break;
++			default:
++				break;
+ 			}
+ 		}
+ 	}
+@@ -765,6 +773,8 @@ namespace Ext
+ 				}
+ 				break;
+ 			}
++			default:
++				break;
+ 			}
+ 		}
+ 	}
+diff --git a/physx/source/physxextensions/src/tet/ExtVoxelTetrahedralizer.cpp b/physx/source/physxextensions/src/tet/ExtVoxelTetrahedralizer.cpp
+index aecd2d6..2770666 100644
+--- a/physx/source/physxextensions/src/tet/ExtVoxelTetrahedralizer.cpp
++++ b/physx/source/physxextensions/src/tet/ExtVoxelTetrahedralizer.cpp
+@@ -293,6 +293,7 @@ namespace physx
+ 						case 3: faceBounds.minimum.y = faceBounds.maximum.y - eps; break;
+ 						case 4: faceBounds.maximum.z = faceBounds.minimum.z + eps; break;
+ 						case 5: faceBounds.minimum.z = faceBounds.maximum.z - eps; break;
++						default:	break;
+ 					}
+ 					bvh.query(faceBounds, queryTris);
+ 
+diff --git a/physx/source/physxvehicle/src/PxVehicleUpdate.cpp b/physx/source/physxvehicle/src/PxVehicleUpdate.cpp
+index ac72a8c..76692db 100644
+--- a/physx/source/physxvehicle/src/PxVehicleUpdate.cpp
++++ b/physx/source/physxvehicle/src/PxVehicleUpdate.cpp
+@@ -1245,6 +1245,7 @@ PX_FORCE_INLINE void computeDiffTorqueRatios
+ 		case PxVehicleDifferential4WData::eDIFF_TYPE_OPEN_FRONTWD:
+ 		case PxVehicleDifferential4WData::eDIFF_TYPE_OPEN_REARWD:
+ 		case PxVehicleDifferential4WData::eMAX_NB_DIFF_TYPES:
++		default:
+ 			break;
+ 		}
+ 	}
+@@ -1376,6 +1377,7 @@ PX_FORCE_INLINE void computeDiffAveWheelSpeedContributions
+ 		case PxVehicleDifferential4WData::eDIFF_TYPE_OPEN_REARWD:
+ 		case PxVehicleDifferential4WData::eDIFF_TYPE_OPEN_FRONTWD:
+ 		case PxVehicleDifferential4WData::eMAX_NB_DIFF_TYPES:
++		default:
+ 			break;
+ 		}
+ 	}
+diff --git a/physx/source/physxvehicle/src/VehicleUtilControl.cpp b/physx/source/physxvehicle/src/VehicleUtilControl.cpp
+index af6b810..632bf64 100644
+--- a/physx/source/physxvehicle/src/VehicleUtilControl.cpp
++++ b/physx/source/physxvehicle/src/VehicleUtilControl.cpp
+@@ -395,6 +395,8 @@ void PxVehicleDriveTankSmoothAnalogRawInputsAndSetAnalogInputs
+ 			}
+ 		}
+ 		break;
++	default:
++		break;
+ 	}
+ }
+ 
+@@ -460,6 +462,8 @@ void PxVehicleDriveTankSmoothDigitalRawInputsAndSetAnalogInputs
+ 			}
+ 		}
+ 		break;
++	default:
++		break;
+ 	}
+ 
+ }
+diff --git a/physx/source/physxvehicle2/src/drivetrain/VhDrivetrainFunctions.cpp b/physx/source/physxvehicle2/src/drivetrain/VhDrivetrainFunctions.cpp
+index 81ac7e4..f393a25 100644
+--- a/physx/source/physxvehicle2/src/drivetrain/VhDrivetrainFunctions.cpp
++++ b/physx/source/physxvehicle2/src/drivetrain/VhDrivetrainFunctions.cpp
+@@ -67,6 +67,8 @@ void PxVehicleDirectDriveThrottleCommandResponseUpdate
+ 	case PxVehicleDirectDriveTransmissionCommandState::eFORWARD:
+ 		gearMultiplier = 1.0f;
+ 		break;
++	default:
++		break;
+ 	}
+ 	throttleResponse = gearMultiplier * PxVehicleNonLinearResponseCompute(throttle, longitudinalSpeed, wheelId, responseParams);
+ }
+diff --git a/physx/source/pvd/src/PxProfileEventSerialization.h b/physx/source/pvd/src/PxProfileEventSerialization.h
+index 234d6c5..70242ff 100644
+--- a/physx/source/pvd/src/PxProfileEventSerialization.h
++++ b/physx/source/pvd/src/PxProfileEventSerialization.h
+@@ -86,6 +86,8 @@ namespace physx { namespace profile {
+ 					break;
+ 			case EventStreamCompressionFlags::U64:
+ 				writtenSize = streamify(nm, inType);
++				break;		
++			default:
+ 				break;
+ 			}
+ 			return writtenSize;
+@@ -106,6 +108,8 @@ namespace physx { namespace profile {
+ 			case EventStreamCompressionFlags::U64:
+ 				writtenSize = streamify(nm, inType);
+ 				break;
++			default:
++				break;
+ 			}
+ 			return writtenSize;
+ 		}
+@@ -221,6 +225,8 @@ namespace physx { namespace profile {
+ 			case EventStreamCompressionFlags::U64:
+ 				streamify( nm, inType );
+ 				break;
++			default:
++				break;
+ 			}
+ 			return 0;
+ 		}
+@@ -247,6 +253,8 @@ namespace physx { namespace profile {
+ 			case EventStreamCompressionFlags::U64:
+ 				streamify( nm, inType );
+ 				break;
++			default:	
++				break;
+ 			}
+ 			return 0;
+ 		}
+diff --git a/physx/source/pvd/src/PxProfileEvents.h b/physx/source/pvd/src/PxProfileEvents.h
+index 0131b12..de19ec7 100644
+--- a/physx/source/pvd/src/PxProfileEvents.h
++++ b/physx/source/pvd/src/PxProfileEvents.h
+@@ -130,6 +130,8 @@ namespace physx { namespace profile {
+ 				return EventStreamCompressionFlags::U32;
+ 		case EventStreamCompressionFlags::U64:
+ 			break;
++		default:
++			break;
+ 		}
+ 		return EventStreamCompressionFlags::U64;
+ 	}
+@@ -156,6 +158,8 @@ namespace physx { namespace profile {
+ 		case EventStreamCompressionFlags::U32:
+ 		case EventStreamCompressionFlags::U64:
+ 			break;
++		default:
++			break;
+ 		}
+ 		return EventStreamCompressionFlags::U32;
+ 	}
+@@ -285,6 +289,8 @@ namespace physx { namespace profile {
+ 			case EventStreamCompressionFlags::U64:
+ 				size = 8;
+ 				break;
++			default:
++				break;
+ 			}
+ 			return size;
+ 		}
+@@ -418,6 +424,8 @@ namespace physx { namespace profile {
+ 			case EventStreamCompressionFlags::U64:
+ 				eventSize += 8;
+ 				break;
++			default:
++				break;
+ 			}
+ 
+ 			// context information
+@@ -437,6 +445,8 @@ namespace physx { namespace profile {
+ 			case EventStreamCompressionFlags::U64:
+ 				eventSize += 8;
+ 				break;
++			default:
++				break;
+ 			}
+ 
+ 			return eventSize;
+@@ -541,6 +551,8 @@ namespace physx { namespace profile {
+ 			case EventStreamCompressionFlags::U64:
+ 				eventSize += 8;
+ 				break;
++			default:
++				break;
+ 			}
+ 
+ 			// context information						
+@@ -558,6 +570,8 @@ namespace physx { namespace profile {
+ 			case EventStreamCompressionFlags::U64:
+ 				eventSize += 8;
+ 				break;
++			default:
++				break;
+ 			}
+ 
+ 			eventSize += 4;  // 		uint32_t mThreadId;
+@@ -689,6 +703,7 @@ namespace physx { namespace profile {
+ 		//obsolete, placeholder to skip data from PhysX SDKs < 3.4
+ 		case EventTypes::CUDAProfileBuffer:		return inOperator( inData.toType( Type2Type<CUDAProfileBuffer>() ) );
+ 		case EventTypes::Unknown:				break;
++		default:					break;
+ 		}
+ 		uint8_t type = static_cast<uint8_t>( inEventType );
+ 		return inOperator( type );
+diff --git a/physx/source/pvd/src/PxProfileMemoryEvents.h b/physx/source/pvd/src/PxProfileMemoryEvents.h
+index aa88a5e..f558cdd 100644
+--- a/physx/source/pvd/src/PxProfileMemoryEvents.h
++++ b/physx/source/pvd/src/PxProfileMemoryEvents.h
+@@ -395,6 +395,7 @@ namespace physx { namespace profile {
+ 		case MemoryEventTypes::DeallocationEvent:		return inOperator( inData.toType( Type2Type<DeallocationEvent>() ) );
+ 		case MemoryEventTypes::FullAllocationEvent:		return inOperator( inData.toType( Type2Type<FullAllocationEvent>() ) );
+ 		case MemoryEventTypes::Unknown:					return inOperator( static_cast<uint8_t>( inEventType ) );
++		default:						break;
+ 		}
+ 		return TRetVal();
+ 	}
+diff --git a/physx/source/pvd/src/PxPvdMarshalling.h b/physx/source/pvd/src/PxPvdMarshalling.h
+index c533553..7a864f6 100644
+--- a/physx/source/pvd/src/PxPvdMarshalling.h
++++ b/physx/source/pvd/src/PxPvdMarshalling.h
+@@ -181,6 +181,8 @@ static inline bool getMarshalOperators(TSingleMarshaller& single, TBlockMarshall
+ 		return getMarshalOperators<smtype, PvdF32>(single, block);
+ 	case PvdBaseType::PvdF64:
+ 		return getMarshalOperators<smtype, PvdF64>(single, block);
++	default:
++		return false;
+ 	}
+ 	return false;
+ }
+@@ -210,6 +212,8 @@ static inline bool getMarshalOperators(TSingleMarshaller& single, TBlockMarshall
+ 		return getMarshalOperators<PvdF32>(single, block, lgtypeId);
+ 	case PvdBaseType::PvdF64:
+ 		return getMarshalOperators<PvdF64>(single, block, lgtypeId);
++	default:
++		return false;
+ 	}
+ 	return false;
+ }
+diff --git a/physx/source/simulationcontroller/src/ScNPhaseCore.cpp b/physx/source/simulationcontroller/src/ScNPhaseCore.cpp
+index 030f296..00b2566 100644
+--- a/physx/source/simulationcontroller/src/ScNPhaseCore.cpp
++++ b/physx/source/simulationcontroller/src/ScNPhaseCore.cpp
+@@ -1170,6 +1170,7 @@ ElementSimInteraction* NPhaseCore::refilterInteraction(ElementSimInteraction* pa
+ 			case InteractionType::eARTICULATION:
+ 			case InteractionType::eTRACKED_IN_SCENE_COUNT:
+ 			case InteractionType::eINVALID:
++			default:
+ 			PX_ASSERT(0);
+ 			break;
+ 	}
+@@ -1292,6 +1293,7 @@ ElementSimInteraction* NPhaseCore::convert(ElementSimInteraction* pair, Interact
+ 		case InteractionType::eCONSTRAINTSHADER:
+ 		case InteractionType::eARTICULATION:
+ 		case InteractionType::eTRACKED_IN_SCENE_COUNT:
++		default:
+ 			PX_ASSERT(0);
+ 			break;
+ 	};
+@@ -1941,6 +1943,7 @@ void NPhaseCore::releaseElementPair(ElementSimInteraction* pair, PxU32 flags, El
+ 		case InteractionType::eARTICULATION:
+ 		case InteractionType::eTRACKED_IN_SCENE_COUNT:
+ 		case InteractionType::eINVALID:
++		default:
+ 			PX_ASSERT(0);
+ 			return;
+ 	}
+diff --git a/physx/source/simulationcontroller/src/ScScene.cpp b/physx/source/simulationcontroller/src/ScScene.cpp
+index e499d68..57421d4 100644
+--- a/physx/source/simulationcontroller/src/ScScene.cpp
++++ b/physx/source/simulationcontroller/src/ScScene.cpp
+@@ -3757,6 +3757,7 @@ bool Sc::activateInteraction(Sc::Interaction* interaction, void* data)
+ 
+ 		case InteractionType::eTRACKED_IN_SCENE_COUNT:
+ 		case InteractionType::eINVALID:
++		default:
+ 		PX_ASSERT(0);
+ 		break;
+ 	}
+@@ -3786,6 +3787,7 @@ static bool deactivateInteraction(Sc::Interaction* interaction, const Sc::Intera
+ 
+ 		case InteractionType::eTRACKED_IN_SCENE_COUNT:
+ 		case InteractionType::eINVALID:
++		default:
+ 		PX_ASSERT(0);
+ 		break;
+ 	}
+diff --git a/physx/source/simulationcontroller/src/ScShapeCore.cpp b/physx/source/simulationcontroller/src/ScShapeCore.cpp
+index 79f930a..495a32f 100644
+--- a/physx/source/simulationcontroller/src/ScShapeCore.cpp
++++ b/physx/source/simulationcontroller/src/ScShapeCore.cpp
+@@ -126,6 +126,7 @@ void GeometryUnion::set(const PxGeometry& g)
+ 
+ 		case PxGeometryType::eGEOMETRY_COUNT:
+ 		case PxGeometryType::eINVALID:
++		default:
+ 			PX_ALWAYS_ASSERT_MESSAGE("geometry type not handled");
+ 		break;
+ 	}
+@@ -388,6 +389,7 @@ void ShapeCore::resolveReferences(PxDeserializationContext& context)
+ 	case PxGeometryType::ePARTICLESYSTEM:
+ 	case PxGeometryType::eHAIRSYSTEM:
+ 	case PxGeometryType::eCUSTOM:
++	default:
+ 	{
+ 		// implement
+ 		PX_ASSERT(0);
