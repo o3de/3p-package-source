@@ -31,7 +31,8 @@
         "squish-ccr-deb557d-rev1-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/squish-ccr --platform-name Mac-arm64 --clean",
         "SQLite-3.37.2-rev2-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/sqlite --platform-name Mac-arm64 --clean",
         "tiff-4.2.0.15-rev3-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name Mac-arm64 --clean",
-        "zlib-1.3.1-rev2-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Mac-arm64 --clean"
+        "zlib-1.3.1-rev3-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Mac-arm64 --clean",
+        "zstd-1.35-rev1-mac-arm64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zstd --platform-name Mac-arm64 --clean"
     },
     "build_from_folder": {
         "assimp-5.4.3-rev4-mac-arm64": "package-system/assimp/temp/assimp-mac-arm64",
@@ -61,6 +62,7 @@
         "squish-ccr-deb557d-rev1-mac-arm64": "package-system/squish-ccr/temp/squish-ccr-mac-arm64",
         "SQLite-3.37.2-rev2-mac-arm64": "package-system/sqlite/temp/SQLite-mac-arm64",
         "tiff-4.2.0.15-rev3-mac-arm64": "package-system/tiff/temp/tiff-mac-arm64",
-        "zlib-1.3.1-rev2-mac-arm64": "package-system/zlib/temp/zlib-mac-arm64"
+        "zlib-1.3.1-rev3-mac-arm64": "package-system/zlib/temp/zlib-mac-arm64",
+        "zstd-1.35-rev1-mac-arm64": "package-system/zstd/temp/zstd-mac-arm64"
     }
 }
