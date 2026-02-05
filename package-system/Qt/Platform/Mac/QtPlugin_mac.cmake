@@ -41,6 +41,3 @@ ly_add_target_files(TARGETS 3rdParty::Qt::Widgets::Plugins
     FILES ${QT_PATH}/plugins/styles/libqmacstyle.dylib
     OUTPUT_SUBDIRECTORY styles
 )
-
-add_dependencies(Qt5::MacExtras Qt5::PrintSupport)
-add_dependencies(Qt5::MacExtras Qt5::DBus)
