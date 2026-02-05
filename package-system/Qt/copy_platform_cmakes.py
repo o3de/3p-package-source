@@ -13,6 +13,7 @@ import platform
 import shutil
 import sys
 
+print("Running copy_platform_cmakes.py")
 
 # There are some additional cmake files we need to copy per-platform to the install directory
 platform_system = platform.system().lower()
@@ -41,8 +42,7 @@ for file in files:
 # Install additional copyright notices to the package/qt root
 package_qt_root = os.path.join(package_root, "qt")
 additional_copyright_notices = ["QT-NOTICE.TXT",
-                                "LICENSE",
-                                os.path.join("temp","src", "qtfeedback", "LGPL_EXCEPTION.txt")]
+                                "LICENSE"]
 for file in additional_copyright_notices:
     if not os.path.isfile(file):
         print(f"Error: Cannot locate copyright notice file: {file}")
