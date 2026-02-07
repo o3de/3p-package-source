@@ -1,0 +1,25 @@
+{
+    "git_url": "https://github.com/NVIDIAGameWorks/PhysX.git",
+    "git_tag": "4.1",
+    "git_commit": "a2c0428acab643e60618c681b501e86f7fd558cc",
+    "package_name": "PhysX",
+    "package_url": "https://github.com/NVIDIAGameWorks/PhysX",
+    "package_license": "BSD-3-Clause",
+    "package_license_file": "PhysX/LICENSE.md",
+    "cmake_find_target": "FindPhysX4.cmake",
+    "Platforms": {
+        "Darwin": {
+            "Mac-arm64": {
+                "cmake_find_source": "FindPhysX.cmake.mac",
+                "patch_file": "mac_arm64.patch",
+                "package_version": "4.1.2-rev9",
+                "custom_build_cmd": [
+                    "./build-darwin-arm64.sh"
+                ],
+                 "custom_install_cmd": [
+                    "./install-darwin-arm64.sh"
+                ]
+            }
+        }
+    }
+}
