@@ -1,0 +1,212 @@
+diff --git a/NvCloth/compiler/cmake/ios/CMakeLists.txt b/NvCloth/compiler/cmake/ios/CMakeLists.txt
+index bf36e95..938a5bf 100644
+--- a/NvCloth/compiler/cmake/ios/CMakeLists.txt
++++ b/NvCloth/compiler/cmake/ios/CMakeLists.txt
+@@ -28,7 +28,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -g")
+ SET(PHYSX_IOS_ENABLE_NVTX 0)
+ 
+ # Disable cuda and dx for all projects on ios
+-SET(PHYSX_IOS_COMPILE_DEFS DISABLE_COMPUTE_PHYSX)
++SET(PHYSX_IOS_COMPILE_DEFS DISABLE_COMPUTE_PHYSX;__ARM_NEON__)
+ SET(PHYSX_IOS_DEBUG_COMPILE_DEFS _DEBUG;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=${PHYSX_IOS_ENABLE_NVTX};PX_SUPPORT_PVD=0)
+ SET(PHYSX_IOS_CHECKED_COMPILE_DEFS NDEBUG;PX_CHECKED=1;PX_NVTX=${PHYSX_IOS_ENABLE_NVTX};PX_SUPPORT_PVD=0)
+ SET(PHYSX_IOS_PROFILE_COMPILE_DEFS NDEBUG;PX_PROFILE=1;PX_NVTX=${PHYSX_IOS_ENABLE_NVTX};PX_SUPPORT_PVD=0)
+diff --git a/NvCloth/compiler/cmake/ios/NvCloth.cmake b/NvCloth/compiler/cmake/ios/NvCloth.cmake
+index 2da5516..c6722e3 100644
+--- a/NvCloth/compiler/cmake/ios/NvCloth.cmake
++++ b/NvCloth/compiler/cmake/ios/NvCloth.cmake
+@@ -15,15 +15,24 @@ SET(NVCLOTH_PLATFORM_INCLUDES
+ )
+ 
+ SET(NVCLOTH_PLATFORM_SOURCE_FILES
+-	#${PROJECT_ROOT_DIR}/src/neon/NeonCollision.cpp
+-	#${PROJECT_ROOT_DIR}/src/neon/NeonSelfCollision.cpp
+-	#${PROJECT_ROOT_DIR}/src/neon/NeonSolverKernel.cpp
+-	#${PROJECT_ROOT_DIR}/src/neon/SwCollisionHelpers.h
++	${PROJECT_ROOT_DIR}/src/ps/unix/PsUnixAtomic.cpp
++	${PROJECT_ROOT_DIR}/src/ps/unix/PsUnixFPU.h
++
++	${PROJECT_ROOT_DIR}/src/neon/NeonCollision.cpp
++	${PROJECT_ROOT_DIR}/src/neon/NeonSelfCollision.cpp
++	${PROJECT_ROOT_DIR}/src/neon/NeonSolverKernel.cpp
++	${PROJECT_ROOT_DIR}/src/neon/SwCollisionHelpers.h
+ )
+ 
++IF(PX_STATIC_LIBRARIES)
++	SET(NVCLOTH_API_COMPILE_DEFS NV_CLOTH_IMPORT=;PX_CALL_CONV=;)
++ELSE()
++	SET(NVCLOTH_API_COMPILE_DEFS NV_CLOTH_IMPORT=PX_DLL_EXPORT;)
++ENDIF()
++
+ # Use generator expressions to set config specific preprocessor definitions
+ SET(NVCLOTH_COMPILE_DEFS
+-	NV_CLOTH_IMPORT=PX_DLL_EXPORT
++	${NVCLOTH_API_COMPILE_DEFS}
+ 	NV_CLOTH_ENABLE_DX11=0
+ 	NV_CLOTH_ENABLE_CUDA=0
+ 
+@@ -36,7 +45,11 @@ SET(NVCLOTH_COMPILE_DEFS
+ 	$<$<CONFIG:release>:${PHYSX_IOS_RELEASE_COMPILE_DEFS};>
+ )
+ 
+-SET(NVCLOTH_LIBTYPE STATIC)
++IF(PX_STATIC_LIBRARIES)
++	SET(NVCLOTH_LIBTYPE STATIC)
++ELSE()
++	SET(NVCLOTH_LIBTYPE SHARED)
++ENDIF()
+ 
+ # include common PhysX settings
+ INCLUDE(../common/NvCloth.cmake)
+diff --git a/NvCloth/compiler/cmake/mac/CMakeLists.txt b/NvCloth/compiler/cmake/mac/CMakeLists.txt
+index 903e545..85a9729 100644
+--- a/NvCloth/compiler/cmake/mac/CMakeLists.txt
++++ b/NvCloth/compiler/cmake/mac/CMakeLists.txt
+@@ -16,7 +16,7 @@ ENDIF()
+ IF (DEFINED PX_32BIT)
+ SET(CMAKE_CXX_FLAGS "-arch i386 -msse2 -std=c++11 -fno-rtti -fno-exceptions -ffast-math -ffunction-sections -fdata-sections -Werror -ferror-limit=0 -Wall -Wextra -fstrict-aliasing -Wstrict-aliasing=2 -Weverything -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-padded -Wno-weak-vtables -Wno-cast-align -Wno-conversion -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-shift-sign-overflow -Wno-covered-switch-default -Wno-exit-time-destructors -Wno-global-constructors -Wno-missing-prototypes -Wno-unreachable-code -Wno-unused-macros -Wno-unused-member-function -Wno-used-but-marked-unused -Wno-weak-template-vtables -Wno-deprecated -Wno-non-virtual-dtor -Wno-invalid-noreturn -Wno-return-type-c-linkage -Wno-reserved-id-macro -Wno-c++98-compat-pedantic -Wno-unused-local-typedef -Wno-old-style-cast -Wno-newline-eof -Wno-unused-private-field -Wno-undefined-reinterpret-cast -Wno-invalid-offsetof -gdwarf-2 -Wno-unused-value -Wno-format-nonliteral -Wno-undef -Wno-double-promotion")
+ ELSEIF()
+-SET(CMAKE_CXX_FLAGS "-arch x86_64 -msse2 -std=c++11 -fno-rtti -fno-exceptions -ffast-math -ffunction-sections -fdata-sections -Werror -ferror-limit=0 -Wall -Wextra -fstrict-aliasing -Wstrict-aliasing=2 -Weverything -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-padded -Wno-weak-vtables -Wno-cast-align -Wno-conversion -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-shift-sign-overflow -Wno-covered-switch-default -Wno-exit-time-destructors -Wno-global-constructors -Wno-missing-prototypes -Wno-unreachable-code -Wno-unused-macros -Wno-unused-member-function -Wno-used-but-marked-unused -Wno-weak-template-vtables -Wno-deprecated -Wno-non-virtual-dtor -Wno-invalid-noreturn -Wno-return-type-c-linkage -Wno-reserved-id-macro -Wno-c++98-compat-pedantic -Wno-unused-local-typedef -Wno-old-style-cast -Wno-newline-eof -Wno-unused-private-field -Wno-undefined-reinterpret-cast -Wno-invalid-offsetof -gdwarf-2 -Wno-unused-value -Wno-format-nonliteral  -Wno-undef -Wno-double-promotion")
++SET(CMAKE_CXX_FLAGS "-arch arm64 -std=c++11 -fno-rtti -fno-exceptions -ffast-math -ffunction-sections -fdata-sections -Werror -ferror-limit=0 -Wall -Wextra -fstrict-aliasing -Wstrict-aliasing=2 -Weverything -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-padded -Wno-weak-vtables -Wno-cast-align -Wno-conversion -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-shift-sign-overflow -Wno-covered-switch-default -Wno-exit-time-destructors -Wno-global-constructors -Wno-missing-prototypes -Wno-unreachable-code -Wno-unused-macros -Wno-unused-member-function -Wno-used-but-marked-unused -Wno-weak-template-vtables -Wno-deprecated -Wno-non-virtual-dtor -Wno-invalid-noreturn -Wno-return-type-c-linkage -Wno-reserved-id-macro -Wno-c++98-compat-pedantic -Wno-unused-local-typedef -Wno-old-style-cast -Wno-newline-eof -Wno-unused-private-field -Wno-undefined-reinterpret-cast -Wno-invalid-offsetof -gdwarf-2 -Wno-unused-value -Wno-format-nonliteral  -Wno-undef -Wno-double-promotion")
+ ENDIF()
+ 
+ SET(CMAKE_SHARED_LINKER_FLAGS "")
+@@ -36,7 +36,7 @@ SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
+ SET(PHYSX_MAC_ENABLE_NVTX 0)
+ 
+ # Disable cuda and dx for all projects on mac
+-SET(PHYSX_MAC_COMPILE_DEFS DISABLE_COMPUTE_PHYSX)
++SET(PHYSX_MAC_COMPILE_DEFS DISABLE_COMPUTE_PHYSX;__ARM_NEON__)
+ SET(PHYSX_MAC_DEBUG_COMPILE_DEFS _DEBUG;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=${PHYSX_MAC_ENABLE_NVTX};PX_SUPPORT_PVD=0)
+ SET(PHYSX_MAC_CHECKED_COMPILE_DEFS NDEBUG;PX_CHECKED=1;PX_NVTX=${PHYSX_MAC_ENABLE_NVTX};PX_SUPPORT_PVD=0)
+ SET(PHYSX_MAC_PROFILE_COMPILE_DEFS NDEBUG;PX_PROFILE=1;PX_NVTX=${PHYSX_MAC_ENABLE_NVTX};PX_SUPPORT_PVD=0)
+diff --git a/NvCloth/compiler/cmake/mac/NvCloth.cmake b/NvCloth/compiler/cmake/mac/NvCloth.cmake
+index 086b508..aff936f 100644
+--- a/NvCloth/compiler/cmake/mac/NvCloth.cmake
++++ b/NvCloth/compiler/cmake/mac/NvCloth.cmake
+@@ -17,15 +17,21 @@ SET(NVCLOTH_PLATFORM_INCLUDES
+ SET(NVCLOTH_PLATFORM_SOURCE_FILES
+ 	${PROJECT_ROOT_DIR}/src/ps/unix/PsUnixAtomic.cpp
+ 	${PROJECT_ROOT_DIR}/src/ps/unix/PsUnixFPU.h
+-	#${PROJECT_ROOT_DIR}/src/neon/NeonCollision.cpp
+-	#${PROJECT_ROOT_DIR}/src/neon/NeonSelfCollision.cpp
+-	#${PROJECT_ROOT_DIR}/src/neon/NeonSolverKernel.cpp
+-	#${PROJECT_ROOT_DIR}/src/neon/SwCollisionHelpers.h
++	${PROJECT_ROOT_DIR}/src/neon/NeonCollision.cpp
++	${PROJECT_ROOT_DIR}/src/neon/NeonSelfCollision.cpp
++	${PROJECT_ROOT_DIR}/src/neon/NeonSolverKernel.cpp
++	${PROJECT_ROOT_DIR}/src/neon/SwCollisionHelpers.h
+ )
+ 
++IF(PX_STATIC_LIBRARIES)
++	SET(NVCLOTH_API_COMPILE_DEFS NV_CLOTH_IMPORT=;PX_CALL_CONV=;)
++ELSE()
++	SET(NVCLOTH_API_COMPILE_DEFS NV_CLOTH_IMPORT=PX_DLL_EXPORT;)
++ENDIF()
++
+ # Use generator expressions to set config specific preprocessor definitions
+ SET(NVCLOTH_COMPILE_DEFS
+-	NV_CLOTH_IMPORT=PX_DLL_EXPORT
++	${NVCLOTH_API_COMPILE_DEFS}
+ 	NV_CLOTH_ENABLE_DX11=0
+ 	NV_CLOTH_ENABLE_CUDA=0
+ 
+@@ -38,7 +44,11 @@ SET(NVCLOTH_COMPILE_DEFS
+ 	$<$<CONFIG:release>:${PHYSX_MAC_RELEASE_COMPILE_DEFS};>
+ )
+ 
+-SET(NVCLOTH_LIBTYPE SHARED)
++IF(PX_STATIC_LIBRARIES)
++	SET(NVCLOTH_LIBTYPE STATIC)
++ELSE()
++	SET(NVCLOTH_LIBTYPE SHARED)
++ENDIF()
+ 
+ # include common PhysX settings
+ INCLUDE(../common/NvCloth.cmake)
+diff --git a/NvCloth/samples/compiler/cmake/SampleBase.cmake b/NvCloth/samples/compiler/cmake/SampleBase.cmake
+index 98eb5a6..a1fdb67 100644
+--- a/NvCloth/samples/compiler/cmake/SampleBase.cmake
++++ b/NvCloth/samples/compiler/cmake/SampleBase.cmake
+@@ -20,7 +20,7 @@ SET(SB_TASK_SOURCE_DIR ${SB_SOURCE_DIR}/task)
+ FIND_PACKAGE(DXUT "9.15.2016.1" REQUIRED)
+ FIND_PACKAGE(DirectXTex "10.5.2016.2" REQUIRED)
+ FIND_PACKAGE(imgui "1.49" REQUIRED)
+-#FIND_PACKAGE(Assimp "4.1.0" REQUIRED)
++FIND_PACKAGE(Assimp "4.1.0" REQUIRED)
+ #FIND_PACKAGE(tinyObjLoader $ENV{PM_tinyObjLoader_VERSION} REQUIRED)
+ #FIND_PACKAGE(tclap $ENV{PM_tclap_VERSION} REQUIRED)
+ 
+diff --git a/NvCloth/src/SwSolver.cpp b/NvCloth/src/SwSolver.cpp
+index 356a03e..96dc1e2 100644
+--- a/NvCloth/src/SwSolver.cpp
++++ b/NvCloth/src/SwSolver.cpp
+@@ -301,11 +301,16 @@ void cloth::SwSolver::SimulatedCloth::Simulate()
+ 	SwKernelAllocator allocator(mScratchMemory, uint32_t(mScratchMemorySize));
+ 
+ 	// construct kernel functor and execute
+-#if NV_ANDROID
++#ifdef __ARM_NEON__
+ 	if (!neonSolverKernel(*mCloth, data, allocator, factory))
+ 	{
+-		//NV_CLOTH_LOG_WARNING("No NEON CPU support detected. Falling back to scalar types.");
+-		SwSolverKernel<Scalar4f>(*mCloth, data, allocator, factory)();
++		#if NV_SIMD_SCALAR
++			//NV_CLOTH_LOG_WARNING("No NEON CPU support detected. Falling back to scalar types.");
++			SwSolverKernel<Scalar4f>(*mCloth, data, allocator, factory)();
++		#else
++			NV_CLOTH_LOG_ERROR("Error creating NEON solver kernel.");
++			NV_CLOTH_ASSERT(0);
++		#endif
+ 	}
+ #else
+ 	SwSolverKernel<Simd4fType>(*mCloth, data, allocator, factory)();
+diff --git a/NvCloth/src/neon/NeonCollision.cpp b/NvCloth/src/neon/NeonCollision.cpp
+index fe45778..16269ac 100644
+--- a/NvCloth/src/neon/NeonCollision.cpp
++++ b/NvCloth/src/neon/NeonCollision.cpp
+@@ -31,4 +31,4 @@
+ #error This file needs to be compiled with NEON support!
+ #endif
+ 
+-#include "SwCollision.cpp"
++// SwCollision.cpp is compiled already using Neon implementation when Neon macros are found
+diff --git a/NvCloth/src/neon/NeonSelfCollision.cpp b/NvCloth/src/neon/NeonSelfCollision.cpp
+index 8faa407..3e7e96d 100644
+--- a/NvCloth/src/neon/NeonSelfCollision.cpp
++++ b/NvCloth/src/neon/NeonSelfCollision.cpp
+@@ -31,4 +31,4 @@
+ #error This file needs to be compiled with NEON support!
+ #endif
+ 
+-#include "SwSelfCollision.cpp"
++// SwSelfCollision.cpp is compiled already using Neon implementation when Neon macros are found
+diff --git a/NvCloth/src/neon/NeonSolverKernel.cpp b/NvCloth/src/neon/NeonSolverKernel.cpp
+index 6eb26cf..5e8dbd0 100644
+--- a/NvCloth/src/neon/NeonSolverKernel.cpp
++++ b/NvCloth/src/neon/NeonSolverKernel.cpp
+@@ -31,14 +31,23 @@
+ #error This file needs to be compiled with NEON support!
+ #endif
+ 
+-#include "SwSolverKernel.cpp"
++// SwSolverKernel.cpp is compiled already using Neon implementation when Neon macros are found
++#include "SwSolverKernel.h"
+ 
++// On Android armeabi-v7a (32-bits) NEON support is not guaranteed, so there must be an additional runtime check.
++#if NV_ANDROID && defined __arm__
+ #include "../ps/android/cpu-features.h"
+ 
+ namespace
+ {
+ 	const bool sNeonSupport = ANDROID_CPU_ARM_FEATURE_NEON & android_getCpuFeatures();
+ }
++#else
++namespace
++{
++	const bool sNeonSupport = true;
++}
++#endif
+ 
+ namespace nv
+ {
