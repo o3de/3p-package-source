@@ -39,7 +39,7 @@ def main():
             'windows': 'windows',
             'android': 'android',
             'mac': 'mac',
-            'mac-arm64': 'mac',
+            'mac-arm64': 'mac-arm64',
             'ios': 'ios',
             'linux': 'linux',
             'linux-aarch64': 'linux' }
