@@ -12,28 +12,45 @@ if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
-set(_PACKAGE_DIR ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx)
+set(_PACKAGE_DIR ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/bin/static)
+set(_PACKAGE_DIR_SHARED ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/bin/shared)
 
 set(${MY_NAME}_INCLUDE_DIR
-    ${_PACKAGE_DIR}/include
-    ${_PACKAGE_DIR}/include/foundation
-    ${_PACKAGE_DIR}/include/geometry
+    ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/include
+    ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/include/foundation
+    ${CMAKE_CURRENT_LIST_DIR}/PhysX/physx/include/geometry
 )
 
 set(${MY_NAME}_COMPILE_DEFINITIONS PX_PHYSX_STATIC_LIB)
 
-set(PHYSX_PROFILE_CONFIG "profile")
+# LY_PHYSX_PROFILE_USE_CHECKED_LIBS allows to override what PhysX configuration to use on O3DE profile.
+set(LY_PHYSX_PROFILE_USE_CHECKED_LIBS OFF CACHE BOOL "When ON it uses PhysX SDK checked libraries on O3DE profile configuration")
+if(LY_PHYSX_PROFILE_USE_CHECKED_LIBS)
+    set(PHYSX_PROFILE_CONFIG "checked")
+else()
+    set(PHYSX_PROFILE_CONFIG "profile")
+endif()
 
-set(PATH_TO_STATIC_LIBS ${_PACKAGE_DIR}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:${PHYSX_PROFILE_CONFIG}>>/lib)
-set(PATH_TO_ADDITIONAL_STATIC_LIBS ${_PACKAGE_DIR_SHARED}/$$<IF:$$<CONFIG:debug>,debug,$$<$$<CONFIG:profile>:${PHYSX_PROFILE_CONFIG}>>/lib)
+set(PATH_TO_STATIC_LIBS ${_PACKAGE_DIR}/$<IF:$<CONFIG:debug>,debug,$<$<CONFIG:profile>:${PHYSX_PROFILE_CONFIG}>>)
+set(PATH_TO_SHARED_LIBS ${_PACKAGE_DIR_SHARED}/$<IF:$<CONFIG:debug>,debug,$<$<CONFIG:profile>:${PHYSX_PROFILE_CONFIG}>>)
+set(PATH_TO_ADDITIONAL_STATIC_LIBS ${_PACKAGE_DIR_SHARED}/$<IF:$<CONFIG:debug>,debug,$<$<CONFIG:profile>:${PHYSX_PROFILE_CONFIG}>>)
 
-set(PATH_TO_IMPORT_LIBS ${PATH_TO_STATIC_LIBS})
-set(import_lib_suffix ${CMAKE_IMPORT_LIBRARY_SUFFIX})
+if(DEFINED CMAKE_IMPORT_LIBRARY_SUFFIX)
+    set(PATH_TO_IMPORT_LIBS ${PATH_TO_STATIC_LIBS})
+    set(import_lib_prefix ${CMAKE_IMPORT_LIBRARY_PREFIX})
+    set(import_lib_suffix ${CMAKE_IMPORT_LIBRARY_SUFFIX})
+else()
+    set(PATH_TO_IMPORT_LIBS ${PATH_TO_SHARED_LIBS})
+    set(import_lib_prefix ${CMAKE_SHARED_LIBRARY_PREFIX})
+    set(import_lib_suffix ${CMAKE_SHARED_LIBRARY_SUFFIX})
+endif()
 
 set(extra_static_libs
+${EXTRA_STATIC_LIBS}
 )
 
 set(extra_shared_libs
+${EXTRA_SHARED_LIBS}
 )
 
 # The order of PhysX 5.x static libraries is important for static targets. We will loop through in order and define
@@ -63,9 +80,9 @@ foreach(PHYSICS_LIB ${IMPORTED_PHYSICS_LIBS})
     # Set the import location (note: generator expressions are not supported as properties here, so each config needs to be explicit for its location)
     set_target_properties(${PHYSICS_LIB_NAME}::imported
         PROPERTIES
-            IMPORTED_LOCATION_DEBUG   ${_PACKAGE_DIR}/bin/static/debug/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
-            IMPORTED_LOCATION_PROFILE ${_PACKAGE_DIR}/bin/static/profile/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
-            IMPORTED_LOCATION_RELEASE ${_PACKAGE_DIR}/bin/static/release/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
+            IMPORTED_LOCATION_DEBUG   ${_PACKAGE_DIR}/debug/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
+            IMPORTED_LOCATION_PROFILE ${_PACKAGE_DIR}/${PHYSX_PROFILE_CONFIG}/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
+            IMPORTED_LOCATION_RELEASE ${_PACKAGE_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${PHYSICS_LIB}${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
 
     # Set the target libraries dependency on any previous lib to build the order chain
@@ -78,6 +95,18 @@ foreach(PHYSICS_LIB ${IMPORTED_PHYSICS_LIBS})
 endforeach()
 
 add_library(${MY_NAME}_STATIC_LIBS::imported INTERFACE IMPORTED GLOBAL)
+
+target_link_libraries(${MY_NAME}_STATIC_LIBS::imported INTERFACE
+    ${PREVIOUS_PHYSICS_LIB}
+    ${extra_static_libs}
+)
+
+# Add any optional shared library dependency as a runtime dependency
+if(extra_shared_libs)
+    set(${MY_NAME}_RUNTIME_DEPENDENCIES
+        ${extra_shared_libs}
+    )
+endif()
 
 add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 
