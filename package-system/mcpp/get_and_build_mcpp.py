@@ -86,7 +86,7 @@ Patch File                         : {PATCH_FILE}
 Target Pre-package Platform target : {TARGET_3PP_PACKAGE_FOLDER}
 Example command:
 
-python get_and_build_linux.sh mcpp-2.7.2_az.1-rev1-{platform_name}
+python get_and_build_linux.sh mcpp-2.7.2_az.1-rev2-{platform_name}
 """
 
 
@@ -300,7 +300,7 @@ def copy_build_artifacts(temp_folder):
             (source_path / 'src' / '.libs' / 'libmcpp.so.0.3.0', target_mcpp_root / 'lib'),
             (source_path / 'src' / '.libs' / 'mcpp', target_mcpp_root / 'lib')
         ])
-    elif platform_name == 'mac':
+    elif platform_name in ('mac', 'mac-arm64'):
         file_copy_tuples.extend([
             (source_path / 'src' / '.libs' / 'libmcpp.a', target_mcpp_root / 'lib'),
             (source_path / 'src' / '.libs' / 'libmcpp.0.3.0.dylib', target_mcpp_root / 'lib'),
