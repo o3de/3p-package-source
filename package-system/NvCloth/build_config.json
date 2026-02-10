@@ -1,0 +1,25 @@
+{
+    "git_url": "https://github.com/NVIDIAGameWorks/NvCloth.git",
+    "git_tag": "master",
+    "git_commit": "6e86b1838ae185c527744d475d34777ff69c1b8a",
+    "package_name": "NvCloth",
+    "package_url": "https://github.com/NVIDIAGameWorks/PhysX",
+    "package_license": "custom",
+    "package_license_file": "NvCloth/license.txt",
+    "cmake_find_target": "FindNvCloth.cmake",
+    "Platforms": {
+        "Darwin": {
+            "Mac-arm64": {
+                "cmake_find_source": "FindNvCloth.cmake.mac",
+                "package_version": "v1.1.6-rev1",
+                "patch_file": "nvcloth_mac_arm64.patch",
+                "custom_build_cmd": [
+                    "./build_mac_arm64.sh"
+                ],
+                 "custom_install_cmd": [
+                    "./install_mac_arm64.sh"
+                ]
+            }
+        }
+    }
+}
