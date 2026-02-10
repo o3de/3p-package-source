@@ -1,0 +1,446 @@
+diff --git a/externals/cmakemodules/GetCompilerAndPlatform.cmake b/externals/cmakemodules/GetCompilerAndPlatform.cmake
+index 3ab5cfbf..0a7bb57c 100644
+--- a/externals/cmakemodules/GetCompilerAndPlatform.cmake
++++ b/externals/cmakemodules/GetCompilerAndPlatform.cmake
+@@ -103,7 +103,7 @@ FUNCTION (GetPlatformBinName PLATFORM_BIN_NAME LIBPATH_SUFFIX)
+ 	ELSEIF(TARGET_BUILD_PLATFORM STREQUAL "uwp")
+ 		SET(RETVAL "uwp.${PX_OUTPUT_ARCH}_${LIBPATH_SUFFIX}.${COMPILER}")
+ 	ELSEIF(TARGET_BUILD_PLATFORM STREQUAL "mac")
+-		SET(RETVAL "mac.x86_${LIBPATH_SUFFIX}")
++		SET(RETVAL "mac.arm_${LIBPATH_SUFFIX}")
+ 	ELSEIF(TARGET_BUILD_PLATFORM STREQUAL "ios")
+ 		SET(RETVAL "ios.arm_${LIBPATH_SUFFIX}")
+ 	ELSEIF(TARGET_BUILD_PLATFORM STREQUAL "ps4")
+diff --git a/physx/buildtools/cmake_generate_projects.py b/physx/buildtools/cmake_generate_projects.py
+index ebd30496..bc950fad 100644
+--- a/physx/buildtools/cmake_generate_projects.py
++++ b/physx/buildtools/cmake_generate_projects.py
+@@ -316,7 +316,9 @@ class CMakePreset:
+             return outString
+         elif self.targetPlatform == 'mac64':
+             outString = outString + ' -DTARGET_BUILD_PLATFORM=mac'
+-            outString = outString + ' -DPX_OUTPUT_ARCH=x86'
++            outString = outString + ' -DPX_OUTPUT_ARCH=arm'
++            outString = outString + ' -DPX_SCALAR_MATH=ON'
++            outString = outString + ' -DPX_SCALAR_MATH=ON'
+             return outString
+         elif self.targetPlatform == 'ios64':
+             outString = outString + ' -DTARGET_BUILD_PLATFORM=ios'
+@@ -380,6 +382,8 @@ def presetProvided(pName):
+         # run the cmake script
+         #print('Cmake params:' + cmakeParams)
+         os.chdir(os.path.join(os.environ['PHYSX_ROOT_DIR'], outputDir))
++        print(cmakeExec + ' \"' +
++                  os.environ['PHYSX_ROOT_DIR'] + '/compiler/' + cmakeMasterDir + '\"' + cmakeParams)
+         os.system(cmakeExec + ' \"' +
+                   os.environ['PHYSX_ROOT_DIR'] + '/compiler/' + cmakeMasterDir + '\"' + cmakeParams)
+         os.chdir(os.environ['PHYSX_ROOT_DIR'])
+diff --git a/physx/generate_projects.sh b/physx/generate_projects.sh
+index 245f681d..e20e425b 100755
+--- a/physx/generate_projects.sh
++++ b/physx/generate_projects.sh
+@@ -11,7 +11,7 @@ export PM_PATHS="$PM_opengllinux_PATH;$PM_TARGA_PATH;$PM_CGLINUX_PATH;$PM_GLEWLI
+ 
+ 
+ cd "$( dirname "${BASH_SOURCE[0]}" )"
+-python ./buildtools/cmake_generate_projects.py $1
++python3 ./buildtools/cmake_generate_projects.py $1
+ status=$?
+ if [ "$status" -ne "0" ]; then
+ echo "Error $status"
+diff --git a/physx/samples/compiler/cmake/linux/SampleFramework.cmake b/physx/samples/compiler/cmake/linux/SampleFramework.cmake
+index e7632039..8c100ab1 100644
+--- a/physx/samples/compiler/cmake/linux/SampleFramework.cmake
++++ b/physx/samples/compiler/cmake/linux/SampleFramework.cmake
+@@ -31,6 +31,7 @@
+ 
+ find_package(OpenGL $ENV{PM_OpenGL_VERSION} CONFIG REQUIRED) # Pull in OpenGL and GLUT
+ find_package(Cg $ENV{PM_cg_VERSION} CONFIG REQUIRED)
++find_package(GLUT REQUIRED)
+ 
+ 
+ SET(SAMPLEFRAMEWORK_PLATFORM_INCLUDES
+diff --git a/physx/samples/compiler/cmake/linux/SampleRenderer.cmake b/physx/samples/compiler/cmake/linux/SampleRenderer.cmake
+index 5a658985..42545162 100644
+--- a/physx/samples/compiler/cmake/linux/SampleRenderer.cmake
++++ b/physx/samples/compiler/cmake/linux/SampleRenderer.cmake
+@@ -30,6 +30,7 @@
+ #
+ 
+ find_package(OpenGL $ENV{PM_OpenGL_VERSION} CONFIG REQUIRED) # Pull in OpenGL and GLUT
++find_package(GLUT REQUIRED)
+ 
+ SET(SAMPLERENDERER_COMPILE_DEFS
+ 	# Common to all configurations
+@@ -92,4 +93,4 @@ SET(SAMPLERENDERER_PLATFORM_SOURCES
+ 	${SAMPLERENDERER_OGLRENDERER_SOURCES}
+ )
+ 
+-SET(SAMPLERENDERER_PLATFORM_LINKED_LIBS SamplePlatform glew Cg CgGL GL X11 Xxf86vm)
+\ No newline at end of file
++SET(SAMPLERENDERER_PLATFORM_LINKED_LIBS SamplePlatform GLUT glew Cg CgGL GL X11 Xxf86vm)
+\ No newline at end of file
+diff --git a/physx/samples/compiler/cmake/linux/Samples.cmake b/physx/samples/compiler/cmake/linux/Samples.cmake
+index d726df29..9137c11e 100644
+--- a/physx/samples/compiler/cmake/linux/Samples.cmake
++++ b/physx/samples/compiler/cmake/linux/Samples.cmake
+@@ -32,6 +32,7 @@
+ FIND_PACKAGE(glew $ENV{PM_glew_VERSION} REQUIRED CONFIG)
+ 
+ find_package(OpenGL $ENV{PM_OpenGL_VERSION} CONFIG REQUIRED) # Pull in OpenGL and GLUT
++find_package(GLUT CONFIG REQUIRED)
+ 
+ 
+ SET(SAMPLES_COMPILE_DEFS
+diff --git a/physx/snippets/compiler/cmake/linux/SnippetRender.cmake b/physx/snippets/compiler/cmake/linux/SnippetRender.cmake
+index 74f74e35..5549025e 100644
+--- a/physx/snippets/compiler/cmake/linux/SnippetRender.cmake
++++ b/physx/snippets/compiler/cmake/linux/SnippetRender.cmake
+@@ -29,6 +29,7 @@
+ # Build SnippetRender
+ #
+ find_package(OpenGL $ENV{PM_OpenGL_VERSION} CONFIG REQUIRED) # Pull in OpenGL and GLUT
++find_package(GLUT CONFIG REQUIRED)
+ 
+ SET(SNIPPETRENDER_COMPILE_DEFS
+ 	# Common to all configurations
+diff --git a/physx/snippets/compiler/cmake/mac/CMakeLists.txt b/physx/snippets/compiler/cmake/mac/CMakeLists.txt
+index f77dcfd5..6844824e 100644
+--- a/physx/snippets/compiler/cmake/mac/CMakeLists.txt
++++ b/physx/snippets/compiler/cmake/mac/CMakeLists.txt
+@@ -48,7 +48,6 @@ SET(CMAKE_EXE_LINKER_FLAGS_CHECKED "")
+ 
+ SET(PHYSX_LIB_PATH "${PHYSX_ROOT_DIR}/lib/${COMPILER_AND_PLATFORM}")
+ 
+-
+ SET(SNIPPET_RENDER_ENABLED 1)
+ 
+ # Include all of the projects
+diff --git a/physx/snippets/compiler/cmake/mac/SnippetRender.cmake b/physx/snippets/compiler/cmake/mac/SnippetRender.cmake
+index c0a7b07e..d0185eae 100644
+--- a/physx/snippets/compiler/cmake/mac/SnippetRender.cmake
++++ b/physx/snippets/compiler/cmake/mac/SnippetRender.cmake
+@@ -28,6 +28,7 @@
+ #
+ # Build SnippetRender
+ #
++find_package(GLUT REQUIRED)
+ 
+ SET(SNIPPETRENDER_PLATFORM_INCLUDES
+ )
+diff --git a/physx/snippets/snippetcontactmodification/SnippetContactModification.cpp b/physx/snippets/snippetcontactmodification/SnippetContactModification.cpp
+index ffb0011b..b4752466 100644
+--- a/physx/snippets/snippetcontactmodification/SnippetContactModification.cpp
++++ b/physx/snippets/snippetcontactmodification/SnippetContactModification.cpp
+@@ -310,7 +310,7 @@ void stepPhysics(bool /*interactive*/)
+ 
+ 	gScene->simulate(1.0f/60.0f);
+ 	gScene->fetchResults(true);
+-	printf("%d contact reports\n", PxU32(gContactPositions.size()));
++	printf("%u contact reports\n", PxU32(gContactPositions.size()));
+ }
+ 	
+ void cleanupPhysics(bool /*interactive*/)
+diff --git a/physx/snippets/snippetcontactreport/SnippetContactReport.cpp b/physx/snippets/snippetcontactreport/SnippetContactReport.cpp
+index 0d7ac710..29bad1bf 100644
+--- a/physx/snippets/snippetcontactreport/SnippetContactReport.cpp
++++ b/physx/snippets/snippetcontactreport/SnippetContactReport.cpp
+@@ -170,7 +170,7 @@ void stepPhysics(bool /*interactive*/)
+ 
+ 	gScene->simulate(1.0f/60.0f);
+ 	gScene->fetchResults(true);
+-	printf("%d contact reports\n", PxU32(gContactPositions.size()));
++	printf("%u contact reports\n", PxU32(gContactPositions.size()));
+ }
+ 	
+ void cleanupPhysics(bool /*interactive*/)
+diff --git a/physx/snippets/snippetcontactreportccd/SnippetContactReportCCD.cpp b/physx/snippets/snippetcontactreportccd/SnippetContactReportCCD.cpp
+index 5bf5b8b2..4cf2dfa0 100644
+--- a/physx/snippets/snippetcontactreportccd/SnippetContactReportCCD.cpp
++++ b/physx/snippets/snippetcontactreportccd/SnippetContactReportCCD.cpp
+@@ -285,7 +285,7 @@ void stepPhysics(bool /*interactive*/)
+ 	{
+ 		gScene->simulate(1.0f/60.0f);
+ 		gScene->fetchResults(true);
+-		printf("%d contact points\n", PxU32(gContactPositions.size()));
++		printf("%u contact points\n", PxU32(gContactPositions.size()));
+ 
+ 		if (gSphereActor)
+ 			gContactSphereActorPositions.push_back(gSphereActor->getGlobalPose().p);
+diff --git a/physx/snippets/snippetconvexmeshcreate/SnippetConvexMeshCreate.cpp b/physx/snippets/snippetconvexmeshcreate/SnippetConvexMeshCreate.cpp
+index 97de07d8..bacaa741 100644
+--- a/physx/snippets/snippetconvexmeshcreate/SnippetConvexMeshCreate.cpp
++++ b/physx/snippets/snippetconvexmeshcreate/SnippetConvexMeshCreate.cpp
+@@ -105,15 +105,15 @@ void createRandomConvex(PxU32 numVerts, const PxVec3* verts)
+ 	PxU64 stopTime = SnippetUtils::getCurrentTimeCounterValue();
+ 	float elapsedTime = SnippetUtils::getElapsedTimeInMilliseconds(stopTime - startTime);
+ 	printf("\t -----------------------------------------------\n");
+-	printf("\t Create convex mesh with %d triangles: \n", numVerts);
++	printf("\t Create convex mesh with %u triangles: \n", numVerts);
+ 	directInsertion ? printf("\t\t Direct mesh insertion enabled\n") : printf("\t\t Direct mesh insertion disabled\n");
+-	printf("\t\t Gauss map limit: %d \n", gaussMapLimit);
+-	printf("\t\t Created hull number of vertices: %d \n", convex->getNbVertices());
+-	printf("\t\t Created hull number of polygons: %d \n", convex->getNbPolygons());
++	printf("\t\t Gauss map limit: %u \n", gaussMapLimit);
++	printf("\t\t Created hull number of vertices: %u \n", convex->getNbVertices());
++	printf("\t\t Created hull number of polygons: %u \n", convex->getNbPolygons());
+ 	printf("\t Elapsed time in ms: %f \n", double(elapsedTime));
+ 	if (!directInsertion)
+ 	{
+-		printf("\t Mesh size: %d \n", meshSize);
++		printf("\t Mesh size: %u \n", meshSize);
+ 	}
+ 
+ 	convex->release();
+diff --git a/physx/snippets/snippetimmediatearticulation/SnippetImmediateArticulation.cpp b/physx/snippets/snippetimmediatearticulation/SnippetImmediateArticulation.cpp
+index 86d13985..2729c36d 100644
+--- a/physx/snippets/snippetimmediatearticulation/SnippetImmediateArticulation.cpp
++++ b/physx/snippets/snippetimmediatearticulation/SnippetImmediateArticulation.cpp
+@@ -1348,7 +1348,7 @@ void ImmediateScene::narrowPhase()
+ 	}
+ 
+ 	if(1)
+-		printf("Narrow-phase: %d contacts    \n", mContactPoints.size());
++		printf("Narrow-phase: %u contacts    \n", mContactPoints.size());
+ }
+ 
+ void ImmediateScene::buildSolverBodyData(float dt)
+diff --git a/physx/snippets/snippetsplitfetchresults/SnippetSplitFetchResults.cpp b/physx/snippets/snippetsplitfetchresults/SnippetSplitFetchResults.cpp
+index 7691734c..1b74f687 100644
+--- a/physx/snippets/snippetsplitfetchresults/SnippetSplitFetchResults.cpp
++++ b/physx/snippets/snippetsplitfetchresults/SnippetSplitFetchResults.cpp
+@@ -235,7 +235,7 @@ void stepPhysics(bool /*interactive*/)
+ 	gScene->fetchResultsFinish();
+ #endif
+ 
+-	printf("%d contact reports\n", PxU32(gSharedIndex));
++	printf("%u contact reports\n", PxU32(gSharedIndex));
+ }
+ 
+ void cleanupPhysics(bool /*interactive*/)
+diff --git a/physx/snippets/snippettrianglemeshcreate/SnippetTriangleMeshCreate.cpp b/physx/snippets/snippettrianglemeshcreate/SnippetTriangleMeshCreate.cpp
+index dd92b315..061b8715 100644
+--- a/physx/snippets/snippettrianglemeshcreate/SnippetTriangleMeshCreate.cpp
++++ b/physx/snippets/snippettrianglemeshcreate/SnippetTriangleMeshCreate.cpp
+@@ -214,7 +214,7 @@ void createBV33TriangleMesh(PxU32 numVertices, const PxVec3* vertices, PxU32 num
+ 	PxU64 stopTime = SnippetUtils::getCurrentTimeCounterValue();
+ 	float elapsedTime = SnippetUtils::getElapsedTimeInMilliseconds(stopTime - startTime);
+ 	printf("\t -----------------------------------------------\n");
+-	printf("\t Create triangle mesh with %d triangles: \n",numTriangles);
++	printf("\t Create triangle mesh with %u triangles: \n",numTriangles);
+ 	cookingPerformance ? printf("\t\t Cooking performance on\n") : printf("\t\t Cooking performance off\n");
+ 	inserted ? printf("\t\t Mesh inserted on\n") : printf("\t\t Mesh inserted off\n");
+ 	!skipEdgeData ? printf("\t\t Precompute edge data on\n") : printf("\t\t Precompute edge data off\n");
+@@ -223,7 +223,7 @@ void createBV33TriangleMesh(PxU32 numVertices, const PxVec3* vertices, PxU32 num
+ 	printf("\t Elapsed time in ms: %f \n", double(elapsedTime));
+ 	if(!inserted)
+ 	{
+-		printf("\t Mesh size: %d \n", meshSize);
++		printf("\t Mesh size: %u \n", meshSize);
+ 	}
+ 
+ 	triMesh->release();
+@@ -290,15 +290,15 @@ void createBV34TriangleMesh(PxU32 numVertices, const PxVec3* vertices, PxU32 num
+ 	PxU64 stopTime = SnippetUtils::getCurrentTimeCounterValue();
+ 	float elapsedTime = SnippetUtils::getElapsedTimeInMilliseconds(stopTime - startTime);
+ 	printf("\t -----------------------------------------------\n");
+-	printf("\t Create triangle mesh with %d triangles: \n", numTriangles);
++	printf("\t Create triangle mesh with %u triangles: \n", numTriangles);
+ 	inserted ? printf("\t\t Mesh inserted on\n") : printf("\t\t Mesh inserted off\n");
+ 	!skipEdgeData ? printf("\t\t Precompute edge data on\n") : printf("\t\t Precompute edge data off\n");
+ 	!skipMeshCleanup ? printf("\t\t Mesh cleanup on\n") : printf("\t\t Mesh cleanup off\n");
+-	printf("\t\t Num triangles per leaf: %d \n", numTrisPerLeaf);
++	printf("\t\t Num triangles per leaf: %u \n", numTrisPerLeaf);
+ 	printf("\t Elapsed time in ms: %f \n", double(elapsedTime));
+ 	if (!inserted)
+ 	{
+-		printf("\t Mesh size: %d \n", meshSize);
++		printf("\t Mesh size: %u \n", meshSize);
+ 	}
+ 
+ 	triMesh->release();
+diff --git a/physx/source/compiler/cmake/mac/CMakeLists.txt b/physx/source/compiler/cmake/mac/CMakeLists.txt
+index 36799700..9152cf64 100644
+--- a/physx/source/compiler/cmake/mac/CMakeLists.txt
++++ b/physx/source/compiler/cmake/mac/CMakeLists.txt
+@@ -25,15 +25,22 @@
+ ##
+ ## Copyright (c) 2008-2021 NVIDIA Corporation. All rights reserved.
+ 
+-SET(OSX_BITNESS "-arch x86_64")
+-SET(CMAKE_OSX_ARCHITECTURES "x86_64")
++SET(OSX_BITNESS "-arch arm64")
++SET(CMAKE_OSX_ARCHITECTURES "arm64")
+ 
+-SET(PHYSX_CXX_FLAGS "${OSX_BITNESS} -msse2 -std=c++11 -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -Werror -ferror-limit=0 -Wall -Wextra -fstrict-aliasing -Wstrict-aliasing=2 -Weverything -Wno-unknown-warning-option -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-padded -Wno-weak-vtables -Wno-cast-align -Wno-conversion -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-shift-sign-overflow -Wno-covered-switch-default -Wno-exit-time-destructors -Wno-global-constructors -Wno-missing-prototypes -Wno-unreachable-code -Wno-unused-macros -Wno-unused-member-function -Wno-used-but-marked-unused -Wno-weak-template-vtables -Wno-deprecated -Wno-non-virtual-dtor -Wno-invalid-noreturn -Wno-return-type-c-linkage -Wno-reserved-id-macro -Wno-c++98-compat-pedantic -Wno-unused-local-typedef -Wno-old-style-cast -Wno-newline-eof -Wno-unused-private-field -Wno-undefined-reinterpret-cast -Wno-invalid-offsetof -Wno-zero-as-null-pointer-constant -Wno-atomic-implicit-seq-cst -gdwarf-2" CACHE INTERNAL "PhysX CXX")
++SET(PHYSX_CXX_FLAGS "${OSX_BITNESS} -std=c++11 -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -Werror -ferror-limit=0 -Wall -Wextra -fstrict-aliasing -Wstrict-aliasing=2 -Weverything -Wno-unknown-warning-option -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-padded -Wno-weak-vtables -Wno-cast-align -Wno-conversion -Wno-missing-noreturn -Wno-missing-variable-declarations -Wno-shift-sign-overflow -Wno-covered-switch-default -Wno-exit-time-destructors -Wno-global-constructors -Wno-missing-prototypes -Wno-unreachable-code -Wno-unused-macros -Wno-unused-member-function -Wno-used-but-marked-unused -Wno-weak-template-vtables -Wno-deprecated -Wno-non-virtual-dtor -Wno-invalid-noreturn -Wno-return-type-c-linkage -Wno-reserved-id-macro -Wno-c++98-compat-pedantic -Wno-unused-local-typedef -Wno-old-style-cast -Wno-newline-eof -Wno-unused-private-field -Wno-undefined-reinterpret-cast -Wno-invalid-offsetof -Wno-zero-as-null-pointer-constant -Wno-atomic-implicit-seq-cst -Wno-missing-include-dirs -Wno-suggest-destructor-override -Wno-suggest-override -Wno-switch-default -Wno-alloca -Wno-anon-enum-enum-conversion -Wno-unused-but-set-variable -Wno-dtor-name -Wno-unaligned-access -gdwarf-2" CACHE INTERNAL "PhysX CXX")
+ 
+ SET(CMAKE_SHARED_LINKER_FLAGS_CHECKED "")
+ SET(CMAKE_SHARED_LINKER_FLAGS_PROFILE "")
+ SET(CMAKE_SHARED_LINKER_FLAGS "")
+ 
++set(CMAKE_FIND_FRAMEWORK FIRST)
++# Set up the default search directories for frameworks.
++set(CMAKE_SYSTEM_FRAMEWORK_PATH
++  ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks
++  ${CMAKE_OSX_SYSROOT}/System/Library/PrivateFrameworks
++  ${CMAKE_OSX_SYSROOT}/Developer/Library/Frameworks)
++
+ # Build debug info for all configurations
+ SET(PHYSX_CXX_FLAGS_DEBUG "-O0 -g" CACHE INTERNAL "PhysX Debug CXX Flags")
+ SET(PHYSX_CXX_FLAGS_CHECKED "-O3 -g" CACHE INTERNAL "PhysX Checked CXX Flags")
+@@ -56,8 +63,12 @@ SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
+ # Controls PX_NVTX for all projects on Mac
+ SET(NVTX_FLAG "PX_NVTX=0")
+ 
++IF(PX_SCALAR_MATH)
++	SET(SCALAR_MATH_FLAG "PX_SIMD_DISABLED")
++ENDIF()
++
+ # Disable cuda for all projects
+-SET(PHYSX_MAC_COMPILE_DEFS "DISABLE_CUDA_PHYSX;${PHYSX_AUTOBUILD}" CACHE INTERNAL "Base PhysX preprocessor definitions")
++SET(PHYSX_MAC_COMPILE_DEFS "DISABLE_CUDA_PHYSX;${SCALAR_MATH_FLAG};${PHYSX_AUTOBUILD}" CACHE INTERNAL "Base PhysX preprocessor definitions")
+ SET(PHYSX_MAC_DEBUG_COMPILE_DEFS "_DEBUG;PX_DEBUG=1;PX_CHECKED=1;${NVTX_FLAG};PX_SUPPORT_PVD=1" CACHE INTERNAL "Debug PhysX preprocessor definitions")
+ SET(PHYSX_MAC_CHECKED_COMPILE_DEFS "NDEBUG;PX_CHECKED=1;${NVTX_FLAG};PX_SUPPORT_PVD=1" CACHE INTERNAL "Checked PhysX preprocessor definitions")
+ SET(PHYSX_MAC_PROFILE_COMPILE_DEFS "NDEBUG;PX_PROFILE=1;${NVTX_FLAG};PX_SUPPORT_PVD=1" CACHE INTERNAL "Profile PhysX preprocessor definitions")
+diff --git a/physx/source/foundation/include/PsVecMath.h b/physx/source/foundation/include/PsVecMath.h
+index 2718de2a..866e16da 100644
+--- a/physx/source/foundation/include/PsVecMath.h
++++ b/physx/source/foundation/include/PsVecMath.h
+@@ -56,6 +56,8 @@
+ #define COMPILE_VECTOR_INTRINSICS 1
+ #elif PX_IOS && PX_NEON
+ #define COMPILE_VECTOR_INTRINSICS 1
++#elif PX_IOS && PX_NEON
++#define COMPILE_VECTOR_INTRINSICS 1
+ #elif PX_SWITCH
+ #define COMPILE_VECTOR_INTRINSICS 1
+ #else
+diff --git a/physx/source/foundation/include/PsVecQuat.h b/physx/source/foundation/include/PsVecQuat.h
+index 110f440b..66083abd 100644
+--- a/physx/source/foundation/include/PsVecQuat.h
++++ b/physx/source/foundation/include/PsVecQuat.h
+@@ -306,7 +306,7 @@ PX_FORCE_INLINE bool isValidQuatV(const QuatV q)
+ 	const FloatV unitTolerance = FLoad(1e-4f);
+ 	const FloatV tmp = FAbs(FSub(QuatLength(q), FOne()));
+ 	const BoolV con = FIsGrtr(unitTolerance, tmp);
+-	return isFiniteVec4V(q) & (BAllEqTTTT(con) == 1);
++	return isFiniteVec4V(q) && (BAllEqTTTT(con) == 1);
+ }
+ 
+ PX_FORCE_INLINE bool isSaneQuatV(const QuatV q)
+@@ -314,7 +314,7 @@ PX_FORCE_INLINE bool isSaneQuatV(const QuatV q)
+ 	const FloatV unitTolerance = FLoad(1e-2f);
+ 	const FloatV tmp = FAbs(FSub(QuatLength(q), FOne()));
+ 	const BoolV con = FIsGrtr(unitTolerance, tmp);
+-	return isFiniteVec4V(q) & (BAllEqTTTT(con) == 1);
++	return isFiniteVec4V(q) && (BAllEqTTTT(con) == 1);
+ }
+ 
+ PX_FORCE_INLINE Mat33V QuatGetMat33V(const QuatVArg q)
+diff --git a/physx/source/foundation/include/PsVecTransform.h b/physx/source/foundation/include/PsVecTransform.h
+index 22fb6178..57dee044 100644
+--- a/physx/source/foundation/include/PsVecTransform.h
++++ b/physx/source/foundation/include/PsVecTransform.h
+@@ -130,7 +130,7 @@ class PsTransformV
+ 	PX_FORCE_INLINE bool isValid() const
+ 	{
+ 		// return p.isFinite() && q.isFinite() && q.isValid();
+-		return isFiniteVec3V(p) & isFiniteQuatV(q) & isValidQuatV(q);
++		return isFiniteVec3V(p) && isFiniteQuatV(q) && isValidQuatV(q);
+ 	}
+ 
+ 	/**
+@@ -141,7 +141,7 @@ class PsTransformV
+ 	PX_FORCE_INLINE bool isSane() const
+ 	{
+ 		// return isFinite() && q.isSane();
+-		return isFinite() & isSaneQuatV(q);
++		return isFinite() && isSaneQuatV(q);
+ 	}
+ 
+ 	/**
+@@ -150,7 +150,7 @@ class PsTransformV
+ 	PX_FORCE_INLINE bool isFinite() const
+ 	{
+ 		// return p.isFinite() && q.isFinite();
+-		return isFiniteVec3V(p) & isFiniteQuatV(q);
++		return isFiniteVec3V(p) && isFiniteQuatV(q);
+ 	}
+ 
+ 	//! Transform transform from parent (returns compound transform: first src, then this->inverse)
+diff --git a/physx/source/foundation/src/unix/PsUnixFPU.cpp b/physx/source/foundation/src/unix/PsUnixFPU.cpp
+index eb2cd050..39b8cfa8 100644
+--- a/physx/source/foundation/src/unix/PsUnixFPU.cpp
++++ b/physx/source/foundation/src/unix/PsUnixFPU.cpp
+@@ -33,7 +33,7 @@
+ PX_COMPILE_TIME_ASSERT(8 * sizeof(uint32_t) >= sizeof(fenv_t));
+ #endif
+ 
+-#if PX_OSX
++#if PX_OSX && !defined(PX_SIMD_DISABLED)
+ // osx defines SIMD as standard for floating point operations.
+ #include <xmmintrin.h>
+ #endif
+@@ -47,7 +47,7 @@ physx::shdfnd::FPUGuard::FPUGuard()
+ #elif PX_PS4
+ 	// not supported
+ 	PX_UNUSED(mControlWords);
+-#elif PX_OSX
++#elif PX_OSX && !defined(PX_SIMD_DISABLED)
+ 	mControlWords[0] = _mm_getcsr();
+ 	// set default (disable exceptions: _MM_MASK_MASK) and FTZ (_MM_FLUSH_ZERO_ON), DAZ (_MM_DENORMALS_ZERO_ON: (1<<6))
+ 	_mm_setcsr(_MM_MASK_MASK | _MM_FLUSH_ZERO_ON | (1 << 6));
+@@ -76,7 +76,7 @@ physx::shdfnd::FPUGuard::~FPUGuard()
+ // not supported unless ARM_HARD_FLOAT is enabled.
+ #elif PX_PS4
+ // not supported
+-#elif PX_OSX
++#elif PX_OSX && !defined(PX_SIMD_DISABLED)
+ 	// restore control word and clear exception flags
+ 	// (setting exception state flags cause exceptions on the first following fp operation)
+ 	_mm_setcsr(mControlWords[0] & ~_MM_EXCEPT_MASK);
+@@ -92,7 +92,7 @@ PX_FOUNDATION_API void physx::shdfnd::enableFPExceptions()
+ #if PX_LINUX && !defined(__EMSCRIPTEN__)
+ 	feclearexcept(FE_ALL_EXCEPT);
+ 	feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
+-#elif PX_OSX
++#elif PX_OSX && !defined(PX_SIMD_DISABLED)
+ 	// clear any pending exceptions
+ 	// (setting exception state flags cause exceptions on the first following fp operation)
+ 	uint32_t control = _mm_getcsr() & ~_MM_EXCEPT_MASK;
+@@ -108,7 +108,7 @@ PX_FOUNDATION_API void physx::shdfnd::disableFPExceptions()
+ {
+ #if PX_LINUX && !defined(__EMSCRIPTEN__)
+ 	fedisableexcept(FE_ALL_EXCEPT);
+-#elif PX_OSX
++#elif PX_OSX && !defined(PX_SIMD_DISABLED)
+ 	// clear any pending exceptions
+ 	// (setting exception state flags cause exceptions on the first following fp operation)
+ 	uint32_t control = _mm_getcsr() & ~_MM_EXCEPT_MASK;
+diff --git a/physx/source/physxextensions/src/serialization/SnSerialUtils.cpp b/physx/source/physxextensions/src/serialization/SnSerialUtils.cpp
+index 282b9810..4c03aaf1 100644
+--- a/physx/source/physxextensions/src/serialization/SnSerialUtils.cpp
++++ b/physx/source/physxextensions/src/serialization/SnSerialUtils.cpp
+@@ -98,6 +98,8 @@ PxU32 getBinaryPlatformTag()
+ 	return sBinaryPlatformTags[4];
+ #elif PX_OSX && PX_X64
+ 	return sBinaryPlatformTags[5];
++#elif PX_OSX 
++	return sBinaryPlatformTags[5];
+ #elif PX_PS4
+ 	return sBinaryPlatformTags[6];
+ #elif PX_ANDROID
+diff --git a/pxshared/include/foundation/PxPreprocessor.h b/pxshared/include/foundation/PxPreprocessor.h
+index 12d6147f..f954ba5e 100644
+--- a/pxshared/include/foundation/PxPreprocessor.h
++++ b/pxshared/include/foundation/PxPreprocessor.h
+@@ -100,8 +100,6 @@ Operating system defines, see http://sourceforge.net/p/predef/wiki/OperatingSyst
+ #define PX_ANDROID 1
+ #elif defined(__linux__) || defined (__EMSCRIPTEN__) // note: __ANDROID__ implies __linux__
+ #define PX_LINUX 1
+-#elif defined(__APPLE__) && (defined(__arm__) || defined(__arm64__))
+-#define PX_IOS 1
+ #elif defined(__APPLE__)
+ #define PX_OSX 1
+ #elif defined(__ORBIS__)
