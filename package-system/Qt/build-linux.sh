@@ -56,6 +56,7 @@ sudo apt-get install -y libfontconfig1-dev \
     libxi-dev \
     libxkbcommon-dev \
     libxkbcommon-x11-dev \
+    libxcb-xinerama0-dev \
     libxrender-dev
 
 QTARRAY="qtbase,qtimageformats,qtsvg,qttranslations,qtwayland"
@@ -72,6 +73,7 @@ _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -release \
     -c++std c++20 \
     -opensource \
+    -xcb \
     -confirm-license "
 
 ${BUILD_ROOT}/configure ${_OPTS}
