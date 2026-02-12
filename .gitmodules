@@ -1,0 +1,3 @@
+[submodule "Scripts/packaging"]
+	path = Scripts/packaging
+	url = https://github.com/o3de/3p-package-scripts.git
