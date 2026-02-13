@@ -5,6 +5,7 @@ __pycache__
 TestResults/**
 .pytest_cache
 packages/
+Scripts/packaging/
 **/temp/**
 qt_compile_log.txt
 .remote_cache.json
