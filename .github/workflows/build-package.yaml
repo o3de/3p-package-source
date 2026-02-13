@@ -202,7 +202,7 @@ jobs:
         "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Component.VC.14.29.16.11.x86.x64 --add Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL --add Microsoft.VisualStudio.Component.VC.14.29.16.11.CLI.Support --quiet --norestart
 
     - name: Update msbuild path
-      if: runner.os == 'Windows'
+      if: ${{ !contains(matrix.package, 'qt-6') && runner.os == 'Windows' }} 
       uses: ilammy/msvc-dev-cmd@v1.13.0
       with:
         toolset: 14.29
