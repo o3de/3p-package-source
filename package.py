@@ -56,27 +56,7 @@ RED = "\033[31m"
 LIGHT_GREY = "\033[90m"
 RESET = "\033[0m"
 
-DEFAULT_LY_PACKAGE_SERVER_URLS = ["https://d3t6xeg4fgfoum.cloudfront.net"]
-
-def get_remote_package_hash(package_name: str, package_server_urls: str = DEFAULT_LY_PACKAGE_SERVER_URLS) -> str:
-    cached_package_hashes = REMOTE_CACHE if REMOTE_CACHE else {}
-    if package_name in cached_package_hashes:
-        return cached_package_hashes[package_name]
-    
-    for server_url in package_server_urls:
-        tls_context = ssl.create_default_context(cafile=certifi.where())
-        full_package_url = f"{server_url}/{package_name}.tar.xz.SHA256SUMS"
-        try:
-            with urllib.request.urlopen(url=full_package_url, context=tls_context) as server_response:
-                file_data = server_response.read()
-                str_data = file_data.decode("utf-8", errors="ignore")
-                hash_and_name = str_data.split()
-                if hash_and_name:
-                    cached_package_hashes[package_name] = hash_and_name[0]
-                return hash_and_name[0] if hash_and_name else ""
-        except Exception:
-            continue
-    return ""
+DEFAULT_LY_PACKAGE_SERVER_URL = "https://d3t6xeg4fgfoum.cloudfront.net"
 
 class PackageInfo:
     def __init__(self, name: str, folder: str, hash_info: str, fixed: bool, valid: bool):
@@ -86,10 +66,44 @@ class PackageInfo:
         self.fixed = fixed
         self.valid = valid
 
+
+def get_remote_package_hash(package_name: str) -> str:
+    """
+    Lookup the package hash from the remote prod server for a package if any. 
+
+    :param package_name: Name of the package corresponding to the package_build_list_host_*.json file
+    :return: The hash of the package if found, otherwise an empty string
+    """
+    cached_package_hashes = REMOTE_CACHE if REMOTE_CACHE else {}
+    if package_name in cached_package_hashes:
+        return cached_package_hashes[package_name]
+
+    tls_context = ssl.create_default_context(cafile=certifi.where())
+    full_package_url = f"{DEFAULT_LY_PACKAGE_SERVER_URL}/{package_name}.tar.xz.SHA256SUMS"
+    try:
+        with urllib.request.urlopen(url=full_package_url, context=tls_context) as server_response:
+            file_data = server_response.read()
+            str_data = file_data.decode("utf-8", errors="ignore")
+            hash_and_name = str_data.split()
+            if hash_and_name:
+                cached_package_hashes[package_name] = hash_and_name[0]
+            return hash_and_name[0] if hash_and_name else ""
+    except Exception:
+        return ""
+
+
 def list_packages() -> int:
+    """
+    List all the packages configured for the current host platform
+
+    :return: The number of packages listed
+    """
 
     global REMOTE_CACHE
     cache_updated = False
+
+    if not REMOTE_CACHE:
+        print("Caching remote package hashes for the first time. This may take a moment...")
 
     # First iterate over the keys and values from 'build_from_folder'
     build_from_folder = PACKAGE_BUILD_CONFIG.get("build_from_folder", "package-system")
@@ -159,10 +173,16 @@ def list_packages() -> int:
         with REMOTE_CACHE_FILE.open("w") as cache_file:
             json.dump(REMOTE_CACHE, fp=cache_file)
     
-    return 0
+    return len(packages_list)
 
 
 def build_package(name: str) -> int:
+    """
+    Build the package with the given name.
+
+    :param name: Package name to build
+    :return: Return code from the build process (0 for success, non-zero for failure)
+    """
     output_folder = Path(__file__).parent / "packages"
     search_path = Path(__file__).parent
     BuildPackage(name, output_folder, search_path)
