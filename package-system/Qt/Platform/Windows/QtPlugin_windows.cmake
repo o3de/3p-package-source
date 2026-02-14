@@ -6,11 +6,6 @@
 #
 #
 
-ly_add_target_files(TARGETS 3rdParty::Qt::Network::Plugins
-    FILES ${QT_PATH}/plugins/bearer/qgenericbearer$<$<CONFIG:debug>:d>.dll
-    OUTPUT_SUBDIRECTORY bearer
-)
-
 ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     FILES ${QT_PATH}/plugins/iconengines/qsvgicon$<$<CONFIG:debug>:d>.dll
     OUTPUT_SUBDIRECTORY iconengines
@@ -38,7 +33,7 @@ ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
 )
 
 ly_add_target_files(TARGETS 3rdParty::Qt::Widgets::Plugins
-    FILES ${QT_PATH}/plugins/styles/qwindowsvistastyle$<$<CONFIG:debug>:d>.dll
+    FILES ${QT_PATH}/plugins/styles/qmodernwindowsstyle$<$<CONFIG:debug>:d>.dll
     OUTPUT_SUBDIRECTORY styles
 )
 
