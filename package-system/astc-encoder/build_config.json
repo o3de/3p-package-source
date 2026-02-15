@@ -32,8 +32,8 @@
                 ]
             },
             "Mac-arm64": {
-                "cmake_find_template": "Findastc-encoder.cmake.template",
-                "package_version": "3.2-rev5",
+                "cmake_find_source": "Findastc-encoder.cmake.mac-arm64",
+                "package_version": "3.2-rev6",
                 "custom_build_cmd": [
                     "./build_mac_arm64.sh"
                 ],
@@ -53,7 +53,7 @@
                 ]
             },
 	    "Linux-aarch64": {
-		"cmake_find_source": "Findastc-encoder.cmake.linux-aarch64",
+		    "cmake_find_source": "Findastc-encoder.cmake.linux-aarch64",
                 "custom_build_cmd": [
                     "./build-linux.sh"
                 ],
