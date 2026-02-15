@@ -54,7 +54,7 @@
         },
         "Linux": {
             "Linux": {
-                "package_version": "6.10.2-rev2",
+                "package_version": "6.10.2-rev3",
                 "depends_on_packages": [
                     ["OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", ""],
                     ["tiff-4.2.0.15-rev3-linux", "2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a", ""],

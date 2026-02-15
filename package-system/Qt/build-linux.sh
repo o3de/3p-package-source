@@ -74,7 +74,8 @@ _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -c++std c++20 \
     -opensource \
     -xcb \
-    -confirm-license "
+    -confirm-license \
+    -no-icu"
 
 ${BUILD_ROOT}/configure ${_OPTS}
 if [ $? -ne 0 ]
