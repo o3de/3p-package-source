@@ -11,7 +11,7 @@
         "Darwin": {
             "Mac-arm64": {
                 "patch_file": "physx5_mac.patch",
-                "package_version": "5.1.1-rev4",
+                "package_version": "5.1.1-rev5",
                 "custom_build_cmd": [
                     "./build-darwin-arm64.sh"
                 ],
