@@ -100,6 +100,7 @@ The following keys can only exist at the target platform level as they describe 
                                             for situations where the generator does not support multiple configs) the key can contain the
                                             suffix of the configuration name (cmake_generate_args_debug, cmake_generate_args_release).
                                             For common args that should apply to every config, see cmake_generate_args_common above.
+                                            Note : If your Target Platform is Emscripten, the generate call is wrapped by emcmake utility
 
 * cmake_build_args                        : Additional build args to pass to cmake during the cmake build command
 
@@ -190,6 +191,9 @@ The general layout of the build_config.json file is as follows:
 }
 
 """
+
+# The platform used to target WebAssembly
+EMSCRIPTEN_PLATFORM = 'Emscripten'
 
 # The current path of this script, expected to be under '3rdPartySource/Scripts'
 CURRENT_PATH = pathlib.Path(os.path.dirname(__file__)).resolve()
@@ -746,7 +750,12 @@ class BuildInfo(object):
                 if self.package_info.cmake_src_subfolder:
                     cmakelists_folder = cmakelists_folder / self.package_info.cmake_src_subfolder
 
-                cmake_generate_cmd = [self.cmake_command,
+                # emcmake self configure the proper environment when targeting WebAssembly
+                cmake_command = self.cmake_command
+                if self.package_info.platform_name == EMSCRIPTEN_PLATFORM:
+                    cmake_command = 'emcmake ' + self.cmake_command
+
+                cmake_generate_cmd = [cmake_command,
                                       '-S', str(cmakelists_folder.resolve()),
                                       '-B', str(self.build_folder.name)]
 

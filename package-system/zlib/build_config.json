@@ -12,6 +12,9 @@
     "package_license_file":"LICENSE",
     "cmake_find_source":"FindZLIB.cmake",
     "cmake_find_target":"FindZLIB.cmake",
+    "cmake_generate_args_common": [
+      "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+    ],
     "Platforms":{
         "Windows":{
             "Windows":{
@@ -28,6 +31,26 @@
                 ],
                 "custom_install_cmd": [
                     "install_zlib_android.cmd"
+                ]
+            },
+            "Emscripten":{
+                "patch_file": "emscripten-alias-fix.patch",
+                "cmake_generate_args" : [
+                    "-G",
+                    "Ninja",
+                    "-DCMAKE_BUILD_TYPE=Release",
+                    "-DCMAKE_CXX_STANDARD=17",
+                    "-DBUILD_SHARED_LIBS=OFF",
+                    "-DSKIP_INSTALL_ALL=ON"
+                ],
+                "cmake_build_args": [
+                    "--target",
+                    "zlibstatic"
+                ],
+                "extra_files_to_copy": [
+                    ["temp/build/zconf.h", "zlib/include/zconf.h"],
+                    ["temp/build/libz.a", "zlib/lib/libz.a"],
+                    ["temp/src/zlib.h", "zlib/include/zlib.h"]
                 ]
             }
         },

@@ -13,6 +13,9 @@
       "CMakeLists.txt",
       "LICENSE.txt"
    ],
+   "cmake_generate_args_common": [
+      "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+    ],
    "cmake_build_args_common": [
       "--parallel"
    ],
@@ -33,6 +36,14 @@
                "-G",
                "Ninja",
                "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake",
+               "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\"",
+               "-DCMAKE_BUILD_TYPE=Release"
+            ]
+         },
+         "Emscripten":{
+            "cmake_generate_args": [
+               "-G",
+               "Ninja",
                "-DCMAKE_C_FLAGS=\"-fPIC -O2 -Wall -Wextra\"",
                "-DCMAKE_BUILD_TYPE=Release"
             ]
@@ -77,7 +88,7 @@
                "-DCMAKE_BUILD_TYPE=Release"
             ]
          },
-	 "Linux-aarch64": "@Linux"
+         "Linux-aarch64": "@Linux"
       }
    }
 }
