@@ -28,6 +28,9 @@ _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -opensource \
     -qt-tiff \
     -qt-zlib \
+    -no-icu \
+    -dbus-linked \
+    -framework \
     -confirm-license "
 
 echo Configuring Qt...
@@ -46,5 +49,19 @@ then
     echo "Failed to install QT Release."
     exit 1
 fi
+
+# The installation target on darwin is not installing the framework's header paths in the main
+# include folder. Create a symlink to the headers there for backwards compatibility
+qtframeworks=(QtConcurrent QtCore QtDBus QtDesigner QtDesignerComponents QtGui QtHelp QtMacExtras QtNetwork QtOpenGL QtPrintSupport QtQml QtQmlModels QtQmlWorkerScript QtQuick QtQuickParticles QtQuickShapes QtQuickTest QtQuickWidgets QtSql QtSvg QtTest QtUiPlugin QtWidgets QtXml QtZlib)
+
+cd $TARGET_INSTALL_ROOT/include
+for qtframework in "${qtframeworks[@]}"; do
+    if [ -d $TARGET_INSTALL_ROOT/lib/$qtframework.framework/Headers ]; then
+        echo "Linking ${TARGET_INSTALL_ROOT}/lib/${qtframework}.framework/Headers/ to ${TARGET_INSTALL_ROOT}/include/${qtframework}"
+        ln -s ../lib/$qtframework.framework/Headers/ $qtframework
+    else
+        echo "Unable to find $TARGET_INSTALL_ROOT/lib/${qtframework}.framework/Headers (${qtframework}) Skipping.."
+    fi
+done
 
 echo Qt installed successfully!
