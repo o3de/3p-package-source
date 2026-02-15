@@ -43,7 +43,7 @@
             },
             "Mac-arm64": {
                 "cmake_find_source": "FindQt.cmake",
-                "package_version": "6.10.2-rev1",
+                "package_version": "6.10.2-rev2",
                 "custom_build_cmd": [
                     "./build-darwin-arm64.sh"
                 ],
