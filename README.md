@@ -50,3 +50,34 @@ set_target_properties(3rdParty::TIFF PROPERTIES IMPORTED_LOCATION "${TIFF_LIBRAR
 
 target_link_libraries(3rdParty::TIFF INTERFACE ZLIB::ZLIB)
 ```
+
+## Packaging scripts
+Convenience `package.sh`/`package.bat` scripts are provided to support listing and building 3P packages locally.
+
+Instructions for using the helper scripts included at the repository root to run the packaging tool.
+
+- **Windows**: run the wrapper `package.bat` from the repository root. It forwards all arguments to `package.py` and will try the `py` launcher first, then `python`.
+
+  Example (from PowerShell or cmd):
+
+  ```bat
+  .\package.bat -h
+  ```
+
+  Notes:
+  - Ensure the `Scripts/packaging` submodule is initialized: `git submodule update --init --recursive`.
+  - `package.bat` checks for `Scripts/packaging/requirements.txt` and requires Python on PATH or the `py` launcher.
+
+- **Unix / macOS**: run the wrapper `package.sh` from the repository root. It forwards all arguments to `package.py` and prefers `python`, falling back to `python3`.
+
+  Example (from a POSIX shell):
+
+  ```bash
+  ./package.sh -h
+  ```
+
+  Notes:
+  - Ensure the `Scripts/packaging` submodule is initialized: `git submodule update --init --recursive`.
+  - `package.sh` will print a message and exit if the submodule directory is missing.
+
+These wrappers are convenience launchers; you can also run `python package.py` directly from the repository root and pass the same arguments.
