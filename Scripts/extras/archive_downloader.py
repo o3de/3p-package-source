@@ -122,7 +122,26 @@ def extract_package(src_package_file: str, target_folder:str):
     elif package_ext in ARCHIVE_EXTS_TAR:
         import tarfile
         with tarfile.open(str(src_package_file_path.resolve())) as tar_file:
-            tarfile.extractall(destination_path)
+            def is_within_directory(directory, target):
+                
+                abs_directory = os.path.abspath(directory)
+                abs_target = os.path.abspath(target)
+            
+                prefix = os.path.commonprefix([abs_directory, abs_target])
+                
+                return prefix == abs_directory
+            
+            def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+            
+                for member in tar.getmembers():
+                    member_path = os.path.join(path, member.name)
+                    if not is_within_directory(path, member_path):
+                        raise Exception("Attempted Path Traversal in Tar File")
+            
+                tar.extractall(path, members, numeric_owner=numeric_owner) 
+                
+            
+            safe_extract(tarfile, destination_path)
     elif package_ext in ARCHIVE_EXTS_7ZIP:
         try:
             os.makedirs(destination_path, exist_ok=True)
