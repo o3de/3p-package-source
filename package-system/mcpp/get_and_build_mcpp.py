@@ -327,7 +327,7 @@ def copy_build_artifacts(temp_folder):
     if platform_name in ('linux', 'linux-aarch64'):
         base_shared_lib_name = 'libmcpp.so.0.3.0'
         symlinks = ['libmcpp.so.0', 'libmcpp.so']
-    elif platform_name == 'mac':
+    elif platform_name in ('mac', 'mac-arm64'):
         base_shared_lib_name = 'libmcpp.0.3.0.dylib'
         symlinks = ['libmcpp.0.dylib', 'libmcpp.dylib']
     else:
