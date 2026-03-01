@@ -210,6 +210,12 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         brew install nasm
+
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: 4.0.10
+
     - name: Setup NDK
       env:
         ANDROID_NDK_VERSION: 25.1.8937393
