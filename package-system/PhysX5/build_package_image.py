@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) Contributors to the Open 3D Engine Project. For complete copyright and license terms please see the LICENSE at the root of this distribution.
-# 
+#
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 #
@@ -50,10 +50,10 @@ class PhysXBuilder(object):
             cwd=self.workingDir,
             env=self.env
         )
-        
+
         # nVidia CMakeModules (downloaded while building PhysX) do not cover ios
         # bin folder names yet, so they appear as UNKNOWN.
-        self.platform_params = { 
+        self.platform_params = {
             # system-name   : (preset,         can use CUDA,     bin folder name,    install folder name, is multiconfig)
             'windows'       : ('vc16win64',           True,  'win.x86_64.vc142.md', 'vc16win64',            True),
             'linux'         : ('linux-clang',         True,  'linux.x86_64',        'linux-clang',          False),
@@ -78,7 +78,7 @@ class PhysXBuilder(object):
     @property
     def env(self):
         return self._env
-    
+
     @property
     def enable_GPU(self):
         return self._enable_GPU
@@ -100,7 +100,7 @@ class PhysXBuilder(object):
                 ['git', 'init',],
             )
             self.check_call(
-                ['git', 'remote', 'add', 'origin', 'https://github.com/nick-l-o3de/o3de-physx.git',],
+                ['git', 'remote', 'add', 'origin', 'https://github.com/o3de/PhysX',],
             )
 
         self.check_call(
@@ -111,13 +111,13 @@ class PhysXBuilder(object):
         )
 
     def preparePreset(self, buildAsStaticLibs, config):
-        
+
         preset_name = self.platform_params[self.platform][0]
         supports_gpu_builds = self.platform_params[self.platform][1]
 
         if (self.enable_GPU and not supports_gpu_builds):
             raise Exception(f"Platform {self.platform} does not support GPU builds, but --enable_GPU was specified.")
-        
+
         # if we're turning GPU off, and we support GPU builds, use the cpu-only preset.  Otherwise such a preset will not exist:
         if not self.enable_GPU and supports_gpu_builds:
             preset_name += "-cpu-only"
@@ -125,7 +125,7 @@ class PhysXBuilder(object):
         preset_file = self.workingDir / 'physx' / 'buildtools' / 'presets' / 'public' / f'{preset_name}.xml'
         content = self.readFile(preset_file)
         content = re.sub('name="PX_GENERATE_STATIC_LIBRARIES" value="(True|False)"', f'name="PX_GENERATE_STATIC_LIBRARIES" value="{buildAsStaticLibs}"', content, flags = re.M)
-        
+
         if self.platform == 'windows':
             content = re.sub('name="PX_BUILDSNIPPETS" value="(True|False)"', f'name="PX_BUILDSNIPPETS" value="False"', content, flags = re.M)
             content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="True"', content, flags = re.M)
@@ -134,25 +134,25 @@ class PhysXBuilder(object):
             else:
                 content = re.sub('name="NV_USE_DEBUG_WINCRT" value="(True|False)"', f'name="NV_USE_DEBUG_WINCRT" value="False"', content, flags = re.M)
             content = re.sub('name="NV_USE_STATIC_WINCRT" value="(True|False)"', f'name="NV_USE_STATIC_WINCRT" value="False"', content, flags = re.M) # sets dynamic runtime usage
-            
+
         elif self.platform == 'linux' or self.platform == 'linux-aarch64':
             content = re.sub('name="PX_BUILDSNIPPETS" value="(True|False)"', f'name="PX_BUILDSNIPPETS" value="False"', content, flags = re.M)
             content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="True"', content, flags = re.M)
-    
+
         self.writeFile(preset_file, content)
 
-        # Ignore poison-system-directories warning when building mac/ios caused 
+        # Ignore poison-system-directories warning when building mac/ios caused
         # by running 'cmake --build' using python subprocess on Mac.
         if self.platform == 'mac' or self.platform == 'ios':
             cmake_file = self.workingDir / 'physx' / 'source' / 'compiler' / 'cmake' / self.platform / 'CMakeLists.txt'
             content = self.readFile(cmake_file)
             content = re.sub('-Werror', r'-Werror -Wno-poison-system-directories', content, flags = re.M)
             self.writeFile(cmake_file, content)
-        
+
     def cleanUpLibs(self, buildAsStaticLibs):
         static_bin_dir = self.workingDir / 'physx' / 'bin' / 'static'
         shared_bin_dir = self.workingDir / 'physx' / 'bin' / 'shared'
-    
+
         # Remove dynamic libraries, but copy some missing static libs from
         # the shared builds into the static lib folder. Also freeglut is not
         # necessary for PhysX.
@@ -182,7 +182,7 @@ class PhysXBuilder(object):
                         os.remove(static_bin_dir / config / 'freeglut.dll')
 
                 shutil.rmtree(shared_bin_dir)
-            
+
     def build(self, buildAsStaticLibs):
         physx_dir = self.workingDir / 'physx'
 
@@ -199,27 +199,27 @@ class PhysXBuilder(object):
             os.chmod(packman_dir / 'packman', 0o755) # ensure packman is executable
             update_pacman_call = [ str(packman_dir / 'packman'), 'update', '-y']
 
-        check_call_packman_update(update_pacman_call)        
+        check_call_packman_update(update_pacman_call)
         preset, supports_gpu, bin_folder, install_folder, is_multiconfig = self.platform_params[self.platform]
 
         # if we are turning the GPU support off, and we are in a preset that supports GPU, we have to append wart to the end of the name
         if not self.enable_GPU and supports_gpu:
             preset += "-cpu-only"
             install_folder += "-cpu-only"
-        
+
         if self._hostPlatformLower == 'windows':
             generate_projects_cmd =  str(physx_dir / 'generate_projects.bat')
         else:
             generate_projects_cmd = str(physx_dir / 'generate_projects.sh')
-            
+
         check_call_physx_dir = functools.partial(subprocess.check_call,
             cwd=physx_dir, # generate_projects script will fail if not called from physx directory
             env=self.env
         )
-        
+
         for config in ('release', 'profile', 'checked', 'debug'):
             self.preparePreset(buildAsStaticLibs, config);
-            
+
             generate_call =[generate_projects_cmd, preset,]
             print(generate_call)
             check_call_physx_dir(generate_call)
@@ -241,12 +241,12 @@ class PhysXBuilder(object):
                     cmake_build_call =['cmake', '--build', build_dir, '--parallel']
             print(cmake_build_call)
             self.check_call(cmake_build_call)
-                
+
         # Delete bin inside install folder if exists (we'll copy them later in copyBuildOutputTo)
         bin_install_folder = physx_dir / 'install' / install_folder / 'PhysX' / 'bin'
         if bin_install_folder.exists():
             shutil.rmtree(bin_install_folder)
-        
+
         # Rename bin output folder to static/shared, avoiding the platform name in bin folder makes the FindPhysX.cmake simpler.
         if buildAsStaticLibs:
             shutil.move(physx_dir / 'bin' / bin_folder, physx_dir / 'bin' / 'static')
@@ -254,7 +254,7 @@ class PhysXBuilder(object):
         else:
             shutil.move(physx_dir / 'bin' / bin_folder, physx_dir / 'bin' / 'shared')
             shutil.move(physx_dir / 'install' / install_folder, physx_dir / 'install' / 'shared')
-             
+
         self.cleanUpLibs(buildAsStaticLibs)
 
     def build_all(self):
@@ -267,7 +267,7 @@ class PhysXBuilder(object):
     def copyBuildOutputTo(self, packageDir: pathlib.Path):
         if packageDir.exists():
             shutil.rmtree(packageDir)
-            
+
 
         shutil.copytree(
             src=self.workingDir / 'physx' / 'install' / 'static' / 'PhysX',
@@ -427,7 +427,7 @@ def main():
     with TemporaryDirectory() as tempdir:
         # Package Name
         packageName = f'{args.package_name}-{args.package_rev}-{args.platformName}'
-        
+
         # Version 5.6.1 commits
         if args.platformName == 'mac':
             commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
@@ -437,18 +437,18 @@ def main():
             commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
         else:
             commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
-            
+
         tempdir = Path(tempdir)
         builder = PhysXBuilder(workingDir=tempdir,
                                basePackageSystemDir=packageSystemDir,
                                targetPlatform=args.platformName,
                                enable_GPU =args.enable_gpu)
         builder.clone(lockToCommit=commit)
-        
+
         builder.build_all()
 
         builder.copyBuildOutputTo(packageRoot/'PhysX')
-        
+
         builder.writePackageInfoFile(
             packageRoot,
             settings={
@@ -458,7 +458,7 @@ def main():
                 'LicenseFile': 'PhysX/LICENSE.md'
             },
         )
-        
+
         builder.writeCMakeFindFile(
             packageRoot,
             cmakeFindFile
