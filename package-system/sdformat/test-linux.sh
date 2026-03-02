@@ -9,7 +9,7 @@
 
 
 # The expected SDF Version
-EXPECTED_SDF_VERSION="13.5.0"
+EXPECTED_SDF_VERSION="16.0.1"
 
 # Reset any existing test folder
 rm -rf temp/build_test
