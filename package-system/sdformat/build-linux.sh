@@ -24,11 +24,11 @@ CURRENT_HOST_ARCH=$(uname -m)
 TARGET_ARCH=${1:-$(uname -m)}
 
 # Get the base docker image name
-DOCKER_IMAGE_NAME_BASE=${2:-sdformat13}
+DOCKER_IMAGE_NAME_BASE=${2:-sdformat16}
 
-# Get the ubuntu base version (20.04|22.04)
-# Default to Ubuntu 20.04
-UBUNTU_BASE=${3:-20.04}
+# Get the ubuntu base version (22.04 or 24.04)
+# Default to Ubuntu 22.04
+UBUNTU_BASE=${3:-22.04}
 
 echo "Executing docker-based build from the following arguments"
 echo "    DOCKER_IMAGE_NAME_BASE=${DOCKER_IMAGE_NAME_BASE}"
