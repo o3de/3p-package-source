@@ -1,0 +1,23 @@
+diff --git a/build_scripts/options.py b/build_scripts/options.py
+index ba4039e99..3de5b36e7 100644
+--- a/build_scripts/options.py
++++ b/build_scripts/options.py
+@@ -486,6 +486,7 @@ class CommandMixin:
+                                            and not self.qtpaths and self.qt_target_path)):
+             use_cmake = True
+ 
++        print(f"qtpaths_abs_path = {qtpaths_abs_path}")
+         QtInfo().setup(qtpaths_abs_path, self.cmake, qmake_abs_path,
+                        self.has_qmake_option,
+                        use_cmake=use_cmake,
+@@ -498,8 +499,8 @@ class CommandMixin:
+             except Exception as e:
+                 if not self.qt_target_path:
+                     log.error(
+-                        "Could not find Qt. You can pass the --qt-target-path=<qt-dir> option "
+-                        "as a hint where to find Qt.\n")
++                        f"Could not find Qt. You can pass the --qt-target-path=<qt-dir> option "
++                        f"as a hint where to find Qt. {e}\n")
+                 else:
+                     log.error("Could not find Qt via provided option "
+                               f"--qt-target-path={qt_target_path}\n")
