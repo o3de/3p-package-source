@@ -21,13 +21,14 @@ int main(int argc, char** argv)
     }
 
     std::string_view sdfVersionFull = argv[1];
-    printf(R"(Validating SDF version "%.*s": )", sdfVersionFull.size(), sdfVersionFull.data());
+    int sdfVersionFullLength = static_cast<int>(sdfVersionFull.size());
+    printf(R"(Validating SDF version "%.*s": )", sdfVersionFullLength, sdfVersionFull.data());
 
     if (sdfVersionFull != SDF_VERSION_FULL)
     {
         printf("Failure\n"
             R"(SDformat SDF_VERSION_FULL returned a version of "%s". Expecting "%.*s".)" "\n",
-            SDF_VERSION_FULL, sdfVersionFull.size(), sdfVersionFull.data());
+            SDF_VERSION_FULL, sdfVersionFullLength, sdfVersionFull.data());
         return 1;
     }
     else

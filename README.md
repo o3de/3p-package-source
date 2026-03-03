@@ -1,6 +1,6 @@
 # 3p-package-source repo
 
-This is where the "sources" (ie, build scripts which make packages) for the O3DE package system are located.
+This is where the "sources" (i.e., build scripts which make packages) for the O3DE package system are located.
 
 Note that the "sources" of most packages are not actually stored here, most "package sources" actually just consist of a script which fetches the source code (or prebuilt packages) from somewhere else, constructs a temporary folder image for it, and then lets the package system pack that folder up as the package.
 
