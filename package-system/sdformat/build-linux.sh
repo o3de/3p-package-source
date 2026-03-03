@@ -91,8 +91,8 @@ elif [ "${TARGET_ARCH}" = "aarch64" ]
 then
     echo "Processing Docker for aarch64"
 
-    DOCKER_INPUT_ARCHITECTURE=arm64v8
-    TARGET_DOCKER_PLATFORM_ARG=linux/arm64/v8
+    DOCKER_INPUT_ARCHITECTURE=arm64
+    TARGET_DOCKER_PLATFORM_ARG=linux/arm64
 
 else
     echo "Unsupported architecture ${TARGET_ARCH}"
@@ -113,8 +113,7 @@ echo DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}
 
 echo -e "Building the docker build script for ${DOCKER_IMAGE_NAME_BASE} on ${DOCKER_INPUT_ARCHITECTURE} for Ubuntu $1\n"
 CMD_DOCKER_BUILD="\
-docker build --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT}\
-    --build-arg INPUT_ARCHITECTURE=${DOCKER_INPUT_ARCHITECTURE}\
+docker build --platform ${TARGET_DOCKER_PLATFORM_ARG} --build-arg INPUT_DOCKER_BUILD_SCRIPT=${DOCKER_BUILD_SCRIPT}\
     --build-arg INPUT_IMAGE=ubuntu:${UBUNTU_BASE}\
     --build-arg INPUT_DEPENDENT_PACKAGE_FOLDERS=${DOWNLOADED_PACKAGE_FOLDERS}\
     --build-arg USER_ID=$(id -u)\

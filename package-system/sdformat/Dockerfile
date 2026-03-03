@@ -13,13 +13,10 @@
 # Therefore it is better to not declare ARG instructions that are not used as part for the FROM instruction
 # until after it
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-# The cpu architecture to base the docker base script from
-ARG INPUT_ARCHITECTURE=amd64
-
 # The root to base the docker script base from
 ARG INPUT_IMAGE=ubuntu:22.04
 
-FROM ${INPUT_ARCHITECTURE}/${INPUT_IMAGE}
+FROM ${INPUT_IMAGE}
 
 # NOTE: Now it is safe to declare ARG instructions that are used in the build stage
 # of the image
