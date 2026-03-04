@@ -15,10 +15,10 @@
                 "depends_on_packages" :[ 
                     ["OpenSSL-1.1.1o-rev1-windows", "52b9d2bc5f3e0c6e405a0f290d1904bf545acc0c73d6a52351247d917c4a06d2", ""],
                     ["python-3.10.13-rev1-windows", "a6f1fd50552c8780852b75186a97469f77d55d06a01de73e5ca601e4a12be232", ""],
-                    ["qt-6.10.2-rev1-windows", "450caf36c2031dba14aea481cb6d94671d3c07f5b8a29e7e36f52ef6aff5964c", ""]
+                    ["qt-6.10.2-rev4-windows", "f4ed477dc55a2df10a15e39aa78de51ee0da7ca39623b8186d59b89ce79fe757", ""]
                 ],
                 "additional_download_packages":[ 
-                    ["https://download.qt.io/development_releases/prebuilt/libclang/libclang-release_130-based-windows-vs2019_64.7z", "1c7eb369d74ea5ea0580d71ca2b89d16a241294fd6cfc80eae572c646aad850e", "sha256"]
+                    ["https://download.qt.io/development_releases/prebuilt/libclang/libclang-release_140-based-windows-vs2019_64.7z", "aa139534d530c8119a8649dd9ab04498475f3168f7fdad50608e2f1daf29f84a", "sha256"]
                 ],
                 "custom_build_cmd": [
                     "build_windows.bat"
