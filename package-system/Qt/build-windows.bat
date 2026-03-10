@@ -43,6 +43,8 @@ cd b
 set _OPTS=-prefix %TARGET_INSTALL_ROOT% ^
     -submodules %QTARRAY% ^
     -platform win32-msvc ^
+    -nomake examples ^
+    -nomake tests ^
     -debug-and-release ^
     -c++std c++20 ^
     -force-debug-info ^
