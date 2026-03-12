@@ -17,7 +17,9 @@ add_library(${TARGET_WITH_NAMESPACE} INTERFACE IMPORTED GLOBAL)
 
 ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE} INTERFACE ${${LIB_NAME}_INCLUDE_DIR})
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if (MSVC)
+    target_compile_options(3rdParty::pybind11 INTERFACE /Zc:sizedDealloc)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(3rdParty::pybind11 INTERFACE -fsized-deallocation)
 endif()
 
