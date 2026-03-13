@@ -39,13 +39,16 @@ copy %INSTALL_SOURCE_RELEASE%\bin\pyside6qml.abi3.dll %PACKAGE_BASE%\lib\site-pa
 copy %INSTALL_SOURCE_RELEASE%\lib\shiboken6.abi3.lib %PACKAGE_BASE%\lib\site-packages\shiboken6\
 copy %INSTALL_SOURCE_RELEASE%\bin\shiboken6.abi3.dll %PACKAGE_BASE%\lib\site-packages\shiboken6\
 
+REM Make the include folder
+mkdir %PACKAGE_BASE%\include
+
 REM Copy the PySide6 folder
-mkdir %PACKAGE_BASE%\Pyside6
-robocopy %INSTALL_SOURCE%\Pyside6 %PACKAGE_BASE%\Pyside6 *.* /E
+mkdir %PACKAGE_BASE%\include\PySide6
+robocopy %INSTALL_SOURCE%\Pyside6\include %PACKAGE_BASE%\include\PySide6 *.* /E
 
 REM Copy the shiboken6 folder
-mkdir %PACKAGE_BASE%\shiboken6
-robocopy %INSTALL_SOURCE%\shiboken6 %PACKAGE_BASE%\shiboken6 *.* /E
+mkdir %PACKAGE_BASE%\include\shiboken6
+robocopy %INSTALL_SOURCE%\shiboken6\include %PACKAGE_BASE%\include\shiboken6 *.* /E
 
 REM Copy the shiboken6_generator folder
 mkdir %PACKAGE_BASE%\shiboken6_generator
@@ -54,10 +57,6 @@ robocopy %INSTALL_SOURCE%\shiboken6_generator %PACKAGE_BASE%\shiboken6_generator
 REM Copy over libclang and its license file
 copy %TEMP_FOLDER%\libclang-release_20.1.3-based-windows-vs2019_64\libclang\bin\libclang.dll %PACKAGE_BASE%\bin\
 copy %TEMP_FOLDER%\libclang-release_20.1.3-based-windows-vs2019_64\libclang\include\llvm\Support\LICENSE.TXT %PACKAGE_BASE%\LICENSE.LIBCLANG.TXT
-
-REM Copy the include folder
-mkdir %PACKAGE_BASE%\include
-robocopy %TEMP_FOLDER%\src\build\testenva\package\PySide6\include %PACKAGE_BASE%\include *.* /E
 
 REM Copy the lib (release) folder
 

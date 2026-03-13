@@ -5,27 +5,27 @@
 #
 #
      
-set(MY_NAME "pyside2")
+set(MY_NAME "pyside6")
 set(TARGET_WITH_NAMESPACE "3rdParty::${MY_NAME}")
 if (TARGET ${TARGET_WITH_NAMESPACE})
     return()
 endif()
 
-# Install the pyside2 site-packages into Python
+# Install the pyside6 site-packages into Python
 add_library(${TARGET_WITH_NAMESPACE} SHARED IMPORTED GLOBAL)
 
-set(PYSIDE_BASE_PATH ${CMAKE_CURRENT_LIST_DIR}/pyside2)
+set(PYSIDE_BASE_PATH ${CMAKE_CURRENT_LIST_DIR}/pyside6)
 
-# In addition to the libraries, create a Pyside2::Tools library that handles the shiboken and pyside2-lupdate executables that are part
-# of the pyside2 package
+# In addition to the libraries, create a Pyside6::Tools library that handles the shiboken and pyside6-lupdate executables that are part
+# of the pyside6 package
 set(${MY_NAME}_BIN_DIR ${PYSIDE_BASE_PATH}/bin)
 set(${MY_NAME}_LIB_DIR ${PYSIDE_BASE_PATH}/lib)
 set(${MY_NAME}_INCLUDE_DIR ${PYSIDE_BASE_PATH}/include)
 
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
-    ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages pyside2)
+    ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages PySide6)
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
-    ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.10/site-packages pyside2)
+    ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.10/site-packages PySide6)
 endif()
 
 if (PAL_PLATFORM_NAME STREQUAL "Linux")
@@ -33,9 +33,9 @@ if (PAL_PLATFORM_NAME STREQUAL "Linux")
         ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15.2.1
         ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15
         ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15.2.1
-        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15
-        ${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15.2.1
+        ${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15
+        ${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
     
     ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES ${${MY_NAME}_RUNTIME_DEPENDENCIES})
@@ -44,38 +44,38 @@ endif()
 ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
     INTERFACE 
         ${${MY_NAME}_INCLUDE_DIR}
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtConcurrent
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtCore
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtGui
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtNetwork
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtOpenGL
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtOpenGLFunctions
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtSql
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtSvg
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtWidgets
-        ${${MY_NAME}_INCLUDE_DIR}/PySide2/QtXml
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtConcurrent
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtCore
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtGui
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtNetwork
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtOpenGL
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtOpenGLWidgets
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSql
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSvg
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtWidgets
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtXml
 )
 
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
-        ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/share
-        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide2/pyside2_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside6/share
+        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/PySide6/pyside6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/PySide6/pyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide6/pyside6_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide6/pyside6_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
     )
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
-        ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside2/share
-        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside6/share
+        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libpyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libpyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
     )   
 endif()
 
 set(${MY_NAME}_TOOLS_BINARIES
-    ${${MY_NAME}_BIN_DIR}/pyside2-lupdate${CMAKE_EXECUTABLE_SUFFIX}
-    ${${MY_NAME}_BIN_DIR}/shiboken2${CMAKE_EXECUTABLE_SUFFIX}
+    ${${MY_NAME}_BIN_DIR}/pyside6-lupdate${CMAKE_EXECUTABLE_SUFFIX}
+    ${${MY_NAME}_BIN_DIR}/shiboken6${CMAKE_EXECUTABLE_SUFFIX}
 )
 
 set(${MY_NAME}_TOOLS_PYTHON_SCRIPTS
@@ -98,20 +98,20 @@ ly_add_target_files(TARGETS ${MY_NAME}::Tools FILES
 )
 
 ly_target_include_system_directories(TARGET ${MY_NAME}::Tools
-    INTERFACE ${${MY_NAME}_INCLUDE_DIR}/shiboken2
+    INTERFACE ${${MY_NAME}_INCLUDE_DIR}/shiboken6
 )
 
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${MY_NAME}::Tools PROPERTIES  
-        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/shiboken2/shiboken2.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/shiboken2/shiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/shiboken2/shiboken2_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/shiboken2/shiboken2_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/shiboken6/shiboken6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/shiboken6/shiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/shiboken6/shiboken6_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/shiboken6/shiboken6_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
     )
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
     set_target_properties(${MY_NAME}::Tools PROPERTIES  
-        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libshiboken2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
     )
 endif()
 
@@ -119,7 +119,7 @@ add_library(${TARGET_WITH_NAMESPACE}::Tools ALIAS ${MY_NAME}::Tools)
 
 # Add shiboken generator exe tool.
 add_executable(${MY_NAME}::ShibokenTool IMPORTED GLOBAL)
-set_target_properties(${MY_NAME}::ShibokenTool PROPERTIES IMPORTED_LOCATION "${${MY_NAME}_BIN_DIR}/shiboken2${CMAKE_EXECUTABLE_SUFFIX}")
+set_target_properties(${MY_NAME}::ShibokenTool PROPERTIES IMPORTED_LOCATION "${${MY_NAME}_BIN_DIR}/shiboken6${CMAKE_EXECUTABLE_SUFFIX}")
 add_executable(${TARGET_WITH_NAMESPACE}::ShibokenTool ALIAS ${MY_NAME}::ShibokenTool)
 
 function(add_shiboken_project)
