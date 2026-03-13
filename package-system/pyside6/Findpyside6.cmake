@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 #
-     
+
 set(MY_NAME "pyside6")
 set(TARGET_WITH_NAMESPACE "3rdParty::${MY_NAME}")
 if (TARGET ${TARGET_WITH_NAMESPACE})
@@ -30,11 +30,7 @@ endif()
 
 if (PAL_PLATFORM_NAME STREQUAL "Linux")
     set(${MY_NAME}_RUNTIME_DEPENDENCIES
-        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15.2.1
-        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15
-        ${${MY_NAME}_LIB_DIR}/libpyside2.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
-        ${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15.2.1
-        ${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}.5.15
+        ${${MY_NAME}_LIB_DIR}/libpyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
         ${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
     
@@ -60,21 +56,18 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
         ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside6/share
-        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/PySide6/pyside6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/PySide6/pyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide6/pyside6_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/PySide6/pyside6_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/pyside6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION "${${MY_NAME}_BIN_DIR}/pyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
     )
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
         ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside6/share
         IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libpyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libpyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
     )   
 endif()
 
 set(${MY_NAME}_TOOLS_BINARIES
-    ${${MY_NAME}_BIN_DIR}/pyside6-lupdate${CMAKE_EXECUTABLE_SUFFIX}
+    ${${MY_NAME}_BIN_DIR}/lupdate${CMAKE_EXECUTABLE_SUFFIX}
     ${${MY_NAME}_BIN_DIR}/shiboken6${CMAKE_EXECUTABLE_SUFFIX}
 )
 
@@ -103,15 +96,12 @@ ly_target_include_system_directories(TARGET ${MY_NAME}::Tools
 
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${MY_NAME}::Tools PROPERTIES  
-        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/site-packages/shiboken6/shiboken6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/site-packages/shiboken6/shiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/shiboken6/shiboken6_d.cp310-win_amd64${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/site-packages/shiboken6/shiboken6_d.cp310-win_amd64${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/shiboken6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION "${${MY_NAME}_BIN_DIR}/shiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
     )
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
     set_target_properties(${MY_NAME}::Tools PROPERTIES  
         IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
     )
 endif()
 
@@ -156,7 +146,7 @@ function(add_shiboken_project)
     # Reformat the generated files list to prepend the containing folder.
     list(TRANSFORM GENERATED_FILES PREPEND "${CMAKE_CURRENT_BINARY_DIR}/${add_shiboken_project_MODULE_NAME}/")
     
-    get_property(SHARE_DIR TARGET 3rdParty::pyside2 PROPERTY pyside2_SHARE_DIR)
+    get_property(SHARE_DIR TARGET 3rdParty::pyside6 PROPERTY pyside6_SHARE_DIR)
         
     # Allow AUTOMOC/AUTOUIC on generated files.
     if(POLICY CMP0071)
@@ -169,8 +159,8 @@ function(add_shiboken_project)
         --avoid-protected-hack --language-level=c++17 --debug-level=full
         --license-file=${add_shiboken_project_LICENSE_HEADER}
         ${add_shiboken_project_INCLUDE_DIRS}
-        -T${SHARE_DIR}/PySide2
-        -T${SHARE_DIR}/PySide2/typesystems
+        -T${SHARE_DIR}/PySide6
+        -T${SHARE_DIR}/PySide6/typesystems
         --output-directory=${CMAKE_CURRENT_BINARY_DIR}
     )
     
@@ -179,8 +169,8 @@ function(add_shiboken_project)
     # Custom shiboken command to generate wrapped files. Set the working directory to qt/bin so that shiboken can load necessary dlls.
     add_custom_command(
         OUTPUT ${GENERATED_FILES}
-        COMMAND 3rdParty::pyside2::ShibokenTool ${shiboken_options} ${add_shiboken_project_WRAPPED_HEADER} ${add_shiboken_project_TYPESYSTEM_FILE}
-        DEPENDS ${generated_sources_dependencies} 3rdParty::pyside2
+        COMMAND 3rdParty::pyside6::ShibokenTool ${shiboken_options} ${add_shiboken_project_WRAPPED_HEADER} ${add_shiboken_project_TYPESYSTEM_FILE}
+        DEPENDS ${generated_sources_dependencies} 3rdParty::pyside6
         COMMENT "Running generator for ${add_shiboken_project_TYPESYSTEM_FILE}."
         WORKING_DIRECTORY ${QT_PATH}/bin
         VERBATIM
@@ -197,14 +187,14 @@ function(add_shiboken_project)
             ${add_shiboken_project_GENERATED_FILES}
         BUILD_DEPENDENCIES
             PUBLIC
-                3rdParty::pyside2
+                3rdParty::pyside6
                 Qt5::Widgets
                 Qt5::Core
                 Qt5::Widgets
                 Qt5::Gui
                 ${add_shiboken_project_DEPENDENCIES}
             PRIVATE
-                3rdParty::pyside2::Tools
+                3rdParty::pyside6::Tools
     )
         
     ly_create_alias(NAME ${add_shiboken_project_NAME}.Builders NAMESPACE add_shiboken_project_NAMESPACE TARGETS ${add_shiboken_project_NAME}.Editor)
