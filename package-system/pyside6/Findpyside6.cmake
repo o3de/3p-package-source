@@ -49,6 +49,8 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtOpenGLWidgets
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSql
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSvg
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSvgWidgets
+        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtUiTools
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtWidgets
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtXml
 )
@@ -188,10 +190,10 @@ function(add_shiboken_project)
         BUILD_DEPENDENCIES
             PUBLIC
                 3rdParty::pyside6
-                Qt5::Widgets
-                Qt5::Core
-                Qt5::Widgets
-                Qt5::Gui
+                Qt6::Widgets
+                Qt6::Core
+                Qt6::Widgets
+                Qt6::Gui
                 ${add_shiboken_project_DEPENDENCIES}
             PRIVATE
                 3rdParty::pyside6::Tools
