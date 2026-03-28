@@ -34,6 +34,19 @@ index 9891eab3f..b210c41ab 100644
      # For Windows and Linux, QtWebView depends on QtWebEngine to render content.
      # On Android and Apple platforms, QtWebView uses the native webview backend and
      # does not require QtWebEngine.
+diff --git a/sources/pyside6/cmake/PySideSetup.cmake b/sources/pyside6/cmake/PySideSetup.cmake
+index 72d6a1ccf..af767d76c 100644
+--- a/sources/pyside6/cmake/PySideSetup.cmake
++++ b/sources/pyside6/cmake/PySideSetup.cmake
+@@ -215,7 +215,7 @@ endforeach()
+ find_package(Qt6 COMPONENTS Qml)
+ 
+ # Whether to add libpysideremoteobjects
+-find_package(Qt6 COMPONENTS RemoteObjects)
++#find_package(Qt6 COMPONENTS RemoteObjects)
+ 
+ string(REGEX MATCHALL "[0-9]+" qt_version_helper "${Qt${QT_MAJOR_VERSION}Core_VERSION}")
+ 
 diff --git a/sources/shiboken6/cmake/ShibokenHelpers.cmake b/sources/shiboken6/cmake/ShibokenHelpers.cmake
 index 0e993fadb..f32b4da8c 100644
 --- a/sources/shiboken6/cmake/ShibokenHelpers.cmake
