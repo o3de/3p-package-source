@@ -13,13 +13,10 @@
 # Therefore it is better to not declare ARG instructions that are not used as part for the FROM instruction
 # until after it
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-# The cpu architecture to base the docker base script from
-ARG INPUT_ARCHITECTURE=amd64
-
 # The root to base the docker script base from
-ARG INPUT_IMAGE=ubuntu:20.04
+ARG INPUT_IMAGE=ubuntu:22.04
 
-FROM ${INPUT_ARCHITECTURE}/${INPUT_IMAGE}
+FROM ${INPUT_IMAGE}
 
 # NOTE: Now it is safe to declare ARG instructions that are used in the build stage
 # of the image
@@ -31,13 +28,13 @@ ARG INPUT_DOCKER_BUILD_SCRIPT=docker_build_sdformat.sh
 ARG INPUT_DEPENDENT_PACKAGE_FOLDERS
 
 # Set the github tag for gz-cmake
-ARG INPUT_DEP_GZ_CMAKE_GIT_TAG=gz-cmake3_3.3.0
-ARG INPUT_DEP_TINYXML2_GIT_TAG=9.0.0
-# Pinning to the gz-math7 release which libsdformat has a dependency on
-ARG INPUT_DEP_GZ_MATH_GIT_TAG=gz-math7_7.2.0
-# Pinning to the gz-utils2 to the last release in September 2022
-# The libsdformat has an explicit dependency on gz-utils2
-ARG INPUT_DEP_GZ_UTILS_GIT_TAG=gz-utils2_2.0.0
+ARG INPUT_DEP_GZ_CMAKE_GIT_TAG=gz-cmake5_5.0.2
+ARG INPUT_DEP_TINYXML2_GIT_TAG=11.0.0
+# Pinning to the gz-math9 release which libsdformat has a dependency on
+ARG INPUT_DEP_GZ_MATH_GIT_TAG=gz-math9_9.0.0
+# Pinning to the gz-utils4 to the last release in September 2022
+# The libsdformat has an explicit dependency on gz-utils4
+ARG INPUT_DEP_GZ_UTILS_GIT_TAG=gz-utils4_4.0.0
 
 
 # Get access to the user ID and group ID of the user running the docker
@@ -77,7 +74,8 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-
 RUN apt-get install -y build-essential \
                        cmake \
                        git \
-                       ruby
+                       ruby \
+                       python3
 
 
 # Add a user called "user" that will be used inside the docker

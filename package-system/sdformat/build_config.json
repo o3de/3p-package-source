@@ -1,45 +1,45 @@
 {
-   "git_url":"https://github.com/gazebosim/sdformat.git",
-   "git_tag":"sdformat13_13.5.0",
-   "package_name":"sdformat",
-   "package_version":"13.5.0-rev2",
-   "package_url":"https://github.com/gazebosim/sdformat.git",
-   "package_license":"Apache-2.0",
-   "package_license_file":"LICENSE",
+   "git_url": "https://github.com/gazebosim/sdformat.git",
+   "git_tag": "sdformat16_16.0.1",
+   "package_name": "sdformat",
+   "package_version": "16.0.1-rev1",
+   "package_url": "https://github.com/gazebosim/sdformat.git",
+   "package_license": "Apache-2.0",
+   "package_license_file": "LICENSE",
    "patch_file": "fortify.patch",
-   "cmake_find_target":"Findsdformat.cmake",
-   "Platforms":{
-      "Linux":{
-         "Linux":{
-            "cmake_find_template":"Findsdformat.cmake.template",
+   "cmake_find_target": "Findsdformat.cmake",
+   "Platforms": {
+      "Linux": {
+         "Linux": {
+            "cmake_find_template": "Findsdformat.cmake.template",
             "custom_build_cmd": [
                "./build-host-os.sh",
                "x86_64",
-               "sdformat13",
-               "20.04"
+               "sdformat16",
+               "22.04"
             ],
             "custom_install_cmd": [
                "./install-linux.sh",
                "install"
             ],
-            "custom_test_cmd" : [
+            "custom_test_cmd": [
                "./test-linux.sh",
                "x86_64"
             ]
          },
-         "Linux-aarch64":{
-            "cmake_find_template":"Findsdformat.cmake.template",
+         "Linux-aarch64": {
+            "cmake_find_template": "Findsdformat.cmake.template",
             "custom_build_cmd": [
                "./build-host-os.sh",
                "aarch64",
-               "sdformat13",
-               "20.04"
+               "sdformat16",
+               "22.04"
             ],
             "custom_install_cmd": [
                "./install-linux.sh",
                "install"
             ],
-            "custom_test_cmd" : [
+            "custom_test_cmd": [
                "./test-linux.sh",
                "aarch64"
             ]
