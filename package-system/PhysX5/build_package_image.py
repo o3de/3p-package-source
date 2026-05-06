@@ -35,7 +35,7 @@ class PhysXBuilder(object):
         )
 
         if self.enable_GPU:
-            print(f"NOTE: Building PhysX with GPU support requires a CUDA installation, and has only been tested with CUDA v12.8.1")
+            print(f"NOTE: Building PhysX with GPU support requires a CUDA installation, and has only been tested with CUDA v12.8.1") # Current CUDA version is 13.2 as of March 2026
 
         if self.enable_GPU and self._platform in ('windows'):
             if self._env.get("PM_CUDA_PATH") is None:
