@@ -32,7 +32,7 @@ function(ly_declare_aws_library)
 
     set(options)
     set(oneValueArgs NAME LIB_FILE)
-    set(multiValueArgs BUILD_DEPENDENCIES)
+    set(multiValueArgs BUILD_DEPENDENCIES RUNTIME_DEPENDENCIES)
     
     cmake_parse_arguments(ly_declare_aws_library "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -61,6 +61,11 @@ function(ly_declare_aws_library)
                 )
                 ly_add_dependencies(${TARGET_WITH_NAMESPACE} ${AWSNATIVE_SDK_LIB_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}${ly_declare_aws_library_LIB_FILE}${CMAKE_SHARED_LIBRARY_SUFFIX}
                 ${ly_declare_aws_library_BUILD_DEPENDENCIES})
+
+                # Add any runtime dependencies if exist
+                if (ly_declare_aws_library_RUNTIME_DEPENDENCIES)
+                    ly_add_dependencies(${TARGET_WITH_NAMESPACE} ${ly_declare_aws_library_RUNTIME_DEPENDENCIES})
+                endif()
             endif()
                     
         elseif (ly_declare_aws_library_BUILD_DEPENDENCIES)
@@ -97,6 +102,22 @@ set(CORE_STATIC_LIBS
     ${AWSNATIVE_SDK_LIB_PATH}/libcurl.a
 )
 
+set(CORE_SHARED_LIBS
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-crt-cpp.so
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-mqtt.so.1.0.0
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-event-stream.so.1.0.0
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-s3.so.0unstable
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-auth.so.1.0.0
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-http.so.1.0.0
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-io.so.1.0.0
+    ${AWSNATIVE_SDK_LIB_PATH}/libs2n.so.1
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-compression.so.1.0.0
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-cal.so.1.0.0
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-sdkutils.so.1.0.0
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-checksums.so.1.0.0
+    ${AWSNATIVE_SDK_LIB_PATH}/libaws-c-common.so.1
+)
+
 if(LY_MONOLITHIC_GAME)
     ly_declare_aws_library(
         NAME 
@@ -113,6 +134,8 @@ else()
         LIB_FILE 
             aws-cpp-sdk-core
             curl
+        RUNTIME_DEPENDENCIES
+            ${CORE_SHARED_LIBS}
     )
 endif()
 
