@@ -1,0 +1,6 @@
+{
+    "PackageName" : "package-with-custom-license",
+    "URL"         : "https://example.com",
+    "License"     : "Custom",
+    "LicenseFile" : "LICENSE.txt"
+}

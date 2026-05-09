@@ -1,0 +1,6 @@
+{
+    "PackageName" : "normal_package",
+    "URL"         : "https://example.com",
+    "License"     : "MIT",
+    "LicenseFile" : "LICENSE.txt"
+}
