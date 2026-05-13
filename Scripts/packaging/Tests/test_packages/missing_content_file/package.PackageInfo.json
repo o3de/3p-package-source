@@ -1,0 +1,6 @@
+{
+    "PackageName" : "package_with_missing_file",
+    "URL"         : "https://example.com",
+    "License"     : "MIT",
+    "LicenseFile" : "LICENSE.txt"
+}

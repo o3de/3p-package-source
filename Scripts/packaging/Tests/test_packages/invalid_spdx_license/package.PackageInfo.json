@@ -1,0 +1,6 @@
+{
+    "PackageName" : "minimal_package",
+    "URL"         : "https://example.com",
+    "License"     : "InvalidLicense",
+    "LicenseFile" : "LICENSE.txt"
+}

@@ -70,6 +70,8 @@ cd ${BUILD_PATH}
 _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -submodules ${QTARRAY} \
     -platform linux-clang \
+    -nomake examples \
+    -nomake tests \
     -release \
     -c++std c++20 \
     -opensource \

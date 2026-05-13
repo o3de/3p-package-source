@@ -1,0 +1,6 @@
+{
+    "PackageName" : "package_symlink",
+    "URL"         : "https://example.com",
+    "License"     : "MIT",
+    "LicenseFile" : "LICENSE.txt"
+}
