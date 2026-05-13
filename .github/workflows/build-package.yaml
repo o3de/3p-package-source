@@ -261,7 +261,7 @@ jobs:
     - name: Install clang/gcc
       if: runner.os == 'Linux'
       env:
-        CLANG_VER: 12
+        CLANG_VER: 18
         GCC_VER: 9
       run: |
         sudo apt-get install -y clang-${{ env.CLANG_VER }} gcc-${{ env.GCC_VER }} g++-${{ env.GCC_VER }} libclang-${{ env.CLANG_VER }}-dev
