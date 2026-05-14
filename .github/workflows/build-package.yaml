@@ -284,6 +284,11 @@ jobs:
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ env.GCC_VER }} 10
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ env.GCC_VER }} 10
 
+    - name: Install additional build dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get install -y libgl1-mesa-dev libpcre2-dev chrpath
+
     - name: Use sccache
       uses: hendrikmuhs/ccache-action@v1.2.10
       if: ${{ !contains(matrix.os, 'arm') }} # Set sccache compiler launcher
