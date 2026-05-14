@@ -287,7 +287,12 @@ jobs:
     - name: Install additional build dependencies
       if: runner.os == 'Linux'
       run: |
-        sudo apt-get install -y libgl1-mesa-dev libpcre2-dev chrpath
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev libpcre2-dev chrpath \
+                                libxkbcommon-dev libxkbcommon-x11-dev \
+                                libx11-dev libxext-dev libxrender-dev \
+                                libxrandr-dev libxinerama-dev libxi-dev \
+                                libxkbfile-dev
 
     - name: Use sccache
       uses: hendrikmuhs/ccache-action@v1.2.10
