@@ -17,6 +17,8 @@ import ssl
 import certifi
 import urllib.request 
 
+IS_MAC = platform.system() == 'Darwin'
+
 class InvalidHashFormatException(Exception):
     '''Raised when a hash file (SHA256SUMS file) being parsed has a bad format'''
     pass
@@ -213,14 +215,22 @@ class CommonUtils():
 
                     # files may not be read only inside the archive.
                     if not os.access(file_abspath, os.W_OK):
-                        print(f"ERROR, Files are read-only in the archive: {relpath_from_folder}")
-                        st = os.stat(file_abspath)
-                        os.chmod(file_abspath, st.st_mode | stat.S_IWUSR)
+                        print(f"Warning, {name} is read-only in the archive: {relpath_from_folder}")
+                        try:
+                            st = os.stat(file_abspath)
+                            if IS_MAC:
+                                # Explicitly set it on MacOS
+                                os.chmod(file_abspath, 0o644)
+                            else:
+                                os.chmod(file_abspath, st.st_mode | stat.S_IWUSR)
+                        except OSError as e:
+                            print(f"WARNING: Could not fix read-only file permissions for {relpath_from_folder}: {e}")
+                            # Continue without bailing - the file might be a symlink or inaccessible
+                        else:
+                            # we dont bail immediately because we need to actually set all of these
+                            # to be writable by user or else removing the temp dir will fail
+                            found_readonly_files = True
 
-                        # we dont bail immediately because we need to actually set all of these
-                        # to be writable by user or else removing the temp dir will fail
-                        found_readonly_files = True
-                    
                     if relpath_from_folder != CommonUtils.package_root_hash_file_name: #ignore the SHA256SUMS file itself
                         actual_files.append(relpath_from_folder)
 

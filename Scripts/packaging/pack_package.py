@@ -66,10 +66,7 @@ def PackageUpFolder(package_folder_path, output_folder):
     # Using glob.glob will 'see' symlinks, but it skips hidden files. In order to get
     # all files, including hidden ones, and also see symlinks, we need to both approaches
     # and then merge the results.
-
-    # On Darwin, the pathlib.glob is giving problems for large archives, so for now
-    # don't use it and only apply the glob technique
-    path_list_1 = [] if platform.name() == 'Darwin' else list(path_to_scan.glob("**/*"))
+    path_list_1 = list(path_to_scan.glob("**/*"))
     path_list_2 = list(glob(f"{path_to_scan}/**/*", recursive=True))
 
     path_list = list(set(path_list_1 + path_list_2))

@@ -54,11 +54,12 @@ fi
 
 # The installation target on darwin is not installing the framework's header paths in the main
 # include folder. Create a symlink to the headers there for backwards compatibility
-qtframeworks=(QtConcurrent QtCore QtDBus QtDesigner QtDesignerComponents QtGui QtHelp QtMacExtras QtNetwork QtOpenGL QtPrintSupport QtQml QtQmlModels QtQmlWorkerScript QtQuick QtQuickParticles QtQuickShapes QtQuickTest QtQuickWidgets QtSql QtSvg QtTest QtUiPlugin QtWidgets QtXml QtZlib)
+qtframeworks=(QtLabsPlatform QtQuickControls2 QtQuickParticles QtQuickControls2ImagineStyleImpl QtQuickControls2BasicStyleImpl QtLabsSharedImage QtQmlMeta QtDesigner QtQuickControls2FusionStyleImpl QtQuickShapesDesignHelpers QtQuickWidgets QtQuickControls2Material QtQmlXmlListModel QtShaderTools QtLabsSynchronizer QtQuickLayouts QtQuickControls2Basic QtHelp QtQuickVectorImage QtPrintSupport QtGui QtDBus QtQuickControls2Fusion QtQuickTemplates2 QtQuickDialogs2Utils QtXml QtQuick QtQuickEffects QtCore QtQuickDialogs2QuickImpl QtQmlNetwork QtQml QtQuickVectorImageGenerator QtQmlCore QtQmlWorkerScript QtQuickControls2Impl QtOpenGL QtLabsQmlModels QtQuickControls2Universal QtQmlLocalStorage QtQmlCompiler QtOpenGLWidgets QtUiTools QtLabsSettings QtSvgWidgets QtQuickControls2MacOSStyleImpl QtQuickControls2MaterialStyleImpl QtTest QtWidgets QtQuickShapes QtQuickTest QtNetwork QtQuickControls2UniversalStyleImpl QtSvg QtQuickControls2IOSStyleImpl QtDesignerComponents QtQuickControls2Imagine QtQuickVectorImageHelpers QtQmlModels QtLabsAnimation QtLabsFolderListModel QtQuickControls2FluentWinUI3StyleImpl QtQuickDialogs2 QtLabsWavefrontMesh QtSql QtConcurrent)
 
 cd $TARGET_INSTALL_ROOT/include
 for qtframework in "${qtframeworks[@]}"; do
     if [ -d $TARGET_INSTALL_ROOT/lib/$qtframework.framework/Headers ]; then
+        chmod 755 $TARGET_INSTALL_ROOT/lib/$qtframework.framework
         echo "Linking ${TARGET_INSTALL_ROOT}/lib/${qtframework}.framework/Headers/ to ${TARGET_INSTALL_ROOT}/include/${qtframework}"
         ln -s ../lib/$qtframework.framework/Headers/ $qtframework
     else
