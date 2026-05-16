@@ -213,6 +213,11 @@ class CommonUtils():
                     file_abspath = os.path.join(root, name)
                     relpath_from_folder = str(pathlib.Path(file_abspath).relative_to(package_image_folder).as_posix())
 
+                    if not os.path.exists(file_abspath):
+                        print(f"WARNING: File does not exist: {file_abspath}")
+                        print(f"ROOT DIR FILES: {'.'.join(os.listdir(root))}")
+                        continue
+
                     # files may not be read only inside the archive.
                     if not os.access(file_abspath, os.W_OK):
                         print(f"Warning, {name} is read-only in the archive: {relpath_from_folder}")

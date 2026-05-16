@@ -59,9 +59,8 @@ qtframeworks=(QtLabsPlatform QtQuickControls2 QtQuickParticles QtQuickControls2I
 cd $TARGET_INSTALL_ROOT/include
 for qtframework in "${qtframeworks[@]}"; do
     if [ -d $TARGET_INSTALL_ROOT/lib/$qtframework.framework/Headers ]; then
-        chmod 755 $TARGET_INSTALL_ROOT/lib/$qtframework.framework
-        echo "Linking ${TARGET_INSTALL_ROOT}/lib/${qtframework}.framework/Headers/ to ${TARGET_INSTALL_ROOT}/include/${qtframework}"
-        ln -s ../lib/$qtframework.framework/Headers/ $qtframework
+        echo "Linking ${TARGET_INSTALL_ROOT}/lib/${qtframework}.framework/Headers to ${TARGET_INSTALL_ROOT}/include/${qtframework}"
+        ln -sfF ../lib/$qtframework.framework/Headers $qtframework
     else
         echo "Unable to find $TARGET_INSTALL_ROOT/lib/${qtframework}.framework/Headers (${qtframework}) Skipping.."
     fi
