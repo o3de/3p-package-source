@@ -62,11 +62,16 @@ def PackageUpFolder(package_folder_path, output_folder):
     files_to_add = {} # map of 'absolute path' -> relative path from the package root
 
     # Note:  While it would be great to use pathlib.glob, it doesn't 'see' symlinks!
-    # We have to use glob.glob instead, then wrap it in a pathlib.Path:
-    path_list = list(path_to_scan.glob("**/*"))
+    # Using glob.glob will 'see' symlinks, but it skips hidden files. In order to get
+    # all files, including hidden ones, and also see symlinks, we need to both approaches
+    # and then merge the results.
+    path_list_1 = list(path_to_scan.glob("**/*"))
+    path_list_2 = list(glob(f"{path_to_scan}/**/*", recursive=True))
+
+    path_list = list(set(path_list_1 + path_list_2))
     for path_str in path_list:
         individual_path = pathlib.Path(path_str)
-        if not individual_path.is_dir():
+        if not individual_path.is_dir() and individual_path.is_file():
             individual_relpath = individual_path.relative_to(package_folder_path)
             individual_relpath = individual_relpath.as_posix()
             individual_abspath = individual_path.absolute()
