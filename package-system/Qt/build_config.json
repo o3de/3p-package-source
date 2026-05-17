@@ -11,7 +11,8 @@
     "Platforms": {
         "Windows": {
             "Windows": {
-                "package_version": "6.10.2-rev4",
+                "patch_file": "recursion-check.patch",
+                "package_version": "6.10.2-rev5",
                 "depends_on_packages": [
                     ["OpenSSL-1.1.1o-rev1-windows", "52b9d2bc5f3e0c6e405a0f290d1904bf545acc0c73d6a52351247d917c4a06d2", ""],
                     ["tiff-4.2.0.15-rev3-windows", "c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60", ""],
@@ -42,8 +43,9 @@
                 ]
             },
             "Mac-arm64": {
+                "patch_file": "recursion-check.patch",
                 "cmake_find_source": "FindQt.cmake",
-                "package_version": "6.10.2-rev4",
+                "package_version": "6.10.2-rev5",
                 "custom_build_cmd": [
                     "./build-darwin-arm64.sh"
                 ],
@@ -54,7 +56,8 @@
         },
         "Linux": {
             "Linux": {
-                "package_version": "6.10.2-rev4",
+                "patch_file": "recursion-check.patch",
+                "package_version": "6.10.2-rev5",
                 "depends_on_packages": [
                     ["OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", ""],
                     ["tiff-4.2.0.15-rev3-linux", "2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a", ""],

@@ -33,7 +33,7 @@ jobs:
           shell: /bin/bash
           install: |
             ## Set variables. "env" not supported in install phase
-            export CLANG_VER=12
+            export CLANG_VER=15
             export GCC_VER=9
             export SCCACHE_VER=0.5.4
             export CMAKE_VER=3.27.6
