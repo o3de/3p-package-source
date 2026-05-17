@@ -15,7 +15,7 @@ echo.
 echo TEMP_FOLDER=%TEMP_FOLDER%
 echo.
 
-REM Set these before running the script
+REM Attempt to find the visual studio VCVARS path if the ENV is not set. Note: Add more paths if you have other versions of Visual Studio installed.
 if not defined VCVARS_PATH (
     if exist "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" (
         set VCVARS_PATH="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
@@ -68,7 +68,7 @@ set LLVM_INSTALL_DIR=%TEMP_FOLDER%\libclang-release_20.1.3-based-windows-vs2019_
 set PATH=%LLVM_INSTALL_DIR%\bin;%PATH%
 
 call %TEMP_FOLDER%\testenv\Scripts\python.exe setup.py install ^
-    --qtpaths=%TEMP_FOLDER%\qt-6.10.2-rev4-windows\qt\bin\qtpaths6.exe ^
+    --qtpaths=%TEMP_FOLDER%\qt-6.10.2-rev5-windows\qt\bin\qtpaths6.exe ^
     --ignore-git ^
     --parallel=8 ^
     --build-type=all ^
