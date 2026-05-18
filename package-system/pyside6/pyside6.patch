@@ -1,0 +1,61 @@
+diff --git a/build_scripts/options.py b/build_scripts/options.py
+index ba4039e99..3de5b36e7 100644
+--- a/build_scripts/options.py
++++ b/build_scripts/options.py
+@@ -486,6 +486,7 @@ class CommandMixin:
+                                            and not self.qtpaths and self.qt_target_path)):
+             use_cmake = True
+ 
++        print(f"qtpaths_abs_path = {qtpaths_abs_path}")
+         QtInfo().setup(qtpaths_abs_path, self.cmake, qmake_abs_path,
+                        self.has_qmake_option,
+                        use_cmake=use_cmake,
+@@ -498,8 +499,8 @@ class CommandMixin:
+             except Exception as e:
+                 if not self.qt_target_path:
+                     log.error(
+-                        "Could not find Qt. You can pass the --qt-target-path=<qt-dir> option "
+-                        "as a hint where to find Qt.\n")
++                        f"Could not find Qt. You can pass the --qt-target-path=<qt-dir> option "
++                        f"as a hint where to find Qt. {e}\n")
+                 else:
+                     log.error("Could not find Qt via provided option "
+                               f"--qt-target-path={qt_target_path}\n")
+diff --git a/sources/pyside6/cmake/PySideHelpers.cmake b/sources/pyside6/cmake/PySideHelpers.cmake
+index 9891eab3f..b210c41ab 100644
+--- a/sources/pyside6/cmake/PySideHelpers.cmake
++++ b/sources/pyside6/cmake/PySideHelpers.cmake
+@@ -132,7 +132,7 @@ macro(collect_optional_modules)
+     endif()
+     list(APPEND ALL_OPTIONAL_MODULES WebChannel WebEngineCore WebEngineWidgets
+          WebEngineQuick WebSockets HttpServer)
+-    find_package(Qt${QT_MAJOR_VERSION}WebEngineQuick)
++    # find_package(Qt${QT_MAJOR_VERSION}WebEngineQuick)
+     # For Windows and Linux, QtWebView depends on QtWebEngine to render content.
+     # On Android and Apple platforms, QtWebView uses the native webview backend and
+     # does not require QtWebEngine.
+diff --git a/sources/pyside6/cmake/PySideSetup.cmake b/sources/pyside6/cmake/PySideSetup.cmake
+index 72d6a1ccf..af767d76c 100644
+--- a/sources/pyside6/cmake/PySideSetup.cmake
++++ b/sources/pyside6/cmake/PySideSetup.cmake
+@@ -215,7 +215,7 @@ endforeach()
+ find_package(Qt6 COMPONENTS Qml)
+ 
+ # Whether to add libpysideremoteobjects
+-find_package(Qt6 COMPONENTS RemoteObjects)
++#find_package(Qt6 COMPONENTS RemoteObjects)
+ 
+ string(REGEX MATCHALL "[0-9]+" qt_version_helper "${Qt${QT_MAJOR_VERSION}Core_VERSION}")
+ 
+diff --git a/sources/shiboken6/cmake/ShibokenHelpers.cmake b/sources/shiboken6/cmake/ShibokenHelpers.cmake
+index 0e993fadb..f32b4da8c 100644
+--- a/sources/shiboken6/cmake/ShibokenHelpers.cmake
++++ b/sources/shiboken6/cmake/ShibokenHelpers.cmake
+@@ -191,7 +191,6 @@ macro(setup_clang)
+         list(PREPEND CMAKE_PREFIX_PATH "$ENV{CLANG_INSTALL_DIR}")
+         list(PREPEND CMAKE_FIND_ROOT_PATH "$ENV{CLANG_INSTALL_DIR}")
+     endif()
+-
+     find_package(Clang CONFIG REQUIRED)
+     # Need to explicitly handle the version check, because the Clang package doesn't.
+     set(REQUIRED_LLVM "18.0")
