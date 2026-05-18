@@ -31,7 +31,7 @@
             "Linux": {
                 "depends_on_packages" :[
                     ["python-3.10.13-rev2-linux", "a7832f9170a3ac93fbe678e9b3d99a977daa03bb667d25885967e8b4977b86f8", ""],
-                    ["qt-6.10.2-rev4-linux", "b1966c56788fdc28d91c3d859780a8786816c00754b07b6d8a72e6a20e926168", ""]
+                    ["qt-6.10.2-rev5-linux", "1771f261060e33b90312aee05647d17d5f24c59d61834e09b7e98f3065058d31", ""]
                 ],
                 "custom_build_cmd": [
                     "./build_linux.sh"
