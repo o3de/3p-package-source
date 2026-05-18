@@ -56,11 +56,11 @@ $TEMP_FOLDER/testenv/bin/pip3 install -r $TEMP_FOLDER/src/requirements.txt
 
 echo "Installing build dependencies"
 
-echo Building Pyside2
+echo Building Pyside6
 
 cd $TEMP_FOLDER/src
 $TEMP_FOLDER/testenv/bin/python3 setup.py install \
-    --qtpaths=$TEMP_FOLDER/qt-6.10.2-rev4-linux/qt/bin/qtpaths6 \
+    --qtpaths=$TEMP_FOLDER/qt-6.10.2-rev5-linux/qt/bin/qtpaths6 \
     --ignore-git \
     --parallel=8 \
     --build-type=all \
