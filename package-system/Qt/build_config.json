@@ -45,7 +45,7 @@
             "Mac-arm64": {
                 "patch_file": "recursion-check.patch",
                 "cmake_find_source": "FindQt.cmake",
-                "package_version": "6.10.2-rev5",
+                "package_version": "6.10.2-rev6",
                 "custom_build_cmd": [
                     "./build-darwin-arm64.sh"
                 ],
