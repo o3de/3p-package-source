@@ -47,6 +47,24 @@
                     "./test-linux.sh",
                     "aarch64"
                 ]
+            },
+            "Linux-system-openssl":{
+                "depends_on_packages": [
+                   [ "SQLite-3.37.2-rev1-linux", "bee80d6c6db3e312c1f4f089c90894436ea9c9b74d67256d8c1fb00d4d81fe46", "" ]
+                ],
+                "custom_build_cmd": [
+                    "./build-linux.sh",
+                    "python_3_10_13_system_openssl",
+                    "22.04",
+                    "x86_64"
+                ],
+                "custom_install_cmd": [
+                    "./package-linux.sh"
+                ],
+                "custom_test_cmd": [
+                    "./test-linux.sh",
+                    "x86_64"
+                ]
             }
         }
    }

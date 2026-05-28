@@ -28,16 +28,34 @@ cp -r $WORKSPACE/temp/src ${SRC_PATH}
 # The dependent 'depends_on_packages' paths are architecture dependent
 if [ "$(uname -m)" = "x86_64" ]
 then
-    O3DE_OPENSSL_PACKAGE=OpenSSL-1.1.1t-rev1-linux
     O3DE_SQLITE_PACKAGE=SQLite-3.37.2-rev1-linux
 else
-    O3DE_OPENSSL_PACKAGE=OpenSSL-1.1.1t-rev1-linux-aarch64
     O3DE_SQLITE_PACKAGE=SQLite-3.37.2-rev1-linux-aarch64
 fi
 
-# Prepare the dependent O3DE package information for OpenSSL
-OPENSSL_BASE=$WORKSPACE/temp/${O3DE_OPENSSL_PACKAGE}/OpenSSL
-echo "Using O3DE OpenSSL package from ${O3DE_OPENSSL_PACKAGE}"
+# OpenSSL: bundled (default) vs system (PYTHON_USE_SYSTEM_OPENSSL=1)
+# The bundled path links Python's _ssl statically against a specific
+# OpenSSL package; the system path uses --with-openssl=/usr to find
+# the building distro's OpenSSL 3.x dev headers and links dynamically
+# (so libssl/libcrypto resolve via the OS at runtime, and CVE updates
+# flow through the OS package manager instead of needing a Python
+# rebuild on every OpenSSL release).
+if [ "${PYTHON_USE_SYSTEM_OPENSSL}" = "1" ]
+then
+    echo "Building Python against system OpenSSL (dynamic link)"
+    OPENSSL_CONFIGURE_FLAG="--with-openssl=/usr --with-openssl-rpath=auto"
+    OPENSSL_BASE=""
+else
+    if [ "$(uname -m)" = "x86_64" ]
+    then
+        O3DE_OPENSSL_PACKAGE=OpenSSL-1.1.1t-rev1-linux
+    else
+        O3DE_OPENSSL_PACKAGE=OpenSSL-1.1.1t-rev1-linux-aarch64
+    fi
+    OPENSSL_BASE=$WORKSPACE/temp/${O3DE_OPENSSL_PACKAGE}/OpenSSL
+    OPENSSL_CONFIGURE_FLAG="--with-openssl=${OPENSSL_BASE}"
+    echo "Using O3DE OpenSSL package from ${O3DE_OPENSSL_PACKAGE}"
+fi
 
 
 # Prepare the dependent O3DE package information for SQLite
@@ -105,7 +123,7 @@ pushd ${SRC_PATH}
 # Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
 ./configure --prefix=${BUILD_FOLDER}/python\
  --enable-optimizations\
- --with-openssl=${OPENSSL_BASE}\
+ ${OPENSSL_CONFIGURE_FLAG}\
  --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L'${SQLITE_BASE}'/lib'\
  CPPFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}'' CFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}''
 if [ $? -ne 0 ]
@@ -139,8 +157,13 @@ echo "Preparing additional python files"
 # Copy the python license
 cp ${SRC_PATH}/LICENSE ${BUILD_FOLDER}/python/LICENSE
 
-# Also copy the openssl license since its linked against the dependent O3DE OpenSSL static package
-cp ${OPENSSL_BASE}/LICENSE ${BUILD_FOLDER}/python/LICENSE.OPENSSL
+# Copy the OpenSSL license when shipping the bundled-OpenSSL variant.
+# In system-OpenSSL mode the runtime depends on the OS's OpenSSL, which
+# carries its own license accessible via the OS package manager.
+if [ -n "${OPENSSL_BASE}" ]
+then
+    cp ${OPENSSL_BASE}/LICENSE ${BUILD_FOLDER}/python/LICENSE.OPENSSL
+fi
 
 # Create a symlink from python -> python3
 pushd ${BUILD_FOLDER}/python/bin
