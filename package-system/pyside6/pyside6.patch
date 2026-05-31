@@ -1,3 +1,16 @@
+diff --git a/build_scripts/build_info_collector.py b/build_scripts/build_info_collector.py
+index 0c8becf49..61f259387 100644
+--- a/build_scripts/build_info_collector.py
++++ b/build_scripts/build_info_collector.py
+@@ -202,6 +202,8 @@ class BuildInfoCollectorMixin:
+                 py_scripts_dir = py_prefix / "Scripts"
+             else:
+                 py_scripts_dir = py_prefix / "bin"
++            if not Path(py_include_dir).exists():
++                py_include_dir = py_prefix / "include" / f"python{py_version}"
+             self.py_scripts_dir = py_scripts_dir
+         else:
+             # We don't look for an interpreter when cross-compiling.
 diff --git a/build_scripts/options.py b/build_scripts/options.py
 index ba4039e99..3de5b36e7 100644
 --- a/build_scripts/options.py

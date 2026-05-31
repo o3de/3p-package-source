@@ -9,3 +9,4 @@ packages/
 qt_compile_log.txt
 .remote_cache.json
 .venv/
+build.log

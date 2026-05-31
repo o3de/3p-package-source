@@ -27,6 +27,20 @@
                 ]
             }
         },
+        "Darwin": {
+            "Mac-arm64": {
+                "depends_on_packages" :[
+                    ["python-3.10.13-rev1-mac-arm64", "2d572bc5f6aac243051eea0e13544564d02d0af0dc1e78024d0136a5abf7a8ec", ""],
+                    ["qt-6.10.2-rev6-mac-arm64", "48c698e2526ac31a0bd995e71e00a244b059557fbaa521b97edc0af76801cead", ""]
+                ],
+                "custom_build_cmd": [
+                    "./build_mac.sh"
+                ],
+                "custom_install_cmd": [
+                    "./package_mac.sh"
+                ]
+            }
+        },
         "Linux": {
             "Linux": {
                 "depends_on_packages" :[
