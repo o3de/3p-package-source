@@ -51,6 +51,31 @@ foreach(component ${QT6_COMPONENTS})
     unset(Qt6${component}_DIR CACHE)
 endforeach()
 
+# Pin every package config dir shipped in this Qt to its bundled location.
+# The find_package(Qt6) below resolves the bundled Qt6Config via the
+# CMAKE_PREFIX_PATH entry above, but the NESTED find_package calls made
+# inside Qt's own config files (e.g. Qt6Config -> Qt6CoreTools through
+# QtPublicDependencyHelpers.cmake) search the standard system prefixes and
+# can resolve a NEWER system Qt6 (e.g. /usr/lib64/cmake/Qt6CoreTools from a
+# distro qt6-qtbase-devel). Mixing config files across Qt versions fails
+# configure with errors like:
+#   Unknown CMake command "_qt_internal_should_include_targets"
+# find_package consults <Pkg>_DIR before any search path, so pinning every
+# bundled package dir guarantees Qt-internal packages resolve from this
+# bundle while leaving non-Qt finds (e.g. the system OpenGL that Qt6Gui
+# legitimately needs) completely untouched. NO_DEFAULT_PATH cannot do this:
+# it does not propagate into the nested find_package calls.
+file(GLOB _qt_bundled_pkg_dirs LIST_DIRECTORIES true "${QT_LIB_PATH}/cmake/*")
+foreach(_qt_bundled_pkg_dir IN LISTS _qt_bundled_pkg_dirs)
+    if(IS_DIRECTORY "${_qt_bundled_pkg_dir}")
+        get_filename_component(_qt_bundled_pkg_name "${_qt_bundled_pkg_dir}" NAME)
+        set(${_qt_bundled_pkg_name}_DIR "${_qt_bundled_pkg_dir}")
+    endif()
+endforeach()
+unset(_qt_bundled_pkg_dirs)
+unset(_qt_bundled_pkg_dir)
+unset(_qt_bundled_pkg_name)
+
 # Populate the Qt6 configurations
 find_package(Qt6
     COMPONENTS ${QT6_COMPONENTS}
