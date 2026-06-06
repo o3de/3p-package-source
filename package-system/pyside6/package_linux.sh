@@ -10,7 +10,6 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
-
 echo TEMP_FOLDER=$TEMP_FOLDER
 echo TARGET_INSTALL_ROOT=$TARGET_INSTALL_ROOT
 
@@ -28,10 +27,12 @@ echo Copy the bin folder
 mkdir -p $PACKAGE_BASE/bin
 cp -r $INSTALL_SOURCE/bin/* $PACKAGE_BASE/bin
 
+echo Patching shiboken6 to set the rpath to $ORIGIN
+patchelf --set-rpath '$ORIGIN' $PACKAGE_BASE/bin/shiboken6
+
 echo Copy the lib folder
 mkdir -p $PACKAGE_BASE/lib
 cp -r $INSTALL_SOURCE/lib/* $PACKAGE_BASE/lib/
-
 
 echo Make the include folder
 mkdir -p $PACKAGE_BASE/include
@@ -41,14 +42,18 @@ mkdir -p $PACKAGE_BASE/include/PySide6
 cp -r $INSTALL_SOURCE/PySide6/include/* $PACKAGE_BASE/include/PySide6/
 cp $INSTALL_SOURCE/PySide6/libpyside6.abi3.so $PACKAGE_BASE/lib/
 cp $INSTALL_SOURCE/PySide6/libpyside6.abi3.so.6.10 $PACKAGE_BASE/lib/
+patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libpyside6.abi3.so.6.10
+
 cp $INSTALL_SOURCE/PySide6/libpyside6qml.abi3.so $PACKAGE_BASE/lib/
 cp $INSTALL_SOURCE/PySide6/libpyside6qml.abi3.so.6.10 $PACKAGE_BASE/lib/
+patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libpyside6qml.abi3.so.6.10
 
 echo Copy the shiboken6 headers and libraries
 mkdir -p $PACKAGE_BASE/include/shiboken6
 cp -r $INSTALL_SOURCE/shiboken6/include/* $PACKAGE_BASE/include/shiboken6/
 cp $INSTALL_SOURCE/shiboken6/libshiboken6.abi3.so $PACKAGE_BASE/lib/
 cp $INSTALL_SOURCE/shiboken6/libshiboken6.abi3.so.6.10 $PACKAGE_BASE/lib/
+patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libshiboken6.abi3.so.6.10
 
 echo Copy the shiboken6_generator files
 mkdir -p $PACKAGE_BASE/shiboken6_generator
