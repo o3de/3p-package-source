@@ -32,7 +32,7 @@
                 "package_version": "6.10.2-py3.10-rev2",
                 "depends_on_packages" :[
                     ["python-3.10.13-rev2-linux", "a7832f9170a3ac93fbe678e9b3d99a977daa03bb667d25885967e8b4977b86f8", ""],
-                    ["qt-6.10.2-rev5-linux", "1771f261060e33b90312aee05647d17d5f24c59d61834e09b7e98f3065058d31", ""]
+                    ["qt-6.10.2-rev6-linux", "34dcdc366e701f6cea1b6d06013ed6aa98521a6d663d244612ebcad3eae7ce34", ""]
                 ],
                 "custom_build_cmd": [
                     "./build_linux.sh"
