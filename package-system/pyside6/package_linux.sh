@@ -34,6 +34,9 @@ echo Copy the lib folder
 mkdir -p $PACKAGE_BASE/lib
 cp -r $INSTALL_SOURCE/lib/* $PACKAGE_BASE/lib/
 
+echo Patching the RPATHS of the all site-packages shared libraries to removve absolute paths and set them to $ORIGIN
+find $PACKAGE_BASE/lib/python3.10/site-packages/PySide6/ -name "*.so*" -exec patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' {} \;
+
 echo Make the include folder
 mkdir -p $PACKAGE_BASE/include
 
