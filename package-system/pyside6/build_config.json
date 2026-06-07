@@ -43,7 +43,7 @@
         },
         "Linux": {
             "Linux": {
-                "package_version": "6.10.2-py3.10-rev2",
+                "package_version": "6.10.2-py3.10-rev3",
                 "depends_on_packages" :[
                     ["python-3.10.13-rev2-linux", "a7832f9170a3ac93fbe678e9b3d99a977daa03bb667d25885967e8b4977b86f8", ""],
                     ["qt-6.10.2-rev6-linux", "34dcdc366e701f6cea1b6d06013ed6aa98521a6d663d244612ebcad3eae7ce34", ""]
