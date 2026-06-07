@@ -292,7 +292,7 @@ jobs:
                                 libxkbcommon-dev libxkbcommon-x11-dev \
                                 libx11-dev libxext-dev libxrender-dev \
                                 libxrandr-dev libxinerama-dev libxi-dev \
-                                libxkbfile-dev
+                                libxkbfile-dev patchelf
 
     - name: Use sccache
       uses: hendrikmuhs/ccache-action@v1.2.10
