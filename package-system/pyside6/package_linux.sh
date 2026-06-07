@@ -61,6 +61,7 @@ patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libshiboke
 echo Copy the shiboken6_generator files
 mkdir -p $PACKAGE_BASE/shiboken6_generator
 cp -r $INSTALL_SOURCE/shiboken6_generator/* $PACKAGE_BASE/shiboken6_generator/
+patchelf --set-rpath '$ORIGIN:$ORIGIN/..' $PACKAGE_BASE/shiboken6_generator/shiboken6
 
 
 # Add additional files needed for pip install
