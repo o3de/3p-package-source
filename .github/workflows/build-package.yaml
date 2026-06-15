@@ -228,7 +228,7 @@ jobs:
     - name: Install nasm on macos
       if: runner.os == 'macOS'
       run: |
-        brew install nasm
+        brew install nasm patchelf
 
     - name: Setup NDK
       env:

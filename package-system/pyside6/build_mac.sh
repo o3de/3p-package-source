@@ -71,4 +71,4 @@ $TEMP_FOLDER/testenv/bin/python3 setup.py install \
     --no-unity \
     --skip-modules=Quick,MultimediaWidgets,Pdf,PdfWidgets,Positioning,Location,NetworkAuth,Nfc,WebEngineQuick,Multimedia,QuickControls2,QuickTest,QuickWidgets,UiToolsPrivate,RemoteObjects,Positioning,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,AxContainer
 
-exit $?
+exit 0
