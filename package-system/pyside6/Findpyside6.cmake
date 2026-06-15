@@ -24,11 +24,11 @@ set(${MY_NAME}_INCLUDE_DIR ${PYSIDE_BASE_PATH}/include)
 
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages PySide6)
-elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
+elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
     ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.10/site-packages PySide6)
 endif()
 
-if (PAL_PLATFORM_NAME STREQUAL "Linux")
+if (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
     set(${MY_NAME}_RUNTIME_DEPENDENCIES
         ${${MY_NAME}_LIB_DIR}/libpyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
         ${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
@@ -61,7 +61,7 @@ if (PAL_PLATFORM_NAME STREQUAL "Windows")
         IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/pyside6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
         IMPORTED_LOCATION "${${MY_NAME}_BIN_DIR}/pyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
     )
-elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
+elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
         ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside6/share
         IMPORTED_LOCATION "${${MY_NAME}_LIB_DIR}/libpyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
