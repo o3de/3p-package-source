@@ -10,7 +10,6 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
-
 echo TEMP_FOLDER=$TEMP_FOLDER
 echo TARGET_INSTALL_ROOT=$TARGET_INSTALL_ROOT
 
@@ -26,6 +25,11 @@ cp $TEMP_FOLDER/src/README.* $PACKAGE_BASE/
 echo Copy the bin folder
 mkdir -p $PACKAGE_BASE/bin
 cp -r $INSTALL_SOURCE/bin/* $PACKAGE_BASE/bin
+
+echo Patching shiboken6 to set the rpath to $ORIGIN
+# Add relative RPATH to shiboken6 so that it can find shared libraries for Qt6 based on the CWD that is set in the custom command 
+# in Findpyside6.cmake to run shiboken
+patchelf --set-rpath '$ORIGIN:./../lib' $PACKAGE_BASE/bin/shiboken6
 
 echo Copy the lib folder
 mkdir -p $PACKAGE_BASE/lib
@@ -60,5 +64,9 @@ cp -r $INSTALL_SOURCE/shiboken6_generator/* $PACKAGE_BASE/shiboken6_generator/
 # Add additional files needed for pip install
 cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.10/site-packages/
 cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.10/site-packages/
+
+# Copy the share folder
+mkdir -p $PACKAGE_BASE/share
+cp -r $INSTALL_SOURCE/share/* $PACKAGE_BASE/share/
 
 exit 0

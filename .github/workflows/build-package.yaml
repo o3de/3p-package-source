@@ -72,7 +72,7 @@ jobs:
                 PACKAGE_OS="ubuntu-22.04"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "windows" ]]; then
-                PACKAGE_OS="windows-latest"
+                PACKAGE_OS="windows-2022"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "darwin-arm64" ]]; then
                 PACKAGE_OS="macos-15"
@@ -81,7 +81,7 @@ jobs:
                 PACKAGE_OS="macos-15-intel"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               else
-                PACKAGE_OS="windows-latest" # Default
+                PACKAGE_OS="windows-2022" # Default
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS (default)"
               fi
               
@@ -228,7 +228,7 @@ jobs:
     - name: Install nasm on macos
       if: runner.os == 'macOS'
       run: |
-        brew install nasm
+        brew install nasm patchelf
 
     - name: Setup NDK
       env:

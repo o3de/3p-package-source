@@ -18,7 +18,6 @@ PACKAGE_BASE=$TARGET_INSTALL_ROOT
 # Add additional files needed for pip install
 INSTALL_SOURCE=$TEMP_FOLDER/src/build/testenva/install
 
-
 echo Copy the LICENSE and README files
 cp $TEMP_FOLDER/src/LICENSES/* $PACKAGE_BASE/
 cp $TEMP_FOLDER/src/README.* $PACKAGE_BASE/
@@ -28,7 +27,9 @@ mkdir -p $PACKAGE_BASE/bin
 cp -r $INSTALL_SOURCE/bin/* $PACKAGE_BASE/bin
 
 echo Patching shiboken6 to set the rpath to $ORIGIN
-patchelf --set-rpath '$ORIGIN' $PACKAGE_BASE/bin/shiboken6
+# Add relative RPATH to shiboken6 so that it can find shared libraries for Qt6 based on the CWD that is set in the custom command 
+# in Findpyside6.cmake to run shiboken
+patchelf --set-rpath '$ORIGIN:./../lib' $PACKAGE_BASE/bin/shiboken6
 
 echo Copy the lib folder
 mkdir -p $PACKAGE_BASE/lib
@@ -58,14 +59,12 @@ cp $INSTALL_SOURCE/shiboken6/libshiboken6.abi3.so $PACKAGE_BASE/lib/
 cp $INSTALL_SOURCE/shiboken6/libshiboken6.abi3.so.6.10 $PACKAGE_BASE/lib/
 patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libshiboken6.abi3.so.6.10
 
-echo Copy the shiboken6_generator files
-mkdir -p $PACKAGE_BASE/shiboken6_generator
-cp -r $INSTALL_SOURCE/shiboken6_generator/* $PACKAGE_BASE/shiboken6_generator/
-patchelf --set-rpath '$ORIGIN:$ORIGIN/..' $PACKAGE_BASE/shiboken6_generator/shiboken6
-
-
 # Add additional files needed for pip install
 cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.10/site-packages/
 cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.10/site-packages/
+
+# Copy the share folder
+mkdir -p $PACKAGE_BASE/share
+cp -r $INSTALL_SOURCE/share/* $PACKAGE_BASE/share/
 
 exit 0

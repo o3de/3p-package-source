@@ -32,7 +32,8 @@ if (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
     set(${MY_NAME}_RUNTIME_DEPENDENCIES
         ${${MY_NAME}_LIB_DIR}/libpyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
         ${${MY_NAME}_LIB_DIR}/libshiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}
-    )    
+    )
+    
     ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES ${${MY_NAME}_RUNTIME_DEPENDENCIES})
 endif()
 
@@ -157,7 +158,7 @@ function(add_shiboken_project)
     
     set(shiboken_options --generator-set=shiboken --enable-parent-ctor-heuristic
         --enable-pyside-extensions --enable-return-value-heuristic --use-isnull-as-nb_nonzero
-        --avoid-protected-hack --language-level=c++17 --debug-level=full
+        --avoid-protected-hack --language-level=c++20 --debug-level=full
         --license-file=${add_shiboken_project_LICENSE_HEADER}
         ${add_shiboken_project_INCLUDE_DIRS}
         -T${SHARE_DIR}/PySide6
@@ -215,7 +216,7 @@ function(add_shiboken_project)
         #"unreferenced formal parameter"
         #"declaration of 'x' hides previous local declaration."
         #"declaration of 'x' hides class member."
-        target_compile_options(${add_shiboken_project_NAME}.Editor PRIVATE /wd4127 /wd4100 /wd4456 /wd4458)
+        target_compile_options(${add_shiboken_project_NAME}.Editor PRIVATE /wd4127 /wd4100 /wd4456 /wd4458 /wd4505)
     endif()
 
     # Fix the name of the module.
