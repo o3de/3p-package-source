@@ -1,6 +1,6 @@
 {
     "git_url": "https://github.com/o3de/PhysX.git",
-    "git_tag": "release/104.1",
+    "git_tag": "update_to_release_107.3",
     "package_name": "PhysX",
     "package_url": "https://github.com/NVIDIA-Omniverse/PhysX",
     "package_license": "BSD-3-Clause",
@@ -11,7 +11,7 @@
         "Darwin": {
             "Mac-arm64": {
                 "patch_file": "physx5_mac.patch",
-                "package_version": "5.1.1-rev4",
+                "package_version": "5.6.1-rev1",
                 "custom_build_cmd": [
                     "./build-darwin-arm64.sh"
                 ],
