@@ -49,3 +49,14 @@ for file in additional_copyright_notices:
         sys.exit(1)
     print(f"Copying {file} => {package_qt_root}")
     shutil.copy2(file, package_qt_root)
+
+
+if platform_system == "linux":
+    # On Linux, we need to fix the rpath for lrelease
+    lrelease_path = pathlib.Path(package_root) / "qt" / "bin" / "lrelease"
+    if lrelease_path.is_file():
+        print(f"Fixing rpath for {lrelease_path}")
+        os.system(f"patchelf --set-rpath '$ORIGIN/../lib:$ORIGIN' {lrelease_path}")
+    else:
+        print(f"Error: Cannot locate lrelease at {lrelease_path}")
+        sys.exit(1)
