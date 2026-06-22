@@ -160,6 +160,7 @@ function(add_shiboken_project)
         --enable-pyside-extensions --enable-return-value-heuristic --use-isnull-as-nb_nonzero
         --avoid-protected-hack --language-level=c++20 --debug-level=full
         --license-file=${add_shiboken_project_LICENSE_HEADER}
+        --compiler-path=${CMAKE_CXX_COMPILER}
         ${add_shiboken_project_INCLUDE_DIRS}
         -T${SHARE_DIR}/PySide6
         -T${SHARE_DIR}/PySide6/typesystems
@@ -221,7 +222,11 @@ function(add_shiboken_project)
 
     # Fix the name of the module.
     set_property(TARGET ${add_shiboken_project_NAME}.Editor PROPERTY PREFIX "")
-    set_property(TARGET ${add_shiboken_project_NAME}.Editor PROPERTY SUFFIX ".pyd")
+    if (PAL_PLATFORM_NAME STREQUAL "Windows")
+        set_property(TARGET ${add_shiboken_project_NAME}.Editor PROPERTY SUFFIX ".pyd")
+    elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
+        set_property(TARGET ${add_shiboken_project_NAME}.Editor PROPERTY SUFFIX ".so")
+    endif()
 
     set_target_properties(${add_shiboken_project_NAME}.Editor PROPERTIES LINK_FLAGS "${python_additional_link_flags}")
 endfunction()
