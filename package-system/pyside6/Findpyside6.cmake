@@ -225,7 +225,7 @@ function(add_shiboken_project)
     if (PAL_PLATFORM_NAME STREQUAL "Windows")
         set_property(TARGET ${add_shiboken_project_NAME}.Editor PROPERTY SUFFIX ".pyd")
     elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
-        set_property(TARGET ${add_shiboken_project_NAME}.Editor PROPERTY SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX})
+        set_property(TARGET ${add_shiboken_project_NAME}.Editor PROPERTY SUFFIX ".so")
     endif()
 
     set_target_properties(${add_shiboken_project_NAME}.Editor PROPERTIES LINK_FLAGS "${python_additional_link_flags}")
