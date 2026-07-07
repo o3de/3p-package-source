@@ -27,9 +27,7 @@ mkdir -p $PACKAGE_BASE/bin
 cp -r $INSTALL_SOURCE/bin/* $PACKAGE_BASE/bin
 
 echo Patching shiboken6 to set the rpath to $ORIGIN
-# Add relative RPATH to shiboken6 so that it can find shared libraries for Qt6 based on the CWD that is set in the custom command 
-# in Findpyside6.cmake to run shiboken
-patchelf --set-rpath '$ORIGIN:./../lib' $PACKAGE_BASE/bin/shiboken6
+patchelf --set-rpath '$ORIGIN' $PACKAGE_BASE/bin/shiboken6
 
 echo Copy the lib folder
 mkdir -p $PACKAGE_BASE/lib
