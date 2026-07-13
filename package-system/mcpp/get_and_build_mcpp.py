@@ -9,6 +9,7 @@
 #
 
 import argparse
+import hashlib
 import logging
 import os
 import pathlib
@@ -25,6 +26,7 @@ SCRIPT_PATH = pathlib.Path(__file__).parent
 PATCH_FILE = SCRIPT_PATH / "mcpp_2.7.2_az.patch"
 SOURCE_NAME = "mcpp-2.7.2"
 SOURCE_TAR_FILE = f"{SOURCE_NAME}.tar.gz"
+SOURCE_TAR_SHA256 = "3b9b4421888519876c4fc68ade324a3bbd81ceeb7092ecdbbc2055099fcb8864"
 SOURCEFORGE_URL = "https://sourceforge.net/projects/mcpp/files/mcpp/V.2.7.2"
 SOURCEFORGE_DOWNLOAD_URL = f"{SOURCEFORGE_URL}/{SOURCE_TAR_FILE}/download"
 
@@ -115,6 +117,11 @@ def download_from_source_forge(source_forge_download_url, temp_folder):
         target_file = temp_folder / SOURCE_TAR_FILE
         if target_file.is_file():
             target_file.unlink()
+
+        actual_sha256 = hashlib.sha256(request.content).hexdigest()
+        if actual_sha256 != SOURCE_TAR_SHA256:
+            logging.fatal(f'[FATAL] SHA256 mismatch for {SOURCE_TAR_FILE}: expected {SOURCE_TAR_SHA256}, got {actual_sha256}')
+            return False
 
         with open(str(target_file.resolve()), 'wb') as request_stream:
             bytes_written = request_stream.write(request.content)
