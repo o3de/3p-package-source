@@ -33,10 +33,6 @@ def main():
     opensslPackageSourceDir = packageSystemDir / 'OpenSSL'
     outputDir = opensslPackageSourceDir / 'temp' / f'OpenSSL-{args.platformName}'
 
-    opensslPatch = opensslPackageSourceDir / 'set_openssl_port_to_1_1_1_x.patch'
-
-    enableStdioOnIOS = opensslPackageSourceDir / 'enable-stdio-on-iOS.patch'
-
     cmakeFindFile = opensslPackageSourceDir / 'FindOpenSSL.cmake.template'
     cmakeFindFileTemplate = cmakeFindFile.open().read()
 
@@ -68,26 +64,20 @@ def main():
         tempdir = Path(tempdir)
         builder = VcpkgBuilder(packageName='OpenSSL', portName='openssl', vcpkgDir=tempdir, targetPlatform=args.platformName, static=useStaticLibsForPlatform[args.platformName])
         builder.deleteFolder(outputDir)
-        builder.cloneVcpkg('b86c0c35b88e2bf3557ff49dc831689c2f085090')
+        builder.cloneVcpkg('52c9e08cdf8580d2d9762f547d22b96fd81e82f2')  # vcpkg tag 2026.06.24, ships OpenSSL 3.6.3
         builder.bootstrap()
-        builder.patch(opensslPatch)
-        builder.patch(enableStdioOnIOS)
         builder.build()
-        builder.copyBuildOutputTo(
-            outputDir,
-            extraFiles={
-                next(builder.vcpkgDir.glob(f'buildtrees/openssl/{builder.triplet}-rel/**/LICENSE')): outputDir / builder.packageName / 'LICENSE',
-            })
+        builder.copyBuildOutputTo(outputDir, extraFiles={})
 
         revisionName = revisionForPlatform[args.platformName]
 
         builder.writePackageInfoFile(
             outputDir,
             settings={
-                'PackageName': f'OpenSSL-1.1.1o-{revisionName}-{args.platformName}',
+                'PackageName': f'OpenSSL-3.6.3-{revisionName}-{args.platformName}',
                 'URL': 'https://github.com/openssl/openssl',
-                'License': 'OpenSSL',
-                'LicenseFile': 'OpenSSL/LICENSE'
+                'License': 'Apache-2.0',
+                'LicenseFile': 'OpenSSL/share/openssl/copyright'
             },
         )
 
