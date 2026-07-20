@@ -29,6 +29,8 @@ def main():
     )
     args = parser.parse_args()
 
+    opensslVersion = '3.6.3'
+
     packageSystemDir = Path(__file__).resolve().parents[1]
     opensslPackageSourceDir = packageSystemDir / 'OpenSSL'
     outputDir = opensslPackageSourceDir / 'temp' / f'OpenSSL-{args.platformName}'
@@ -74,7 +76,7 @@ def main():
         builder.writePackageInfoFile(
             outputDir,
             settings={
-                'PackageName': f'OpenSSL-3.6.3-{revisionName}-{args.platformName}',
+                'PackageName': f'OpenSSL-{opensslVersion}-{revisionName}-{args.platformName}',
                 'URL': 'https://github.com/openssl/openssl',
                 'License': 'Apache-2.0',
                 'LicenseFile': 'OpenSSL/share/openssl/copyright'
@@ -88,8 +90,10 @@ def main():
             outputDir,
             template=cmakeFindFileTemplate,
             templateEnv={
-                'CRYPTO_LIBRARY_DEPENDENCIES':crypto_library_dependencies
+                'CRYPTO_LIBRARY_DEPENDENCIES':crypto_library_dependencies,
+                'OPENSSL_VERSION_STRING':opensslVersion
             },
+            overwrite_find_file=None,
         )
     # now test the package, it will be in outputDir
     customEnviron = os.environ.copy()
