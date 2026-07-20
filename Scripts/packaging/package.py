@@ -170,8 +170,7 @@ def build_package(name: str) -> int:
     root_path = Path(__file__).parent.parent.parent
     output_folder = root_path / "packages"
     search_path = root_path
-    BuildPackage(name, output_folder, search_path)
-    return 0
+    return BuildPackage(name, output_folder, search_path)
 
 def main(argv: List[str] | None = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
