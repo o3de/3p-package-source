@@ -57,12 +57,8 @@ folder_names = {
         '-G', 'Ninja Multi-Config',
         f'-DCMAKE_TOOLCHAIN_FILE={cmake_scripts_path}/Platform/Android/Toolchain_android.cmake',
         '-DANDROID_ABI=arm64-v8a',
-        '-DANDROID_ARM_MODE=arm',
-        '-DANDROID_ARM_NEON=FALSE',
-        '-DANDROID_NATIVE_API_LEVEL=21',
-        f'-DLY_NDK_DIR={ly_3rdparty_path}/android-ndk/r21d',
         '-DPACKAGE_PLATFORM=android'
-    ], []) # Android needs to have ninja in the path
+    ], []) # Android needs to have ninja in the path and LY_NDK_DIR env var set
 }
 
 # intentionally generate a keyerror if its not a good platform:

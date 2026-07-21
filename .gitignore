@@ -6,6 +6,7 @@ TestResults/**
 .pytest_cache
 packages/
 **/temp/**
+**/build/**
 qt_compile_log.txt
 .remote_cache.json
 .venv/
