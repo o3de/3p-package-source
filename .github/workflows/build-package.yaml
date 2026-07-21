@@ -57,7 +57,7 @@ jobs:
               if [[ -n "${PROCESSED_PACKAGES[$PACKAGE]}" ]]; then
                 continue
               fi
-              
+
               PACKPATH=$(echo $LINE | grep -oE "package-system/[^/ ]+" | head -n 1)
               if [[ -z "${DOCKERFILE["$PACKAGE"]}" && -n "$PACKPATH" ]]; then
                 DOCKER=$(test -e ${PACKPATH%% }/Dockerfile* && echo 1 || echo 0) # Assume the build scripts will use the Dockerfile if found in the package path
@@ -271,7 +271,7 @@ jobs:
         echo ANDROID_NDK=$ndkRoot >> $env:GITHUB_ENV
         echo ANDROID_NDK_HOME=$ndkRoot >> $env:GITHUB_ENV
         echo ANDROID_NDK_ROOT=$ndkRoot >> $env:GITHUB_ENV
-    
+
     - name: Install clang/gcc
       if: runner.os == 'Linux'
       env:
