@@ -57,7 +57,15 @@ jobs:
               if [[ -n "${PROCESSED_PACKAGES[$PACKAGE]}" ]]; then
                 continue
               fi
-              
+
+              # TEMPORARY: while debugging the OpenSSL android build, skip every other package so CI
+              # turnaround is fast. REMOVE this block once the android build is confirmed working.
+              if [[ ! $PACKAGE =~ android ]]; then
+                echo "Skipping $PACKAGE (temporary android-only debug filter)"
+                PROCESSED_PACKAGES[$PACKAGE]=1
+                continue
+              fi
+
               PACKPATH=$(echo $LINE | grep -oE "package-system/[^/ ]+" | head -n 1)
               if [[ -z "${DOCKERFILE["$PACKAGE"]}" && -n "$PACKPATH" ]]; then
                 DOCKER=$(test -e ${PACKPATH%% }/Dockerfile* && echo 1 || echo 0) # Assume the build scripts will use the Dockerfile if found in the package path
@@ -271,7 +279,7 @@ jobs:
         echo ANDROID_NDK=$ndkRoot >> $env:GITHUB_ENV
         echo ANDROID_NDK_HOME=$ndkRoot >> $env:GITHUB_ENV
         echo ANDROID_NDK_ROOT=$ndkRoot >> $env:GITHUB_ENV
-    
+
     - name: Install clang/gcc
       if: runner.os == 'Linux'
       env:
