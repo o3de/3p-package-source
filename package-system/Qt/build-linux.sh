@@ -9,20 +9,11 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
-# Arg 1: The tiff package name
-TIFF_FOLDER_NAME=$1
-
-# Arg 2: The zlib package name
-ZLIB_FOLDER_NAME=$2
-
-# Arg 3: The openssl package name
-OPENSSL_FOLDER_NAME=$3
-
 # Determine the host architecture
 CURRENT_HOST_ARCH=$(uname -m)
 
 # Use the host architecture if not supplied
-TARGET_ARCH=${4:-$(uname -m)}
+TARGET_ARCH=${1:-$(uname -m)}
 
 # If the host and target architecture does not match, we stop
 if [ "${CURRENT_HOST_ARCH}" != ${TARGET_ARCH} ]
