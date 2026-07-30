@@ -46,6 +46,9 @@ set_target_properties($${SDFORMAT_O3DE_NAMESPACE} PROPERTIES
     IMPORTED_LOCATION $${$${LIB_NAME}_LIBRARY_RELEASE}
 )
 
+# sdformat 16 headers use std::optional/std::any, which require C++17
+target_compile_features($${SDFORMAT_O3DE_NAMESPACE} INTERFACE cxx_std_17)
+
 # If this Find script is run in context of O3DE,
 # make sure to copy over the symlinks as well to the cmake binary directory
 if (COMMAND ly_add_target_files)
