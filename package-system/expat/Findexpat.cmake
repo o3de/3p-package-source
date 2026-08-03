@@ -6,10 +6,9 @@
 #
 #
 
-# the following is like an include guard:
-if (TARGET 3rdParty::expat)
-    return()
-endif()
+# This file may be run multiple times to import the target
+# and each time it needs to set the global variables like EXPAT_VERSION
+# so do not early out just because the target exists globally.
 
 # Even though expat itself exports it as lowercase expat, older cmake (and cmake's built-in targets)
 # expect uppercase.  So we define both, for backwards compat:
@@ -30,9 +29,9 @@ else()
     set(SUFFIX_TO_USE ${CMAKE_STATIC_LIBRARY_SUFFIX})
 endif()
 
-set(EXPAT_VERSION_STRING "2.4.2")
-set(EXPAT_VERSION "2.4.2") # backward compat
-set(expat_VERSION "2.4.2") # backward compat
+set(EXPAT_VERSION_STRING "2.8.2")
+set(EXPAT_VERSION "2.8.2") # backward compat
+set(expat_VERSION "2.8.2") # backward compat
 
 set(EXPAT_LIBRARY ${CMAKE_CURRENT_LIST_DIR}/expat/lib/${PREFIX_TO_USE}expat${SUFFIX_TO_USE})
 set(expat_LIBRARY ${EXPAT_LIBRARY})
@@ -42,13 +41,12 @@ set(EXPAT_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/expat/include)
 set(expat_INCLUDE_DIR ${EXPAT_INCLUDE_DIR})
 set(EXPAT_INCLUDE_DIRS ${EXPAT_INCLUDE_DIR})  #compatibility with CMake's FindEXPAT file.
 
-set(EXPAT_FOUND TRUE) #compatibility with CMake's FindEXPAT file.
-set(expat_FOUND TRUE)
-
-add_library(expat::expat STATIC IMPORTED GLOBAL)
-set_target_properties(expat::expat PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES "C")
-set_target_properties(expat::expat PROPERTIES IMPORTED_LOCATION ${EXPAT_LIBRARY})
-target_compile_definitions(expat::expat INTERFACE XML_STATIC)
+if (NOT TARGET expat::expat)
+    add_library(expat::expat STATIC IMPORTED GLOBAL)
+    set_target_properties(expat::expat PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES "C")
+    set_target_properties(expat::expat PROPERTIES IMPORTED_LOCATION ${EXPAT_LIBRARY})
+    target_compile_definitions(expat::expat INTERFACE XML_STATIC)
+endif()
 
 if (COMMAND ly_target_include_system_directories)
     # inside the O3DE ecosystem, this macro makes sure it works even in cmake < 3.19
@@ -58,11 +56,15 @@ else()
     target_include_directories(expat::expat SYSTEM INTERFACE ${EXPAT_INCLUDE_DIR})
 endif()
 
-# create O3DE aliases:
-add_library(3rdParty::expat ALIAS expat::expat)
+if (NOT TARGET 3rdParty::expat)
+    # create O3DE aliases:
+    add_library(3rdParty::expat ALIAS expat::expat)
+endif()
 
-# upppercase for compat:
-add_library(EXPAT::EXPAT ALIAS expat::expat) #compatibility with CMake's FindEXPAT file.
+if (NOT TARGET EXPAT::EXPAT)
+    # create uppercase alias for compatibility
+    add_library(EXPAT::EXPAT ALIAS expat::expat)
+endif()
 
 # if we're not in O3DE, it's also extremely helpful to show a message to logs that indicate that this
 # library was successfully picked up, as opposed to the system one.
@@ -72,3 +74,6 @@ add_library(EXPAT::EXPAT ALIAS expat::expat) #compatibility with CMake's FindEXP
 if (NOT LY_VERSION_ENGINE_NAME)
     message(STATUS "Using O3DE expat ${expat_VERSION} from ${CMAKE_CURRENT_LIST_DIR}")
 endif()
+
+set(EXPAT_FOUND TRUE) #compatibility with CMake's FindEXPAT file.
+set(expat_FOUND TRUE)
