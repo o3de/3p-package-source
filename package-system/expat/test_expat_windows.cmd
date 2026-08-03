@@ -16,6 +16,7 @@ set "PACKAGE_ROOT=%PACKAGE_ROOT:\=/%"
 set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 
 cmake -S test -B temp/build_test ^
+    -G "Visual Studio 17 2022" ^
     -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%;%PACKAGE_ROOT%" || exit /b 1
 
 cmake --build temp/build_test --parallel --config Release || exit /b 1
