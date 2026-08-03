@@ -80,6 +80,7 @@
             ]
          },
          "Mac-arm64":{
+            "package_version": "1.8.2505.1-o3de-rev5",
             "build_configs": ["Release"],
             "cmake_find_source":"FindDirectXShaderCompilerDxc.cmake.Mac",
             "cmake_generate_args":[
