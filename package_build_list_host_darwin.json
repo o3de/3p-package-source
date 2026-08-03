@@ -102,7 +102,7 @@
         "zlib-1.2.11-rev5-ios": "package-system/zlib-ios",
         "lz4-1.9.4-rev1-mac": "package-system/lz4/temp/lz4-mac",
         "lz4-1.9.4-rev1-ios": "package-system/lz4/temp/lz4-ios",
-        "expat-2.4.2-rev2-mac": "package-system/expat/temp/expat-mac",
-        "expat-2.4.2-rev2-ios": "package-system/expat/temp/expat-ios"
+        "expat-2.8.2-rev1-mac": "package-system/expat/temp/expat-mac",
+        "expat-2.8.2-rev1-ios": "package-system/expat/temp/expat-ios"
     }
 }
