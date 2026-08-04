@@ -39,7 +39,7 @@
         "SPIRVCross-1.3.275.0-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/SPIRVCross --platform-name Linux-aarch64 --clean",
         "SQLite-3.37.2-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/sqlite --platform-name Linux-aarch64 --clean",
         "squish-ccr-deb557d-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/squish-ccr --platform-name Linux-aarch64 --clean",
-        "tiff-4.2.0.15-rev3-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name Linux-aarch64 --clean",
+        "tiff-4.7.2-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/tiff --platform-name Linux-aarch64 --package-root ../../package-system/tiff/temp --clean",
         "vulkan-validationlayers-1.2.198-rev1-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/vulkan-validationlayers --platform-name Linux-aarch64 --clean",
         "zlib-1.2.11-rev5-linux-aarch64": "Scripts/extras/pull_and_build_from_git.py ../../package-system/zlib --platform-name Linux-aarch64 --clean"
     },
