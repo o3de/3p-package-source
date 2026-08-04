@@ -1,26 +1,56 @@
 {
-    "git_url":"https://gitlab.com/libtiff/libtiff.git",
-    "git_tag":"v4.2.0",
+    "git_url":"https://gitlab.com/libtiff/libtiff",
+    "git_tag":"v4.7.2",
     "package_name":"tiff",
-    "package_version":"4.2.0.15-rev3",
-    "package_url":"http://www.simplesystems.org/libtiff/misc.html",
+    "package_version":"4.7.2-rev1",
+    "package_url":"https://libtiff.gitlab.io/libtiff/",
     "package_license":"libtiff",
-    "package_license_file":"COPYRIGHT",
+    "package_license_file":"LICENSE.md",
     "cmake_find_source":"FindTIFF.cmake",
     "cmake_find_target":"FindTIFF.cmake",
-    "cmake_build_args" : [ "-j", "8"],
-    "patch_file" : "o3de_patch.patch",
+     "extra_files_to_copy": [
+      ["tiff-config-version.cmake", "tiff-config-version.cmake"],
+      ["tiff-config.cmake", "tiff-config.cmake"]
+   ],
+    "cmake_build_args_common" : [ "--parallel"],
+    "build_configs": [
+        "Release"
+    ],
+    "cmake_install_filter":[
+      "*.cmake",
+      "*.a",
+      "*.lib",
+      "*.h",
+      "LICENSE.md"
+   ],
+    "cmake_generate_args_common" : [
+        "-DBUILD_SHARED_LIBS=OFF",
+        "-Djpeg=OFF",
+        "-Dold-jpeg=OFF",
+        "-Dpixarlog=OFF",
+        "-Dlzma=OFF",
+        "-Dwebp=OFF",
+        "-Djbig=OFF",
+        "-Dzstd=OFF",
+        "-Djpeg12=OFF",
+        "-Dzlib=ON",
+        "-Dlibdeflate=OFF",
+        "-Dtiff-cxx=OFF",
+        "-Dtiff-static=ON",
+        "-Dtiff-tools=OFF",
+        "-Dtiff-tests=OFF",
+        "-Dtiff-contrib=OFF",
+        "-Dtiff-docs=OFF",
+        "-DCMAKE_BUILD_TYPE=Release"
+    ],
     "Platforms":{
         "Windows":{
             "Windows":{
                 "depends_on_packages" :[ 
                     ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
                 ],
-                "custom_build_cmd" : [
-                    "build_tiff_windows.cmd"
-                ],
-                "custom_install_cmd": [
-                    "install_tiff_windows.cmd"
+                "cmake_generate_args" : [
+                    "-G\"Visual Studio 17 2022\""
                 ],
                 "custom_test_cmd" : [
                     "test_tiff_windows.cmd"
@@ -31,11 +61,8 @@
                 "depends_on_packages" :[ 
                     ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""]
                 ],
-                "custom_build_cmd" : [
-                    "build_tiff_android.cmd"
-                ],
-                "custom_install_cmd": [
-                    "install_tiff_android.cmd"
+                "cmake_generate_args" : [
+                      "-GNinja"
                 ],
                 "custom_test_cmd": [
                     "test_tiff_android.cmd"
@@ -44,31 +71,14 @@
         },
         
         "Darwin":{
-            "Mac":{
-                "depends_on_packages" :[ 
-                    ["zlib-1.2.11-rev5-mac", "b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096", ""]
-                ],
-                "custom_build_cmd": [
-                    "./build_tiff_mac.sh"
-                 ],
-                 "custom_install_cmd": [
-                    "./install_tiff_mac.sh"
-                 ],
-                 "custom_test_cmd" : [
-                    "./test_tiff_mac.sh"
-                ]
-            },
             "Mac-arm64":{
                 "depends_on_packages" :[
                     ["zlib-1.3.1-rev2-mac-arm64", "52e62890329d3e003226fca88df30701cdd862a5f137eb5f75dff504377c13b3", ""]
                 ],
-                "custom_build_cmd": [
-                    "./build_tiff_mac.sh"
-                 ],
-                 "custom_install_cmd": [
-                    "./install_tiff_mac.sh"
-                 ],
-                 "custom_test_cmd" : [
+                "cmake_generate_args" : [
+                      "-GNinja"
+                ],
+                "custom_test_cmd" : [
                     "./test_tiff_mac.sh"
                 ]
             },
@@ -76,13 +86,10 @@
                 "depends_on_packages" :[ 
                     ["zlib-1.2.11-rev5-ios", "c7f10b4d0fe63192054d926f53b08e852cdf472bc2b18e2f7be5aecac1869f7f", ""]
                 ],
-                "custom_build_cmd": [
-                    "./build_tiff_ios.sh"
-                 ],
-                 "custom_install_cmd": [
-                    "./install_tiff_ios.sh"
-                 ],
-                 "custom_test_cmd" : [
+                "cmake_generate_args" : [
+                      "-GNinja"
+                ],
+                "custom_test_cmd" : [
                     "./test_tiff_ios.sh"
                 ]
              }
@@ -92,11 +99,8 @@
                 "depends_on_packages" :[ 
                     ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
                 ],
-                "custom_build_cmd": [
-                    "./build_tiff_linux.sh"
-                ],
-                "custom_install_cmd": [
-                    "./install_tiff_linux.sh"
+                "cmake_generate_args" : [
+                      "-GNinja"
                 ],
                 "custom_test_cmd" : [
                    "./test_tiff_linux.sh"
@@ -106,11 +110,8 @@
                 "depends_on_packages" :[
                     ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""]
                 ],
-                "custom_build_cmd": [
-                    "./build_tiff_linux.sh"
-                ],
-                "custom_install_cmd": [
-                    "./install_tiff_linux.sh"
+                "cmake_generate_args" : [
+                      "-GNinja"
                 ],
                 "custom_test_cmd" : [
                    "./test_tiff_linux.sh"

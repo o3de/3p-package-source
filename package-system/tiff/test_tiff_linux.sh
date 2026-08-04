@@ -10,6 +10,7 @@ rm -rf temp/build_test
 mkdir temp/build_test
 
 cmake -S test -B temp/build_test -G Ninja -DCMAKE_BUILD_TYPE=Release  \
+    -DCMAKE_PREFIX_PATH="$DOWNLOADED_PACKAGE_FOLDERS;$PACKAGE_ROOT" \
     -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS;$PACKAGE_ROOT" || exit 1
 
 cmake --build temp/build_test --parallel || exit 1

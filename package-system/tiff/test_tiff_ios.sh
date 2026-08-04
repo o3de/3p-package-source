@@ -11,6 +11,7 @@ mkdir temp/build_test
 
 cmake -S test -B temp/build_test -G Xcode \
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake \
+    -DCMAKE_PREFIX_PATH="$DOWNLOADED_PACKAGE_FOLDERS;$PACKAGE_ROOT" \
     -DCMAKE_MODULE_PATH="$DOWNLOADED_PACKAGE_FOLDERS;$PACKAGE_ROOT" || exit 1
 
 cmake --build temp/build_test --parallel --config Release || exit 1
