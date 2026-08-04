@@ -73,6 +73,12 @@ set(CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH ON)
 set(LINKER_FLAGS ${ANDROID_LINKER_FLAGS})
 set(CMAKE_CXX_STANDARD_LIBRARIES "")
 
+# 16KB page size support: Required by Google Play for apps targeting Android 15+ devices (Nov 2025).
+# These flags ensure all shared libraries have ELF segments aligned to 16KB boundaries,
+# which is backward compatible with 4KB-page devices.
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384")
+
 # We need to pass down the Android API Level, and the Package Revision's Major and Minor number as preprocessor values.
 # We will extract them from 'ANDROID_NDK_SOURCE_PROPERTIES' which will read from the NDK's properties file.
 # (note: we cannot use 'ANDROID_NDK_REVISION' because the toolchain combines the Major and Minor revisions
