@@ -6,31 +6,79 @@
 #
 #
 
-# this file is called to make sure that if we request a specific version
-# we respond only to that version
-
-set(PACKAGE_VERSION 4.7.2)
-set(PACKAGE_VERSION_EXACT False)
-set(PACKAGE_VERSION_COMPATIBLE False)
-
-if (NOT ${PACKAGE_FIND_NAME} STREQUAL "TIFF")
-    return()
+# TIFF depends on ZLIB.  For maximum compatibility here, we use the
+# official ZLIB library name, ie, ZLIB::ZLIB and not o3de 3rdParty::ZLIB.
+# O3DE's zlib package will define both.  If we're in O3DE we can also
+# auto-download ZLIB.
+if (NOT TARGET ZLIB::ZLIB)
+    if (COMMAND ly_download_associated_package)
+        ly_download_associated_package(ZLIB REQUIRED MODULE)
+    endif()
+    find_package(ZLIB)
 endif()
 
-if (PACKAGE_FIND_VERSION_COUNT GREATER 0 AND PACKAGE_FIND_VERSION_MAJOR GREATER 4)
-    return()
+# note that all variables defined in find_package will apply in THIS scope
+# which is why its a good idea to run them above before we do anything
+#  or risk them overwriting our own variables like TARGET_WITH_NAMESPACE:
+
+# this file actually ingests the library and defines targets.
+set(TARGET_WITH_NAMESPACE "3rdParty::TIFF")
+
+# the following block sets the variables that are expected
+# if you were to use the built-in CMake FindTIFF.cmake
+# for max compatibility we define ALL the expected vars anyone might use.
+set(TIFF_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/tiff/include)
+set(TIFF_INCLUDE_DIR ${TIFF_INCLUDE_DIRS})
+
+set(TIFF_LIBRARIES ${CMAKE_CURRENT_LIST_DIR}/tiff/lib/${CMAKE_STATIC_LIBRARY_PREFIX}tiff${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(TIFF_LIBRARY ${TIFF_LIBRARIES})
+set(TIFF_LIBRARY_RELEASE ${TIFF_LIBRARIES})
+set(TIFF_LIBRARY_DEBUG ${TIFF_LIBRARIES})
+
+set(TIFF_VERSION_STRING "4.7.2")
+set(TIFF_VERSION "4.7.2")
+
+set(TIFF_VERSION_MAJOR "4")
+set(TIFF_VERSION_MINOR "7")
+set(TIFF_VERSION_PATCH "2")
+
+set(TIFF_MAJOR_VERSION "4")
+set(TIFF_MINOR_VERSION "7")
+set(TIFF_PATCH_VERSION "2")
+
+set(TIFF_CXX_FOUND 0) # we don't support TIFF_Cxx feature
+
+# add the CMake standard TIFF::TIFF library.  It is a static library.
+if (NOT TARGET TIFF::TIFF)
+    add_library(TIFF::TIFF STATIC IMPORTED GLOBAL)
+    set_target_properties(TIFF::TIFF 
+                            PROPERTIES 
+                                IMPORTED_LOCATION "${TIFF_LIBRARY}"
+                                IMPORTED_LINK_INTERFACE_LANGUAGES "C")
+
+    target_link_libraries(TIFF::TIFF INTERFACE ZLIB::ZLIB)
+    if (COMMAND ly_target_include_system_directories)
+        # O3DE has an extension to fix system directory includes until CMake
+        # has a proper fix for it, so if its available, use that:
+        ly_target_include_system_directories(TARGET TIFF::TIFF INTERFACE ${TIFF_INCLUDE_DIRS})
+    else()
+        # extension is not available (or not necessary anymore) 
+        # so use default CMake SYSTEM include feature:
+        target_include_directories(TIFF::TIFF SYSTEM INTERFACE ${TIFF_INCLUDE_DIRS})
+    endif()
 endif()
 
-if (PACKAGE_FIND_VERSION_COUNT GREATER 1 AND PACKAGE_FIND_VERSION_MINOR GREATER 7)
-    return()
+if (NOT TARGET 3rdParty::TIFF)
+    # alias the TIFF library to the O3DE 3rdParty library
+    add_library(3rdParty::TIFF ALIAS TIFF::TIFF)
 endif()
 
-if (PACKAGE_FIND_VERSION_COUNT GREATER 2 AND PACKAGE_FIND_VERSION_PATCH GREATER 2)
-    return()
+# if we're NOT in O3DE, it's also useful to show a message indicating that this
+# library was successfully picked up, as opposed to the system one.
+# A good way to know if you're in O3DE or not is that O3DE sets various cache variables before 
+# calling find_package, specifically, LY_VERSION_ENGINE_NAME is always set very early:
+if (NOT LY_VERSION_ENGINE_NAME)
+    message(STATUS "Using the O3DE version of the TIFF library from ${CMAKE_CURRENT_LIST_DIR}")
 endif()
 
-if (PACKAGE_FIND_VERSION VERSION_EQUAL PACKAGE_VERSION)
-    set(PACKAGE_VERSION_EXACT TRUE)
-endif()
-
-set(PACKAGE_VERSION_COMPATIBLE TRUE)
+set(TIFF_FOUND True)
