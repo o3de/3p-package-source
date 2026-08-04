@@ -41,6 +41,7 @@
         "-Dtiff-tests=OFF",
         "-Dtiff-contrib=OFF",
         "-Dtiff-docs=OFF",
+        "-DCMAKE_CXX_STANDARD=17",
         "-DCMAKE_BUILD_TYPE=Release"
     ],
     "Platforms":{
@@ -57,12 +58,12 @@
                 ]
             },
             "Android":{
-                "package_version":"4.2.0.15-rev4",
                 "depends_on_packages" :[ 
                     ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""]
                 ],
                 "cmake_generate_args" : [
-                      "-GNinja"
+                      "-GNinja",
+                       "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake"
                 ],
                 "custom_test_cmd": [
                     "test_tiff_android.cmd"
@@ -76,7 +77,8 @@
                     ["zlib-1.3.1-rev2-mac-arm64", "52e62890329d3e003226fca88df30701cdd862a5f137eb5f75dff504377c13b3", ""]
                 ],
                 "cmake_generate_args" : [
-                      "-GNinja"
+                      "-GXcode",
+                      "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
                 ],
                 "custom_test_cmd" : [
                     "./test_tiff_mac.sh"
@@ -86,8 +88,9 @@
                 "depends_on_packages" :[ 
                     ["zlib-1.2.11-rev5-ios", "c7f10b4d0fe63192054d926f53b08e852cdf472bc2b18e2f7be5aecac1869f7f", ""]
                 ],
-                "cmake_generate_args" : [
-                      "-GNinja"
+                "cmake_generate_args": [
+                     "-G", "Xcode",
+                     "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/iOS/Toolchain_ios.cmake"
                 ],
                 "custom_test_cmd" : [
                     "./test_tiff_ios.sh"

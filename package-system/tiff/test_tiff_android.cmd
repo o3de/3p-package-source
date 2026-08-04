@@ -13,12 +13,15 @@ mkdir temp\build_test
 set "PACKAGE_ROOT=%PACKAGE_ROOT:\=/%"
 set "DOWNLOADED_PACKAGE_FOLDERS=%DOWNLOADED_PACKAGE_FOLDERS:\=/%"
 
+
+
 cmake -S test -B temp/build_test ^
     -G Ninja ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake ^
     -DCMAKE_PREFIX_PATH="%DOWNLOADED_PACKAGE_FOLDERS%;%PACKAGE_ROOT%" ^
     -DCMAKE_MODULE_PATH="%DOWNLOADED_PACKAGE_FOLDERS%;%PACKAGE_ROOT%" ^
+    -DTIFF_DIR=%PACKAGE_ROOT% ^
      || exit /b 1
 
 cmake --build temp/build_test --parallel || exit /b 1
