@@ -1,8 +1,8 @@
 {
     "git_url":"https://github.com/libexpat/libexpat",
-    "git_tag":"R_2_4_2",
+    "git_tag":"R_2_8_2",
     "package_name":"expat",
-    "package_version":"2.4.2-rev2",
+    "package_version":"2.8.2-rev1",
     "package_url":"https://libexpat.github.io/",
     "package_license":"MIT",
     "package_license_file":"expat/COPYING",
@@ -35,9 +35,9 @@
     "Platforms":{
         "Windows":{
           "Windows": {
-              "cmake_generate_args": [
-                  "-G",
-                  "\"Visual Studio 16 2019\""
+              "cmake_generate_args":[
+                "-G\"Visual Studio 17 2022\"",
+                "-DCMAKE_MSVC_RUNTIME_LIBRARY=\"MultiThreaded$<$<CONFIG:Debug>:Debug>DLL\""
               ],
               "custom_test_cmd" : [
                 "test_expat_windows.cmd"
@@ -73,9 +73,6 @@
             ]
           },
           "Mac-arm64": {
-              "git_tag":"R_2_7_3",
-              "package_version":"2.7.3-rev2",
-              "cmake_find_source":"Findexpat_2_7_3.cmake",
               "cmake_generate_args": [
                   "-G",
                   "Xcode",
