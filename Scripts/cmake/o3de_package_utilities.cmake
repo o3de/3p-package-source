@@ -129,6 +129,10 @@ macro(o3de_import_existing_config_files package_name search_dir)
     # for other platforms, we set the xxxx_ROOT value.
     set(_old_find_root_path ${CMAKE_FIND_ROOT_PATH})
     set(CMAKE_FIND_ROOT_PATH ${search_dir} ${CMAKE_FIND_ROOT_PATH})
+
+    set(_old_ignore_prefix_path ${CMAKE_IGNORE_PREFIX_PATH})
+    set(CMAKE_IGNORE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR})
+
     set(${package_name}_ROOT ${search_dir})
     # its also possible that an older version of _DIR has been cached.
     unset(${package_name}_DIR CACHE)
@@ -136,6 +140,11 @@ macro(o3de_import_existing_config_files package_name search_dir)
     find_package(${package_name} CONFIG REQUIRED)
     # reset these variables back to what they were.
     set(CMAKE_FIND_ROOT_PATH ${_old_find_root_path})
+    if (_old_ignore_prefix_path)
+        set(CMAKE_IGNORE_PREFIX_PATH ${_old_ignore_prefix_path})
+    else()
+        unset(CMAKE_IGNORE_PREFIX_PATH)
+    endif()
     if (NOT ${package_name}_FOUND)
         message(FATAL_ERROR "Could not import configs for ${package_name} from ${search_dir}")
     endif()

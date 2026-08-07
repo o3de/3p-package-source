@@ -635,17 +635,27 @@ class BuildInfo(object):
                     if len(call_result.stdout.decode('utf-8', 'ignore')):
                         # If anything changed, then restore the entire source tree
                         print(f"Path '{self.src_folder}' was modified. Restoring...")
-                        git_restore_cmd = ['git', 'restore', '--recurse-submodules', ':/']
-                        call_result = subprocess.run(subp_args(git_restore_cmd),
-                                                     shell=True,
-                                                     capture_output=False,
-                                                     cwd=str(self.src_folder.resolve()))
+                        git_clean_command = ['git', 'clean', '-fd']
+                        call_result = subprocess.run(subp_args(git_clean_command),
+                                                        shell=True,
+                                                        capture_output=False,
+                                                        cwd=str(self.src_folder.resolve()))
                         if call_result.returncode != 0:
                             # If we cannot restore through git, then delete the folder and re-clone
-                            print(f"Unable to restore {self.src_folder}. Deleting and re-cloning...")
+                            print(f"Unable to clean {self.src_folder}. Deleting and re-cloning...")
                             delete_folder(self.src_folder)
                             self.clone_to_local()
-
+                        else:
+                            git_restore_cmd = ['git', 'restore', '--recurse-submodules', ':/']
+                            call_result = subprocess.run(subp_args(git_restore_cmd),
+                                                        shell=True,
+                                                        capture_output=False,
+                                                        cwd=str(self.src_folder.resolve()))
+                            if call_result.returncode != 0:
+                                # If we cannot restore through git, then delete the folder and re-clone
+                                print(f"Unable to restore {self.src_folder}. Deleting and re-cloning...")
+                                delete_folder(self.src_folder)
+                                self.clone_to_local()
                 # Do a re-pull
                 git_pull_cmd = ['git',
                                 'pull']

@@ -10,12 +10,12 @@ cmake_minimum_required(VERSION 3.20)
 
 PROJECT(test_openexr VERSION 1.0 LANGUAGES C CXX)
 
-find_package(OpenEXR)
-find_package(Imath)
+# Necessary to override iOS toolchain behavior of 
+# setting CMAKE_FIND_ROOT_PATH_MODE_PACKAGE to ONLY, which prevents it from looking for packages
+# anywhere except in the sysroot (ie, inside xcode's ios SDK subfolder).
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 
-if (OPENEXR_TEST_VER_3_4)
-    add_compile_definitions(OPENEXR_TEST_VER_3_4)
-endif()
+find_package(OpenEXR)
 
 add_executable(test_openexr test_openexr.cpp)
 
