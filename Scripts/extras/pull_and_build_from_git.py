@@ -23,6 +23,9 @@ import sys
 from package_downloader import PackageDownloader
 from archive_downloader import download_and_verify, extract_package
 
+FORBIDDEN_CUSTOM_ENV_VARS = [
+    'TARGET_INSTALL_ROOT', 'PACKAGE_ROOT', 'TEMP_FOLDER', 'PYTHON_BINARY', 'DOWNLOADED_PACKAGE_FOLDERS', 'CMAKE_PREFIX_PATH'
+]
 
 SCHEMA_DESCRIPTION = """
 Build Config Description:
@@ -151,6 +154,7 @@ The following keys can only exist at the target platform level as they describe 
     - Otherwise you can use DOWNLOADED_PACKAGE_FOLDERS env var in your custom script and set
     - CMAKE_MODULE_PATH to be that value, yourself.
     - The subfolder can be empty, in which case the root of the package will be used.
+    - Automatically adds this package to CMAKE_PREFIX_PATH env var.
 
 * additional_download_packages            : list of archived package files to download and extract for use in any custom build script. The packages will
                                             be extracted to the working temp folder. The list will be a list of 3-TUPLES of
@@ -160,18 +164,16 @@ The following keys can only exist at the target platform level as they describe 
                                                            will be done, instead it will be calculated on the downloaded package and printed to the console.
                                                hash algorithm - The hash algorithm to use to calculate the file hash.
 
-* additional_src_files                   : individual files to copy from the local folder into
-                                           the temp src folder before build.
-                                           elements in this list can either be a string
-                                           filename,
+* additional_src_files                   : individual files to copy from the local folder into the temp src folder before build.
+                                           elements in this list can either be a string filename,
                                            or a list of 2 elements, the first being the string
-                                           filename, and the second being a relative path from
-                                           temp.
+                                           filename (source file), relative to the build json file, 
+                                           and the second being a relative path from temp src folder.
                                            E.g:
-                                           [  "extrafile.txt", "anotherfile.txt" ] - copied into temp/src/anotherfile.txt
-                                           [ [ "extrafile.txt", "dest/foo.txt"],   - copied into temp/dest/foo.txt
-                                           [ "anotherfile.txt" ] - copied into temp/src/bar.txt
-
+                                           [ "extrafile.txt", "anotherfile.txt" ] - copied into temp/src/anotherfile.txt
+                                           [ "extrafile.txt", "../dest/foo.txt"],   - copied into temp/dest/foo.txt
+                                           [ "anotherfile.txt" ] - copied into temp/src/anotherfile.txt
+                                           Will raise an error if an attempt is made to write outside the temp folder.
 
 Note about environment variables:
 When custom commands are issued (build, install, and test), the following environment variables will be set
@@ -185,6 +187,8 @@ for the process:
          DOWNLOADED_PACKAGE_FOLDERS = semicolon seperated list of abs paths to each downloaded package Find folder.
             - usually used to set CMAKE_MODULE_PATH so it can find the packages.
             - unset if there are no dependencies declared
+         CMAKE_PREFIX_PATH is set to the list of all downloaded package folders as well as the actual
+             package root, so that find_package() can be used in tests, without having to specify it manually
     Note that any of the above environment variables that contain paths will use system native slashes for script
     compatibility, and may need to be converted to forward slash in your script on windows
     if you feed it to cmake.
@@ -292,7 +296,7 @@ class PackageInfo(object):
         self.git_commit = _get_value("git_commit", required=False)
         self.cmake_find_template = _get_value("cmake_find_template", required=False)
         self.cmake_find_source = _get_value("cmake_find_source", required=False)
-        self.cmake_find_target = _get_value("cmake_find_target", required=False)
+        self.cmake_find_target = _get_value("cmake_find_target")
         self.cmake_find_template_custom_indent = _get_value("cmake_find_template_custom_indent", default=1)
         self.additional_src_files = _get_value("additional_src_files", required=False)
         self.depends_on_packages = _get_value("depends_on_packages", required=False)
@@ -311,6 +315,10 @@ class PackageInfo(object):
             raise BuildError("Bad build config file. 'cmake_find_template' and 'cmake_find_source' cannot both be set in the configuration.")
         if not self.cmake_find_template and not self.cmake_find_source:
             raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_source' must be set in the configuration.")
+
+        for key, value in self.set_env_vars.items():
+            if key in FORBIDDEN_CUSTOM_ENV_VARS:
+                raise BuildError(f"Invalid build config file. 'set_env_vars' cannot set the reserved environment variable '{key}' to '{value}'.")
 
 
     def write_package_info(self, install_path):
@@ -413,19 +421,21 @@ def delete_folder(folder):
     if not path_folder.is_dir():
         return
 
-    if os.path.dirname(path_folder) == path_folder: # is it the root folder?
+    if path_folder.parent == path_folder: # is it the root folder?
         raise BuildError(f"Was told to erase folder {path_folder} but that seems like a bad idea.")
 
+    working_dir = str(path_folder.parent.resolve())
+    print(f"Executing command with working directory: {working_dir}")
     if platform.system() == 'Windows':
         call_result = subprocess.run(subp_args(['rmdir', '/Q', '/S', str(path_folder)]),
                                      shell=True,
                                      capture_output=True,
-                                     cwd=str(path_folder.parent.resolve()))
+                                     cwd=working_dir)
     else:
         call_result = subprocess.run(subp_args(['rm', '-rf', str(path_folder)]),
                                      shell=True,
                                      capture_output=True,
-                                     cwd=str(path_folder.parent.resolve()))
+                                     cwd=working_dir)
     if call_result.returncode != 0:
         raise BuildError(f"Unable to delete folder {str(path_folder)}: {str(call_result.stderr)}")
 
@@ -541,6 +551,7 @@ class BuildInfo(object):
                      self.package_info.git_tag,
                      self.package_info.git_url,
                      relative_src_dir]
+
         clone_result = subprocess.run(subp_args(clone_cmd),
                                       shell=True,
                                       capture_output=True,
@@ -647,24 +658,6 @@ class BuildInfo(object):
         else:
             raise BuildError(f"Missing both 'git_url' and 'src_package_url' from the build config")
 
-        # Check/Validate the license file from the package, and copy over to install path
-        if self.package_info.package_license_file:
-            package_license_src = self.src_folder / self.package_info.package_license_file
-            if not package_license_src.is_file():
-                package_license_src = self.src_folder / os.path.basename(self.package_info.package_license_file)
-                if not package_license_src.is_file():
-                    raise BuildError(f"Invalid/missing license file '{self.package_info.package_license_file}' specified in the build config.")
-
-            license_file_content = package_license_src.read_text("UTF-8", "ignore")
-            if not len(license_file_content):
-                raise BuildError(f"license file {str(self.package_info.package_license_file)} is empty. Is this a valid license file?")
-            target_license_copy = self.build_install_folder / os.path.basename(package_license_src)
-            if target_license_copy.is_file():
-                target_license_copy.unlink()
-            shutil.copy2(str(package_license_src), str(target_license_copy))
-            print(f"Copied license file from {package_license_src} to {target_license_copy}")
-
-
         # Check if there is a patch to apply
         if self.package_info.patch_file:
             patch_file_path = self.base_folder / self.package_info.patch_file
@@ -714,11 +707,11 @@ class BuildInfo(object):
                 extracted_package_path = extract_package(src_package_file=downloaded_package_file,
                                                          target_folder=self.base_temp_folder)
 
-        # finally, copy the additioanl src files if any, so they can overwrite anything above
+        # copy the additional src files if any, so they can overwrite anything above
         if self.package_info.additional_src_files:
             for additional_src in self.package_info.additional_src_files:
-                additional_src_src = ""
-                additional_src_tgt = ""
+                additional_src_src = ""   # the source file (relative to the build_config.json)
+                additional_src_tgt = ""   # the destination file (relative to the temp src folder).
 
                 if isinstance(additional_src, list):
                     additional_src_src = additional_src[0]
@@ -728,12 +721,42 @@ class BuildInfo(object):
                     additional_src_tgt = self.src_folder / additional_src_src
 
                 additional_src_path = self.base_folder / additional_src_src
+
+                # note that self.src_folder and self.base_folder are pathlib path objects,
+                # and the / operator on a string will join paths and return another pathlib Path object.
+                # So additional_src_path and additional_src_target are both pathlib Path objects.
+
+                # verify that the target directory is within the temp folder, and not outside of it
+                if not additional_src_tgt.resolve().is_relative_to(self.base_temp_folder.resolve()):
+                    raise BuildError(f"Invalid additional_src_files target: {additional_src_tgt}, it must be somewhere in the temp folder.")
+
                 if not additional_src_path.is_file():
                     raise BuildError(f"Invalid additional src file: : {additional_src_src}")
                 if additional_src_tgt.is_file():
                     additional_src_tgt.unlink()
+
+                # ensure target path exists:
+                additional_src_tgt.parent.mkdir(parents=True, exist_ok=True)
+
                 print(f"Copying additional_src_file {additional_src_src} --> {additional_src_tgt}")
                 shutil.copy2(str(additional_src_path), str(additional_src_tgt))
+
+        # Check/Validate the license file from the package, and copy over to install path
+        if self.package_info.package_license_file:
+            package_license_src = self.src_folder / self.package_info.package_license_file
+            if not package_license_src.is_file():
+                package_license_src = self.src_folder / os.path.basename(self.package_info.package_license_file)
+                if not package_license_src.is_file():
+                    raise BuildError(f"Invalid/missing license file '{self.package_info.package_license_file}' specified in the build config.")
+
+            license_file_content = package_license_src.read_text("UTF-8", "ignore")
+            if not len(license_file_content):
+                raise BuildError(f"license file {str(self.package_info.package_license_file)} is empty. Is this a valid license file?")
+            target_license_copy = self.build_install_folder / os.path.basename(package_license_src)
+            if target_license_copy.is_file():
+                target_license_copy.unlink()
+            shutil.copy2(str(package_license_src), str(target_license_copy))
+            print(f"Copied license file from {package_license_src} to {target_license_copy}")
 
     def build_and_install_cmake(self):
         """
@@ -821,7 +844,7 @@ class BuildInfo(object):
 
                 # make sure it always installs into a prefix (ie, not the system!)
                 cmake_generate_cmd.extend([f"-DCMAKE_INSTALL_PREFIX={str(install_target_folder.resolve())}"])
-
+                print(f"Executing command with workding directory: {str(self.build_folder.parent.resolve())}")
                 call_result = subprocess.run(subp_args(cmake_generate_cmd),
                                              shell=True,
                                              capture_output=False,
@@ -844,23 +867,26 @@ class BuildInfo(object):
                                '--config', config]
 
             cmake_build_cmd.extend(cmake_build_args)
-
+            working_dir = str(self.build_folder.parent.resolve())
+            print(f"Executing command with working directory: {working_dir}")
             call_result = subprocess.run(subp_args(cmake_build_cmd),
                                          shell=True,
                                          capture_output=False,
                                          env=env_to_use,
-                                         cwd=str(self.build_folder.parent.resolve()))
+                                         cwd=working_dir)
             if call_result.returncode != 0:
                 raise BuildError(f"Error building project for platform {self.package_info.platform_name}")
 
             cmake_install_cmd = [self.cmake_command,
                                     '--install', str(self.build_folder.name),
                                     '--config', config]
+
+            print(f"Executing command with working directory: {working_dir}")
             call_result = subprocess.run(subp_args(cmake_install_cmd),
                                             shell=True,
                                             capture_output=False,
                                             env=env_to_use,
-                                            cwd=str(self.build_folder.parent.resolve()))
+                                            cwd=working_dir)
             if call_result.returncode != 0:
                 raise BuildError(f"Error installing project for platform {self.package_info.platform_name}")
 
@@ -893,19 +919,44 @@ class BuildInfo(object):
         custom_env['PACKAGE_ROOT'] = str(self.package_install_root.resolve())
         custom_env['TEMP_FOLDER'] = str(self.base_temp_folder.resolve())
         custom_env['PYTHON_BINARY'] = sys.executable
+
+        print(f"Setting up custom subprocess environment:")
+        print(f"   Adding built-in env TARGET_INSTALL_ROOT={custom_env['TARGET_INSTALL_ROOT']}")
+        print(f"   Adding built-in env PACKAGE_ROOT={custom_env['PACKAGE_ROOT']}")
+        print(f"   Adding built-in env TEMP_FOLDER={custom_env['TEMP_FOLDER']}")
+        print(f"   Adding built-in env PYTHON_BINARY={custom_env['PYTHON_BINARY']}")
+
+        # preserve existing prefix path if it exists
+        prior_prefix_path = custom_env.get('CMAKE_PREFIX_PATH', None)
+
+        package_folder_list = []
+
         if self.package_info.depends_on_packages:
-            package_folder_list = []
             for package_name, _, subfoldername in self.package_info.depends_on_packages:
                 package_folder_list.append(str( (self.base_temp_folder / package_name / subfoldername).resolve().absolute()))
             custom_env['DOWNLOADED_PACKAGE_FOLDERS'] = ';'.join(package_folder_list)
-            print(f"  Adding env var DOWNLOADED_PACKAGE_FOLDERS={custom_env['DOWNLOADED_PACKAGE_FOLDERS']}")
-            path_env_var_sep = ';' if platform.system() == 'Windows' else ':'
-            custom_env['CMAKE_PREFIX_PATH']  = path_env_var_sep.join(package_folder_list)
-            print(f"  Adding env var CMAKE_PREFIX_PATH={custom_env['CMAKE_PREFIX_PATH']}")
+            print(f"   Adding built-in env DOWNLOADED_PACKAGE_FOLDERS={custom_env['DOWNLOADED_PACKAGE_FOLDERS']}")
+
+        # CMAKE_PREFIX_PATH is a list of folders that cmake will search for packages. 
+        # DOWNLOADED_PACKAGE_FOLDERS is generally used as a CMake variable (`-DBLAH=$DOWNLOADED_PACKAGE_FOLDERS`)
+        # so we use semicolons to separate the folders.
+        # CMAKE_PREFIX_PATH is generally used as an environment variable so we use the platform PATH separator, which
+        # is the CMake convention (CMake vars = semicolon, Env Vars = platform separator, which it converts on load).
+        path_env_var_sep = ';' if platform.system() == 'Windows' else ':'
+
+        # for convenience we also add the package we are building to the prefix path
+        # so that you don't have to add itself to the prefix path when you are running the test command.
+        package_folder_list.append(custom_env['PACKAGE_ROOT'])
+
+        if prior_prefix_path:
+            package_folder_list.append(prior_prefix_path)
+
+        custom_env['CMAKE_PREFIX_PATH']  = path_env_var_sep.join(package_folder_list)
+        print(f"   Adding built-in env CMAKE_PREFIX_PATH={custom_env['CMAKE_PREFIX_PATH']}")
 
         custom_env_vars = self.package_info.set_env_vars
         for key, value in custom_env_vars.items():
-            print(f"  Adding env var {key} = {value}")
+            print(f"   Adding custom env {key} = {value}")
             custom_env[key] = value
 
         return custom_env
@@ -924,6 +975,7 @@ class BuildInfo(object):
             # Construct the custom build command to execute
             full_custom_build_cmd = shlex.join(custom_build_cmds).format(python=sys.executable)
 
+            print(f"Executing command with working directory: {self.base_folder}")
             call_result = subprocess.run(full_custom_build_cmd,
                                          shell=True,
                                          capture_output=False,
@@ -939,8 +991,8 @@ class BuildInfo(object):
             # Construct the custom install command to execute
             full_custom_install_cmd = shlex.join(custom_install_cmds).format(python=sys.executable)
 
+            print(f"Executing command with working directory: {self.base_folder}")
             call_result = subprocess.run(full_custom_install_cmd,
-
                                          shell=True,
                                          capture_output=False,
                                          cwd=str(self.base_folder),
@@ -1140,8 +1192,7 @@ class BuildInfo(object):
 
         # Construct the custom build command to execute
         full_custom_test_cmd = shlex.join(custom_test_cmd).format(python=sys.executable)
-        print(f"\n\nRunning custom test...")
-
+        print(f"\n\nRunning custom test with working directory {str(self.base_folder)}")
         call_result = subprocess.run(full_custom_test_cmd,
                                     shell=True,
                                     capture_output=False,
@@ -1321,13 +1372,15 @@ if __name__ == '__main__':
         # If package_root is not supplied, default to {base_path}/temp
         resolved_package_root = parsed_args.package_root or f'{parsed_args.base_path}/temp'
 
+        # resolve paths to avoid the log being full of relative paths without a base being specified.
         cmake_path = validate_cmake(f"{parsed_args.cmake_path}/cmake" if parsed_args.cmake_path else "cmake")
+        build_path = parsed_args.build_path or f'{parsed_args.base_path}/temp'
 
         # Prepare for the build
         build_info = prepare_build(platform_name=parsed_args.platform_name,
-                                   base_folder=parsed_args.base_path,
-                                   build_folder=parsed_args.build_path,
-                                   package_root_folder=resolved_package_root,
+                                   base_folder=pathlib.Path(parsed_args.base_path).resolve(),
+                                   build_folder=pathlib.Path(build_path).resolve(),
+                                   package_root_folder=pathlib.Path(resolved_package_root).resolve(),
                                    cmake_command=cmake_path,
                                    build_config_file=parsed_args.build_config_file,
                                    clean=parsed_args.clean,
