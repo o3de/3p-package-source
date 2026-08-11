@@ -322,14 +322,15 @@ class PackageInfo(object):
             if key.lower() in FORBIDDEN_CUSTOM_ENV_VARS:
                 raise BuildError(f"Invalid build config file. 'set_env_vars' cannot set the reserved environment variable '{key}' to '{value}'.")
 
-        for element in self.additional_src_files:
-            if type(element) is list:
-                if len(element) != 2:
-                    raise BuildError(f"Invalid build config file. 'additional_src_files' lists must contain exactly 2 elements: {element}")
-                if type(element[0]) is not str or type(element[1]) is not str:
-                    raise BuildError(f"Invalid build config file. 'additional_src_files' must only contain string elements: {element}")
-            elif type(element) is not str:
-                raise BuildError(f"Invalid build config file. 'additional_src_files' contains a non-string element: {element}")
+        if self.additional_src_files:
+            for element in self.additional_src_files:
+                if type(element) is list:
+                    if len(element) != 2:
+                        raise BuildError(f"Invalid build config file. 'additional_src_files' lists must contain exactly 2 elements: {element}")
+                    if type(element[0]) is not str or type(element[1]) is not str:
+                        raise BuildError(f"Invalid build config file. 'additional_src_files' must only contain string elements: {element}")
+                elif type(element) is not str:
+                    raise BuildError(f"Invalid build config file. 'additional_src_files' contains a non-string element: {element}")
 
     def write_package_info(self, install_path):
         """
