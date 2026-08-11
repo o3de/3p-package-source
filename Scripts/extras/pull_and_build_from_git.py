@@ -24,7 +24,7 @@ from package_downloader import PackageDownloader
 from archive_downloader import download_and_verify, extract_package
 
 FORBIDDEN_CUSTOM_ENV_VARS = [
-    'TARGET_INSTALL_ROOT', 'PACKAGE_ROOT', 'TEMP_FOLDER', 'PYTHON_BINARY', 'DOWNLOADED_PACKAGE_FOLDERS', 'CMAKE_PREFIX_PATH'
+    'target_install_root', 'package_root', 'temp_folder', 'python_binary', 'downloaded_package_folders', 'cmake_prefix_path'
 ]
 
 SCHEMA_DESCRIPTION = """
@@ -171,7 +171,7 @@ The following keys can only exist at the target platform level as they describe 
                                            and the second being a relative path from temp src folder.
                                            E.g:
                                            [ "extrafile.txt", "anotherfile.txt" ] - copied into temp/src/anotherfile.txt
-                                           [ "extrafile.txt", "../dest/foo.txt"],   - copied into temp/dest/foo.txt
+                                           [ "extrafile.txt", "../dest/foo.txt"],   - copied into temp/src/../dest/foo.txt
                                            [ "anotherfile.txt" ] - copied into temp/src/anotherfile.txt
                                            Will raise an error if an attempt is made to write outside the temp folder.
 
@@ -317,9 +317,19 @@ class PackageInfo(object):
             raise BuildError("Bad build config file. 'cmake_find_template' or 'cmake_find_source' must be set in the configuration.")
 
         for key, value in self.set_env_vars.items():
-            if key in FORBIDDEN_CUSTOM_ENV_VARS:
+            if type(value) is not str:
+                raise BuildError(f"Invalid build config file. 'set_env_vars' must be a dictionary of string key-value pairs but value '{value}' for key '{key}' is not a string.")
+            if key.lower() in FORBIDDEN_CUSTOM_ENV_VARS:
                 raise BuildError(f"Invalid build config file. 'set_env_vars' cannot set the reserved environment variable '{key}' to '{value}'.")
 
+        for element in self.additional_src_files:
+            if type(element) is list:
+                if len(element) != 2:
+                    raise BuildError(f"Invalid build config file. 'additional_src_files' lists must contain exactly 2 elements: {element}")
+                if type(element[0]) is not str or type(element[1]) is not str:
+                    raise BuildError(f"Invalid build config file. 'additional_src_files' must only contain string elements: {element}")
+            elif type(element) is not str:
+                raise BuildError(f"Invalid build config file. 'additional_src_files' contains a non-string element: {element}")
 
     def write_package_info(self, install_path):
         """
@@ -715,7 +725,7 @@ class BuildInfo(object):
 
                 if isinstance(additional_src, list):
                     additional_src_src = additional_src[0]
-                    additional_src_tgt = self.base_temp_folder / additional_src[1]
+                    additional_src_tgt = self.src_folder / additional_src[1]
                 else:
                     additional_src_src = additional_src
                     additional_src_tgt = self.src_folder / additional_src_src
