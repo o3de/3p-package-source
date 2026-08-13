@@ -9,7 +9,6 @@
 set(QT_LIB_PATH ${QT_PATH}/lib)
 
 list(APPEND QT6_COMPONENTS
-    DBus
     PrintSupport
 )
 
