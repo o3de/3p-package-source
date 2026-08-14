@@ -21,7 +21,7 @@ find_package(Imath CONFIG 3.1.1 REQUIRED)
 add_executable(test_imath ${CMAKE_CURRENT_LIST_DIR}/../imathtest.cpp)
 target_link_libraries(test_imath Imath::Imath)
 
-set_target_properties(test_expat PROPERTIES
+set_target_properties(test_imath PROPERTIES
                  XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED OFF
                  MACOSX_BUNDLE TRUE
                  XCODE_ATTRIBUTE_EXECUTABLE_NAME "test_imath")
