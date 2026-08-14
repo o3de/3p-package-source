@@ -28,7 +28,7 @@ cmake -S test/find-using-module -B temp/build_test/find-using-module \
 cmake --build temp/build_test/find-using-config --config Release || exit 1
 cmake --build temp/build_test/find-using-module --config Release || exit 1
 
-./temp/build_test/find-using-config/Release/test_imath || exit 1
-./temp/build_test/find-using-module/Release/test_imath || exit 1
+./temp/build_test/find-using-config/Release/test_imath.app/Contents/MacOS/test_imath || exit 1
+./temp/build_test/find-using-module/Release/test_imath.app/Contents/MacOS/test_imath || exit 1
 
 exit 0
