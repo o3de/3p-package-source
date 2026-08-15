@@ -32,7 +32,7 @@ fi
 
 cd $WORKSPACE/src
 echo "Configuring OpenSSL"
-CMD="./config no-shared no-asm --prefix=${BUILD_FOLDER} --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN'"
+CMD="./config no-shared no-asm --prefix=${BUILD_FOLDER} --libdir=lib --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN'"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]

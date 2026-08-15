@@ -69,7 +69,7 @@ echo "Detected Docker Version $DOCKER_VERSION"
 if [ "${CURRENT_HOST_ARCH}" != ${TARGET_ARCH} ]
 then
     echo "Checking cross compiling requirements."
-    for package_check in docker-ce qemu binfmt-support qemu-user-static
+    for package_check in docker-ce binfmt-support qemu-user-static
     do
         echo "Checking package $package_check"
         dpkg -s $package_check > /dev/null 2>&1
@@ -86,8 +86,9 @@ then
     if [ "${TARGET_ARCH}" = "aarch64" ]
     then
         # Make sure qemu-aarch64 is installed properly
-        QEMU_AARCH_COUNT=$(update-binfmts --display | grep qemu-aarch64 | wc -l)
-        if [ $QEMU_AARCH_COUNT -eq 0 ]
+        QEMU_AARCH_COUNT=$(update-binfmts --display 2>/dev/null | grep -c qemu-aarch64)
+        QEMU_AARCH_KERNEL_ENABLED=$(cat /proc/sys/fs/binfmt_misc/qemu-aarch64 2>/dev/null | grep -c '^enabled$')
+        if [ $QEMU_AARCH_COUNT -eq 0 ] && [ $QEMU_AARCH_KERNEL_ENABLED -eq 0 ]
         then
             echo ""
             echo "QEMU aarch64 binary format not registered."

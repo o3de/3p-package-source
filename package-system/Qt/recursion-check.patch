@@ -1,0 +1,25 @@
+Submodule qtbase contains modified content
+diff --git a/qtbase/cmake/QtPublicCMakeHelpers.cmake b/qtbase/cmake/QtPublicCMakeHelpers.cmake
+index 3074998c2c9..e22a6b79a1f 100644
+--- a/qtbase/cmake/QtPublicCMakeHelpers.cmake
++++ b/qtbase/cmake/QtPublicCMakeHelpers.cmake
+@@ -226,8 +226,19 @@ function(_qt_internal_collect_buildsystem_targets result dir)
+     if(NOT _qt_internal_collect_buildsystem_targets_inner)
+         set(${result} "")
+         set(_qt_internal_collect_buildsystem_targets_inner TRUE)
++        set(_qt_collect_visited_dirs "")
+     endif()
+ 
++    # Normalize path (important for detecting duplicates reliably)
++    get_filename_component(dir "${dir}" REALPATH)
++
++    # Stop recursion if we already visited this directory
++    if("${dir}" IN_LIST _qt_collect_visited_dirs)
++        return()
++    endif()
++
++    list(APPEND _qt_collect_visited_dirs "${dir}")
++
+     set(forward_args "")
+     if(arg_EXCLUDE)
+         set(forward_args APPEND EXCLUDE ${arg_EXCLUDE})

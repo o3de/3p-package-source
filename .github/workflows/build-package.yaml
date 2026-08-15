@@ -57,7 +57,7 @@ jobs:
               if [[ -n "${PROCESSED_PACKAGES[$PACKAGE]}" ]]; then
                 continue
               fi
-              
+
               PACKPATH=$(echo $LINE | grep -oE "package-system/[^/ ]+" | head -n 1)
               if [[ -z "${DOCKERFILE["$PACKAGE"]}" && -n "$PACKPATH" ]]; then
                 DOCKER=$(test -e ${PACKPATH%% }/Dockerfile* && echo 1 || echo 0) # Assume the build scripts will use the Dockerfile if found in the package path
@@ -72,7 +72,7 @@ jobs:
                 PACKAGE_OS="ubuntu-22.04"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "windows" ]]; then
-                PACKAGE_OS="windows-latest"
+                PACKAGE_OS="windows-2022"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               elif [[ $PLATFORM =~ "darwin-arm64" ]]; then
                 PACKAGE_OS="macos-15"
@@ -81,7 +81,7 @@ jobs:
                 PACKAGE_OS="macos-15-intel"
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS"
               else
-                PACKAGE_OS="windows-latest" # Default
+                PACKAGE_OS="windows-2022" # Default
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS (default)"
               fi
               
@@ -156,15 +156,34 @@ jobs:
         git config --global core.longpaths true
         echo "uid_gid=$(id -u):$(id -g)" >> $GITHUB_OUTPUT
 
-    - name: Expand disk size for Linux
-      uses: easimon/maximize-build-space@v10
+    - name: Check disk space
+      # Check if the workspace has enough free space, otherwise flag the disk for resizing
       if: runner.os == 'Linux' && !contains(matrix.os, 'arm')
+      env:
+        MIN_FREE_DISK: 70 # in GB
+      id: check-disk
+      run: |
+        AVAIL_GB=$(df ${{ github.workspace }} --output=avail --block-size=1G | tail -1 | tr -d ' ')
+        echo "Workspace has ${AVAIL_GB}GB available"
+        if [ "$AVAIL_GB" -lt ${{ env.MIN_FREE_DISK }} ]; then
+          echo "needs_resize=true" >> $GITHUB_OUTPUT
+          echo "Workspace has less than ${{ env.MIN_FREE_DISK }}GB available, resizing disk"
+        else
+          echo "needs_resize=false" >> $GITHUB_OUTPUT
+          echo "Workspace has enough free space, skipping disk resize"
+        fi
+
+    - name: Maximize build space
+      # Resize and combine disks as LVM to maximize space for builds, if below the minimum free space
+      if: steps.check-disk.outputs.needs_resize == 'true' && runner.os == 'Linux' && !contains(matrix.os, 'arm')
+      uses: easimon/maximize-build-space@fc881a613ad2a34aca9c9624518214ebc21dfc0c # v10
       with:
-        root-reserve-mb: 20000
+        root-reserve-mb: 8000
         swap-size-mb: 200
         remove-dotnet: true
         remove-haskell: true
         remove-codeql: true
+        remove-docker-images: true
       
     - name: Checkout 3P source repo
       uses: actions/checkout@v4
@@ -177,7 +196,7 @@ jobs:
       with:
         repository: o3de/3p-package-scripts
         path: scripts
-      
+
     - name: Update python
       uses: actions/setup-python@v4
       with:
@@ -202,19 +221,14 @@ jobs:
         "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Component.VC.14.29.16.11.x86.x64 --add Microsoft.VisualStudio.Component.VC.14.29.16.11.ATL --add Microsoft.VisualStudio.Component.VC.14.29.16.11.CLI.Support --quiet --norestart
 
     - name: Update msbuild path
-      if: ${{ !contains(matrix.package, 'qt-6') && runner.os == 'Windows' }} 
+      if: ${{ !contains(matrix.package, 'qt-6') && !contains(matrix.package, 'pyside6') && runner.os == 'Windows' }} 
       uses: ilammy/msvc-dev-cmd@v1.13.0
       with:
         toolset: 14.29
     - name: Install nasm on macos
       if: runner.os == 'macOS'
       run: |
-        brew install nasm
-
-    - name: Setup Emscripten
-      uses: mymindstorm/setup-emsdk@v14
-      with:
-        version: 4.0.10
+        brew install nasm patchelf
 
     - name: Setup NDK
       env:
@@ -257,18 +271,28 @@ jobs:
         echo ANDROID_NDK=$ndkRoot >> $env:GITHUB_ENV
         echo ANDROID_NDK_HOME=$ndkRoot >> $env:GITHUB_ENV
         echo ANDROID_NDK_ROOT=$ndkRoot >> $env:GITHUB_ENV
-    
+
     - name: Install clang/gcc
       if: runner.os == 'Linux'
       env:
-        CLANG_VER: 12
+        CLANG_VER: 15
         GCC_VER: 9
       run: |
-        sudo apt-get install -y clang-${{ env.CLANG_VER }} gcc-${{ env.GCC_VER }} g++-${{ env.GCC_VER }}
+        sudo apt-get install -y clang-${{ env.CLANG_VER }} gcc-${{ env.GCC_VER }} g++-${{ env.GCC_VER }} libclang-${{ env.CLANG_VER }}-dev
         sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${{ env.CLANG_VER }} 10
         sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${{ env.CLANG_VER }} 10
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ env.GCC_VER }} 10
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ env.GCC_VER }} 10
+
+    - name: Install additional build dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev libpcre2-dev chrpath \
+                                libxkbcommon-dev libxkbcommon-x11-dev \
+                                libx11-dev libxext-dev libxrender-dev \
+                                libxrandr-dev libxinerama-dev libxi-dev \
+                                libxkbfile-dev patchelf
 
     - name: Use sccache
       uses: hendrikmuhs/ccache-action@v1.2.10
@@ -293,7 +317,7 @@ jobs:
                                            # Compatibility with CMake < 3.5 has been removed from CMake.
         MACOSX_DEPLOYMENT_TARGET: 13.0 # Set the minimum MacOS version to be compatible with the oldest supported version of MacOS
       run: |
-        python3 scripts/o3de_package_scripts/build_package.py --search_path source ${{ matrix.package }}
+        python3 source/Scripts/packaging/package.py build ${{ matrix.package }}
           
     - name: Upload packages
       uses: actions/upload-artifact@v4

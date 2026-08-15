@@ -73,6 +73,7 @@
            ]
         },
         "Mac-arm64":{
+            "package_version":"2.11.1-rev2",
             "depends_on_packages" :[
                ["zlib-1.3.1-rev2-mac-arm64", "52e62890329d3e003226fca88df30701cdd862a5f137eb5f75dff504377c13b3", ""]
             ],

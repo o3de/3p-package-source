@@ -8,9 +8,8 @@
 
 set(QT_LIB_PATH ${QT_PATH}/lib)
 
-list(APPEND QT5_COMPONENTS 
+list(APPEND QT6_COMPONENTS
     DBus
-    MacExtras
     PrintSupport
 )
 

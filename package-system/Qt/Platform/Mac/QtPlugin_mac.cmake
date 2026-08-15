@@ -6,11 +6,6 @@
 #
 #
 
-ly_add_target_files(TARGETS 3rdParty::Qt::Network::Plugins
-    FILES ${QT_PATH}/plugins/bearer/libqgenericbearer.dylib
-    OUTPUT_SUBDIRECTORY bearer
-)
-
 ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     FILES ${QT_PATH}/plugins/iconengines/libqsvgicon.dylib
     OUTPUT_SUBDIRECTORY iconengines

@@ -44,11 +44,11 @@ mkdir -p ${TARGET_INSTALL_ROOT}
 
 
 # Copy the license file
-echo "Copying LICENSE to ${TARGET_INSTALL_ROOT}"
-cp -f ${SRC_PATH}/LICENSE ${TARGET_INSTALL_ROOT}/
+echo "Copying LICENSE.txt to ${TARGET_INSTALL_ROOT}"
+cp -f ${SRC_PATH}/LICENSE.txt ${TARGET_INSTALL_ROOT}/
 if [ $? -ne 0 ]
 then
-    echo "Copying LICENSE to ${TARGET_INSTALL_ROOT} failed."
+    echo "Copying LICENSE.txt to ${TARGET_INSTALL_ROOT} failed."
     exit 1
 fi
 

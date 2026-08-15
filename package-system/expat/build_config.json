@@ -74,7 +74,7 @@
           },
           "Mac-arm64": {
               "git_tag":"R_2_7_3",
-              "package_version":"2.7.3-rev1",
+              "package_version":"2.7.3-rev2",
               "cmake_find_source":"Findexpat_2_7_3.cmake",
               "cmake_generate_args": [
                   "-G",

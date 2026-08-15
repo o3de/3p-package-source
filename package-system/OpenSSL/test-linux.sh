@@ -9,10 +9,10 @@
 
 
 # The expected OPENSSL_VERSION_TEXT (Refer to build_config.json for the current version being built)
-EXPECTED_OPENSSL_VERSION="OpenSSL 1.1.1t  7 Feb 2023"
+EXPECTED_OPENSSL_VERSION="OpenSSL 3.6.3 9 Jun 2026"
 
-# The sha256 hash of the above OPENSSL_VERSION_TEXT (Refer to build_config.json for the current version being built)
-EXPECTED_OPENSSL_VERSION_SHA256="92b72d8487f5580f88413f85e7053daf63da2653"
+# The sha1sum hash of the above OPENSSL_VERSION_TEXT (Refer to build_config.json for the current version being built)
+EXPECTED_OPENSSL_VERSION_SHA256="5559d73213aff02be756d7cb30491444c9c21473"
 
 
 # Reset any existing test folder

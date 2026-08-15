@@ -29,13 +29,11 @@ def main():
     )
     args = parser.parse_args()
 
+    opensslVersion = '3.6.3'
+
     packageSystemDir = Path(__file__).resolve().parents[1]
     opensslPackageSourceDir = packageSystemDir / 'OpenSSL'
     outputDir = opensslPackageSourceDir / 'temp' / f'OpenSSL-{args.platformName}'
-
-    opensslPatch = opensslPackageSourceDir / 'set_openssl_port_to_1_1_1_x.patch'
-
-    enableStdioOnIOS = opensslPackageSourceDir / 'enable-stdio-on-iOS.patch'
 
     cmakeFindFile = opensslPackageSourceDir / 'FindOpenSSL.cmake.template'
     cmakeFindFileTemplate = cmakeFindFile.open().read()
@@ -68,26 +66,20 @@ def main():
         tempdir = Path(tempdir)
         builder = VcpkgBuilder(packageName='OpenSSL', portName='openssl', vcpkgDir=tempdir, targetPlatform=args.platformName, static=useStaticLibsForPlatform[args.platformName])
         builder.deleteFolder(outputDir)
-        builder.cloneVcpkg('b86c0c35b88e2bf3557ff49dc831689c2f085090')
+        builder.cloneVcpkg('52c9e08cdf8580d2d9762f547d22b96fd81e82f2')  # vcpkg tag 2026.06.24, ships OpenSSL 3.6.3
         builder.bootstrap()
-        builder.patch(opensslPatch)
-        builder.patch(enableStdioOnIOS)
         builder.build()
-        builder.copyBuildOutputTo(
-            outputDir,
-            extraFiles={
-                next(builder.vcpkgDir.glob(f'buildtrees/openssl/{builder.triplet}-rel/**/LICENSE')): outputDir / builder.packageName / 'LICENSE',
-            })
+        builder.copyBuildOutputTo(outputDir, extraFiles={})
 
         revisionName = revisionForPlatform[args.platformName]
 
         builder.writePackageInfoFile(
             outputDir,
             settings={
-                'PackageName': f'OpenSSL-1.1.1o-{revisionName}-{args.platformName}',
+                'PackageName': f'OpenSSL-{opensslVersion}-{revisionName}-{args.platformName}',
                 'URL': 'https://github.com/openssl/openssl',
-                'License': 'OpenSSL',
-                'LicenseFile': 'OpenSSL/LICENSE'
+                'License': 'Apache-2.0',
+                'LicenseFile': 'OpenSSL/share/openssl/copyright'
             },
         )
 
@@ -98,8 +90,10 @@ def main():
             outputDir,
             template=cmakeFindFileTemplate,
             templateEnv={
-                'CRYPTO_LIBRARY_DEPENDENCIES':crypto_library_dependencies
+                'CRYPTO_LIBRARY_DEPENDENCIES':crypto_library_dependencies,
+                'OPENSSL_VERSION_STRING':opensslVersion
             },
+            overwrite_find_file=None,
         )
     # now test the package, it will be in outputDir
     customEnviron = os.environ.copy()

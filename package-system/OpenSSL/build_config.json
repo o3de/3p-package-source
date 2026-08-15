@@ -1,23 +1,23 @@
 {
    "git_url":"https://github.com/openssl/openssl.git",
-   "git_tag":"OpenSSL_1_1_1t",
+   "git_tag":"openssl-3.6.3",
    "package_name":"OpenSSL",
-   "package_version":"1.1.1t-rev1",
+   "package_version":"3.6.3-rev1",
    "package_url":"https://github.com/openssl/openssl.git",
-   "package_license":"OpenSSL",
-   "package_license_file":"LICENSE",
+   "package_license":"Apache-2.0",
+   "package_license_file":"LICENSE.txt",
    "cmake_find_target":"FindOpenSSL.cmake",
    "Platforms":{
       "Darwin":{
          "Mac":{
-            "package_version": "1.1.1w-rev1",
-            "git_tag":"OpenSSL_1_1_1w",
+            "package_version": "3.6.3-rev1",
+            "git_tag":"openssl-3.6.3",
             "cmake_find_template":"FindOpenSSL.cmake.template",
             "custom_build_cmd": [
                "./build-mac.sh"
             ],
             "custom_additional_template_map": {
-               "OPENSSL_VERSION_STRING": "1.1.1w",
+               "OPENSSL_VERSION_STRING": "3.6.3",
                "CRYPTO_LIBRARY_DEPENDENCIES": ""
             }
          },
@@ -28,7 +28,7 @@
             "cmake_find_template":"FindOpenSSL.cmake.template",
             "custom_build_cmd": [
                "./build-linux.sh",
-               "openssl_1_1_1t",
+               "openssl_3_6_3",
                "18.04",
                "x86_64"
             ],
@@ -41,7 +41,7 @@
                "x86_64"
             ],
             "custom_additional_template_map": {
-               "OPENSSL_VERSION_STRING": "1.1.1t",
+               "OPENSSL_VERSION_STRING": "3.6.3",
                "CRYPTO_LIBRARY_DEPENDENCIES": ""
             }
          },
@@ -49,7 +49,7 @@
             "cmake_find_template":"FindOpenSSL.cmake.template",
             "custom_build_cmd": [
                "./build-linux.sh",
-               "openssl_1_1_1t",
+               "openssl_3_6_3",
                "18.04",
                "aarch64"
             ],
@@ -62,7 +62,7 @@
                "aarch64"
             ],
             "custom_additional_template_map": {
-               "OPENSSL_VERSION_STRING": "1.1.1t",
+               "OPENSSL_VERSION_STRING": "3.6.3",
                "CRYPTO_LIBRARY_DEPENDENCIES": ""
             }
          }

@@ -23,12 +23,19 @@ import platform
 from build_package import BuildPackage
 
 HOST_PLATFORM = platform.system()
+HOST_ARCH = platform.machine()
 if HOST_PLATFORM == "Windows":
     PACKAGE_BUILD_LIST_PLATFORM_ARCH = 'windows'
 elif HOST_PLATFORM == "Linux":
-    PACKAGE_BUILD_LIST_PLATFORM_ARCH = 'linux'
+    if HOST_ARCH == "aarch64":
+        PACKAGE_BUILD_LIST_PLATFORM_ARCH = 'linux-aarch64'
+    else:
+        PACKAGE_BUILD_LIST_PLATFORM_ARCH = 'linux'
 elif HOST_PLATFORM == "Darwin":
-    PACKAGE_BUILD_LIST_PLATFORM_ARCH = 'darwin'
+    if HOST_ARCH == "arm64":
+        PACKAGE_BUILD_LIST_PLATFORM_ARCH = 'darwin-arm64'
+    else:
+        PACKAGE_BUILD_LIST_PLATFORM_ARCH = 'darwin'
 else:
     print("Unsupported platform:", HOST_PLATFORM)
     sys.exit(1)
@@ -163,8 +170,7 @@ def build_package(name: str) -> int:
     root_path = Path(__file__).parent.parent.parent
     output_folder = root_path / "packages"
     search_path = root_path
-    BuildPackage(name, output_folder, search_path)
-    return 0
+    return BuildPackage(name, output_folder, search_path)
 
 def main(argv: List[str] | None = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]

@@ -45,6 +45,7 @@ ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
 ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     FILES
         ${QT_PATH}/plugins/platforms/libqminimal.so
+        ${QT_PATH}/plugins/platforms/libqwayland.so
         ${QT_PATH}/plugins/platforms/libqxcb.so
     OUTPUT_SUBDIRECTORY platforms
 )
@@ -55,8 +56,40 @@ ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     OUTPUT_SUBDIRECTORY xcbglintegrations
 )
 
+# Wayland client plugin set: the wayland QPA plugin above needs at least one
+# shell integration to map windows (xdg-shell on modern desktop compositors),
+# the decoration plugins for client-side window decorations (compositors like
+# GNOME's Mutter do not draw server-side decorations), and the graphics
+# integrations for the hardware (EGL) and shared-memory buffer paths.
+ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
+    FILES
+        ${QT_PATH}/plugins/wayland-shell-integration/libfullscreen-shell-v1.so
+        ${QT_PATH}/plugins/wayland-shell-integration/libivi-shell.so
+        ${QT_PATH}/plugins/wayland-shell-integration/libqt-shell.so
+        ${QT_PATH}/plugins/wayland-shell-integration/libwl-shell-plugin.so
+        ${QT_PATH}/plugins/wayland-shell-integration/libxdg-shell.so
+    OUTPUT_SUBDIRECTORY wayland-shell-integration
+)
+
+ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
+    FILES
+        ${QT_PATH}/plugins/wayland-decoration-client/libadwaita.so
+        ${QT_PATH}/plugins/wayland-decoration-client/libbradient.so
+    OUTPUT_SUBDIRECTORY wayland-decoration-client
+)
+
+ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
+    FILES
+        ${QT_PATH}/plugins/wayland-graphics-integration-client/libdrm-egl-server.so
+        ${QT_PATH}/plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so
+        ${QT_PATH}/plugins/wayland-graphics-integration-client/libshm-emulation-server.so
+    OUTPUT_SUBDIRECTORY wayland-graphics-integration-client
+)
+
 ly_add_dependencies(3rdParty::Qt::Widgets::Plugins Qt6::DBus)
 ly_add_target_files(TARGETS 3rdParty::Qt::Widgets::Plugins
     FILES
         ${QT_PATH}/lib/libQt6XcbQpa.so
+        ${QT_PATH}/lib/libQt6WaylandClient.so
+        ${QT_PATH}/lib/libQt6WlShellIntegration.so
 )

@@ -220,7 +220,7 @@ class CommonUtils():
                         # we dont bail immediately because we need to actually set all of these
                         # to be writable by user or else removing the temp dir will fail
                         found_readonly_files = True
-                    
+
                     if relpath_from_folder != CommonUtils.package_root_hash_file_name: #ignore the SHA256SUMS file itself
                         actual_files.append(relpath_from_folder)
 
