@@ -41,7 +41,16 @@ CURRENT_HOST_ARCH=$(uname -m)
 # Use the host architecture if not supplied
 TARGET_ARCH=${3:-$(uname -m)}
 
-# Recompute the DOWNLOADED_PACKAGE_FOLDERS to apply to $WORKSPACE/temp inside the Docker script 
+# Detect the system-OpenSSL build variant from the docker image name.
+# When the image name contains "system_openssl", the docker build script
+# uses --with-openssl=/usr instead of the bundled OpenSSL package.
+if [[ "${DOCKER_IMAGE_NAME_BASE}" == *"system_openssl"* ]]
+then
+    PYTHON_USE_SYSTEM_OPENSSL=1
+    echo "    PYTHON_USE_SYSTEM_OPENSSL  = 1 (detected from image name)"
+fi
+
+# Recompute the DOWNLOADED_PACKAGE_FOLDERS to apply to $WORKSPACE/temp inside the Docker script
 DEP_PACKAGES_FOLDERNAMES_ONLY=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER\//}
 DEP_PACKAGES_DOCKER_FOLDERNAMES=${DOWNLOADED_PACKAGE_FOLDERS//$TEMP_FOLDER/"/data/workspace/temp"}
 
@@ -174,9 +183,12 @@ INSTALL_PACKAGE_PATH=${TEMP_FOLDER}/${TARGET_BUILD_FOLDER}/
 # Run the build script in the docker image
 echo "Running build script in the docker image ${DOCKER_IMAGE_NAME}"
 echo ""
+# Pass PYTHON_USE_SYSTEM_OPENSSL through to the container so the build
+# script's OpenSSL configure branch picks the right variant.
 CMD_DOCKER_RUN="\
 docker run --platform ${TARGET_DOCKER_PLATFORM_ARG}\
  --tty\
+ -e PYTHON_USE_SYSTEM_OPENSSL=${PYTHON_USE_SYSTEM_OPENSSL}\
  -v ${TEMP_FOLDER}:/data/workspace/temp:ro\
  ${DOCKER_IMAGE_NAME}:latest /data/workspace/${DOCKER_BUILD_SCRIPT}"
 

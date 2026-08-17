@@ -39,7 +39,10 @@ RUN apt-get clean && apt-get update && apt upgrade -y
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata locales keyboard-configuration
 
 
-# Install the development packages needed to build python
+# Install the development packages needed to build python.
+# libssl-dev is required when PYTHON_USE_SYSTEM_OPENSSL=1; it's harmless
+# for the bundled-OpenSSL variant (configure ignores it when given an
+# explicit --with-openssl=<bundle> path).
 RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y autoconf \
                        build-essential \
                        cmake \
@@ -49,6 +52,7 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y autoconf \
                        libgdbm-dev \
                        liblzma-dev \
                        libreadline-dev \
+                       libssl-dev \
                        libtool \
                        python3-dev \
                        python3 \
