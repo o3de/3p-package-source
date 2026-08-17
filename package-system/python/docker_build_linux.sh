@@ -28,10 +28,10 @@ cp -r $WORKSPACE/temp/src ${SRC_PATH}
 # The dependent 'depends_on_packages' paths are architecture dependent
 if [ "$(uname -m)" = "x86_64" ]
 then
-    O3DE_OPENSSL_PACKAGE=OpenSSL-1.1.1t-rev1-linux
+    O3DE_OPENSSL_PACKAGE=OpenSSL-3.6.3-rev1-linux
     O3DE_SQLITE_PACKAGE=SQLite-3.37.2-rev1-linux
 else
-    O3DE_OPENSSL_PACKAGE=OpenSSL-1.1.1t-rev1-linux-aarch64
+    O3DE_OPENSSL_PACKAGE=OpenSSL-3.6.3-rev1-linux-aarch64
     O3DE_SQLITE_PACKAGE=SQLite-3.37.2-rev1-linux-aarch64
 fi
 
@@ -140,7 +140,7 @@ echo "Preparing additional python files"
 cp ${SRC_PATH}/LICENSE ${BUILD_FOLDER}/python/LICENSE
 
 # Also copy the openssl license since its linked against the dependent O3DE OpenSSL static package
-cp ${OPENSSL_BASE}/LICENSE ${BUILD_FOLDER}/python/LICENSE.OPENSSL
+cp ${OPENSSL_BASE}/LICENSE.txt ${BUILD_FOLDER}/python/LICENSE.OPENSSL
 
 # Create a symlink from python -> python3
 pushd ${BUILD_FOLDER}/python/bin
