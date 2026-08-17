@@ -11,6 +11,7 @@ import functools
 import json
 import os
 import re
+import sys
 import pathlib
 from pathlib import Path
 import platform
@@ -18,9 +19,11 @@ import shutil
 import subprocess
 from tempfile import TemporaryDirectory
 
-import sys
 sys.path.append(str(Path(__file__).parent.parent.parent / 'Scripts'))
 import builders.monkeypatch_tempdir_cleanup
+
+PHYSX5_GIT_SOURCE_REPO = "https://github.com/nick-l-o3de/o3de-physx"
+PHYSX5_GIT_SOURCE_COMMIT = "8ee9640d33a7baabe3d6268fde28beafb62fd4d8" # v5.6.1
 
 class PhysXBuilder(object):
     def __init__(self, workingDir: pathlib.Path, basePackageSystemDir: pathlib.Path, targetPlatform: str, enable_GPU: bool = False):
@@ -53,14 +56,16 @@ class PhysXBuilder(object):
 
         # nVidia CMakeModules (downloaded while building PhysX) do not cover ios
         # bin folder names yet, so they appear as UNKNOWN.
+        # note that mac output depends on the target system architecture.
         self.platform_params = {
-            # system-name   : (preset,         can use CUDA,     bin folder name,    install folder name, is multiconfig)
-            'windows'       : ('vc16win64',           True,  'win.x86_64.vc142.md', 'vc16win64',            True),
-            'linux'         : ('linux-clang',         True,  'linux.x86_64',        'linux-clang',          False),
-            'linux-aarch64' : ('linux-aarch64-clang', True,  'linux.aarch64',       'linux-aarch64',        False),
-            'mac'           : ('mac64',               False, 'mac.x86_64',          'mac64',                True),
-            'ios'           : ('ios64',               False, 'UNKNOWN',             'ios64',                True),
-            'android'       : ('android-arm64-v8a',   False, "android.arm64-v8a",   'android-29',           False)
+            # system-name   : (preset,         can use CUDA,     bin folder name,    install folder name, is multiconfig, generator)
+            'windows'       : ('vc17win64',           True,     'win.x86_64.vc143.md', 'vc17win64',            True,    "Visual Studio 17 2022"),
+            'linux'         : ('linux-clang',         True,     'linux.x86_64',        'linux-clang',          False,   "Ninja"),
+            'linux-aarch64' : ('linux-aarch64-clang', True,     'linux.aarch64',       'linux-aarch64-clang',  False,   "Ninja"),
+            'mac-arm64'     : ('mac-arm64',           False,    'mac.arm64',           'mac-arm64',            True,    "Xcode"),
+            'mac'           : ('mac64',               False,    'mac.x86_64',          'mac',                  True,    "Xcode"),
+            'ios'           : ('ios64',               False,    'UNKNOWN',             'ios64',                True,    "Xcode"),
+            'android'       : ('android-arm64-v8a',   False,    'android.arm64-v8a',   'android-29',           False,   "Ninja")
         }
 
     @property
@@ -100,7 +105,7 @@ class PhysXBuilder(object):
                 ['git', 'init',],
             )
             self.check_call(
-                ['git', 'remote', 'add', 'origin', 'https://github.com/o3de/PhysX',],
+                ['git', 'remote', 'add', 'origin', PHYSX5_GIT_SOURCE_REPO,],
             )
 
         self.check_call(
@@ -140,14 +145,6 @@ class PhysXBuilder(object):
             content = re.sub('name="PX_BUILDPVDRUNTIME" value="(True|False)"', f'name="PX_BUILDPVDRUNTIME" value="True"', content, flags = re.M)
 
         self.writeFile(preset_file, content)
-
-        # Ignore poison-system-directories warning when building mac/ios caused
-        # by running 'cmake --build' using python subprocess on Mac.
-        if self.platform == 'mac' or self.platform == 'ios':
-            cmake_file = self.workingDir / 'physx' / 'source' / 'compiler' / 'cmake' / self.platform / 'CMakeLists.txt'
-            content = self.readFile(cmake_file)
-            content = re.sub('-Werror', r'-Werror -Wno-poison-system-directories', content, flags = re.M)
-            self.writeFile(cmake_file, content)
 
     def cleanUpLibs(self, buildAsStaticLibs):
         static_bin_dir = self.workingDir / 'physx' / 'bin' / 'static'
@@ -200,13 +197,15 @@ class PhysXBuilder(object):
             update_pacman_call = [ str(packman_dir / 'packman'), 'update', '-y']
 
         check_call_packman_update(update_pacman_call)
-        preset, supports_gpu, bin_folder, install_folder, is_multiconfig = self.platform_params[self.platform]
+        preset, supports_gpu, bin_folder, install_folder, is_multiconfig, generator = self.platform_params[self.platform]
 
         # if we are turning the GPU support off, and we are in a preset that supports GPU, we have to append wart to the end of the name
         if not self.enable_GPU and supports_gpu:
             preset += "-cpu-only"
             install_folder += "-cpu-only"
 
+        self.env['CMAKE_GENERATOR'] = generator
+       
         if self._hostPlatformLower == 'windows':
             generate_projects_cmd =  str(physx_dir / 'generate_projects.bat')
         else:
@@ -221,7 +220,7 @@ class PhysXBuilder(object):
             self.preparePreset(buildAsStaticLibs, config);
 
             generate_call =[generate_projects_cmd, preset,]
-            print(generate_call)
+            print("Invoking: " + " ".join(generate_call))
             check_call_physx_dir(generate_call)
 
             # Build
@@ -336,6 +335,10 @@ class PhysXBuilder(object):
                     ['\\${EXTRA_SHARED_LIBS}', '${PATH_TO_LIBS}/libPhysXGpu_64.so'],
                     ['\\${EXTRA_STATIC_LIBS}', ''],
                 ],
+                'mac-arm64': [
+                    ['\\${EXTRA_SHARED_LIBS}', ''],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
                 'mac': [
                     ['\\${EXTRA_SHARED_LIBS}', ''],
                     ['\\${EXTRA_STATIC_LIBS}', ''],
@@ -370,6 +373,10 @@ class PhysXBuilder(object):
                     ['\\${EXTRA_SHARED_LIBS}', ''],
                     ['\\${EXTRA_STATIC_LIBS}', ''],
                 ],
+                'mac-arm64': [
+                    ['\\${EXTRA_SHARED_LIBS}', ''],
+                    ['\\${EXTRA_STATIC_LIBS}', ''],
+                ],
                 'mac': [
                     ['\\${EXTRA_SHARED_LIBS}', ''],
                     ['\\${EXTRA_STATIC_LIBS}', ''],
@@ -398,7 +405,7 @@ def main():
     parser.add_argument(
         '--platform-name',
         dest='platformName',
-        choices=['windows', 'linux', 'linux-aarch64', 'android', 'mac', 'ios'],
+        choices=['windows', 'linux', 'linux-aarch64', 'android', 'mac', 'mac-arm64', 'ios'],
     )
 
     parser.add_argument(
@@ -408,12 +415,11 @@ def main():
 
     args = parser.parse_args()
 
-    if args.platformName == 'mac' or args.platformName == 'ios':
-        # Necessary to build PhysX SDK on arm-based Mac machines
-        # since the build process will try to use an x86_64 python3
-        # package that PhysX downloads itself. This environment variable
-        # allows to use the system's python until nVidia updates its build
-        # scripts to obtain an arm-based python package.
+    if args.platformName == 'mac-arm64' or args.platformName == 'ios' or args.platformName == "linux-aarch64":
+        # This forces the PackMan system that is used on these platforms to use the built-in system version
+        # of python, instead of the one that they download.
+        # on mac arm64 or ios this is necessary because the version it would download is an x86 version,
+        # and on linux aarch64 the python they upload to their bucket doesn't actually have ziplib linked in.
         os.environ['PM_PYTHON_EXT'] = 'python3'
 
     packageSystemDir = Path(__file__).resolve().parents[1]
@@ -428,22 +434,12 @@ def main():
         # Package Name
         packageName = f'{args.package_name}-{args.package_rev}-{args.platformName}'
 
-        # Version 5.6.1 commits
-        if args.platformName == 'mac':
-            commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
-        elif args.platformName == 'ios':
-            commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
-        elif args.platformName == 'android':
-            commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
-        else:
-            commit = '0af1ce283240f8618a94456b6b819f97724cf6b7'
-
         tempdir = Path(tempdir)
         builder = PhysXBuilder(workingDir=tempdir,
                                basePackageSystemDir=packageSystemDir,
                                targetPlatform=args.platformName,
                                enable_GPU =args.enable_gpu)
-        builder.clone(lockToCommit=commit)
+        builder.clone(lockToCommit=PHYSX5_GIT_SOURCE_COMMIT)
 
         builder.build_all()
 
