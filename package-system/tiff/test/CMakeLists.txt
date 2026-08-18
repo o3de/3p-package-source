@@ -10,7 +10,9 @@ cmake_minimum_required(VERSION 3.20)
 
 PROJECT(test_TIFF VERSION 1.0 LANGUAGES C)
 
-find_package(TIFF)
+# May as well use the config version here, to ensure compatbility with other 3rd party libraries.
+# O3DE itself imports TIFF and that will test whether the MODULE path also works.
+find_package(TIFF CONFIG)
 
 add_executable(test_TIFF test_tiff.c)
 
