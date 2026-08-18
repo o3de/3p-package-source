@@ -22,8 +22,8 @@ from tempfile import TemporaryDirectory
 sys.path.append(str(Path(__file__).parent.parent.parent / 'Scripts'))
 import builders.monkeypatch_tempdir_cleanup
 
-PHYSX5_GIT_SOURCE_REPO = "https://github.com/nick-l-o3de/o3de-physx"
-PHYSX5_GIT_SOURCE_COMMIT = "bbad2c509e71f49d1a2826848f419f159da34ecc" # v5.6.1
+PHYSX5_GIT_SOURCE_REPO = "https://github.com/o3de/PhysX.git"
+PHYSX5_GIT_SOURCE_COMMIT = "d5c964f23c3ba5553a305bbc7af3b50a5fa47a12" # v5.6.1
 
 class PhysXBuilder(object):
     def __init__(self, workingDir: pathlib.Path, basePackageSystemDir: pathlib.Path, targetPlatform: str, enable_GPU: bool = False):
