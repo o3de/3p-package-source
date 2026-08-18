@@ -1,16 +1,18 @@
 {
    "git_url":"https://github.com/AcademySoftwareFoundation/openexr.git",
-   "git_tag":"v3.1.3",
+   "git_tag":"v3.4.13",
    "package_name":"OpenEXR",
-   "package_version":"3.1.3-rev4",
+   "package_version":"3.4.13-rev1",
    "package_url":"https://www.openexr.com/",
    "package_license":"BSD-3-Clause",
    "package_license_file":"LICENSE.md",
    "cmake_find_source":"FindOpenEXR.cmake",
    "cmake_find_target":"FindOpenEXR.cmake",
+   "patch_file": "o3de-oexr.patch",
    "extra_files_to_copy": [
-      ["FindImath.cmake", "FindImath.cmake"],
-      ["../../Scripts/cmake/o3de_package_utilities.cmake", "o3de_package_utilities.cmake"]
+      ["../../Scripts/cmake/o3de_package_utilities.cmake", "o3de_package_utilities.cmake"],
+      ["openexr-config.cmake", "openexr-config.cmake"],
+      ["openexr-config-version.cmake", "openexr-config-version.cmake"]
    ],
    "cmake_install_filter":[
       "*.cmake",
@@ -22,25 +24,36 @@
    "cmake_generate_args_common" : [
       "-DBUILD_TESTING=OFF",
       "-DOPENEXR_BUILD_EXAMPLES=OFF",
-      "-DOPENEXR_INSTALL_EXAMPLES=OFF",
       "-DOPENEXR_BUILD_TOOLS=OFF",
       "-DOPENEXR_INSTALL_TOOLS=OFF",
-      "-DOPENEXR_RUN_FUZZ_TESTS=OFF",
+      "-DOPENEXR_INSTALL_DOCS=OFF",
+      "-DBUILD_WEBSITE=OFF",
+      "-DOPENEXR_BUILD_PYTHON=OFF",
+      "-DBUILD_TESTING=OFF",
+      "-DOPENEXR_INSTALL_PKG_CONFIG=OFF",
+      "-DOPENEXR_USE_TBB=OFF",
+      "-DOPENEXR_INSTALL_DEVELOPER_TOOLS=OFF",
+      "-DOPENEXR_BUILD_OSS_FUZZ=OFF",
+      "-DOPENEXR_TEST_LIBRARIES=OFF",
+      "-DOPENEXR_TEST_TOOLS=OFF",
+      "-DOPENEXR_TEST_PYTHON=OFF",
       "-DBUILD_SHARED_LIBS=OFF",
-      "-DDOCS=OFF",
-      "-DPYTHON=OFF"
+      "-DOPENEXR_FORCE_INTERNAL_DEFLATE=ON",
+      "-DOPENEXR_FORCE_INTERNAL_OPENJPH=ON",
+      "-DOPENEXR_IS_SUBPROJECT=ON",
+      "-DOPENEXR_FORCE_INTERNAL_IMATH=OFF"
+   ],
+   "cmake_build_args_common" : [ 
+     "--parallel" 
    ],
    "Platforms":{
       "Windows":{
          "Windows":{
             "build_configs" : ["Debug", "Release"],
-            "package_version":"3.1.3-rev5",
+            "cmake_generate_args": ["-G\"Ninja Multi-Config\""],
             "depends_on_packages" :[ 
-               ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
-            ],
-            "cmake_generate_args":[
-               "-G",
-               "\"Visual Studio 16 2019\""
+               ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""],
+               ["Imath-3.2.2-rev2-windows", "d2ca872921bb690ae039495f9bdf7038a4155cd0f8f272774e8159088bf433fe", ""]
             ],
             "custom_test_cmd" : [
                "test_openexr_windows.cmd"
@@ -48,7 +61,8 @@
          },
          "Android": {
             "depends_on_packages" :[ 
-               ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""]
+               ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""],
+               ["Imath-3.2.2-rev2-android", "c41d3b86cd2cc40f57b209c8f838506898914951290a3cc1f592a51ff71dc494", ""]
             ],
             "build_configs" : ["Release"],
             "cmake_generate_args_release": [
@@ -63,10 +77,11 @@
         }
       },
       "Darwin":{
-         "Mac":{
+         "Mac-arm64":{
             "build_configs" : ["Release"],
-            "depends_on_packages" :[ 
-               ["zlib-1.2.11-rev5-mac", "b6fea9c79b8bf106d4703b67fecaa133f832ad28696c2ceef45fb5f20013c096", ""]
+            "depends_on_packages" :[
+               ["zlib-1.3.1-rev2-mac-arm64", "52e62890329d3e003226fca88df30701cdd862a5f137eb5f75dff504377c13b3", ""],
+               ["Imath-3.2.2-rev2-mac-arm64", "5fc5088717927da41c33f2f100c68691a3277d7b564060fdd4743a1b0ffd50f1", ""]
             ],
             "custom_toolchain_file" : "../cmake/Platform/Mac/Toolchain_mac.cmake",
             "cmake_generate_args_release": [
@@ -77,31 +92,17 @@
                "./test_openexr_mac.sh"
             ]
          },
-         "Mac-arm64":{
-            "git_tag":"v3.4.4",
-            "package_version":"3.4.4-rev1",
-            "build_configs" : ["Release"],
-            "depends_on_packages" :[
-               ["zlib-1.3.1-rev2-mac-arm64", "52e62890329d3e003226fca88df30701cdd862a5f137eb5f75dff504377c13b3", ""]
-            ],
-            "custom_toolchain_file" : "../cmake/Platform/Mac/Toolchain_mac.cmake",
-            "cmake_generate_args_release": [
-               "-G",
-               "Xcode"
-            ],
-            "custom_test_cmd" : [
-               "./test_openexr_mac_3_4.sh"
-            ]
-         },
          "iOS":{
             "build_configs" : ["Release"],
             "depends_on_packages" :[ 
-               ["zlib-1.2.11-rev5-ios", "c7f10b4d0fe63192054d926f53b08e852cdf472bc2b18e2f7be5aecac1869f7f", ""]
+               ["zlib-1.2.11-rev5-ios", "c7f10b4d0fe63192054d926f53b08e852cdf472bc2b18e2f7be5aecac1869f7f", ""],
+               ["Imath-3.2.2-rev2-ios", "0ca26f7e9cdeaa940caac39b5a7f5db0344d7f76cca4123874e4e10a6ec0e907", ""]
             ],
             "custom_toolchain_file" : "../cmake/Platform/iOS/Toolchain_ios.cmake",
             "cmake_generate_args_release": [
                "-G",
-               "Xcode"
+               "Xcode",
+               "-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH"
             ],
             "custom_test_cmd" : [
                "./test_openexr_ios.sh"
@@ -112,7 +113,8 @@
          "Linux":{
             "build_configs" : ["release"],
             "depends_on_packages" :[ 
-                ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
+                ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""],
+                ["Imath-3.2.2-rev2-linux", "aec34a555a893c64f7a8f00262378e15d13b666a05e0298cba7025faed99117f", ""]
            ],
             "cmake_generate_args_release":[
                "-G",
@@ -126,7 +128,8 @@
          "Linux-aarch64":{
             "build_configs" : ["release"],
             "depends_on_packages" :[
-                ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""]
+                ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""],
+                ["Imath-3.2.2-rev2-linux-aarch64", "5494761ec31afea8e436dcd942492b9de24c538601f550294873169a3b5219ba", ""]
            ],
             "cmake_generate_args_release":[
                "-G",

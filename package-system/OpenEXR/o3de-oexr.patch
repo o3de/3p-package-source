@@ -1,0 +1,4 @@
+diff --git a/external/OpenJPH/src/core/others/ojph_mem.c b/external/OpenJPH/src/core/others/ojph_mem_c.c
+similarity index 100%
+rename from external/OpenJPH/src/core/others/ojph_mem.c
+rename to external/OpenJPH/src/core/others/ojph_mem_c.c
