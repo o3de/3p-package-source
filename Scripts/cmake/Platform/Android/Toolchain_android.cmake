@@ -58,6 +58,9 @@ set(CMAKE_CXX_FLAGS "-fPIC")
 # Make a backup of the CMAKE_FIND_ROOT_PATH since it will be altered by the NDK toolchain file and needs to be restored after the input
 set(BACKUP_CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH})
 
+# Use the modern NDK toolchain (not the legacy one which is broken with CMake 4.x)
+set(ANDROID_USE_LEGACY_TOOLCHAIN_FILE OFF)
+
 include(${LY_ANDROID_NDK_TOOLCHAIN})
 
 set(CMAKE_FIND_ROOT_PATH ${BACKUP_CMAKE_FIND_ROOT_PATH})
