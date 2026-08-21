@@ -275,14 +275,22 @@ jobs:
     - name: Install clang/gcc
       if: runner.os == 'Linux'
       env:
-        CLANG_VER: 15
+        CLANG_VER: 18
         GCC_VER: 9
       run: |
-        sudo apt-get install -y clang-${{ env.CLANG_VER }} clang++-${{ env.CLANG_VER }} gcc-${{ env.GCC_VER }} g++-${{ env.GCC_VER }} libclang-${{ env.CLANG_VER }}-dev
-        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${{ env.CLANG_VER }} 10
-        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${{ env.CLANG_VER }} 10
+        wget -qO /tmp/llvm.sh https://apt.llvm.org/llvm.sh
+        chmod +x /tmp/llvm.sh
+        sudo /tmp/llvm.sh ${{ env.CLANG_VER }}
+        sudo apt-get install -y lld-${{ env.CLANG_VER }} clang-tools-${{ env.CLANG_VER }} libclang-${{ env.CLANG_VER }}-dev gcc-${{ env.GCC_VER }} g++-${{ env.GCC_VER }}
+        sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${{ env.CLANG_VER }} 100
+        sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${{ env.CLANG_VER }} 100
+        sudo update-alternatives --set clang /usr/bin/clang-${{ env.CLANG_VER }}
+        sudo update-alternatives --set clang++ /usr/bin/clang++-${{ env.CLANG_VER }}
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ env.GCC_VER }} 10
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ env.GCC_VER }} 10
+        echo "CC=$(which clang-${{ env.CLANG_VER }})" >> $GITHUB_ENV
+        echo "CXX=$(which clang++-${{ env.CLANG_VER }})" >> $GITHUB_ENV
+        clang --version
 
     - name: Install additional build dependencies
       if: runner.os == 'Linux'
