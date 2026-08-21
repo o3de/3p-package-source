@@ -10,9 +10,10 @@ REM
 
 REM Set these before running the script
 if not defined VCVARS_PATH set VCVARS_PATH="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-if not defined QTARRAY set QTARRAY=qtbase,qtimageformats,qtsvg,qttranslations
+if not defined QTARRAY set QTARRAY=qtbase,qtimageformats,qtsvg,qttools,qttranslations
 
 REM TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
+set QT_SOURCE_ROOT=%TEMP_FOLDER%\src\qt-everywhere-src-6.11.2.tar\qt-everywhere-src-6.11.2
 set CHECKS_FAILED=0
 for %%P IN (VCVARS_PATH,TEMP_FOLDER,TARGET_INSTALL_ROOT) do (
     if not exist !%%P! (
@@ -42,6 +43,8 @@ cd b
 
 set _OPTS=-prefix %TARGET_INSTALL_ROOT% ^
     -submodules %QTARRAY% ^
+    -skip qtdeclarative ^
+    -skip qtactiveqt ^
     -platform win32-msvc ^
     -nomake examples ^
     -nomake tests ^
@@ -53,9 +56,26 @@ set _OPTS=-prefix %TARGET_INSTALL_ROOT% ^
     -confirm-license ^
     -opengl dynamic ^
     -openssl-linked ^
+    -no-dbus ^
+    -no-feature-printsupport ^
+    -no-feature-sql ^
+    -qt-webp ^
+    -no-jasper ^
+    -no-mng ^
+    -no-feature-designer ^
+    -feature-linguist ^
+    -no-feature-assistant ^
+    -no-feature-distancefieldgenerator ^
+    -no-feature-kmap2qmap ^
+    -no-feature-pixeltool ^
+    -no-feature-qdbus ^
+    -no-feature-qdoc ^
+    -no-feature-qtattributionsscanner ^
+    -no-feature-qtdiag ^
+    -no-feature-qtplugininfo ^
     -- -Wno-dev
 
-cmd /c ""..\3p-package-source\source\package-system\Qt\temp\src\configure.bat" %_OPTS%" || goto FAILURE
+cmd /c ""%QT_SOURCE_ROOT%\configure.bat" %_OPTS%" || goto FAILURE
 
 cmd /c cmake --build . --parallel || goto FAILURE
 
