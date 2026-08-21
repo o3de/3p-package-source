@@ -37,7 +37,7 @@ be different by platform, and all are required. The keys are:
 * package_name          : The base name of the package, used for constructing the filename and folder structures
 * package_url           : The package url that will be placed in the PackageInfo.json
 * package_license       : The type of license that will be described in the PackageInfo.json
-* package_license_file  : The source-relative license file path. This can be overridden for an individual target platform.
+* package_license_file  : The source-relative path to the package license file
 
 The following keys can exist at the root level or the target-platform level:
 
@@ -266,6 +266,7 @@ class PackageInfo(object):
             self.package_name = build_config["package_name"]
             self.package_url = build_config["package_url"]
             self.package_license = build_config["package_license"]
+            self.package_license_file = build_config["package_license_file"]
         except KeyError as e:
             raise BuildError(f"Invalid build config. Missing required key : {str(e)}")
 
@@ -275,7 +276,6 @@ class PackageInfo(object):
                 raise BuildError(f"Required key '{value_key}' not found in build config")
             return result
 
-        self.package_license_file = _get_value("package_license_file")
         self.git_url = _get_value("git_url", required=False)
         self.git_tag = _get_value("git_tag", required=False)
         self.src_package_url = _get_value("src_package_url", required=False)
