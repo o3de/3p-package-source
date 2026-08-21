@@ -9,5 +9,5 @@
 set(QT_LIB_PATH ${QT_PATH}/lib)
 
 function(ly_qt_configuration_mapping in_config out_config)
-    set(${out_config} RELEASE PARENT_SCOPE)
+    set(${out_config} RELWITHDEBINFO PARENT_SCOPE)
 endfunction()

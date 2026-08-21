@@ -12,7 +12,7 @@ foreach(component ${QT6_COMPONENTS})
 
         # add the IMPORTED_SONAME files as files to copy
         unset(extra_target_files)
-        get_target_property(imported_soname Qt6::${component} IMPORTED_SONAME_RELEASE)
+        get_target_property(imported_soname Qt6::${component} IMPORTED_SONAME_RELWITHDEBINFO)
         if(imported_soname)
             list(APPEND extra_target_files ${QT_LIB_PATH}/${imported_soname})
         endif()

@@ -30,10 +30,9 @@ call %VCVARS_PATH% amd64
 REM For OpenSSL support
 set OPENSSL_ROOT=%TEMP_FOLDER%\OpenSSL-1.1.1o-rev1-windows\OpenSSL
 set OPENSSL_INCLUDE=%OPENSSL_ROOT%\include
-set OPENSSL_LIB_DEBUG=%OPENSSL_ROOT%\debug\lib
 set OPENSSL_LIB_RELEASE=%OPENSSL_ROOT%\lib
 set INCLUDE=%OPENSSL_INCLUDE%;%INCLUDE%
-set LIB=%OPENSSL_LIB_DEBUG%;%OPENSSL_LIB_RELEASE%;%LIB%
+set LIB=%OPENSSL_LIB_RELEASE%;%LIB%
 
 REM To prevent max path issues, we go as close as possible to disk root
 cd %TEMP_FOLDER%\..\..\..\..\..
@@ -48,7 +47,7 @@ set _OPTS=-prefix %TARGET_INSTALL_ROOT% ^
     -platform win32-msvc ^
     -nomake examples ^
     -nomake tests ^
-    -debug-and-release ^
+    -release ^
     -c++std c++20 ^
     -force-debug-info ^
     -separate-debug-info ^
@@ -79,7 +78,6 @@ cmd /c ""%QT_SOURCE_ROOT%\configure.bat" %_OPTS%" || goto FAILURE
 
 cmd /c cmake --build . --parallel || goto FAILURE
 
-cmd /c cmake --install . --config Debug || goto FAILURE
 cmd /c cmake --install . --config RelWithDebInfo || goto FAILURE
 
 :FINISH

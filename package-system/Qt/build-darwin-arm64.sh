@@ -29,6 +29,8 @@ _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -nomake examples \
     -nomake tests \
     -release \
+    -force-debug-info \
+    -separate-debug-info \
     -c++std c++20 \
     -opensource \
     -qt-tiff \
@@ -64,10 +66,10 @@ then
     exit 1
 fi
 
-cmake --install . --config Release
+cmake --install . --config RelWithDebInfo
 if [ $? -ne 0 ]
 then
-    echo "Failed to install QT Release."
+    echo "Failed to install QT RelWithDebInfo."
     exit 1
 fi
 

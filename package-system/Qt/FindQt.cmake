@@ -98,8 +98,8 @@ foreach(component ${QT6_COMPONENTS})
         add_library(3rdParty::Qt::${component} ALIAS Qt6::${component})
         mark_as_advanced(Qt6${component}_DIR) # Hiding from GUI
 
-        # Qt only has debug and release, we map the configurations we use in o3de. We map all the configurations 
-        # except debug to release
+        # The package contains one optimized Qt build with separate debug information. Map every
+        # O3DE configuration to that RelWithDebInfo import configuration.
         foreach(conf IN LISTS CMAKE_CONFIGURATION_TYPES)
             string(TOUPPER ${conf} UCONF)
             ly_qt_configuration_mapping(${UCONF} MAPPED_CONF)
