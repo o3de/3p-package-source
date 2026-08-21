@@ -42,7 +42,7 @@ jobs:
             # First, get the diff output
             DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
                   --no-ext-diff --unified=0 \
-                  --exit-code -a --no-prefix -- $FILE | egrep "^\+[^\+]" | egrep -v "^\+\+\+ ")
+                  -a --no-prefix -- $FILE | grep -E "^\+[^\+]" | grep -Ev "^\+\+\+ " || true)
             
             # Use an associative array to track which packages we've already processed
             declare -A PROCESSED_PACKAGES
