@@ -100,7 +100,8 @@ QT_PLATFORM_OPTS="-skip qtdeclarative \
     -no-feature-qtplugininfo \
     -- \
     -DCMAKE_MODULE_PATH=${QT_DEPENDENCY_MODULE_PATH} \
-    -DOPENSSL_USE_STATIC_LIBS=TRUE"
+    -DOPENSSL_USE_STATIC_LIBS=TRUE \
+    -DCMAKE_INSTALL_MESSAGE=NEVER"
 BUILD_PATH="${TEMP_FOLDER}/build"
 
 echo ${BUILD_PATH}

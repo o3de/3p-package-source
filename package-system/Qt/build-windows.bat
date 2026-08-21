@@ -72,7 +72,9 @@ set _OPTS=-prefix %TARGET_INSTALL_ROOT% ^
     -no-feature-qtattributionsscanner ^
     -no-feature-qtdiag ^
     -no-feature-qtplugininfo ^
-    -- -Wno-dev
+    -- ^
+    -Wno-dev ^
+    -DCMAKE_INSTALL_MESSAGE=NEVER
 
 cmd /c ""%QT_SOURCE_ROOT%\configure.bat" %_OPTS%" || goto FAILURE
 

@@ -54,7 +54,9 @@ _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -no-feature-qtdiag \
     -no-feature-qtplugininfo \
     -framework \
-    -confirm-license "
+    -confirm-license \
+    -- \
+    -DCMAKE_INSTALL_MESSAGE=NEVER"
 
 echo Configuring Qt...
 ${QT_SOURCE_ROOT}/configure ${_OPTS}
