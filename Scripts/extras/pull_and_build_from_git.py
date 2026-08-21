@@ -37,7 +37,7 @@ be different by platform, and all are required. The keys are:
 * package_name          : The base name of the package, used for constructing the filename and folder structures
 * package_url           : The package url that will be placed in the PackageInfo.json
 * package_license       : The type of license that will be described in the PackageInfo.json
-* package_license_file  : The name of the source code license file (expected at the root of the source folder pulled from git)
+* package_license_file  : The source-relative path to the package license file
 
 The following keys can exist at the root level or the target-platform level:
 
@@ -1407,4 +1407,3 @@ if __name__ == '__main__':
 
         print(err)
         exit(1)
-

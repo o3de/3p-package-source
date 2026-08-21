@@ -49,8 +49,8 @@ def hash_file(file_path:str, hash_algorithm:str='md5')->str:
     
     # we don't follow symlinks here, this is strictly to check actual packages.
     with open(file_path, 'rb') as afile:
-        buf = afile.read()
-        hasher.update(buf)
+        for chunk in iter(lambda: afile.read(1024 * 1024), b''):
+            hasher.update(chunk)
     hash_result = hasher.hexdigest()
 
     return hash_result
@@ -122,7 +122,7 @@ def extract_package(src_package_file: str, target_folder:str):
     elif package_ext in ARCHIVE_EXTS_TAR:
         import tarfile
         with tarfile.open(str(src_package_file_path.resolve())) as tar_file:
-            tarfile.extractall(destination_path)
+            tar_file.extractall(destination_path)
     elif package_ext in ARCHIVE_EXTS_7ZIP:
         try:
             os.makedirs(destination_path, exist_ok=True)

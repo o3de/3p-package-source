@@ -1,8 +1,8 @@
 Submodule qtbase contains modified content
-diff --git a/qtbase/cmake/QtPublicCMakeHelpers.cmake b/qtbase/cmake/QtPublicCMakeHelpers.cmake
+diff --git a/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/cmake/QtPublicCMakeHelpers.cmake b/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/cmake/QtPublicCMakeHelpers.cmake
 index 3074998c2c9..e22a6b79a1f 100644
---- a/qtbase/cmake/QtPublicCMakeHelpers.cmake
-+++ b/qtbase/cmake/QtPublicCMakeHelpers.cmake
+--- a/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/cmake/QtPublicCMakeHelpers.cmake
++++ b/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/cmake/QtPublicCMakeHelpers.cmake
 @@ -226,8 +226,19 @@ function(_qt_internal_collect_buildsystem_targets result dir)
      if(NOT _qt_internal_collect_buildsystem_targets_inner)
          set(${result} "")
@@ -23,3 +23,17 @@ index 3074998c2c9..e22a6b79a1f 100644
      set(forward_args "")
      if(arg_EXCLUDE)
          set(forward_args APPEND EXCLUDE ${arg_EXCLUDE})
+diff --git a/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/configure.cmake b/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/configure.cmake
+--- a/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/configure.cmake
++++ b/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/configure.cmake
+@@ -20,3 +20,9 @@ qt_find_package(WrapSystemZLIB 1.0.8 MODULE
+ if(TARGET ZLIB::ZLIB)
+-    set_property(TARGET ZLIB::ZLIB PROPERTY IMPORTED_GLOBAL TRUE)
++    get_target_property(zlib_aliased_target ZLIB::ZLIB ALIASED_TARGET)
++    if(zlib_aliased_target)
++        set_property(TARGET ${zlib_aliased_target} PROPERTY IMPORTED_GLOBAL TRUE)
++    else()
++        set_property(TARGET ZLIB::ZLIB PROPERTY IMPORTED_GLOBAL TRUE)
++    endif()
++    unset(zlib_aliased_target)
+ endif()

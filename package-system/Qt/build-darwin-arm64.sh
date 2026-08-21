@@ -15,6 +15,7 @@ MAKE_FLAGS=-j32
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 BUILD_PATH=$TEMP_FOLDER/build
+QT_SOURCE_ROOT=$TEMP_FOLDER/src/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2
 
 QTARRAY="qtbase,qtimageformats,qtsvg,qttranslations,qttools"
 [[ -d $BUILD_PATH ]] || mkdir $BUILD_PATH
@@ -22,21 +23,43 @@ cd $BUILD_PATH
 
 _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -submodules ${QTARRAY} \
+    -skip qtdeclarative \
+    -skip qtactiveqt \
     -platform macx-clang \
     -nomake examples \
     -nomake tests \
     -release \
+    -force-debug-info \
+    -separate-debug-info \
     -c++std c++20 \
     -opensource \
     -qt-tiff \
     -qt-zlib \
+    -qt-webp \
+    -no-jasper \
+    -no-mng \
     -no-icu \
-    -dbus-linked \
+    -no-dbus \
+    -no-feature-printsupport \
+    -no-feature-sql \
+    -no-feature-designer \
+    -feature-linguist \
+    -no-feature-assistant \
+    -no-feature-distancefieldgenerator \
+    -no-feature-kmap2qmap \
+    -no-feature-pixeltool \
+    -no-feature-qdbus \
+    -no-feature-qdoc \
+    -no-feature-qtattributionsscanner \
+    -no-feature-qtdiag \
+    -no-feature-qtplugininfo \
     -framework \
-    -confirm-license "
+    -confirm-license \
+    -- \
+    -DCMAKE_INSTALL_MESSAGE=NEVER"
 
 echo Configuring Qt...
-../src/configure ${_OPTS}
+${QT_SOURCE_ROOT}/configure ${_OPTS}
 
 cmake --build . --parallel
 if [ $? -ne 0 ]
@@ -45,16 +68,16 @@ then
     exit 1
 fi
 
-cmake --install . --config Release
+cmake --install . --config RelWithDebInfo
 if [ $? -ne 0 ]
 then
-    echo "Failed to install QT Release."
+    echo "Failed to install QT RelWithDebInfo."
     exit 1
 fi
 
 # The installation target on darwin is not installing the framework's header paths in the main
 # include folder. Create a symlink to the headers there for backwards compatibility
-qtframeworks=(QtLabsPlatform QtQuickControls2 QtQuickParticles QtQuickControls2ImagineStyleImpl QtQuickControls2BasicStyleImpl QtLabsSharedImage QtQmlMeta QtDesigner QtQuickControls2FusionStyleImpl QtQuickShapesDesignHelpers QtQuickWidgets QtQuickControls2Material QtQmlXmlListModel QtShaderTools QtLabsSynchronizer QtQuickLayouts QtQuickControls2Basic QtHelp QtQuickVectorImage QtPrintSupport QtGui QtDBus QtQuickControls2Fusion QtQuickTemplates2 QtQuickDialogs2Utils QtXml QtQuick QtQuickEffects QtCore QtQuickDialogs2QuickImpl QtQmlNetwork QtQml QtQuickVectorImageGenerator QtQmlCore QtQmlWorkerScript QtQuickControls2Impl QtOpenGL QtLabsQmlModels QtQuickControls2Universal QtQmlLocalStorage QtQmlCompiler QtOpenGLWidgets QtUiTools QtLabsSettings QtSvgWidgets QtQuickControls2MacOSStyleImpl QtQuickControls2MaterialStyleImpl QtTest QtWidgets QtQuickShapes QtQuickTest QtNetwork QtQuickControls2UniversalStyleImpl QtSvg QtQuickControls2IOSStyleImpl QtDesignerComponents QtQuickControls2Imagine QtQuickVectorImageHelpers QtQmlModels QtLabsAnimation QtLabsFolderListModel QtQuickControls2FluentWinUI3StyleImpl QtQuickDialogs2 QtLabsWavefrontMesh QtSql QtConcurrent)
+qtframeworks=(QtConcurrent QtCore QtGui QtNetwork QtOpenGL QtOpenGLWidgets QtSvg QtSvgWidgets QtTest QtUiTools QtWidgets QtXml)
 
 cd $TARGET_INSTALL_ROOT/include
 for qtframework in "${qtframeworks[@]}"; do
