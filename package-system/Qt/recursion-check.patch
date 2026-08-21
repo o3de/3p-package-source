@@ -23,3 +23,20 @@ index 3074998c2c9..e22a6b79a1f 100644
      set(forward_args "")
      if(arg_EXCLUDE)
          set(forward_args APPEND EXCLUDE ${arg_EXCLUDE})
+diff --git a/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/configure.cmake b/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/configure.cmake
+--- a/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/configure.cmake
++++ b/qt-everywhere-src-6.11.2.tar/qt-everywhere-src-6.11.2/qtbase/configure.cmake
+@@ -17,6 +17,12 @@ qt_find_package(WrapSystemZLIB 1.0.8 MODULE
+ # and tries to promote it to global, but fails because the directory scope of the PNG package is
+ # different (src/gui) from where ZLIB was originally found (qtbase root).
+ # To avoid that, just manually promote the target to global here.
+ if(TARGET ZLIB::ZLIB)
+-    set_property(TARGET ZLIB::ZLIB PROPERTY IMPORTED_GLOBAL TRUE)
++    get_target_property(zlib_aliased_target ZLIB::ZLIB ALIASED_TARGET)
++    if(zlib_aliased_target)
++        set_property(TARGET ${zlib_aliased_target} PROPERTY IMPORTED_GLOBAL TRUE)
++    else()
++        set_property(TARGET ZLIB::ZLIB PROPERTY IMPORTED_GLOBAL TRUE)
++    endif()
++    unset(zlib_aliased_target)
+ endif()
