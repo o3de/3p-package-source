@@ -9,6 +9,20 @@
    "cmake_find_source":"FindPython.cmake.linux",
    "cmake_find_target":"FindPython.cmake",
    "Platforms":{
+      "Darwin":{
+         "Mac-arm64":{
+            "cmake_find_source":"darwin_arm64/FindPython.cmake",
+            "depends_on_packages": [
+               [ "OpenSSL-3.6.3-rev1-mac-arm64", "eebdb8acf4baf483e327206e615c4ebff42af40581822712eda06d8048a8c38d", "" ]
+            ],
+            "custom_build_cmd": [
+               "./darwin_arm64/make-python.sh"
+            ],
+            "custom_test_cmd": [
+               "./darwin_arm64/test-python.sh"
+            ]
+         }
+      },
       "Linux":{
             "Linux":{
                 "depends_on_packages": [

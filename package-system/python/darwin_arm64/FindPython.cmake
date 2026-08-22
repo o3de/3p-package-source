@@ -23,7 +23,7 @@ endif()
 # Python_PATHS - Where sys.path should point at to find modules, libraries, etc.
 # Python_Development_FOUND - The platform we are cross compiling for can link to python
 # and a target called 3rdParty::Python that you can use to depend on
-set(PY_BASE_DIR ${CMAKE_CURRENT_LIST_DIR}/Python.framework/Versions/3.14)
+set(PY_BASE_DIR ${CMAKE_CURRENT_LIST_DIR}/python/Python.framework/Versions/3.14)
 set(${MY}_VERSION 3.14.7)
 set(${MY}_INTERPRETER_ID    "Python")
 set(${MY}_EXECUTABLE        ${PY_BASE_DIR}/bin/python3)

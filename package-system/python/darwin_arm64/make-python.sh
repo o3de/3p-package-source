@@ -36,7 +36,25 @@ set -euo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 
-O3DE_OPENSSL_ROOT="${O3DE_OPENSSL_ROOT:-$SCRIPT_DIR/../../OpenSSL/temp/OpenSSL-mac-arm64/OpenSSL}"
+if [ -n "${TEMP_FOLDER:-}" ] && [ -n "${TARGET_INSTALL_ROOT:-}" ] && [ -n "${PACKAGE_ROOT:-}" ]; then
+    USING_PACKAGE_BUILDER=1
+    WORK_DIR="$TEMP_FOLDER/darwin-arm64-build"
+    PYTHON_SRC_DIR="$TEMP_FOLDER/src"
+    PACKAGE_OUTPUT_DIR="$TARGET_INSTALL_ROOT"
+    PACKAGE_LAYOUT_DIR="$PACKAGE_ROOT"
+    DOWNLOADED_OPENSSL_PACKAGE="${DOWNLOADED_PACKAGE_FOLDERS:-}"
+    DOWNLOADED_OPENSSL_PACKAGE="${DOWNLOADED_OPENSSL_PACKAGE%%;*}"
+    DEFAULT_OPENSSL_ROOT="$DOWNLOADED_OPENSSL_PACKAGE/OpenSSL"
+else
+    USING_PACKAGE_BUILDER=0
+    WORK_DIR="$SCRIPT_DIR/temp"
+    PYTHON_SRC_DIR="$WORK_DIR/cpython"
+    PACKAGE_LAYOUT_DIR="$SCRIPT_DIR/package"
+    PACKAGE_OUTPUT_DIR="$PACKAGE_LAYOUT_DIR/python"
+    DEFAULT_OPENSSL_ROOT="$SCRIPT_DIR/../../OpenSSL/temp/OpenSSL-mac-arm64/OpenSSL"
+fi
+
+O3DE_OPENSSL_ROOT="${O3DE_OPENSSL_ROOT:-$DEFAULT_OPENSSL_ROOT}"
 for REQUIRED_OPENSSL_FILE in \
     "$O3DE_OPENSSL_ROOT/include/openssl/ssl.h" \
     "$O3DE_OPENSSL_ROOT/lib/libcrypto.a" \
@@ -44,7 +62,7 @@ for REQUIRED_OPENSSL_FILE in \
     "$O3DE_OPENSSL_ROOT/LICENSE.txt"; do
     if [ ! -f "$REQUIRED_OPENSSL_FILE" ]; then
         echo "Missing prebuilt O3DE OpenSSL file: $REQUIRED_OPENSSL_FILE"
-        echo "Build OpenSSL-3.6.3-rev2-mac-arm64 first or set O3DE_OPENSSL_ROOT."
+        echo "Build the macOS ARM OpenSSL package first or set O3DE_OPENSSL_ROOT."
         exit 1
     fi
 done
@@ -61,47 +79,49 @@ echo ""
 
 echo "--------------- Clearing any previous package folder ----------------"
 echo ""
-rm -rf package
+if [ "$USING_PACKAGE_BUILDER" -eq 0 ]; then
+    rm -rf "$PACKAGE_LAYOUT_DIR"
+fi
+rm -rf "$PACKAGE_OUTPUT_DIR"
+mkdir -p "$PACKAGE_OUTPUT_DIR"
 
 echo ""
 echo "--------------- Clearing any previous temp folder ----------------"
 echo ""
-rm -rf temp
-mkdir temp
-cd temp
+rm -rf "$WORK_DIR"
+mkdir -p "$WORK_DIR"
 
-mkdir "$SCRIPT_DIR/package"
-
-echo ""
-echo "---------------- Cloning python from git ----------------"
-echo ""
-git clone https://github.com/python/cpython.git --branch "v3.14.7" --depth 1
-retVal=$?
-if [ $retVal -ne 0 ]; then
-    echo "Error cloning python from https://github.com/python/cpython.git"
-    exit $retVal
+if [ "$USING_PACKAGE_BUILDER" -eq 0 ]; then
+    echo ""
+    echo "---------------- Cloning python from git ----------------"
+    echo ""
+    git clone https://github.com/python/cpython.git --branch "v3.14.7" --depth 1 "$PYTHON_SRC_DIR"
+    retVal=$?
+    if [ $retVal -ne 0 ]; then
+        echo "Error cloning python from https://github.com/python/cpython.git"
+        exit $retVal
+    fi
 fi
 
 echo ""
 echo ""
 echo "---------------- Cloning relocatable-python from git ----------------"
 echo ""
-git clone https://github.com/gregneagle/relocatable-python.git
+git clone https://github.com/gregneagle/relocatable-python.git "$WORK_DIR/relocatable-python"
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error cloning relocatable-python!"
     exit $retVal
 fi
 
-PYTHON_SRC_DIR="$SCRIPT_DIR/temp/cpython"
-RELOC_SRC_DIR="$SCRIPT_DIR/temp/relocatable-python"
+RELOC_SRC_DIR="$WORK_DIR/relocatable-python"
 
 echo ""
 echo "---------------- creating python virtual environment ----------------"
 echo ""
-cd "$SCRIPT_DIR/temp"
+cd "$WORK_DIR"
 python3 -m venv py_venv
-VENV_BIN_DIR="$SCRIPT_DIR/temp/py_venv/bin"
+VENV_BIN_DIR="$WORK_DIR/py_venv/bin"
 export PYTHONNOUSERSITE=1
 
 echo ""
@@ -149,16 +169,16 @@ cd Mac
 cd BuildScript
 
 # the following env vars get around a problem compiling tcl/tk
-ac_cv_header_libintl_h=no ac_cv_lib_intl_textdomain=no tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN="$VENV_BIN_DIR" "$VENV_BIN_DIR/python3" ./build-installer.py --universal-archs=arm64 --build-dir "$SCRIPT_DIR/temp/python_build" --third-party="$SCRIPT_DIR/temp/downloaded_packages" --dep-target=13.0
+ac_cv_header_libintl_h=no ac_cv_lib_intl_textdomain=no tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN="$VENV_BIN_DIR" "$VENV_BIN_DIR/python3" ./build-installer.py --universal-archs=arm64 --build-dir "$WORK_DIR/python_build" --third-party="$WORK_DIR/downloaded_packages" --dep-target=13.0
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not build python!"
     exit $retVal
 fi
 
-# the output of the build $SCRIPT_DIR/temp/python_build/_root/Library/Frameworks and that folder will contain Python.framework
+# the output of the build $WORK_DIR/python_build/_root/Library/Frameworks and that folder will contain Python.framework
 # we use the --use-existing-framework to point the script at that framework we just made:
-FRAMEWORK_OUTPUT_FOLDER="$SCRIPT_DIR/temp/python_build/_root/Library/Frameworks"
+FRAMEWORK_OUTPUT_FOLDER="$WORK_DIR/python_build/_root/Library/Frameworks"
 echo "Framework output folder: $FRAMEWORK_OUTPUT_FOLDER"
 
 cd "$RELOC_SRC_DIR"
@@ -189,21 +209,23 @@ echo ""
 install_name_tool -id @rpath/Python.framework/Versions/Current/Python "$FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.14/Python"
 
 echo ""
-echo "---------------- rsync package layout into $SCRIPT_DIR/package ----------------"
+echo "---------------- rsync package layout into $PACKAGE_OUTPUT_DIR ----------------"
 echo ""
-mkdir -p "$SCRIPT_DIR/package"
-rsync -avu --delete "$FRAMEWORK_OUTPUT_FOLDER/" "$SCRIPT_DIR/package"
+mkdir -p "$PACKAGE_OUTPUT_DIR"
+rsync -avu --delete "$FRAMEWORK_OUTPUT_FOLDER/" "$PACKAGE_OUTPUT_DIR"
 
 echo ""
 echo "---------------- Copying Open3DEngine package metadata and license file ----------------"
 echo ""
 # the tar contains a 'Python.framework' sub folder
-cd "$SCRIPT_DIR/package"
-cp "$SCRIPT_DIR/package/Python.framework/Versions/3.14/lib/python3.14/LICENSE.txt" ./LICENSE
+cd "$PACKAGE_OUTPUT_DIR"
+cp "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.14/lib/python3.14/LICENSE.txt" ./LICENSE
 cp "$O3DE_OPENSSL_ROOT/LICENSE.txt" ./LICENSE.OPENSSL
-tar -xOf "$SCRIPT_DIR/temp/downloaded_packages/zstd-1.5.7.tar.gz" zstd-1.5.7/LICENSE > ./LICENSE.ZSTD
-cp "$SCRIPT_DIR/PackageInfo.json" .
-cp "$SCRIPT_DIR"/*.cmake .
+tar -xOf "$WORK_DIR/downloaded_packages/zstd-1.5.7.tar.gz" zstd-1.5.7/LICENSE > ./LICENSE.ZSTD
+if [ "$USING_PACKAGE_BUILDER" -eq 0 ]; then
+    cp "$SCRIPT_DIR/PackageInfo.json" "$PACKAGE_LAYOUT_DIR"
+    cp "$SCRIPT_DIR"/*.cmake "$PACKAGE_LAYOUT_DIR"
+fi
 
 echo ""
 echo "---------------- Precompiling Python sources before sealing the framework ----------------"
@@ -213,7 +235,7 @@ echo ""
 # so first apply a disposable ad-hoc signature.
 # The final signing pass below replaces it after bytecode generation.
 "$VENV_BIN_DIR/python3" "$SCRIPT_DIR/../../../Scripts/packaging/sign_macos_binaries.py" \
-    "$SCRIPT_DIR/package/Python.framework" \
+    "$PACKAGE_OUTPUT_DIR/Python.framework" \
     --identity -
 
 # A signed framework is a sealed bundle.
@@ -222,27 +244,27 @@ echo ""
 # Precompile every optimization level in its own process with checked hashes so normal,
 # -O, and -OO launches leave the framework unchanged.
 for OPTIMIZATION_LEVEL in 0 1 2; do
-    "$SCRIPT_DIR/package/Python.framework/Versions/3.14/bin/python3.14" -m compileall \
+    "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.14/bin/python3.14" -m compileall \
         -q -f \
         --invalidation-mode checked-hash \
         -o "$OPTIMIZATION_LEVEL" \
         -x 'bad_coding|badsyntax' \
-        -s "$SCRIPT_DIR/package" -p "" \
-        "$SCRIPT_DIR/package/Python.framework/Versions/3.14/lib/python3.14"
+        -s "$PACKAGE_OUTPUT_DIR" -p "" \
+        "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.14/lib/python3.14"
 done
 
 echo ""
 echo "---------------- Signing binaries ----------------"
 echo ""
 "$VENV_BIN_DIR/python3" "$SCRIPT_DIR/../../../Scripts/packaging/sign_macos_binaries.py" \
-    "$SCRIPT_DIR/package/Python.framework" \
+    "$PACKAGE_OUTPUT_DIR/Python.framework" \
     --entitlements "$SCRIPT_DIR/../../../Scripts/packaging/macos_python_runtime.entitlements"
 
 echo ""
 echo "----------------  Cleaning temp folder ----------------"
 echo ""
-rm -rf "$SCRIPT_DIR/temp"
+rm -rf "$WORK_DIR"
 
 echo ""
-echo "DONE! Package layout folder has been created in $SCRIPT_DIR/package"
+echo "DONE! Package layout folder has been created in $PACKAGE_LAYOUT_DIR"
 exit 0

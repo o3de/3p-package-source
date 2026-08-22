@@ -114,13 +114,17 @@ echo ""
 
 pushd ${SRC_PATH}
 
+export PKG_CONFIG_PATH="${OPENSSL_BASE}/lib/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
+export PKG_CONFIG="pkg-config --define-prefix --static"
+export LIBSQLITE3_CFLAGS="-I${SQLITE_BASE}"
+export LIBSQLITE3_LIBS="-L${SQLITE_BASE}/lib -lsqlite3 -lm -ldl -lz -lpthread"
+
 # Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
 ./configure --prefix=${BUILD_FOLDER}/python\
  --enable-optimizations\
- --with-openssl=${OPENSSL_BASE}\
  --with-ensurepip=install\
- --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L../zstd_lib/lib -L'${SQLITE_BASE}'/lib'\
- CPPFLAGS='-I../ffi_lib/include -I../zstd_lib/include -I'${SQLITE_BASE}'' CFLAGS='-I../ffi_lib/include -I../zstd_lib/include -I'${SQLITE_BASE}''
+ --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L../zstd_lib/lib'\
+ CPPFLAGS='-I../ffi_lib/include -I../zstd_lib/include' CFLAGS='-I../ffi_lib/include -I../zstd_lib/include'
 if [ $? -ne 0 ]
 then
     echo "'configure' failed for cpython at ${SRC_PATH}"
