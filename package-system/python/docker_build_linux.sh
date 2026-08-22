@@ -114,8 +114,10 @@ echo ""
 
 pushd ${SRC_PATH}
 
-export PKG_CONFIG_PATH="${OPENSSL_BASE}/lib/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
-export PKG_CONFIG="pkg-config --define-prefix --static"
+cp -r "${OPENSSL_BASE}/lib/pkgconfig" "${WORKSPACE}/openssl_pkgconfig"
+sed -i "s|^prefix=.*|prefix=${OPENSSL_BASE}|" "${WORKSPACE}/openssl_pkgconfig/"*.pc
+export PKG_CONFIG_PATH="${WORKSPACE}/openssl_pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
+export PKG_CONFIG="pkg-config --static"
 export LIBSQLITE3_CFLAGS="-I${SQLITE_BASE}"
 export LIBSQLITE3_LIBS="-L${SQLITE_BASE}/lib -lsqlite3 -lm -ldl -lz -lpthread"
 

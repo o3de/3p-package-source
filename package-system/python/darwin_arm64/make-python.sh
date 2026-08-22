@@ -185,8 +185,8 @@ cd "$RELOC_SRC_DIR"
 echo ""
 echo "---------------- Altering the produced framework folder to be relocatable ----------------"
 echo ""
-echo "$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --python-version 3.14.7 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework"
-"$VENV_BIN_DIR/python3" ./make_relocatable_python_framework.py --python-version 3.14.7 --use-existing-framework "$FRAMEWORK_OUTPUT_FOLDER/Python.framework"
+echo "$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --no-unsign --python-version 3.14.7 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework"
+"$VENV_BIN_DIR/python3" ./make_relocatable_python_framework.py --no-unsign --python-version 3.14.7 --use-existing-framework "$FRAMEWORK_OUTPUT_FOLDER/Python.framework"
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not make python relocatable!"
