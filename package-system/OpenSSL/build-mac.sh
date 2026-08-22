@@ -12,20 +12,12 @@ echo "TEMP_FOLDER=$TEMP_FOLDER"
 
 OPENSSL_SRC=$TEMP_FOLDER/src
 BUILD_FOLDER=$TEMP_FOLDER/build
-OPENSSL_DEPLOYMENT_FLAG=""
-
-if [ -n "$1" ]
-then
-    export MACOSX_DEPLOYMENT_TARGET="$1"
-    OPENSSL_DEPLOYMENT_FLAG="-mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
-    echo "MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET"
-fi
 
 echo "Preparing build from ${OPENSSL_SRC}"
 
 cd $OPENSSL_SRC
 echo "Configuring OpenSSL"
-CMD="./config no-shared no-asm ${OPENSSL_DEPLOYMENT_FLAG} --prefix=${TARGET_INSTALL_ROOT} --openssldir=${BUILD_FOLDER}/openssl"
+CMD="./config no-shared no-asm --prefix=${TARGET_INSTALL_ROOT} --openssldir=${BUILD_FOLDER}/openssl"
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
