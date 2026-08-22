@@ -35,7 +35,7 @@ MACHO_MAGICS = {
 }
 
 
-def run(command: list[str]) -> None:
+def run(command: list[str]):
     print("+", " ".join(command), flush=True)
     subprocess.run(command, check=True)
 
@@ -85,13 +85,7 @@ def sign_path(
     identity: str,
     entitlements: pathlib.Path | None,
     executable: bool,
-) -> None:
-    # Some universal binaries contain a linker signature in only one slice.
-    # codesign --force rejects that mixed state, so normalize every Mach-O to
-    # unsigned before applying the package signature.
-    if path.is_file():
-        run(["/usr/bin/codesign", "--remove-signature", str(path)])
-
+):
     command = ["/usr/bin/codesign", "--force", "--sign", identity]
     if identity != "-":
         command.extend(["--timestamp", "--options", "runtime"])
@@ -101,7 +95,7 @@ def sign_path(
     run(command)
 
 
-def verify_path(path: pathlib.Path, deep: bool = False) -> None:
+def verify_path(path: pathlib.Path, deep: bool = False):
     command = ["/usr/bin/codesign", "--verify", "--strict", "--verbose=2"]
     if deep:
         command.append("--deep")
@@ -111,16 +105,16 @@ def verify_path(path: pathlib.Path, deep: bool = False) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("root", type=pathlib.Path, help="Package directory to sign")
+    parser.add_argument(
+        "root",
+        type=pathlib.Path)
     parser.add_argument(
         "--identity",
-        default=os.environ.get("O3DE_MACOS_CODE_SIGN_IDENTITY") or "-",
-        help="codesign identity; defaults to O3DE_MACOS_CODE_SIGN_IDENTITY or ad-hoc '-'",
+        default=os.environ.get("3PS_MACOS_CODE_SIGN_IDENTITY") or "-",
     )
     parser.add_argument(
         "--entitlements",
         type=pathlib.Path,
-        help="Entitlements applied to Mach-O executables for Developer ID signing",
     )
     args = parser.parse_args()
 

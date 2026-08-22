@@ -55,6 +55,7 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y autoconf \
                        tcl-dev \
                        tk-dev \
                        texinfo \
+                       uuid-dev \
                        curl
 
 # Prevent the copying of the src folder from being cached

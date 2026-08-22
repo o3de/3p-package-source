@@ -238,6 +238,12 @@ echo ""
     "$PACKAGE_OUTPUT_DIR/Python.framework" \
     --identity -
 
+"$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.14/bin/python3.14" \
+    -m ensurepip --upgrade --default-pip
+PYTHONPATH="$RELOC_SRC_DIR" "$VENV_BIN_DIR/python3" -c \
+    'import sys; from locallibs.fix import fix_other_things; sys.exit(0 if fix_other_things(sys.argv[1], sys.argv[2]) else 1)' \
+    "$PACKAGE_OUTPUT_DIR/Python.framework" 3.14
+
 # A signed framework is a sealed bundle.
 # If Python creates __pycache__ files on first launch,
 # strict bundle verification fails because resources were added after signing.
