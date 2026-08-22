@@ -17,9 +17,7 @@
 # * Fetches python from the official python repository
 # * patches python with open3d_python.patch to shortcut the package building process (we don't need)
 #   a full installer, just the framework.
-# * Fetches expat 2.4.6 to patch a security vulnerability as part of python 3.7.x
-# * Ensures you have the necessary environment vars set and pip packages installed in a pip virtualenv
-# * Upgrades PIP to the latest version
+# * Creates an isolated virtual environment for the build helpers.
 # * builds python using python.org official mac package builder we've patched.
 # * Uses the relocatable-python script to generate a 'package' folder containing real python but
 #    with rpaths patched to be relocatable.
@@ -27,16 +25,30 @@
 # * Deploys the finished framework to a the package layout folder using rsync.
 # * Copies the license files inside python to the package layout folder
 # * Copies the other package system file (json and cmake) to the pacakge layout folder.
-# * Removes older PIP (20.0.3) whl file from ensurepip since PIP will already be installed in this package
+# * Signs every Mach-O file, using ad-hoc signing by default or a configured Developer ID.
 #
 # The result is a 'package' subfolder containing the package files such as PackageInfo.json
 # and a subfolder containing the official python but patched so that they work in that folder structure
 # regardless of where the folder is, instead of having absolute paths baked in.
 
-set -o pipefail
+set -euo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
+
+O3DE_OPENSSL_ROOT="${O3DE_OPENSSL_ROOT:-$SCRIPT_DIR/../../OpenSSL/temp/OpenSSL-mac-arm64/OpenSSL}"
+for REQUIRED_OPENSSL_FILE in \
+    "$O3DE_OPENSSL_ROOT/include/openssl/ssl.h" \
+    "$O3DE_OPENSSL_ROOT/lib/libcrypto.a" \
+    "$O3DE_OPENSSL_ROOT/lib/libssl.a" \
+    "$O3DE_OPENSSL_ROOT/LICENSE.txt"; do
+    if [ ! -f "$REQUIRED_OPENSSL_FILE" ]; then
+        echo "Missing prebuilt O3DE OpenSSL file: $REQUIRED_OPENSSL_FILE"
+        echo "Build OpenSSL-3.6.3-rev2-mac-arm64 first or set O3DE_OPENSSL_ROOT."
+        exit 1
+    fi
+done
+export O3DE_OPENSSL_ROOT
 
 echo ""
 echo "--------------- PYTHON PACKAGE BUILD SCRIPT ----------------"
@@ -58,12 +70,12 @@ rm -rf temp
 mkdir temp
 cd temp
 
-mkdir $SCRIPT_DIR/package
+mkdir "$SCRIPT_DIR/package"
 
 echo ""
-echo "---------------- Cloning python 3.10.13 from git ----------------"
+echo "---------------- Cloning python from git ----------------"
 echo ""
-git clone https://github.com/python/cpython.git --branch "v3.10.13" --depth 1
+git clone https://github.com/python/cpython.git --branch "v3.14.7" --depth 1
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error cloning python from https://github.com/python/cpython.git"
@@ -71,39 +83,6 @@ if [ $retVal -ne 0 ]; then
 fi
 
 echo ""
-echo "---------------- Cloning libexpat 2.4.6 from git and applying update ----------------"
-echo ""
-git clone https://github.com/libexpat/libexpat.git --branch "R_2_4_6" --depth 1
-if [ $retVal -ne 0 ]; then
-    echo "Was unable to create libexpat dir via git clone.  Is git installed?"
-    exit 1
-fi
-cp -f -v libexpat/expat/lib/*.h cpython/Modules/expat/
-cp -f -v libexpat/expat/lib/*.c cpython/Modules/expat/
-
-echo ""
-echo "---------------- Cloning tcl 8.6.12 from git compressing to downloaded packages ----------------"
-echo ""
-mkdir cloned_packages
-mkdir downloaded_packages
-git clone https://github.com/tcltk/tcl.git --branch "core-8-6-12" --depth 1 cloned_packages/tcl8.6.12
-cd cloned_packages
-tar czf tcl8.6.12-src.tar.gz tcl8.6.12
-cd ..
-mv cloned_packages/tcl8.6.12-src.tar.gz downloaded_packages/
-
-echo ""
-echo "---------------- Cloning tk 8.6.12 from git compressing to downloaded packages ----------------"
-echo ""
-mkdir cloned_packages
-mkdir downloaded_packages
-git clone https://github.com/tcltk/tk.git --branch "core-8-6-12" --depth 1 cloned_packages/tk8.6.12
-cd cloned_packages
-tar czf tk8.6.12-src.tar.gz tk8.6.12
-cd ..
-mv cloned_packages/tk8.6.12-src.tar.gz downloaded_packages/
-
-
 echo ""
 echo "---------------- Cloning relocatable-python from git ----------------"
 echo ""
@@ -114,23 +93,19 @@ if [ $retVal -ne 0 ]; then
     exit $retVal
 fi
 
-PYTHON_SRC_DIR=$SCRIPT_DIR/temp/cpython
-RELOC_SRC_DIR=$SCRIPT_DIR/temp/relocatable-python
+PYTHON_SRC_DIR="$SCRIPT_DIR/temp/cpython"
+RELOC_SRC_DIR="$SCRIPT_DIR/temp/relocatable-python"
 
 echo ""
 echo "---------------- creating python virtual environment ----------------"
 echo ""
-cd $SCRIPT_DIR/temp
+cd "$SCRIPT_DIR/temp"
 python3 -m venv py_venv
-VENV_BIN_DIR=$SCRIPT_DIR/temp/py_venv/bin
-PYTHONNOUSERSITE=1
+VENV_BIN_DIR="$SCRIPT_DIR/temp/py_venv/bin"
+export PYTHONNOUSERSITE=1
 
 echo ""
-echo "---------------- Installing spinx documentation tool into the v-env ----------------"
-echo ""
-$VENV_BIN_DIR/python3 -m pip install sphinx
-
-cd $RELOC_SRC_DIR
+cd "$RELOC_SRC_DIR"
 
 echo ""
 echo "---------------- Checking out specific commit hash of relocatable-python ----------------"
@@ -144,12 +119,10 @@ if [ $retVal -ne 0 ]; then
     exit $retVal
 fi
 
-#echo ""
-#echo "---------------- patching the relocator ----------------"
-#echo ""
-#echo Currently in `pwd`
-#echo patch -p1 $SCRIPT_DIR/open3d_patch.patch
-patch -p1 < $SCRIPT_DIR/open3d_patch.patch
+echo ""
+echo "---------------- patching the relocator ----------------"
+echo ""
+patch -p1 < "$SCRIPT_DIR/open3d_patch.patch"
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not patch the relocator!"
@@ -157,11 +130,11 @@ if [ $retVal -ne 0 ]; then
 fi
 
 
-cd $PYTHON_SRC_DIR
+cd "$PYTHON_SRC_DIR"
 echo ""
 echo "---------------- patching the python source ----------------"
 echo ""
-patch -p1 < $SCRIPT_DIR/open3d_python.patch
+patch -p1 < "$SCRIPT_DIR/open3d_python.patch"
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not patch the python package maker!"
@@ -171,12 +144,12 @@ fi
 echo ""
 echo "---------------- Building a Mac python package from official source ----------------"
 echo ""
-cd $PYTHON_SRC_DIR
+cd "$PYTHON_SRC_DIR"
 cd Mac
 cd BuildScript
 
 # the following env vars get around a problem compiling tcl/tk
-ac_cv_header_libintl_h=no ac_cv_lib_intl_textdomain=no tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN=$VENV_BIN_DIR $VENV_BIN_DIR/python3 ./build-installer.py --universal-archs=arm64 --build-dir $SCRIPT_DIR/temp/python_build --third-party=$SCRIPT_DIR/temp/downloaded_packages
+ac_cv_header_libintl_h=no ac_cv_lib_intl_textdomain=no tcl_cv_strtod_buggy=1 ac_cv_func_strtod=yes SDK_TOOLS_BIN="$VENV_BIN_DIR" "$VENV_BIN_DIR/python3" ./build-installer.py --universal-archs=arm64 --build-dir "$SCRIPT_DIR/temp/python_build" --third-party="$SCRIPT_DIR/temp/downloaded_packages" --dep-target=13.0
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not build python!"
@@ -185,20 +158,15 @@ fi
 
 # the output of the build $SCRIPT_DIR/temp/python_build/_root/Library/Frameworks and that folder will contain Python.framework
 # we use the --use-existing-framework to point the script at that framework we just made:
-FRAMEWORK_OUTPUT_FOLDER=$SCRIPT_DIR/temp/python_build/_root/Library/Frameworks
-echo Framework output folder: $FRAMEWORK_OUTPUT_FOLDER
+FRAMEWORK_OUTPUT_FOLDER="$SCRIPT_DIR/temp/python_build/_root/Library/Frameworks"
+echo "Framework output folder: $FRAMEWORK_OUTPUT_FOLDER"
 
-# Run ensurepip to make sure pip is available
-
-echo "$FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.10/bin/python3.10 -m ensurepip"
-$FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.10/bin/python3.10 -m ensurepip
-
-cd $RELOC_SRC_DIR
+cd "$RELOC_SRC_DIR"
 echo ""
 echo "---------------- Altering the produced framework folder to be relocatable ----------------"
 echo ""
-echo $VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --no-unsign --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
-$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --no-unsign --upgrade-pip --python-version 3.10.13 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework
+echo "$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --python-version 3.14.7 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework"
+"$VENV_BIN_DIR/python3" ./make_relocatable_python_framework.py --python-version 3.14.7 --use-existing-framework "$FRAMEWORK_OUTPUT_FOLDER/Python.framework"
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not make python relocatable!"
@@ -209,8 +177,8 @@ echo ""
 echo "---------------- Final RPATH update ----------------"
 echo ""
 # The filename of the main python dylib is 'Python'.
-# It is located at ./package/Python.framework/Versions/3.10(symlinked to Current)
-# The original rpath "@rpath/Versions/3.10/Python" is incorrect. When the Python.framework
+# It is located at ./package/Python.framework/Versions/3.14 (symlinked to Current).
+# The original rpath "@rpath/Versions/3.14/Python" is incorrect. When the Python.framework
 # is embedded in an app bundle, any executable/shared library linking to it will need to
 # find it in "@rpath/Python.framework/Versions/Current/Python". The executable will have
 # its rpath set to "<bundle_name>.app/Contents/Frameworks".
@@ -218,32 +186,62 @@ echo ""
 # as well as the root of the framework (ie, @loader_path/../../../.. etc), this makes
 # the whole thing work regardless of whether Python is in the same folder as the binary or 
 # whether a python native plugin is being located from the framework in some subfolder.
-install_name_tool -id @rpath/Python.framework/Versions/Current/Python $FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.10/Python
+install_name_tool -id @rpath/Python.framework/Versions/Current/Python "$FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.14/Python"
 
 echo ""
 echo "---------------- rsync package layout into $SCRIPT_DIR/package ----------------"
 echo ""
-mdkir $SCRIPT_DIR/package
+mkdir -p "$SCRIPT_DIR/package"
 rsync -avu --delete "$FRAMEWORK_OUTPUT_FOLDER/" "$SCRIPT_DIR/package"
 
 echo ""
 echo "---------------- Copying Open3DEngine package metadata and license file ----------------"
 echo ""
 # the tar contains a 'Python.framework' sub folder
-cd $SCRIPT_DIR/package
-cp $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/LICENSE.txt ./LICENSE
-cp $SCRIPT_DIR/PackageInfo.json .
-cp $SCRIPT_DIR/*.cmake .
+cd "$SCRIPT_DIR/package"
+cp "$SCRIPT_DIR/package/Python.framework/Versions/3.14/lib/python3.14/LICENSE.txt" ./LICENSE
+cp "$O3DE_OPENSSL_ROOT/LICENSE.txt" ./LICENSE.OPENSSL
+tar -xOf "$SCRIPT_DIR/temp/downloaded_packages/zstd-1.5.7.tar.gz" zstd-1.5.7/LICENSE > ./LICENSE.ZSTD
+cp "$SCRIPT_DIR/PackageInfo.json" .
+cp "$SCRIPT_DIR"/*.cmake .
 
 echo ""
-echo "---------------- Removing pip references from ensurepip ----------------"
+echo "---------------- Precompiling Python sources before sealing the framework ----------------"
 echo ""
-rm -f $SCRIPT_DIR/package/Python.framework/Versions/3.10/lib/python3.10/ensurepip/_bundled/pip-20*.whl
+# Relocation invalidates and removes the linker signatures.
+# Apple silicon will not execute that unsigned interpreter,
+# so first apply a disposable ad-hoc signature.
+# The final signing pass below replaces it after bytecode generation.
+"$VENV_BIN_DIR/python3" "$SCRIPT_DIR/../../../Scripts/packaging/sign_macos_binaries.py" \
+    "$SCRIPT_DIR/package/Python.framework" \
+    --identity -
+
+# A signed framework is a sealed bundle.
+# If Python creates __pycache__ files on first launch,
+# strict bundle verification fails because resources were added after signing.
+# Precompile every optimization level in its own process with checked hashes so normal,
+# -O, and -OO launches leave the framework unchanged.
+for OPTIMIZATION_LEVEL in 0 1 2; do
+    "$SCRIPT_DIR/package/Python.framework/Versions/3.14/bin/python3.14" -m compileall \
+        -q -f \
+        --invalidation-mode checked-hash \
+        -o "$OPTIMIZATION_LEVEL" \
+        -x 'bad_coding|badsyntax' \
+        -s "$SCRIPT_DIR/package" -p "" \
+        "$SCRIPT_DIR/package/Python.framework/Versions/3.14/lib/python3.14"
+done
+
+echo ""
+echo "---------------- Signing binaries ----------------"
+echo ""
+"$VENV_BIN_DIR/python3" "$SCRIPT_DIR/../../../Scripts/packaging/sign_macos_binaries.py" \
+    "$SCRIPT_DIR/package/Python.framework" \
+    --entitlements "$SCRIPT_DIR/../../../Scripts/packaging/macos_python_runtime.entitlements"
 
 echo ""
 echo "----------------  Cleaning temp folder ----------------"
 echo ""
-# rm -rf $SCRIPT_DIR/temp
+rm -rf "$SCRIPT_DIR/temp"
 
 echo ""
 echo "DONE! Package layout folder has been created in $SCRIPT_DIR/package"

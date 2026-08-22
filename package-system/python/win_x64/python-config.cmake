@@ -24,7 +24,7 @@ endif()
 # Python_Development_FOUND - The platform we are cross compiling for can link to python
 # and a target called 3rdParty::Python that you can use to depend on
 
-set(${MY}_VERSION 3.10.13)
+set(${MY}_VERSION 3.14.7)
 set(${MY}_INTERPRETER_ID    "Python")
 set(${MY}_EXECUTABLE        ${CMAKE_CURRENT_LIST_DIR}/python/python.exe)
 set(${MY}_HOME              ${CMAKE_CURRENT_LIST_DIR}/python)
@@ -37,13 +37,13 @@ if (${PAL_PLATFORM_NAME} STREQUAL "Windows" )
     set(${MY}_Development_FOUND TRUE)
     # Do not use these  PYTHON_LIBRARY_* or other variables, instead, use the 
     # target '3rdParty::Python'
-    set(${MY}_LIBRARY_DEBUG   ${CMAKE_CURRENT_LIST_DIR}/python/libs/python310_d.lib)
-    set(${MY}_LIBRARY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/python/libs/python310.lib)
+    set(${MY}_LIBRARY_DEBUG   ${CMAKE_CURRENT_LIST_DIR}/python/libs/python314_d.lib)
+    set(${MY}_LIBRARY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/python/libs/python314.lib)
     set(${MY}_INCLUDE_DIR     ${CMAKE_CURRENT_LIST_DIR}/python/include)
-    set(${MY}_DYLIBS_DEBUG    ${CMAKE_CURRENT_LIST_DIR}/python/python310_d.dll ${CMAKE_CURRENT_LIST_DIR}/python/python3_d.dll
-                              ${CMAKE_CURRENT_LIST_DIR}/python/python310_d.pdb ${CMAKE_CURRENT_LIST_DIR}/python/python3_d.pdb)
-    set(${MY}_DYLIBS_RELEASE  ${CMAKE_CURRENT_LIST_DIR}/python/python310.dll ${CMAKE_CURRENT_LIST_DIR}/python/python3.dll
-                              ${CMAKE_CURRENT_LIST_DIR}/python/python310.pdb ${CMAKE_CURRENT_LIST_DIR}/python/python3.pdb)
+    set(${MY}_DYLIBS_DEBUG    ${CMAKE_CURRENT_LIST_DIR}/python/python314_d.dll ${CMAKE_CURRENT_LIST_DIR}/python/python3_d.dll
+                              ${CMAKE_CURRENT_LIST_DIR}/python/python314_d.pdb ${CMAKE_CURRENT_LIST_DIR}/python/python3_d.pdb)
+    set(${MY}_DYLIBS_RELEASE  ${CMAKE_CURRENT_LIST_DIR}/python/python314.dll ${CMAKE_CURRENT_LIST_DIR}/python/python3.dll
+                              ${CMAKE_CURRENT_LIST_DIR}/python/python314.pdb ${CMAKE_CURRENT_LIST_DIR}/python/python3.pdb)
 
     set(${MY}_COMPILE_DEFINITIONS DEFAULT_LY_PYTHONHOME="${CMAKE_CURRENT_LIST_DIR}/python")
 

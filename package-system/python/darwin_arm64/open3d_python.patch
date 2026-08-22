@@ -1,82 +1,156 @@
-diff --git a/Doc/conf.py b/Doc/conf.py
-index 178e520..b68cdcf 100644
---- a/Doc/conf.py
-+++ b/Doc/conf.py
-@@ -45,7 +45,7 @@
- highlight_language = 'python3'
- 
- # Minimum version of sphinx required
--needs_sphinx = '3.2'
-+needs_sphinx = '5.0'
- 
- # Ignore any .rst files in the venv/ directory.
- exclude_patterns = ['venv/*', 'README.rst']
-diff --git a/Doc/requirements.txt b/Doc/requirements.txt
-index f43ce2c..ea46010 100644
---- a/Doc/requirements.txt
-+++ b/Doc/requirements.txt
-@@ -3,7 +3,7 @@
- # Sphinx version is pinned so that new versions that introduce new warnings
- # won't suddenly cause build failures. Updating the version is fine as long
- # as no warnings are raised by doing so.
--sphinx==3.4.3
-+sphinx==5.0.2
- # Docutils version is pinned to a version compatible with Sphinx
- # version <3.5.4. It can be removed after bumping Sphinx version to at
- # least 3.5.4.
 diff --git a/Mac/BuildScript/build-installer.py b/Mac/BuildScript/build-installer.py
-index 8f33537..5972b3d 100755
+index 5112dd2..374e37c 100755
 --- a/Mac/BuildScript/build-installer.py
 +++ b/Mac/BuildScript/build-installer.py
-@@ -121,6 +121,7 @@ def getFullVersion():
+@@ -120,7 +120,8 @@
+ DEPSRC = os.path.join(WORKDIR, 'third-party')
  DEPSRC = os.path.expanduser('~/Universal/other-sources')
  
- universal_opts_map = { 'universal2': ('arm64', 'x86_64'),
-+                       'arm64': ('arm64',),
+-universal_opts_map = { 'universal2': ('arm64', 'x86_64'),
++universal_opts_map = { 'arm64': ('arm64',),
++                       'universal2': ('arm64', 'x86_64'),
                         '32-bit': ('i386', 'ppc',),
                         '64-bit': ('x86_64', 'ppc64',),
                         'intel':  ('i386', 'x86_64'),
-@@ -130,6 +131,7 @@ def getFullVersion():
+@@ -129,6 +130,7 @@
+                        '3-way':  ('ppc', 'i386', 'x86_64'),
                         'all':    ('i386', 'ppc', 'x86_64', 'ppc64',) }
  default_target_map = {
++        'arm64': '11.0',
          'universal2': '10.9',
-+        'arm64': '10.10',
          '64-bit': '10.5',
          '3-way': '10.5',
-         'intel': '10.5',
-@@ -265,9 +267,9 @@ def library_recipes():
+@@ -224,6 +224,8 @@ def tweak_tcl_build(basedir, archList):
+             # "fixstrod.o" on this line.
+             for nm in ("strstr.o", "strtoul.o", " strtod.o"):
+                 line = line.replace(nm, "")
++        if not useOldTk() and line.startswith("PKG_CFG_ARGS"):
++            line = line.rstrip() + " 'ac_cv_func_strchrnul=no'\n"
+         new_contents.append(line)
+
+     with open("Makefile", "w") as fp:
+@@ -229,6 +231,31 @@ def tweak_tcl_build(basedir, archList):
+     with open("Makefile", "w") as fp:
+         fp.writelines(new_contents)
+
++    if not useOldTk():
++        tcl_lib = "libtcl9.0.dylib"
++        runCommand("make tclsh")
++        runCommand(
++            "install_name_tool -change %s @loader_path/%s tclsh"
++            % (
++                shellQuote(
++                    "/Library/Frameworks/Python.framework/Versions/%s/lib/%s"
++                    % (getVersion(), tcl_lib)
++                ),
++                tcl_lib,
++            )
++        )
++
++
++def build_universal_zstd(basedir, archList):
++    cflags = "-O3 -fPIC -mmacosx-version-min=%s %s" % (
++        DEPTARGET, " ".join("-arch %s" % arch for arch in archList))
++    runCommand("make -C lib libzstd.a-release CFLAGS=%s" % shellQuote(cflags))
++    runCommand(
++        "make -C lib install-static install-includes PREFIX=/usr/local DESTDIR=%s"
++        % shellQuote(basedir)
++    )
++
++
+ # List of names of third party software built with this installer.
+ # The names will be inserted into the rtf version of the License.
+ THIRD_PARTY_LIBS = []
+@@ -240,21 +269,6 @@ def library_recipes():
+ def library_recipes():
+     result = []
  
-         else:
-             tcl_tk_ver='8.6.12'
--            tcl_checksum='87ea890821d2221f2ab5157bc5eb885f'
-+            tcl_checksum='cloned'
- 
--            tk_checksum='1d6dcf6120356e3d211e056dff5e462a'
-+            tk_checksum='cloned'
-             tk_patches = [ ]
- 
- 
-@@ -347,7 +349,7 @@ def library_recipes():
-                   "--libdir=/Library/Frameworks/Python.framework/Versions/%s/lib"%(getVersion(),),
+-    # Since Apple removed the header files for the deprecated system
+-    # OpenSSL as of the Xcode 7 release (for OS X 10.10+), we do not
+-    # have much choice but to build our own copy here, too.
+-
+-    result.extend([
+-          dict(
+-              name="OpenSSL 3.5.7",
+-              url="https://github.com/openssl/openssl/releases/download/openssl-3.5.7/openssl-3.5.7.tar.gz",
+-              checksum="a8c0d28a529ca480f9f36cf5792e2cd21984552a3c8e4aa11a24aa31aeac98e8",
+-              buildrecipe=build_universal_openssl,
+-              configure=None,
+-              install=None,
+-          ),
+-    ])
+-
+     if internalTk():
+         if useOldTk():
+             tcl_tk_ver='8.6.8'
+@@ -270,7 +284,7 @@ def library_recipes():
+             tk_checksum='d7a146d2917eb8b5cc95276dbf0e3d03c7464d2b19c1675357857c989301dbb4'
+             tk_patches = []
+
+-
++        tcl_tk_lib_ver = ".".join(tcl_tk_ver.split(".")[:2])
+         base_url = "https://prdownloads.sourceforge.net/tcl/{what}{version}-src.tar.gz"
+         result.extend([
+           dict(
+@@ -280,14 +294,17 @@ def library_recipes():
+               buildDir="unix",
+               configure_pre=[
+                     '--enable-shared',
+                     '--enable-threads',
++                    '--disable-zipfs',
+                     '--libdir=/Library/Frameworks/Python.framework/Versions/%s/lib'%(getVersion(),),
                ],
-               patchscripts=[
--                  ("ftp://ftp.invisible-island.net/ncurses//5.9/ncurses-5.9-20120616-patch.sh.bz2",
-+                  ("https://invisible-island.net/archives/ncurses/5.9/ncurses-5.9-20120616-patch.sh.bz2",
-                    "f54bf02a349f96a7c4f0d00922f3a0d4"),
-                    ],
                useLDFlags=False,
-@@ -797,6 +799,10 @@ def verifyThirdPartyFile(url, checksum, fname):
-         algo = 'md5'
-     elif len(checksum) == 64:
-         algo = 'sha256'
-+    elif checksum == 'cloned':
-+        print("Skipping verification for %s, locally packaged from git"%name)
-+        # Special case, the 3p file was cloned from git and packaged locally
-+        return
-     else:
-         raise ValueError(checksum)
-     if os.system(
-@@ -1019,7 +1025,7 @@ def buildRecipe(recipe, basedir, archList):
+               buildrecipe=tweak_tcl_build,
+-              install='make TCL_LIBRARY=%(TCL_LIBRARY)s && make install TCL_LIBRARY=%(TCL_LIBRARY)s DESTDIR=%(DESTDIR)s'%{
++              install='make TCL_LIBRARY=%(TCL_LIBRARY)s && make install TCL_LIBRARY=%(TCL_LIBRARY)s DESTDIR=%(DESTDIR)s && cd %(LIBDIR)s && ln -fs ../../../Library/Frameworks/Python.framework/Versions/%(PYVER)s/lib/libtcl* .'%{
+                   "DESTDIR": shellQuote(os.path.join(WORKDIR, 'libraries')),
+-                  "TCL_LIBRARY": shellQuote('/Library/Frameworks/Python.framework/Versions/%s/lib/tcl8.6'%(getVersion())),
++                  "LIBDIR": shellQuote(os.path.join(WORKDIR, 'libraries', 'usr', 'local', 'lib')),
++                  "PYVER": getVersion(),
++                  "TCL_LIBRARY": shellQuote('/Library/Frameworks/Python.framework/Versions/%s/lib/tcl%s'%(getVersion(), tcl_tk_lib_ver)),
+                   },
+               ),
+           dict(
+@@ -298,15 +328,19 @@ def library_recipes():
+               buildDir="unix",
+               configure_pre=[
+                     '--enable-aqua',
+                     '--enable-shared',
+                     '--enable-threads',
++                    '--disable-zipfs',
+                     '--libdir=/Library/Frameworks/Python.framework/Versions/%s/lib'%(getVersion(),),
+               ],
+               useLDFlags=False,
+-              install='make TCL_LIBRARY=%(TCL_LIBRARY)s TK_LIBRARY=%(TK_LIBRARY)s && make install TCL_LIBRARY=%(TCL_LIBRARY)s TK_LIBRARY=%(TK_LIBRARY)s DESTDIR=%(DESTDIR)s'%{
++              install='make TCL_LIBRARY=%(TCL_LIBRARY)s TK_LIBRARY=%(TK_LIBRARY)s && make install TCL_LIBRARY=%(TCL_LIBRARY)s TK_LIBRARY=%(TK_LIBRARY)s DESTDIR=%(DESTDIR)s && cd %(LIBDIR)s && ln -fs ../../../Library/Frameworks/Python.framework/Versions/%(PYVER)s/lib/%(TK_LIB_GLOB)s .'%{
+                   "DESTDIR": shellQuote(os.path.join(WORKDIR, 'libraries')),
+-                  "TCL_LIBRARY": shellQuote('/Library/Frameworks/Python.framework/Versions/%s/lib/tcl8.6'%(getVersion())),
+-                  "TK_LIBRARY": shellQuote('/Library/Frameworks/Python.framework/Versions/%s/lib/tk8.6'%(getVersion())),
++                  "LIBDIR": shellQuote(os.path.join(WORKDIR, 'libraries', 'usr', 'local', 'lib')),
++                  "PYVER": getVersion(),
++                  "TK_LIB_GLOB": "libtk*" if useOldTk() else "libtcl9tk*",
++                  "TCL_LIBRARY": shellQuote('/Library/Frameworks/Python.framework/Versions/%s/lib/tcl%s'%(getVersion(), tcl_tk_lib_ver)),
++                  "TK_LIBRARY": shellQuote('/Library/Frameworks/Python.framework/Versions/%s/lib/tk%s'%(getVersion(), tcl_tk_lib_ver)),
+                   },
+                 ),
+         ])
+@@ -321,6 +353,14 @@ def library_recipes():
+                     '--disable-dependency-tracking',
+               ]
+               ),
++          dict(
++              name="zstd 1.5.7",
++              url="https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz",
++              checksum="eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
++              buildrecipe=build_universal_zstd,
++              configure=None,
++              install=None,
++              ),
+         ])
+
+     result.extend([
+@@ -1031,7 +1071,7 @@ def buildRecipe(recipe, basedir, archList):
                          DEPTARGET,
                          ' -arch '.join(archList),
                          shellQuote(basedir)[1:-1],),
@@ -85,137 +159,90 @@ index 8f33537..5972b3d 100755
                      DEPTARGET,
                      shellQuote(basedir)[1:-1],
                      ' -arch '.join(archList)),
-diff --git a/Misc/NEWS.d/3.10.0b1.rst b/Misc/NEWS.d/3.10.0b1.rst
-index 345a917..e909cc8 100644
---- a/Misc/NEWS.d/3.10.0b1.rst
-+++ b/Misc/NEWS.d/3.10.0b1.rst
-@@ -941,7 +941,7 @@ result from ``entry_points()`` as deprecated.
+@@ -1079,7 +1106,22 @@ def buildLibraries():
+     os.mkdir(universal)
+     os.makedirs(os.path.join(universal, 'usr', 'local', 'lib'))
+     os.makedirs(os.path.join(universal, 'usr', 'local', 'include'))
++
++    openssl_root = os.environ.get("O3DE_OPENSSL_ROOT")
++    if not openssl_root:
++        fatal("O3DE_OPENSSL_ROOT must identify the prebuilt O3DE OpenSSL package")
  
- ..
++    openssl_include = os.path.join(openssl_root, "include", "openssl")
++    shutil.copytree(
++        openssl_include,
++        os.path.join(universal, "usr", "local", "include", "openssl"),
++    )
++    for library in ("libcrypto.a", "libssl.a"):
++        shutil.copy2(
++            os.path.join(openssl_root, "lib", library),
++            os.path.join(universal, "usr", "local", "lib", library),
++        )
++
+     for recipe in library_recipes():
+         buildRecipe(recipe, universal, ARCHLIST)
  
--.. gh: 47383
-+.. gh-issue: 47383
- .. date: 2021-04-08-19-32-26
- .. nonce: YI1hdL
- .. section: Library
-diff --git a/Misc/NEWS.d/3.5.3.rst b/Misc/NEWS.d/3.5.3.rst
-index c3fcb67..2897e9e 100644
---- a/Misc/NEWS.d/3.5.3.rst
-+++ b/Misc/NEWS.d/3.5.3.rst
-@@ -3,5 +3,6 @@
- .. no changes: True
- .. nonce: zYPqUK
- .. release date: 2017-01-17
-+.. section: All
- 
- There were no code changes between 3.5.3rc1 and 3.5.3 final.
-diff --git a/Misc/NEWS.d/3.6.0.rst b/Misc/NEWS.d/3.6.0.rst
-index f9805ca..aeae35f 100644
---- a/Misc/NEWS.d/3.6.0.rst
-+++ b/Misc/NEWS.d/3.6.0.rst
-@@ -3,5 +3,5 @@
- .. no changes: True
- .. nonce: F9ENBV
- .. release date: 2016-12-23
+@@ -1134,4 +1176,14 @@ def buildPython():
+-    print("Building a universal python for %s architectures" % UNIVERSALARCHS)
++    print("Building Python for %s architectures" % UNIVERSALARCHS)
 -
-+.. section: All
- No changes since release candidate 2
-diff --git a/Misc/NEWS.d/3.6.2.rst b/Misc/NEWS.d/3.6.2.rst
-index dba43d1..a34a1cc 100644
---- a/Misc/NEWS.d/3.6.2.rst
-+++ b/Misc/NEWS.d/3.6.2.rst
-@@ -3,5 +3,6 @@
- .. no changes: True
- .. nonce: F9ENBV
- .. release date: 2017-07-17
-+.. section: All
++
++    universal_configure_args = ""
++    if UNIVERSALARCHS != "arm64":
++        universal_configure_args = (
++            "--enable-universalsdk=/ --with-universal-archs=%s" % UNIVERSALARCHS
++        )
++
++    tcl_lib_name, tk_lib_name = (
++        ("tcl8.6", "tk8.6") if useOldTk() else ("tcl9.0", "tcl9tk9.0")
++    )
++
+     buildDir = os.path.join(WORKDIR, '_bld', 'python')
+     rootDir = os.path.join(WORKDIR, '_root')
+@@ -1156,29 +1208,30 @@
  
- No changes since release candidate 2
-diff --git a/configure b/configure
-index 4b71c4e..909ae05 100755
---- a/configure
-+++ b/configure
-@@ -6755,7 +6755,7 @@ $as_echo "$as_me: llvm-ar found via xcrun: ${LLVM_AR}" >&6;}
-       case $ac_sys_system in
-         Darwin*)
-           # Any changes made here should be reflected in the GCC+Darwin case below
--          LTOFLAGS="-flto -Wl,-export_dynamic"
-+          LTOFLAGS="-flto -Wl,-export_dynamic -Wl,-headerpad_max_install_names"
-           LTOCFLAGS="-flto"
-           ;;
-         *)
-@@ -6766,7 +6766,7 @@ $as_echo "$as_me: llvm-ar found via xcrun: ${LLVM_AR}" >&6;}
-     *gcc*)
-       case $ac_sys_system in
-         Darwin*)
--          LTOFLAGS="-flto -Wl,-export_dynamic"
-+          LTOFLAGS="-flto -Wl,-export_dynamic -Wl,-headerpad_max_install_names"
-           LTOCFLAGS="-flto"
-           ;;
-         *)
-@@ -7578,6 +7578,12 @@ $as_echo "$CC" >&6; }
-                LIPO_INTEL64_FLAGS="-extract x86_64"
-                ARCH_RUN_32BIT="true"
-                ;;
-+            arm64)
-+               UNIVERSAL_ARCH_FLAGS="-arch arm64"
-+               LIPO_32BIT_FLAGS=""
-+               LIPO_INTEL64_FLAGS=""
-+               ARCH_RUN_32BIT="true"
-+               ;;
-             intel)
-                UNIVERSAL_ARCH_FLAGS="-arch i386 -arch x86_64"
-                LIPO_32BIT_FLAGS="-extract i386"
-@@ -7599,7 +7605,7 @@ $as_echo "$CC" >&6; }
-                ARCH_RUN_32BIT="/usr/bin/arch -i386 -ppc"
-                ;;
-             *)
--               as_fn_error $? "proper usage is --with-universal-arch=universal2|32-bit|64-bit|all|intel|3-way" "$LINENO" 5
-+               as_fn_error $? "proper usage is --with-universal-arch=universal2|32-bit|64-bit|all|intel|3-way|arm64" "$LINENO" 5
-                ;;
-             esac
+     print("Running configure...")
+     print(" NOTE: --with-mimalloc=no pending resolution of weak linking issues")
+-    runCommand("%s -C --enable-framework --enable-universalsdk=/ "
++    runCommand("%s -C --enable-framework "
+                "--with-mimalloc=no "
+                "--with-system-libmpdec "
+-               "--with-universal-archs=%s "
+                "%s "
+                "%s "
+                "%s "
+                "%s "
+                "%s "
+                "%s "
+-               "LDFLAGS='-g -L%s/libraries/usr/local/lib' "
++               "%s "
++               "LDFLAGS='-g -Wl,-headerpad_max_install_names -L%s/libraries/usr/local/lib' "
+                "CFLAGS='-g -I%s/libraries/usr/local/include' 2>&1"%(
+         shellQuote(os.path.join(SRCDIR, 'configure')),
+-        UNIVERSALARCHS,
++        universal_configure_args,
+         (' ', '--with-computed-gotos ')[PYTHON_3],
+-        (' ', '--without-ensurepip ')[PYTHON_3],
++        (' ', '--with-ensurepip=install ')[PYTHON_3],
+         (' ', "--with-openssl='%s/libraries/usr/local'"%(
+                             shellQuote(WORKDIR)[1:-1],))[PYTHON_3],
+         (' ', "--enable-optimizations --with-lto")[compilerCanOptimize()],
+         (' ', "TCLTK_CFLAGS='-I%s/libraries/usr/local/include'"%(
+                             shellQuote(WORKDIR)[1:-1],))[internalTk()],
+-        (' ', "TCLTK_LIBS='-L%s/libraries/usr/local/lib -ltcl8.6 -ltk8.6'"%(
+-                            shellQuote(WORKDIR)[1:-1],))[internalTk()],
++        (' ', "TCLTK_LIBS='-L%s/libraries/usr/local/lib -l%s -l%s'"%(
++                            shellQuote(WORKDIR)[1:-1], tcl_lib_name,
++                            tk_lib_name))[internalTk()],
+         shellQuote(WORKDIR)[1:-1],
+         shellQuote(WORKDIR)[1:-1]))
  
-diff --git a/configure.ac b/configure.ac
-index ac3be38..be927a3 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1412,7 +1412,7 @@ if test "$Py_LTO" = 'true' ; then
-       case $ac_sys_system in
-         Darwin*)
-           # Any changes made here should be reflected in the GCC+Darwin case below
--          LTOFLAGS="-flto -Wl,-export_dynamic"
-+          LTOFLAGS="-flto -Wl,-export_dynamic -Wl,-headerpad_max_install_names"
-           LTOCFLAGS="-flto"
-           ;;
-         *)
-@@ -1423,7 +1423,7 @@ if test "$Py_LTO" = 'true' ; then
-     *gcc*)
-       case $ac_sys_system in
-         Darwin*)
--          LTOFLAGS="-flto -Wl,-export_dynamic"
-+          LTOFLAGS="-flto -Wl,-export_dynamic -Wl,-headerpad_max_install_names"
-           LTOCFLAGS="-flto"
-           ;;
-         *)
-@@ -1911,6 +1911,12 @@ yes)
-                LIPO_INTEL64_FLAGS="-extract x86_64"
-                ARCH_RUN_32BIT="true"
-                ;;
-+            arm64)
-+               UNIVERSAL_ARCH_FLAGS="-arch arm64"
-+               LIPO_32BIT_FLAGS=""
-+               LIPO_INTEL64_FLAGS=""
-+               ARCH_RUN_32BIT="true"
-+               ;;
-             intel)
-                UNIVERSAL_ARCH_FLAGS="-arch i386 -arch x86_64"
-                LIPO_32BIT_FLAGS="-extract i386"
-@@ -1932,7 +1938,7 @@ yes)
-                ARCH_RUN_32BIT="/usr/bin/arch -i386 -ppc"
-                ;;
-             *)
--               AC_MSG_ERROR([proper usage is --with-universal-arch=universal2|32-bit|64-bit|all|intel|3-way])
-+               AC_MSG_ERROR([proper usage is --with-universal-arch=universal2|32-bit|64-bit|all|intel|3-way|arm64])
-                ;;
-             esac
- 
+@@ -1728,6 +1781,8 @@ def main():
+     # Now build python itself
+     buildPython()
+
++    return
++
+     # And then build the documentation
+     # Remove the Deployment Target from the shell
+     # environment, it's no longer needed and

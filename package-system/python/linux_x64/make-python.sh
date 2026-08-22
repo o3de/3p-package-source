@@ -16,7 +16,7 @@ echo "--------------- PYTHON PACKAGE BUILD SCRIPT ----------------"
 echo ""
 echo "BASIC REQUIREMENTS in case something goes wrong:"
 echo "   - git installed and in PATH"
-echo "   - packages installed: apt-get dev-essential tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev texinfo"
+echo "   - packages installed: apt-get build-essential tk8.6-dev python3 libssl-dev tcl8.6-dev libgdbm-compat-dev liblzma-dev libsqlite3-dev libreadline-dev texinfo"
 echo "   - python3 with pip in PATH! (i.e. sudo apt install python3 and sudo apt install python3-pip"
 echo "   - Note: This script is currently written for buildng on Ubuntu Linux only."
 echo "   - Note: installing binaries with pip must result with them being on PATH."
@@ -35,7 +35,7 @@ do
 done
 
 
-if [[ ${PACKAGE_CLEAR_TEMP_FOLDERS} -gt 0 ]]; then
+if [[ ${PACKAGE_CLEAR_TEMP_FOLDERS:-0} -gt 0 ]]; then
     echo "   - PACKAGE_CLEAR_TEMP_FOLDERS env var is set > 0, will clear temp folders."
 else
     echo "   - PACKAGE_CLEAR_TEMP_FOLDERS env var not set or = 0, will not clear temp."
@@ -47,29 +47,15 @@ mkdir -p temp
 
 
 echo ""
-echo "--------------- Cloning python 3.10.13 from git ---------------"
+echo "--------------- Cloning python from git ---------------"
 echo ""
 cd temp
-git clone https://github.com/python/cpython.git --branch v3.10.13 --depth 1
+git clone https://github.com/python/cpython.git --branch v3.14.7 --depth 1
 
 if [[ ! -d "cpython" ]]; then
     echo "Was unable to create cpython dir via git clone.  Is git installed?"
     exit 1
 fi
-
-echo ""
-echo "--------------- Cloning libexpat 2.4.6 from git and applying update ---------------"
-echo ""
-git clone https://github.com/libexpat/libexpat.git --branch "R_2_4_6" --depth 1
-
-if [[ ! -d "libexpat" ]]; then
-    echo "Was unable to create libexpat dir via git clone.  Is git installed?"
-    exit 1
-fi
-
-cp -f -v libexpat/expat/lib/*.h cpython/Modules/expat/
-cp -f -v libexpat/expat/lib/*.c cpython/Modules/expat/
-
 
 echo ""
 echo "--------------- Cloning libffi 3.4.2 and building static version ---------------"
@@ -106,11 +92,20 @@ fi
 
 popd
 
+echo ""
+echo "--------------- Building zstd ---------------"
+echo ""
+curl -fsSL https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz -o zstd-1.5.7.tar.gz
+echo "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3  zstd-1.5.7.tar.gz" | sha256sum --check
+tar -xzf zstd-1.5.7.tar.gz
+make -C zstd-1.5.7/lib libzstd.a-release CFLAGS="-O3 -fPIC"
+make -C zstd-1.5.7/lib install-static install-includes PREFIX="$SCRIPT_DIR/temp/zstd_lib"
+
 
 echo ""
-echo "--------------- Cloning openssl 1.1.1w and building it externally ---------------"
+echo "--------------- Cloning openssl and building it externally ---------------"
 echo ""
-git clone https://github.com/openssl/openssl.git --branch "OpenSSL_1_1_1w" --depth 1
+git clone https://github.com/openssl/openssl.git --branch "openssl-3.6.3" --depth 1
 if [[ ! -d "openssl" ]]; then
     echo "Was unable to create openssl dir via git clone."
     exit 1
@@ -118,8 +113,8 @@ fi
 
 pushd openssl
 
-echo ./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN'
-./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN'
+echo ./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --libdir=lib --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN'
+./config --prefix=$SCRIPT_DIR/temp/openssl-local/build --libdir=lib --openssldir=/etc/ssl LDFLAGS='-Wl,-rpath=\$$ORIGIN'
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
@@ -129,12 +124,15 @@ fi
 
 echo make
 make
+retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error building openssl (build failure)"
     exit $retVal
 fi
 
 echo make test
+make test
+retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error building openssl (test failure)"
     exit $retVal
@@ -142,6 +140,7 @@ fi
 
 echo make install
 make install
+retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error building openssl (install failure)"
     exit $retVal
@@ -157,7 +156,7 @@ echo "--------------- Building cpython from source ---------------"
 echo ""
 
 # Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
-./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --with-openssl=$SCRIPT_DIR/temp/openssl-local/build --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib' CPPFLAGS='-I../ffi_lib/include' CFLAGS='-I../ffi_lib/include' 
+./configure --prefix=$SCRIPT_DIR/package/python --enable-optimizations --with-openssl=$SCRIPT_DIR/temp/openssl-local/build --with-ensurepip=install --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L../zstd_lib/lib' CPPFLAGS='-I../ffi_lib/include -I../zstd_lib/include' CFLAGS='-I../ffi_lib/include -I../zstd_lib/include'
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error running configuring optimized build"
@@ -174,7 +173,7 @@ fi
 # Prepare the package folder
 cd $SCRIPT_DIR
 
-# Install the newly built python 3.10.13 to the package/python folder
+# Install the newly built python to the package/python folder
 cd $SCRIPT_DIR
 cd temp
 cd cpython
@@ -202,38 +201,14 @@ cd $SCRIPT_DIR/package
 
 # Move the openssl libraries to the local cpython build for portability
 pushd $SCRIPT_DIR/package/python/lib
-cp $SCRIPT_DIR/temp/openssl-local/build/lib/libssl.so.1.1 .
-ln -s libssl.so.1.1 libssl.so.1
-cp $SCRIPT_DIR/temp/openssl-local/build/lib/libcrypto.so.1.1 .
-ln -s libcrypto.so.1.1 libcrypto.so.1
+cp $SCRIPT_DIR/temp/openssl-local/build/lib/libssl.so.3 .
+cp $SCRIPT_DIR/temp/openssl-local/build/lib/libcrypto.so.3 .
 popd
 
 # Copy the openssl license
 cp $SCRIPT_DIR/temp/openssl/LICENSE $SCRIPT_DIR/package/python/LICENSE.OPENSSL
+cp $SCRIPT_DIR/temp/zstd-1.5.7/LICENSE $SCRIPT_DIR/package/python/LICENSE.ZSTD
 
-
-echo ""
-echo "--------------- Upgrading pip ---------------"
-echo ""
-# the pip that may come from the above repo can be broken, so we'll use get-pip
-# and then upgrade it.
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-./python/bin/python3 get-pip.py
-rm get-pip.py
-PYTHONNOUSERSITE=1 ./python/bin/python3 -m pip install --upgrade pip
-
-
-# installing pip causes it to put absolute paths to python
-# in the pip files (in bin).  For example, pip will have 
-# a line at the top that starts with #!/full/path/to/python 
-# so we fix those up too. 
-# We want to change it from and absolute path to python
-# to a multi-line #! that runs python from the same folder as the file is being called from: 
-#!/bin/sh 
-#"exec" "`dirname $0`/python" "$0" "$@"
-sed -i "1s+.*+\#\!/bin/sh+" ./python/bin/pip* 
-sed -i "2i\\
-\"exec\" \"\`dirname \$0\`/python\" \"\$0\" \"\$\@\" " ./python/bin/pip*
 
 echo ""
 echo "--------------- PYTHON WAS BUILT FROM SOURCE ---------------"
@@ -243,7 +218,7 @@ echo ""
 
 echo "Package has completed building, and is now in $SCRIPT_DIR/package"
 
-if [[ ${PACKAGE_CLEAR_TEMP_FOLDERS} -gt 0 ]]
+if [[ ${PACKAGE_CLEAR_TEMP_FOLDERS:-0} -gt 0 ]]
     then
         echo "Deleting temp folders because PACKAGE_CLEAR_TEMP_FOLDERS is set to > 0"
         rm -rf $SCRIPT_DIR/temp
