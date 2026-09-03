@@ -68,14 +68,14 @@ set LLVM_INSTALL_DIR=%TEMP_FOLDER%\libclang-release_20.1.3-based-windows-vs2019_
 set PATH=%LLVM_INSTALL_DIR%\bin;%PATH%
 
 call %TEMP_FOLDER%\testenv\Scripts\python.exe setup.py install ^
-    --qtpaths=%TEMP_FOLDER%\qt-6.10.2-rev5-windows\qt\bin\qtpaths6.exe ^
+    --qtpaths=%TEMP_FOLDER%\qt-6.11.2-rev1-windows\qt\bin\qtpaths6.exe ^
     --ignore-git ^
     --parallel=8 ^
     --build-type=all ^
     --skip-docs ^
     --log-level=verbose ^
     --limited-api=yes ^
-    --skip-modules=Quick,MultimediaWidgets,Pdf,PdfWidgets,Positioning,Location,NetworkAuth,Nfc,WebEngineQuick,Multimedia,QuickControls2,QuickTest,QuickWidgets,UiToolsPrivate,RemoteObjects,Positioning,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,AxContainer
+    --skip-modules=Qml,Quick,PrintSupport,Sql,MultimediaWidgets,Pdf,PdfWidgets,Positioning,Location,NetworkAuth,Nfc,WebEngineQuick,Multimedia,QuickControls2,QuickTest,QuickWidgets,UiToolsPrivate,RemoteObjects,Positioning,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,AxContainer
 if %ERRORLEVEL% NEQ 0 (
     echo "Failed to build pyside2 (release)"
     exit /B 1

@@ -34,8 +34,6 @@ mkdir %PACKAGE_BASE%\lib
 robocopy %INSTALL_SOURCE%\lib %PACKAGE_BASE%\lib *.* /E
 copy %INSTALL_SOURCE_RELEASE%\lib\pyside6.abi3.lib %PACKAGE_BASE%\lib\site-packages\PySide6\
 copy %INSTALL_SOURCE_RELEASE%\bin\pyside6.abi3.dll %PACKAGE_BASE%\lib\site-packages\PySide6\
-copy %INSTALL_SOURCE_RELEASE%\lib\pyside6qml.abi3.lib %PACKAGE_BASE%\lib\site-packages\PySide6\
-copy %INSTALL_SOURCE_RELEASE%\bin\pyside6qml.abi3.dll %PACKAGE_BASE%\lib\site-packages\PySide6\
 copy %INSTALL_SOURCE_RELEASE%\lib\shiboken6.abi3.lib %PACKAGE_BASE%\lib\site-packages\shiboken6\
 copy %INSTALL_SOURCE_RELEASE%\bin\shiboken6.abi3.dll %PACKAGE_BASE%\lib\site-packages\shiboken6\
 

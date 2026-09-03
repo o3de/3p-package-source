@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     setup(
         name="pyside6",
-        version="6.10.2",
+        version="6.11.2",
         description='Pyside6',
         long_description=long_description,
         packages=['PySide6', 'shiboken6'],

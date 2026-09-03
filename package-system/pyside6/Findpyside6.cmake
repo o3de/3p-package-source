@@ -47,7 +47,6 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtNetwork
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtOpenGL
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtOpenGLWidgets
-        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSql
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSvg
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSvgWidgets
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtUiTools
@@ -81,6 +80,14 @@ set(${MY_NAME}_TOOLS_PYTHON_SCRIPTS
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set(${MY_NAME}_TOOLS_DEPENDENCIES
         ${${MY_NAME}_BIN_DIR}/libclang.dll
+    )
+elseif (PAL_PLATFORM_NAME STREQUAL "Mac")
+    set(${MY_NAME}_TOOLS_DEPENDENCIES
+        ${${MY_NAME}_LIB_DIR}/libclang.dylib
+    )
+elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
+    set(${MY_NAME}_TOOLS_DEPENDENCIES
+        ${${MY_NAME}_LIB_DIR}/libclang.so.20.1
     )
 endif()
 
