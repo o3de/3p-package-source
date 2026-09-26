@@ -1,0 +1,81 @@
+{
+   "git_url":"https://github.com/jbeder/yaml-cpp.git",
+   "git_tag":"yaml-cpp-0.9.0",
+   "package_name":"yaml-cpp",
+   "package_version":"0.9.0-rev1",
+   "package_url":"https://github.com/jbeder/yaml-cpp/wiki",
+   "package_license":"MIT",
+   "package_license_file":"LICENSE",
+   "cmake_find_source": "Findyaml-cpp.cmake",
+   "cmake_find_target": "Findyaml-cpp.cmake",
+   "cmake_build_args_common" : [ 
+      "--parallel"
+   ],
+   "cmake_generate_args_common" : [
+      "-DCMAKE_CXX_STANDARD=17",
+      "-DBUILD_SHARED_LIBS=FALSE",
+      "-DYAML_ENABLE_PIC=ON",
+      "-DYAML_CPP_BUILD_TOOLS=OFF",
+      "-DYAML_CPP_BUILD_TESTS=OFF",
+      "-DYAML_CPP_FORMAT_SOURCE=OFF",
+      "-DYAML_BUILD_SHARED_LIBS=OFF",
+      "-DCMAKE_DEBUG_POSTFIX=_d"
+   ],
+   "cmake_install_filter":[
+      "*.h",
+      "*.lib",
+      "*.a"
+   ],
+   "extra_files_to_copy": [
+      ["yaml-cpp-config-version.cmake", "yaml-cpp-config-version.cmake"],
+      ["yaml-cpp-config.cmake", "yaml-cpp-config.cmake"]
+   ],
+   "Platforms":{
+      "Windows":{
+         "Windows":{
+            "cmake_generate_args" : [
+               "-G\"Visual Studio 17 2022\""
+            ],
+            "build_configs" : ["Debug","Release"],
+            "custom_test_cmd" : [
+               "yaml-cpp-test-windows.cmd"
+            ]
+         }
+      },
+      "Darwin":{
+        "Mac-arm64":{
+            "build_configs" : ["Release"],
+            "cmake_generate_args": [
+               "-G", "Xcode",
+               "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+               "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Mac/Toolchain_mac.cmake"
+            ],
+            "custom_test_cmd" : [
+               "./yaml-cpp-test-mac.sh"
+            ]
+        }
+      },
+      "Linux":{
+         "Linux":{
+            "build_configs" : ["Release"],
+            "cmake_generate_args": [
+               "-G",
+               "\"Ninja Multi-Config\""
+            ],
+            "custom_test_cmd" : [
+               "./yaml-cpp-test-linux.sh"
+            ]
+         },
+         "Linux-aarch64": {
+            "build_configs" : ["Release"],
+            "cmake_generate_args": [
+               "-G",
+               "\"Ninja Multi-Config\""
+            ],
+            "custom_test_cmd" : [
+               "./yaml-cpp-test-linux.sh"
+            ]
+         }
+      }
+   }
+}
