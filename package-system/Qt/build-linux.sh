@@ -67,6 +67,9 @@ echo ${BUILD_PATH}
 
 cd ${BUILD_PATH}
 
+# Use the libjpeg and libtiff bundled with Qt in the image format plugins.
+# Otherwise they link the build host's libjpeg.so.8 and libtiff.so.5, which
+# other distributions do not ship, and Qt cannot read JPEG or TIFF there.
 _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -submodules ${QTARRAY} \
     -platform linux-clang \
@@ -77,7 +80,9 @@ _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -opensource \
     -xcb \
     -confirm-license \
-    -no-icu"
+    -no-icu \
+    -qt-libjpeg \
+    -qt-tiff"
 
 ${BUILD_ROOT}/configure ${_OPTS}
 if [ $? -ne 0 ]
