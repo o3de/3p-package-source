@@ -28,10 +28,10 @@ cp -r $WORKSPACE/temp/src ${SRC_PATH}
 # The dependent 'depends_on_packages' paths are architecture dependent
 if [ "$(uname -m)" = "x86_64" ]
 then
-    O3DE_OPENSSL_PACKAGE=OpenSSL-1.1.1t-rev1-linux
+    O3DE_OPENSSL_PACKAGE=OpenSSL-3.6.3-rev1-linux
     O3DE_SQLITE_PACKAGE=SQLite-3.37.2-rev1-linux
 else
-    O3DE_OPENSSL_PACKAGE=OpenSSL-1.1.1t-rev1-linux-aarch64
+    O3DE_OPENSSL_PACKAGE=OpenSSL-3.6.3-rev1-linux-aarch64
     O3DE_SQLITE_PACKAGE=SQLite-3.37.2-rev1-linux-aarch64
 fi
 
@@ -52,7 +52,7 @@ LIBFFI_SRC=ffi_src
 LIBFFI_SRC_PATH=${WORKSPACE}/${LIBFFI_SRC}
 LIBFFI_LIB_PATH=${WORKSPACE}/ffi_lib
 
-echo "Clone and build libFFI statically from ${FFI_GIT_URL} / ${LIBFFI_VERSION}"
+echo "Clone and build libFFI statically from ${LIBFFI_GIT_URL} / ${LIBFFI_VERSION}"
 
 CMD="git -C ${WORKSPACE} clone ${LIBFFI_GIT_URL} --branch ${LIBFFI_VERSION} --depth 1 ${LIBFFI_SRC}"
 echo $CMD
@@ -75,7 +75,7 @@ then
 fi
 
 
-CMD="./configure --prefix=$LIBFFI_LIB --enable-shared=no CFLAGS='-fPIC' CPPFLAGS='-fPIC' "
+CMD="./configure --prefix=$LIBFFI_LIB_PATH --enable-shared=no CFLAGS='-fPIC' CPPFLAGS='-fPIC' "
 echo $CMD
 eval $CMD
 if [ $? -ne 0 ]
@@ -95,6 +95,18 @@ fi
 
 popd
 
+ZSTD_VERSION="1.5.7"
+ZSTD_ARCHIVE="zstd-${ZSTD_VERSION}.tar.gz"
+ZSTD_ARCHIVE_SHA256="eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3"
+ZSTD_SRC_PATH="${WORKSPACE}/zstd-${ZSTD_VERSION}"
+ZSTD_LIB_PATH="${WORKSPACE}/zstd_lib"
+
+curl -fsSL "https://github.com/facebook/zstd/releases/download/v${ZSTD_VERSION}/${ZSTD_ARCHIVE}" -o "${WORKSPACE}/${ZSTD_ARCHIVE}"
+echo "${ZSTD_ARCHIVE_SHA256}  ${WORKSPACE}/${ZSTD_ARCHIVE}" | sha256sum --check
+tar -xzf "${WORKSPACE}/${ZSTD_ARCHIVE}" -C "${WORKSPACE}"
+make -C "${ZSTD_SRC_PATH}/lib" libzstd.a-release CFLAGS="-O3 -fPIC"
+make -C "${ZSTD_SRC_PATH}/lib" install-static install-includes PREFIX="${ZSTD_LIB_PATH}"
+
 # Build CPython from source
 
 echo "Building cpython from source ..."
@@ -102,12 +114,19 @@ echo ""
 
 pushd ${SRC_PATH}
 
+cp -r "${OPENSSL_BASE}/lib/pkgconfig" "${WORKSPACE}/openssl_pkgconfig"
+sed -i "s|^prefix=.*|prefix=${OPENSSL_BASE}|" "${WORKSPACE}/openssl_pkgconfig/"*.pc
+export PKG_CONFIG_PATH="${WORKSPACE}/openssl_pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
+export PKG_CONFIG="pkg-config --static"
+export LIBSQLITE3_CFLAGS="-I${SQLITE_BASE}"
+export LIBSQLITE3_LIBS="-L${SQLITE_BASE}/lib -lsqlite3 -lm -ldl -lz -lpthread"
+
 # Build from the source with optimizations and shared libs enabled , and override the RPATH and bzip include/lib paths
 ./configure --prefix=${BUILD_FOLDER}/python\
  --enable-optimizations\
- --with-openssl=${OPENSSL_BASE}\
- --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L'${SQLITE_BASE}'/lib'\
- CPPFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}'' CFLAGS='-I../ffi_lib/include -I'${SQLITE_BASE}''
+ --with-ensurepip=install\
+ --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L../zstd_lib/lib'\
+ CPPFLAGS='-I../ffi_lib/include -I../zstd_lib/include' CFLAGS='-I../ffi_lib/include -I../zstd_lib/include'
 if [ $? -ne 0 ]
 then
     echo "'configure' failed for cpython at ${SRC_PATH}"
@@ -140,50 +159,13 @@ echo "Preparing additional python files"
 cp ${SRC_PATH}/LICENSE ${BUILD_FOLDER}/python/LICENSE
 
 # Also copy the openssl license since its linked against the dependent O3DE OpenSSL static package
-cp ${OPENSSL_BASE}/LICENSE ${BUILD_FOLDER}/python/LICENSE.OPENSSL
+cp ${OPENSSL_BASE}/LICENSE.txt ${BUILD_FOLDER}/python/LICENSE.OPENSSL
+cp ${ZSTD_SRC_PATH}/LICENSE ${BUILD_FOLDER}/python/LICENSE.ZSTD
 
 # Create a symlink from python -> python3
 pushd ${BUILD_FOLDER}/python/bin
 ln -s python3 python
 popd
-
-pushd ${BUILD_FOLDER}
-
-echo "Upgrading pip"
-
-# the pip that may come from the above repo can be broken, so we'll use get-pip
-# and then upgrade it.
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-./python/bin/python3 get-pip.py
-rm get-pip.py
-
-pushd python/bin
-
-PYTHONNOUSERSITE=1 ./python3 -m pip install --upgrade pip
-
-echo "Upgrading setup tools"
-
-# Update setup tools to resolve https://avd.aquasec.com/nvd/cve-2022-40897
-PYTHONNOUSERSITE=1 ./python3 -m pip install setuptools --upgrade setuptools
-
-# Update wheel to resolve https://avd.aquasec.com/nvd/2022/cve-2022-40898/
-PYTHONNOUSERSITE=1 ./python3 -m pip install wheel --upgrade wheel
-
-popd #python/bin 
-
-# installing pip causes it to put absolute paths to python
-# in the pip files (in bin).  For example, pip will have 
-# a line at the top that starts with #!/full/path/to/python 
-# so we fix those up too. 
-# We want to change it from and absolute path to python
-# to a multi-line #! that runs python from the same folder as the file is being called from: 
-#!/bin/sh 
-#"exec" "`dirname $0`/python" "$0" "$@"
-sed -i "1s+.*+\#\!/bin/sh+" ./python/bin/pip* 
-sed -i "2i\\
-\"exec\" \"\`dirname \$0\`/python\" \"\$0\" \"\$\@\" " ./python/bin/pip*
-
-popd # ${BUILD_FOLDER}
 
 echo ""
 echo "--------------- PYTHON WAS BUILT FROM SOURCE ---------------"
