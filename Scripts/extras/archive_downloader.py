@@ -122,7 +122,7 @@ def extract_package(src_package_file: str, target_folder:str):
     elif package_ext in ARCHIVE_EXTS_TAR:
         import tarfile
         with tarfile.open(str(src_package_file_path.resolve())) as tar_file:
-            tarfile.extractall(destination_path)
+            tar_file.extractall(destination_path)
     elif package_ext in ARCHIVE_EXTS_7ZIP:
         try:
             os.makedirs(destination_path, exist_ok=True)

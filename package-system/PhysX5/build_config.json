@@ -1,22 +1,182 @@
 {
-    "git_url": "https://github.com/o3de/PhysX.git",
-    "git_tag": "release/104.1",
+    "git_url": "https://github.com/EnterTheArcane/PhysX.git",
+    "git_tag": "o3de-physx-5.12.0",
+    "git_commit": "0e89c9c762de9cf32e82ef53a6743e78b2b6bbb0",
     "package_name": "PhysX",
+    "package_version": "5.12.0-rev1",
     "package_url": "https://github.com/NVIDIA-Omniverse/PhysX",
-    "package_license": "BSD-3-Clause",
-    "package_license_file": "PhysX/LICENSE.md",
+    "package_license": "Apache-2.0",
+    "package_license_file": "physx/LICENSE.md",
     "cmake_find_source": "FindPhysX5.cmake",
     "cmake_find_target": "FindPhysX5.cmake",
     "Platforms": {
-        "Darwin": {
-            "Mac-arm64": {
-                "patch_file": "physx5_mac.patch",
-                "package_version": "5.1.1-rev4",
+        "Windows": {
+            "Windows": "@windows-x64",
+            "windows-x64": {
                 "custom_build_cmd": [
-                    "./build-darwin-arm64.sh"
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "windows-x64"
                 ],
-                 "custom_install_cmd": [
-                    "./install-darwin-arm64.sh"
+                "custom_test_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "windows-x64",
+                    "--test"
+                ],
+                "additional_download_packages": [
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/windows-x86_64/cuda_nvcc-windows-x86_64-12.8.93-archive.zip",
+                        "9fdc70b4271ed9aad4d64cd7076a7d96ec36512d074b9995fe638de669197391",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/windows-x86_64/cuda_cudart-windows-x86_64-12.8.90-archive.zip",
+                        "4a39058fd8519444a81cfc7ae055d136f48d1a31ffa41ae255b35b2edd61e13b",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_profiler_api/windows-x86_64/cuda_profiler_api-windows-x86_64-12.8.90-archive.zip",
+                        "0a9d628d2582bd58c78ba92827cd9613d62790924cde1178719f677fc03b6ee2",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_cccl/windows-x86_64/cuda_cccl-windows-x86_64-12.8.90-archive.zip",
+                        "bd8548fa1ae82f92910bebc3079e14bd58c5a92aa64596d46bd610a478cb39d7",
+                        "sha256"
+                    ]
+                ]
+            }
+        },
+        "Linux": {
+            "android-arm": {
+                "custom_build_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "android-arm"
+                ],
+                "custom_test_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "android-arm",
+                    "--test"
+                ]
+            },
+            "linux-arm": {
+                "custom_build_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "linux-arm"
+                ],
+                "custom_test_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "linux-arm",
+                    "--test"
+                ],
+                "additional_download_packages": [
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/linux-x86_64/cuda_nvcc-linux-x86_64-12.8.93-archive.tar.xz",
+                        "9961b3484b6b71314063709a4f9529654f96782ad39e72bf1e00f070db8210d3",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/linux-sbsa/cuda_cudart-linux-sbsa-12.8.90-archive.tar.xz",
+                        "9e54c6686b193efa9642e7f6609ce78b064c5d576946478bcff4c024e1acdea7",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_profiler_api/linux-sbsa/cuda_profiler_api-linux-sbsa-12.8.90-archive.tar.xz",
+                        "97e50883d0998647ce0027edea18c4e2ef06caa4aa61b00a34db270c12a9f717",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_cccl/linux-sbsa/cuda_cccl-linux-sbsa-12.8.90-archive.tar.xz",
+                        "c4fa12bac07c50f81da2089ec1dd2c228350dbd9125075e5c0dde384bf4b0c0f",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/linux-sbsa/cuda_nvcc-linux-sbsa-12.8.93-archive.tar.xz",
+                        "dc0b713ce69fd921aa53ac68610717d126fc273a3c554b0465cf44d7e379f467",
+                        "sha256"
+                    ]
+                ]
+            },
+            "linux-x64": {
+                "custom_build_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "linux-x64"
+                ],
+                "custom_test_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "linux-x64",
+                    "--test"
+                ],
+                "additional_download_packages": [
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_nvcc/linux-x86_64/cuda_nvcc-linux-x86_64-12.8.93-archive.tar.xz",
+                        "9961b3484b6b71314063709a4f9529654f96782ad39e72bf1e00f070db8210d3",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_cudart/linux-x86_64/cuda_cudart-linux-x86_64-12.8.90-archive.tar.xz",
+                        "8d566b5fe745c46842dc16945cf36686227536decd2302c372be86da37faca68",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_profiler_api/linux-x86_64/cuda_profiler_api-linux-x86_64-12.8.90-archive.tar.xz",
+                        "f97b3779e909caa5edf56606432ec1dd3173a5d3d503ef39f367467dbdb006b7",
+                        "sha256"
+                    ],
+                    [
+                        "https://developer.download.nvidia.com/compute/cuda/redist/cuda_cccl/linux-x86_64/cuda_cccl-linux-x86_64-12.8.90-archive.tar.xz",
+                        "0740e9e01e4f15e17c5ab8d68bba4f8ec0eb6b84edccba4ac45112d2d2174e4b",
+                        "sha256"
+                    ]
+                ]
+            }
+        },
+        "Darwin": {
+            "ios": "@ios-arm",
+            "Mac-arm64": "@mac-arm",
+            "ios-arm": {
+                "custom_build_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "ios-arm"
+                ],
+                "custom_test_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "ios-arm",
+                    "--test"
+                ]
+            },
+            "mac-arm": {
+                "custom_build_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "mac-arm"
+                ],
+                "custom_test_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "mac-arm",
+                    "--test"
                 ]
             }
         }

@@ -646,15 +646,22 @@ class BuildInfo(object):
                             delete_folder(self.src_folder)
                             self.clone_to_local()
 
-                # Do a re-pull
-                git_pull_cmd = ['git',
-                                'pull']
-                call_result = subprocess.run(subp_args(git_pull_cmd),
+                # A pinned source must stay on its requested commit when rebuilding.
+                git_update_cmd = ['git', 'pull']
+                if self.package_info.git_commit:
+                    git_update_cmd = ['git', 'fetch', self.package_info.git_url, self.package_info.git_commit]
+                call_result = subprocess.run(subp_args(git_update_cmd),
                                              shell=True,
                                              capture_output=True,
                                              cwd=str(self.src_folder.resolve()))
                 if call_result.returncode != 0:
-                    raise BuildError(f"Error pulling source from GitHub: {call_result.stderr.decode('UTF-8', 'ignore')}")
+                    raise BuildError(f"Error updating source from GitHub: {call_result.stderr.decode('UTF-8', 'ignore')}")
+                if self.package_info.git_commit:
+                    checkout_result = subprocess.run(['git', 'checkout', self.package_info.git_commit],
+                                                     capture_output=True,
+                                                     cwd=self.src_folder)
+                    if checkout_result.returncode != 0:
+                        raise BuildError(f"Error checking out {self.package_info.git_commit}: {checkout_result.stderr.decode('UTF-8', 'ignore')}")
             else:
                 self.clone_to_local()
         elif self.package_info.src_package_url:
