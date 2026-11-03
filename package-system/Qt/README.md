@@ -17,8 +17,8 @@ The archive is verified with SHA-1 `1c80692d233922156bcd54ac1ec30099d7245f49`.
 | Target | Package |
 | --- | --- |
 | Windows x64 | `qt-6.12.0-rev2-windows` |
-| Linux x86_64 | `qt-6.12.0-rev2-linux` |
-| Linux aarch64 | `qt-6.12.0-rev2-linux-aarch64` |
+| Linux x86_64 | `qt-6.12.0-rev3-linux` |
+| Linux aarch64 | `qt-6.12.0-rev3-linux-aarch64` |
 | macOS arm64 | `qt-6.12.0-rev2-mac-arm64` |
 
 ## Qt 6 build contents
@@ -32,6 +32,8 @@ Linux and macOS build one Release Qt configuration. Windows builds Debug and `Re
 The Linux builds resolve TIFF, zlib, and OpenSSL through the corresponding architecture-specific O3DE dependency packages and force Qt to use them instead of silently selecting bundled or host-system copies.
 
 Linux uses Qt's bundled JPEG implementation to avoid a dependency on a distribution-specific `libjpeg` ABI. The CMake package requires WaylandClient development dependencies only when `PAL_TRAIT_LINUX_WINDOW_MANAGER_WAYLAND` is enabled. Wayland runtime plugins are deployed for both configurations.
+
+Linux hides symbols from the statically linked zlib archive in Qt libraries and plugins so system libpng cannot mix Qt's private zlib with the system copy.
 
 QtCanvasPainter is not included. Its open-source licensing and dependency on QtDeclarative are incompatible with this package configuration.
 
@@ -58,13 +60,13 @@ Run these commands from the `3p-package-source` repository.
 ### Linux x86_64
 
 ```bash
-./package.sh build qt-6.12.0-rev2-linux
+./package.sh build qt-6.12.0-rev3-linux
 ```
 
 ### Linux aarch64
 
 ```bash
-./package.sh build qt-6.12.0-rev2-linux-aarch64
+./package.sh build qt-6.12.0-rev3-linux-aarch64
 ```
 
 ### macOS arm64

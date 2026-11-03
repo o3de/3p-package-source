@@ -100,6 +100,8 @@ QT_PLATFORM_OPTS="-skip qtdeclarative \
     -no-feature-qtdiag \
     -no-feature-qtplugininfo \
     -- \
+    -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--exclude-libs,libz.a \
+    -DCMAKE_MODULE_LINKER_FLAGS=-Wl,--exclude-libs,libz.a \
     -DCMAKE_MODULE_PATH=${QT_DEPENDENCY_MODULE_PATH} \
     -DOPENSSL_USE_STATIC_LIBS=TRUE \
     -DCMAKE_INSTALL_MESSAGE=NEVER"
