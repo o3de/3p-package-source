@@ -167,6 +167,20 @@ pushd ${BUILD_FOLDER}/python/bin
 ln -s python3 python
 popd
 
+# Resolve Python beside each pip launcher after the package is relocated.
+python3 - "${BUILD_FOLDER}/python/bin" <<'PY' || exit 1
+from pathlib import Path
+import sys
+
+header = """#!/bin/sh
+'''exec' "$(dirname "$0")/python3" "$0" "$@"
+' '''
+"""
+for script in Path(sys.argv[1]).glob("pip*"):
+    _, body = script.read_text().split("\n", 1)
+    script.write_text(header + body)
+PY
+
 echo ""
 echo "--------------- PYTHON WAS BUILT FROM SOURCE ---------------"
 echo ""

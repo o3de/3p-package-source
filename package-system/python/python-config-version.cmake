@@ -6,9 +6,6 @@
 #
 #
 
-# this file is called to make sure that if we request a specific version
-# we respond only to that version
-
 set(PACKAGE_VERSION 3.15.2)
 set(PACKAGE_VERSION_EXACT False)
 set(PACKAGE_VERSION_COMPATIBLE False)

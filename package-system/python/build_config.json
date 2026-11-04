@@ -6,12 +6,11 @@
    "package_url":"https://python.org",
    "package_license":"PSF-2.0",
    "package_license_file":"LICENSE",
-   "cmake_find_source":"FindPython.cmake.linux",
+   "cmake_find_source":"FindPython.cmake",
    "cmake_find_target":"FindPython.cmake",
    "Platforms":{
       "Darwin":{
          "Mac-arm64":{
-            "cmake_find_source":"darwin_arm64/FindPython.cmake",
             "depends_on_packages": [
                [ "OpenSSL-3.6.3-rev1-mac-arm64", "eebdb8acf4baf483e327206e615c4ebff42af40581822712eda06d8048a8c38d", "" ]
             ],
@@ -32,7 +31,7 @@
                "custom_build_cmd": [
                     "./build-linux.sh",
                     "python_3_15_2",
-                    "20.04",
+                    "22.04",
                     "x86_64"
                 ],
                 "custom_install_cmd": [
@@ -51,7 +50,7 @@
                "custom_build_cmd": [
                     "./build-linux.sh",
                     "python_3_15_2",
-                    "20.04",
+                    "22.04",
                     "aarch64"
                 ],
                 "custom_install_cmd": [

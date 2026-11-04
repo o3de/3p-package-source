@@ -6,29 +6,24 @@
 #
 #
 
-# this script builds python for linux and darwin_x64
-# and places the result in linux_x64/package or darwin_x64/package 
+# Build Windows or standalone ARM macOS package images.
 import subprocess
 import sys
 import os
 import platform
 
 folder_names = { #   subfolder     interpreter     build script 
-    'darwin'        : ('darwin_x64' , 'Python.framework/Versions/3.10/bin/python3', 'make-python.sh'),
     'darwin-arm64'  : ('darwin_arm64' , 'python/Python.framework/Versions/3.15/bin/python3', 'make-python.sh'),
-    'linux'         : ('linux_x64'  , 'python/bin/python', 'make-python.sh'),
     'windows'       : ('win_x64'    , 'python/python.exe', 'build_python.bat')
 }
 
 platformsys = platform.system().lower()
-# For linux, we may support aarch64 architecture as well as the default x86_64
-if platformsys == 'linux' and platform.machine() == 'aarch64':
-    print("Linux aarch64 builds not supported by this script")
-    sys.exit(1)
 if platformsys == 'darwin' and platform.machine() == 'arm64':
     platformsys = 'darwin-arm64'
 
-# intentionally generate a keyerror if its not a good platform:
+if platformsys not in folder_names:
+    sys.exit("Use Scripts/extras/pull_and_build_from_git.py for Linux builds.")
+
 subfolder_name, binary_relpath, build_script = folder_names[platformsys]
 
 script_dir = os.path.dirname(os.path.realpath(__file__))

@@ -222,9 +222,10 @@ cd "$PACKAGE_OUTPUT_DIR"
 cp "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.15/lib/python3.15/LICENSE.txt" ./LICENSE
 cp "$O3DE_OPENSSL_ROOT/LICENSE.txt" ./LICENSE.OPENSSL
 tar -xOf "$WORK_DIR/downloaded_packages/zstd-1.5.7.tar.gz" zstd-1.5.7/LICENSE > ./LICENSE.ZSTD
+cp "$SCRIPT_DIR/python-config.cmake" "$SCRIPT_DIR/../python-config-version.cmake" "$PACKAGE_LAYOUT_DIR"
 if [ "$USING_PACKAGE_BUILDER" -eq 0 ]; then
     cp "$SCRIPT_DIR/PackageInfo.json" "$PACKAGE_LAYOUT_DIR"
-    cp "$SCRIPT_DIR"/*.cmake "$PACKAGE_LAYOUT_DIR"
+    cp "$SCRIPT_DIR/../FindPython.cmake" "$PACKAGE_LAYOUT_DIR"
 fi
 
 echo ""

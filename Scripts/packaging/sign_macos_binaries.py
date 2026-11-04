@@ -130,7 +130,7 @@ def main() -> int:
     for path in macho_files:
         sign_path(path, args.identity, entitlements, is_executable_macho(path))
     for path in bundles:
-        sign_path(path, args.identity, None, False)
+        sign_path(path, args.identity, entitlements, path.suffix == ".app")
 
     for path in macho_files:
         verify_path(path)

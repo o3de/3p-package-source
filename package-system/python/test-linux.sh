@@ -19,19 +19,26 @@ fi
 echo "Testing python"
 
 
-echo temp/build/python/bin/python3 --version 
-temp/build/python/bin/python3 --version 2>&1
+echo "$TARGET_INSTALL_ROOT/bin/python3 --version"
+"$TARGET_INSTALL_ROOT/bin/python3" --version 2>&1
 if [ $? -ne 0 ]
 then
     echo "Error running validating python interpreter version"
     exit 1
 fi
 
-echo temp/build/python/bin/python3 quick_validate_python.py
-temp/build/python/bin/python3 quick_validate_python.py 2>&1
+echo "$TARGET_INSTALL_ROOT/bin/python3 quick_validate_python.py"
+"$TARGET_INSTALL_ROOT/bin/python3" quick_validate_python.py 2>&1
 if [ $? -ne 0 ]
 then
     echo "Error running the python interpreter against quick_validate_python.py"
+    exit 1
+fi
+
+PIP_OUTPUT=$("$TARGET_INSTALL_ROOT/bin/pip3" --version 2>&1)
+if [ $? -ne 0 ] || [[ "$PIP_OUTPUT" != *"from $TARGET_INSTALL_ROOT/"* ]]
+then
+    echo "Packaged pip did not use the installed Python: $PIP_OUTPUT"
     exit 1
 fi
 

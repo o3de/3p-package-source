@@ -70,7 +70,7 @@ call .\PCBuild\find_python.bat
 set PythonForBuild=%PYTHON%
 
 echo Getting external libraries
-call .\PCBuild\get_externals.bat
+call .\PCBuild\get_externals.bat --no-llvm
 
 msbuild.exe "%python_src%\PCbuild\pcbuild.proj" /t:Build /m /nologo /v:m /p:Configuration=Debug /p:Platform=x64 /p:IncludeExternals=true /p:IncludeSSL=true /p:IncludeTkinter=true /p:PlatformToolset=v143
 if %ERRORLEVEL% NEQ 0 (
@@ -111,6 +111,7 @@ rem But we do add our own few things...
 copy %python_src%\externals\zstd-1.5.7\LICENSE %outputdir%\python\LICENSE.ZSTD
 set ROBOCOPY_OPTIONS=/NJH /NJS /NP /NDL
 robocopy %ScriptDir% %outputdir% *.cmake PackageInfo.json %ROBOCOPY_OPTIONS%
+robocopy %ScriptDir%.. %outputdir% FindPython.cmake python-config-version.cmake %ROBOCOPY_OPTIONS%
 robocopy %python_src%\PCbuild\amd64 %outputdir%\python Python*.pdb %ROBOCOPY_OPTIONS%
 
 cd /d %ScriptDir%
