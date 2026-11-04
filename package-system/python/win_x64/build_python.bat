@@ -54,8 +54,8 @@ mkdir %outputdir%
 mkdir %tempdir%
 cd /d %tempdir%
 
-echo Cloning python from git using v3.14.9..
-git clone https://github.com/python/cpython.git --branch "v3.14.9" --depth 1
+echo Cloning python from git using v3.15.2..
+git clone https://github.com/python/cpython.git --branch "v3.15.2" --depth 1
 if %ERRORLEVEL% NEQ 0 (
     echo "Git clone failed"
     exit /B 1

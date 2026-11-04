@@ -50,7 +50,7 @@ echo ""
 echo "--------------- Cloning python from git ---------------"
 echo ""
 cd temp
-git clone https://github.com/python/cpython.git --branch v3.14.9 --depth 1
+git clone https://github.com/python/cpython.git --branch v3.15.2 --depth 1
 
 if [[ ! -d "cpython" ]]; then
     echo "Was unable to create cpython dir via git clone.  Is git installed?"

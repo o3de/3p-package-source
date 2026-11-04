@@ -29,8 +29,8 @@ except Exception as e:
     print("Failed: " + str(e))
     sys.exit(1)
 
-if sys.version_info[:3] != (3, 14, 9):
-    print(f"Failed: expected Python 3.14.9, got {sys.version}")
+if sys.version_info[:3] != (3, 15, 2):
+    print(f"Failed: expected Python 3.15.2, got {sys.version}")
     sys.exit(1)
 
 if sysconfig.get_config_var("Py_GIL_DISABLED"):

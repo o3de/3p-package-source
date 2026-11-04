@@ -23,15 +23,15 @@ endif()
 # Python_PATHS - Where sys.path should point at to find modules, libraries, etc.
 # Python_Development_FOUND - The platform we are cross compiling for can link to python
 # and a target called 3rdParty::Python that you can use to depend on
-set(PY_BASE_DIR ${CMAKE_CURRENT_LIST_DIR}/python/Python.framework/Versions/3.14)
-set(${MY}_VERSION 3.14.9)
+set(PY_BASE_DIR ${CMAKE_CURRENT_LIST_DIR}/python/Python.framework/Versions/3.15)
+set(${MY}_VERSION 3.15.2)
 set(${MY}_INTERPRETER_ID    "Python")
 set(${MY}_EXECUTABLE        ${PY_BASE_DIR}/bin/python3)
 set(${MY}_HOME              ${PY_BASE_DIR})
 set(${MY}_PATHS             ${PY_BASE_DIR}/lib
-                            ${PY_BASE_DIR}/lib/python3.14
-                            ${PY_BASE_DIR}/lib/python3.14/lib-dynload
-                            ${PY_BASE_DIR}/lib/python3.14/site-packages)
+                            ${PY_BASE_DIR}/lib/python3.15
+                            ${PY_BASE_DIR}/lib/python3.15/lib-dynload
+                            ${PY_BASE_DIR}/lib/python3.15/site-packages)
                        
 # only if we're compiling FOR on one of the available platforms, add the target and libraries:
 if (${PAL_PLATFORM_NAME} STREQUAL "Mac" )

@@ -95,7 +95,7 @@ if [ "$USING_PACKAGE_BUILDER" -eq 0 ]; then
     echo ""
     echo "---------------- Cloning python from git ----------------"
     echo ""
-    git clone https://github.com/python/cpython.git --branch "v3.14.9" --depth 1 "$PYTHON_SRC_DIR"
+    git clone https://github.com/python/cpython.git --branch "v3.15.2" --depth 1 "$PYTHON_SRC_DIR"
     retVal=$?
     if [ $retVal -ne 0 ]; then
         echo "Error cloning python from https://github.com/python/cpython.git"
@@ -185,8 +185,8 @@ cd "$RELOC_SRC_DIR"
 echo ""
 echo "---------------- Altering the produced framework folder to be relocatable ----------------"
 echo ""
-echo "$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --no-unsign --python-version 3.14.9 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework"
-"$VENV_BIN_DIR/python3" ./make_relocatable_python_framework.py --no-unsign --python-version 3.14.9 --use-existing-framework "$FRAMEWORK_OUTPUT_FOLDER/Python.framework"
+echo "$VENV_BIN_DIR/python3 ./make_relocatable_python_framework.py --no-unsign --python-version 3.15.2 --use-existing-framework $FRAMEWORK_OUTPUT_FOLDER/Python.framework"
+"$VENV_BIN_DIR/python3" ./make_relocatable_python_framework.py --no-unsign --python-version 3.15.2 --use-existing-framework "$FRAMEWORK_OUTPUT_FOLDER/Python.framework"
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Could not make python relocatable!"
@@ -197,8 +197,8 @@ echo ""
 echo "---------------- Final RPATH update ----------------"
 echo ""
 # The filename of the main python dylib is 'Python'.
-# It is located at ./package/Python.framework/Versions/3.14 (symlinked to Current).
-# The original rpath "@rpath/Versions/3.14/Python" is incorrect. When the Python.framework
+# It is located at ./package/Python.framework/Versions/3.15 (symlinked to Current).
+# The original rpath "@rpath/Versions/3.15/Python" is incorrect. When the Python.framework
 # is embedded in an app bundle, any executable/shared library linking to it will need to
 # find it in "@rpath/Python.framework/Versions/Current/Python". The executable will have
 # its rpath set to "<bundle_name>.app/Contents/Frameworks".
@@ -206,7 +206,7 @@ echo ""
 # as well as the root of the framework (ie, @loader_path/../../../.. etc), this makes
 # the whole thing work regardless of whether Python is in the same folder as the binary or 
 # whether a python native plugin is being located from the framework in some subfolder.
-install_name_tool -id @rpath/Python.framework/Versions/Current/Python "$FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.14/Python"
+install_name_tool -id @rpath/Python.framework/Versions/Current/Python "$FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.15/Python"
 
 echo ""
 echo "---------------- rsync package layout into $PACKAGE_OUTPUT_DIR ----------------"
@@ -219,7 +219,7 @@ echo "---------------- Copying Open3DEngine package metadata and license file --
 echo ""
 # the tar contains a 'Python.framework' sub folder
 cd "$PACKAGE_OUTPUT_DIR"
-cp "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.14/lib/python3.14/LICENSE.txt" ./LICENSE
+cp "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.15/lib/python3.15/LICENSE.txt" ./LICENSE
 cp "$O3DE_OPENSSL_ROOT/LICENSE.txt" ./LICENSE.OPENSSL
 tar -xOf "$WORK_DIR/downloaded_packages/zstd-1.5.7.tar.gz" zstd-1.5.7/LICENSE > ./LICENSE.ZSTD
 if [ "$USING_PACKAGE_BUILDER" -eq 0 ]; then
@@ -238,11 +238,11 @@ echo ""
     "$PACKAGE_OUTPUT_DIR/Python.framework" \
     --identity -
 
-"$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.14/bin/python3.14" \
+"$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.15/bin/python3.15" \
     -m ensurepip --upgrade --default-pip
 PYTHONPATH="$RELOC_SRC_DIR" "$VENV_BIN_DIR/python3" -c \
     'import sys; from locallibs.fix import fix_other_things; sys.exit(0 if fix_other_things(sys.argv[1], sys.argv[2]) else 1)' \
-    "$PACKAGE_OUTPUT_DIR/Python.framework" 3.14
+    "$PACKAGE_OUTPUT_DIR/Python.framework" 3.15
 
 # A signed framework is a sealed bundle.
 # If Python creates __pycache__ files on first launch,
@@ -250,13 +250,13 @@ PYTHONPATH="$RELOC_SRC_DIR" "$VENV_BIN_DIR/python3" -c \
 # Precompile every optimization level in its own process with checked hashes so normal,
 # -O, and -OO launches leave the framework unchanged.
 for OPTIMIZATION_LEVEL in 0 1 2; do
-    "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.14/bin/python3.14" -m compileall \
+    "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.15/bin/python3.15" -m compileall \
         -q -f \
         --invalidation-mode checked-hash \
         -o "$OPTIMIZATION_LEVEL" \
         -x 'bad_coding|badsyntax' \
         -s "$PACKAGE_OUTPUT_DIR" -p "" \
-        "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.14/lib/python3.14"
+        "$PACKAGE_OUTPUT_DIR/Python.framework/Versions/3.15/lib/python3.15"
 done
 
 echo ""

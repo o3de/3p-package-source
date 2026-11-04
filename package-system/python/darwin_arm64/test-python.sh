@@ -5,4 +5,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
-"$TARGET_INSTALL_ROOT/Python.framework/Versions/3.14/bin/python3" "$(dirname "$0")/../quick_validate_python.py"
+"$TARGET_INSTALL_ROOT/Python.framework/Versions/3.15/bin/python3" "$(dirname "$0")/../quick_validate_python.py"

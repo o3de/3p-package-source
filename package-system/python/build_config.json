@@ -1,8 +1,8 @@
 {
    "git_url":"https://github.com/python/cpython.git",
-   "git_tag":"v3.14.9",
+   "git_tag":"v3.15.2",
    "package_name":"python",
-   "package_version":"3.14.9-rev1",
+   "package_version":"3.15.2-rev1",
    "package_url":"https://python.org",
    "package_license":"PSF-2.0",
    "package_license_file":"LICENSE",
@@ -31,7 +31,7 @@
                 ],
                "custom_build_cmd": [
                     "./build-linux.sh",
-                    "python_3_14_9",
+                    "python_3_15_2",
                     "20.04",
                     "x86_64"
                 ],
@@ -50,7 +50,7 @@
                 ],
                "custom_build_cmd": [
                     "./build-linux.sh",
-                    "python_3_14_9",
+                    "python_3_15_2",
                     "20.04",
                     "aarch64"
                 ],
