@@ -54,7 +54,7 @@ cp "$LIBCLANG_ROOT/lib/libclang.so.20.1.3" "$PACKAGE_BASE/lib/libclang.so.20.1"
 cp "$LIBCLANG_ROOT/include/llvm/Support/LICENSE.TXT" "$PACKAGE_BASE/LICENSE.LIBCLANG.TXT"
 
 echo 'Patching the RPATHS of all site-packages shared libraries to remove absolute paths and set them to $ORIGIN'
-for library in "$PACKAGE_BASE"/lib/python3.14/site-packages/{PySide6,shiboken6}/*.so; do
+for library in "$PACKAGE_BASE"/lib/python3.15/site-packages/{PySide6,shiboken6}/*.so; do
     patchelf --set-rpath '$ORIGIN:$ORIGIN/../../..' "$library"
 done
 
@@ -72,8 +72,8 @@ cp -r $INSTALL_SOURCE/include/shiboken6/* $PACKAGE_BASE/include/shiboken6/
 patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libshiboken6.abi3.so.6.12
 
 # Add additional files needed for pip install
-cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.14/site-packages/
-cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.14/site-packages/
+cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.15/site-packages/
+cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.15/site-packages/
 
 # Copy the share folder
 mkdir -p $PACKAGE_BASE/share

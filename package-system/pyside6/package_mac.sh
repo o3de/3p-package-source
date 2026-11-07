@@ -45,7 +45,7 @@ make_shiboken_relocatable "$PACKAGE_BASE/bin/shiboken6"
 echo Copy the lib folder
 mkdir -p $PACKAGE_BASE/lib
 cp -r $INSTALL_SOURCE/lib/* $PACKAGE_BASE/lib/
-for library in "$PACKAGE_BASE"/lib/python3.14/site-packages/{PySide6,shiboken6}/*.so; do
+for library in "$PACKAGE_BASE"/lib/python3.15/site-packages/{PySide6,shiboken6}/*.so; do
     install_name_tool -add_rpath @loader_path/../../.. "$library"
 done
 cp "$LIBCLANG_ROOT/lib/libclang.dylib" "$PACKAGE_BASE/lib/"
@@ -77,8 +77,8 @@ cp -r $INSTALL_SOURCE/shiboken6_generator/* $PACKAGE_BASE/shiboken6_generator/
 make_shiboken_relocatable "$PACKAGE_BASE/shiboken6_generator/shiboken6"
 
 # Add additional files needed for pip install
-cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.14/site-packages/
-cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.14/site-packages/
+cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.15/site-packages/
+cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.15/site-packages/
 
 # Copy the share folder
 mkdir -p $PACKAGE_BASE/share

@@ -1,3 +1,11 @@
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -8,4 +8,4 @@
+ # 2.2.0 is the last version that supports Python 3.10
+ numpy==2.2.0; python_version == '3.10'
+-numpy==2.4.6; python_version > '3.10'
++numpy==2.5.4; python_version > '3.10'
+ mypy>=1.15.0    # note: 3.13 with disable-gil is not compiled yet
 --- a/build_scripts/build_info_collector.py
 +++ b/build_scripts/build_info_collector.py
 @@ -188,6 +188,9 @@

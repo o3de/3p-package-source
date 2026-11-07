@@ -3,7 +3,7 @@
     "src_package_sha1": "c3bbd6a3e9802219555a0ce75ab8b72a9b667b99",
     "src_package_strip_top_level": true,
     "package_name": "pyside6",
-    "package_version": "6.12.0-py3.14-rev1",
+    "package_version": "6.12.0-py3.15-rev1",
     "package_url": "https://code.qt.io/pyside/pyside-setup.git",
     "package_license": "custom",
     "package_license_file": "LICENSES/LGPL-3.0-only.txt",
@@ -14,7 +14,7 @@
         "Windows": {
             "Windows": {
                 "depends_on_packages": [
-                    ["python-3.14.9-rev1-windows", "2fa922b213cb39654f38777a7d80929f3ca20e668a0941c4c108bcd61af62612", ""],
+                    ["python-3.15.2-rev1-windows", "6a923f3bf90b32f7afb72fe87832388c201db595019a7c7dcf21ebdecd7f5a02", ""],
                     ["qt-6.12.0-rev1-windows", "4df1a82ecb02418fa1a54ce97aec1946dacfbaadffd26ad1b12e3881346f3b7f", ""]
                 ],
                 "additional_download_packages": [
@@ -31,7 +31,7 @@
         "Darwin": {
             "Mac-arm64": {
                 "depends_on_packages": [
-                    ["python-3.14.9-rev1-mac-arm64", "70c6464d4c01ea83bee3ae3be22ef07633bd222df3d3cd734b0bccebd3fbdbca", ""],
+                    ["python-3.15.2-rev1-mac-arm64", "46fddb442ffead5ff1282e02a29f0460122d21948078dba5bd5c06083f22f9bb", ""],
                     ["qt-6.12.0-rev1-mac-arm64", "f3c4426f79afc79bf216404de4e12fb6c2166ca7604a737688e5f7b19e68beef", ""]
                 ],
                 "custom_build_cmd": [
@@ -48,7 +48,7 @@
         "Linux": {
             "Linux": {
                 "depends_on_packages": [
-                    ["python-3.14.9-rev1-linux", "110b92daaf25eebee4853a3596c87134735fc8c014211cb10c87cdb9728167dc", ""],
+                    ["python-3.15.2-rev1-linux", "b531cb8ac9acca947dbf4ecdc1552c3fdc5de3d4477c51f31f65d219e9c01fed", ""],
                     ["qt-6.12.0-rev1-linux", "ea077eddba28edf4c803fac8e9afd4a1113d007d5fa29906e0ac3765867a6f0c", ""]
                 ],
                 "custom_build_cmd": [
@@ -63,7 +63,7 @@
             },
             "Linux-aarch64": {
                 "depends_on_packages": [
-                    ["python-3.14.9-rev1-linux-aarch64", "e83dae16192123537d6c8ace2e04633cd8d96c7af5d4ae7edc2e2d5a60e163e9", ""],
+                    ["python-3.15.2-rev1-linux-aarch64", "19d4e723ba46d1f0e7e7948f43476178fe46ce31c548b9f34ab10bb37f33bb90", ""],
                     ["qt-6.12.0-rev1-linux-aarch64", "d73406e42939bdf4ea7d4ecbdbbcc36dadf1982412b081bd6ce68237ced0c258", ""]
                 ],
                 "custom_build_cmd": [

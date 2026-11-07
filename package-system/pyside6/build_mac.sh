@@ -15,7 +15,7 @@ echo
 echo TEMP_FOLDER=$TEMP_FOLDER
 echo
 
-LOCAL_PYTHON_ROOT=$TEMP_FOLDER/python-3.14.9-rev1-mac-arm64/python/Python.framework/Versions/3.14
+LOCAL_PYTHON_ROOT=$TEMP_FOLDER/python-3.15.2-rev1-mac-arm64/python/Python.framework/Versions/3.15
 
 cd "$TEMP_FOLDER"
 "$LOCAL_PYTHON_ROOT/bin/python3" -m venv --symlinks testenv

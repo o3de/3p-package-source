@@ -25,7 +25,7 @@ set(${MY_NAME}_INCLUDE_DIR ${PYSIDE_BASE_PATH}/include)
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages PySide6)
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
-    ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.14/site-packages PySide6)
+    ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.15/site-packages PySide6)
 endif()
 
 if (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")

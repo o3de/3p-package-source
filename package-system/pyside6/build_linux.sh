@@ -31,7 +31,7 @@ case "$(uname -m)" in
         ;;
 esac
 
-LOCAL_PYTHON_ROOT=$TEMP_FOLDER/python-3.14.9-rev1-$PACKAGE_SUFFIX/python
+LOCAL_PYTHON_ROOT=$TEMP_FOLDER/python-3.15.2-rev1-$PACKAGE_SUFFIX/python
 
 cd "$TEMP_FOLDER"
 "$LOCAL_PYTHON_ROOT/bin/python3" -m venv --symlinks testenv

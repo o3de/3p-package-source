@@ -45,7 +45,7 @@ echo "cd src"
 
 echo Setup Python Virtual ENV
 
-set LOCAL_PYTHON_BIN=%TEMP_FOLDER%\python-3.14.9-rev1-windows\python\python.exe
+set LOCAL_PYTHON_BIN=%TEMP_FOLDER%\python-3.15.2-rev1-windows\python\python.exe
 
 echo Created Python Virtual ENV
 
