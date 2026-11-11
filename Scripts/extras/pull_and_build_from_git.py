@@ -37,7 +37,7 @@ be different by platform, and all are required. The keys are:
 * package_name          : The base name of the package, used for constructing the filename and folder structures
 * package_url           : The package url that will be placed in the PackageInfo.json
 * package_license       : The type of license that will be described in the PackageInfo.json
-* package_license_file  : The name of the source code license file (expected at the root of the source folder pulled from git)
+* package_license_file  : The source-relative path to the package license file
 
 The following keys can exist at the root level or the target-platform level:
 
@@ -48,6 +48,7 @@ The following keys can exist at the root level or the target-platform level:
 
 * src_package_url       : The download URI to retrieve the source package compressed tar from
 * src_package_sha1      : The sha1 fingerprint of the downloaded source package compressed tar for verification
+* src_package_strip_top_level : (optional) Extract a tar source package directly into the source folder by stripping its single top-level directory. Defaults to false.
 
 ** Note: Either both git_url + git_tag/git_commit OR src_package_url + src_package_sha1 must be supplied, but not both
 
@@ -280,6 +281,7 @@ class PackageInfo(object):
         self.git_tag = _get_value("git_tag", required=False)
         self.src_package_url = _get_value("src_package_url", required=False)
         self.src_package_sha1 = _get_value("src_package_sha1", required=False)
+        self.src_package_strip_top_level = _get_value("src_package_strip_top_level", required=False, default=False)
 
         if not self.git_url and not self.src_package_url:
             raise BuildError(f"Either 'git_url' or 'src_package_url' must be provided for the source in the build config.")
@@ -290,6 +292,8 @@ class PackageInfo(object):
             raise BuildError(f"Missing 'git_tag' entry for the git repo  {self.git_url} in the build config.")
         if self.src_package_url and not self.src_package_sha1:
             raise BuildError(f"Missing 'src_package_sha1' entry for the source package at  {self.src_package_url} in the build config.")
+        if type(self.src_package_strip_top_level) is not bool:
+            raise BuildError("Invalid build config. 'src_package_strip_top_level' must be a boolean.")
 
         self.package_version = _get_value("package_version")
         self.patch_file = _get_value("patch_file", required=False)
@@ -664,7 +668,8 @@ class BuildInfo(object):
                                                           src_zip_hash_algorithm="sha1",
                                                           target_folder=self.base_temp_folder)
             extracted_package_path = extract_package(src_package_file=downloaded_package_file,
-                                                     target_folder=self.src_folder.resolve())
+                                                     target_folder=self.src_folder.resolve(),
+                                                     strip_top_level=self.package_info.src_package_strip_top_level)
 
         else:
             raise BuildError(f"Missing both 'git_url' and 'src_package_url' from the build config")
@@ -675,9 +680,11 @@ class BuildInfo(object):
             if not patch_file_path.is_file():
                 raise BuildError(f"Invalid/missing patch file '{patch_file_path}' specified in the build config.")
 
-            if self.package_info.git_url:
+            # Git for Windows provides apply without a separate patch executable on PATH.
+            if self.package_info.git_url or platform.system() == 'Windows':
                 patch_cmd = ['git',
                              'apply',
+                             '--no-index',
                              "--ignore-whitespace",
                              str(patch_file_path.absolute())]
             elif self.package_info.src_package_url:
@@ -1407,4 +1414,3 @@ if __name__ == '__main__':
 
         print(err)
         exit(1)
-

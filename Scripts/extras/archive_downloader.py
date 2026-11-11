@@ -49,8 +49,8 @@ def hash_file(file_path:str, hash_algorithm:str='md5')->str:
     
     # we don't follow symlinks here, this is strictly to check actual packages.
     with open(file_path, 'rb') as afile:
-        buf = afile.read()
-        hasher.update(buf)
+        for chunk in iter(lambda: afile.read(1024 * 1024), b''):
+            hasher.update(chunk)
     hash_result = hasher.hexdigest()
 
     return hash_result
@@ -101,7 +101,40 @@ def download_and_verify(src_url: str, src_zip_hash:str, src_zip_hash_algorithm:s
 
     return str(tgt_filename)
 
-def extract_package(src_package_file: str, target_folder:str):
+def _strip_tar_top_level(tar_file):
+    members = tar_file.getmembers()
+    top_level_names = set()
+
+    for member in members:
+        if not (member_parts := pathlib.PurePosixPath(member.name).parts):
+            continue
+        if member_parts[0] == '/' or '..' in member_parts:
+            raise RuntimeError(f"Archive contains an unsafe path: {member.name}")
+        top_level_names.add(member_parts[0])
+
+    if len(top_level_names) != 1:
+        raise RuntimeError("Archive must contain exactly one top-level directory to strip")
+
+    top_level_name = top_level_names.pop()
+    stripped_members = []
+    for member in members:
+        member_parts = pathlib.PurePosixPath(member.name).parts
+        if len(member_parts) == 1:
+            if not member.isdir():
+                raise RuntimeError(f"Archive top-level entry is not a directory: {member.name}")
+            continue
+
+        member.name = pathlib.PurePosixPath(*member_parts[1:]).as_posix()
+        if member.islnk():
+            link_parts = pathlib.PurePosixPath(member.linkname).parts
+            if link_parts and link_parts[0] == top_level_name:
+                member.linkname = pathlib.PurePosixPath(*link_parts[1:]).as_posix()
+        stripped_members.append(member)
+
+    return stripped_members
+
+
+def extract_package(src_package_file: str, target_folder: str, strip_top_level: bool = False):
 
     src_package_file_path = pathlib.Path(src_package_file)
     target_folder_path = pathlib.Path(target_folder)
@@ -111,19 +144,24 @@ def extract_package(src_package_file: str, target_folder:str):
     
     package_name, package_ext = os.path.splitext(str(src_package_file_path.name))
 
-    destination_path = target_folder_path / package_name
+    destination_path = target_folder_path if strip_top_level else target_folder_path / package_name
 
     print(f"{INDENT}Extracting {src_package_file_path} to {destination_path}")
 
     if package_ext in ARCHIVE_EXTS_ZIP:
+        if strip_top_level:
+            raise RuntimeError("Stripping the top-level directory is not supported for zip archives")
         import zipfile
         with zipfile.ZipFile(str(src_package_file_path.resolve()), 'r') as dep_zip:
             dep_zip.extractall(destination_path)
     elif package_ext in ARCHIVE_EXTS_TAR:
         import tarfile
         with tarfile.open(str(src_package_file_path.resolve())) as tar_file:
-            tarfile.extractall(destination_path)
+            members = _strip_tar_top_level(tar_file) if strip_top_level else None
+            tar_file.extractall(destination_path, members=members)
     elif package_ext in ARCHIVE_EXTS_7ZIP:
+        if strip_top_level:
+            raise RuntimeError("Stripping the top-level directory is not supported for 7Zip archives")
         try:
             os.makedirs(destination_path, exist_ok=True)
             subprocess.call(['7z', 'x', '-y', str(src_package_file_path.resolve())], cwd=destination_path)

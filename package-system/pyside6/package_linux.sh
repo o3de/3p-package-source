@@ -10,10 +10,25 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
+set -euo pipefail
+
 echo TEMP_FOLDER=$TEMP_FOLDER
 echo TARGET_INSTALL_ROOT=$TARGET_INSTALL_ROOT
 
 PACKAGE_BASE=$TARGET_INSTALL_ROOT
+
+case "$(uname -m)" in
+    x86_64)
+        LIBCLANG_PACKAGE=libclang-release_20.1.3-based-linux-Ubuntu22.04-gcc11.4-x86_64
+        ;;
+    aarch64)
+        LIBCLANG_PACKAGE=libclang-release_20.1.3-based-linux-Debian-11.6-gcc10.2-arm64
+        ;;
+    *)
+        echo "Unsupported Linux architecture: $(uname -m)"
+        exit 1
+        ;;
+esac
 
 # Add additional files needed for pip install
 INSTALL_SOURCE=$TEMP_FOLDER/src/build/testenva/install
@@ -26,43 +41,52 @@ echo Copy the bin folder
 mkdir -p $PACKAGE_BASE/bin
 cp -r $INSTALL_SOURCE/bin/* $PACKAGE_BASE/bin
 
-echo Patching shiboken6 to set the rpath to $ORIGIN
-patchelf --set-rpath '$ORIGIN' $PACKAGE_BASE/bin/shiboken6
+echo Patching shiboken6 to use relative library paths
+patchelf --set-rpath '$ORIGIN:$ORIGIN/../lib' $PACKAGE_BASE/bin/shiboken6
 
 echo Copy the lib folder
 mkdir -p $PACKAGE_BASE/lib
 cp -r $INSTALL_SOURCE/lib/* $PACKAGE_BASE/lib/
 
-echo Patching the RPATHS of the all site-packages shared libraries to removve absolute paths and set them to $ORIGIN
-find $PACKAGE_BASE/lib/python3.10/site-packages/PySide6/ -name "*.so*" -exec patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' {} \;
+echo Copy libclang and its license file
+LIBCLANG_ROOT="$TEMP_FOLDER/$LIBCLANG_PACKAGE/libclang"
+cp "$LIBCLANG_ROOT/lib/libclang.so.20.1.3" "$PACKAGE_BASE/lib/libclang.so.20.1"
+cp "$LIBCLANG_ROOT/include/llvm/Support/LICENSE.TXT" "$PACKAGE_BASE/LICENSE.LIBCLANG.TXT"
+
+echo 'Patching the RPATHS of all site-packages shared libraries to remove absolute paths and set them to $ORIGIN'
+for library in "$PACKAGE_BASE"/lib/python3.15/site-packages/{PySide6,shiboken6}/*.so; do
+    patchelf --set-rpath '$ORIGIN:$ORIGIN/../../..' "$library"
+done
 
 echo Make the include folder
 mkdir -p $PACKAGE_BASE/include
 
 echo Copy the PySide6 headers and libraries
 mkdir -p $PACKAGE_BASE/include/PySide6
-cp -r $INSTALL_SOURCE/PySide6/include/* $PACKAGE_BASE/include/PySide6/
-cp $INSTALL_SOURCE/PySide6/libpyside6.abi3.so $PACKAGE_BASE/lib/
-cp $INSTALL_SOURCE/PySide6/libpyside6.abi3.so.6.10 $PACKAGE_BASE/lib/
-patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libpyside6.abi3.so.6.10
-
-cp $INSTALL_SOURCE/PySide6/libpyside6qml.abi3.so $PACKAGE_BASE/lib/
-cp $INSTALL_SOURCE/PySide6/libpyside6qml.abi3.so.6.10 $PACKAGE_BASE/lib/
-patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libpyside6qml.abi3.so.6.10
+cp -r $INSTALL_SOURCE/include/PySide6/* $PACKAGE_BASE/include/PySide6/
+patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libpyside6.abi3.so.6.12
 
 echo Copy the shiboken6 headers and libraries
 mkdir -p $PACKAGE_BASE/include/shiboken6
-cp -r $INSTALL_SOURCE/shiboken6/include/* $PACKAGE_BASE/include/shiboken6/
-cp $INSTALL_SOURCE/shiboken6/libshiboken6.abi3.so $PACKAGE_BASE/lib/
-cp $INSTALL_SOURCE/shiboken6/libshiboken6.abi3.so.6.10 $PACKAGE_BASE/lib/
-patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libshiboken6.abi3.so.6.10
+cp -r $INSTALL_SOURCE/include/shiboken6/* $PACKAGE_BASE/include/shiboken6/
+patchelf --set-rpath '$ORIGIN:$ORIGIN/../shiboken6' $PACKAGE_BASE/lib/libshiboken6.abi3.so.6.12
 
 # Add additional files needed for pip install
-cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.10/site-packages/
-cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.10/site-packages/
+cp $TEMP_FOLDER/../__init__.py $PACKAGE_BASE/lib/python3.15/site-packages/
+cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.15/site-packages/
 
 # Copy the share folder
 mkdir -p $PACKAGE_BASE/share
 cp -r $INSTALL_SOURCE/share/* $PACKAGE_BASE/share/
+
+for binary in "$PACKAGE_BASE/bin/shiboken6" \
+    "$PACKAGE_BASE/lib/libpyside6.abi3.so.6.12" \
+    "$PACKAGE_BASE/lib/libshiboken6.abi3.so.6.12" \
+    "$PACKAGE_BASE"/lib/python3.15/site-packages/{PySide6,shiboken6}/*.so; do
+    if ! readelf --wide --sections "$binary" | grep -E '[.](zdebug_info|debug_info)[[:space:]]' > /dev/null; then
+        echo "Missing debug information: $binary"
+        exit 1
+    fi
+done
 
 exit 0
