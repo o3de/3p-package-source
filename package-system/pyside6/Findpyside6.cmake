@@ -57,8 +57,13 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
         ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside6/share
+        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/pyside6_d${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_BIN_DIR}/pyside6_d${CMAKE_SHARED_LIBRARY_SUFFIX}"
         IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/pyside6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
         IMPORTED_LOCATION "${${MY_NAME}_BIN_DIR}/pyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    )
+    ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES
+        "${${MY_NAME}_BIN_DIR}/pyside6$<IF:$<CONFIG:Debug>,_d,.abi3>.pdb"
     )
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
@@ -105,8 +110,14 @@ ly_target_include_system_directories(TARGET ${MY_NAME}::Tools
 
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${MY_NAME}::Tools PROPERTIES  
+        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/shiboken6_d${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_BIN_DIR}/shiboken6_d${CMAKE_SHARED_LIBRARY_SUFFIX}"
         IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/shiboken6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
         IMPORTED_LOCATION "${${MY_NAME}_BIN_DIR}/shiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    )
+    ly_add_target_files(TARGETS ${MY_NAME}::Tools FILES
+        "${${MY_NAME}_BIN_DIR}/shiboken6$<IF:$<CONFIG:Debug>,_d,.abi3>.pdb"
+        "${${MY_NAME}_BIN_DIR}/shiboken6.pdb"
     )
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
     set_target_properties(${MY_NAME}::Tools PROPERTIES  

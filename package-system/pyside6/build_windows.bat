@@ -72,6 +72,8 @@ call %TEMP_FOLDER%\testenv\Scripts\python.exe setup.py install ^
     --ignore-git ^
     --parallel=8 ^
     --build-type=all ^
+    --relwithdebinfo ^
+    --no-strip ^
     --skip-docs ^
     --log-level=verbose ^
     --limited-api=yes ^
@@ -80,6 +82,28 @@ if %ERRORLEVEL% NEQ 0 (
     echo "Failed to build pyside6 (release)"
     exit /B 1
 )
-exit /B 0
 
-  
+REM Debug Python uses different extension names and import libraries on Windows.
+set LOCAL_PYTHON_DEBUG_BIN=%TEMP_FOLDER%\python-3.15.2-rev1-windows\python\python_d.exe
+if not exist "%LOCAL_PYTHON_DEBUG_BIN%" exit /B 1
+set PYTHONPATH=%TEMP_FOLDER%\testenv\Lib\site-packages
+
+ECHO Building Pyside6 (Debug)
+call "%LOCAL_PYTHON_DEBUG_BIN%" setup.py build ^
+    --qtpaths=%TEMP_FOLDER%\qt-6.12.0-rev1-windows\qt\bin\qtpaths6.exe ^
+    --ignore-git ^
+    --parallel=8 ^
+    --build-type=all ^
+    --debug ^
+    --limited-api=no ^
+    --skip-packaging ^
+    --disable-pyi ^
+    --skip-mypy-test ^
+    --log-level=verbose ^
+    --skip-modules=QmlFeatures,Qml,Quick,PrintSupport,Sql,MultimediaWidgets,Pdf,PdfWidgets,Positioning,Location,NetworkAuth,Nfc,WebEngineQuick,Multimedia,QuickControls2,QuickTest,QuickWidgets,UiToolsPrivate,RemoteObjects,Positioning,Scxml,TextToSpeech,3DCore,3DRender,3DInput,3DLogic,3DAnimation,3DExtras,AxContainer
+if %ERRORLEVEL% NEQ 0 (
+    echo "Failed to build pyside6 (debug)"
+    exit /B 1
+)
+
+exit /B 0

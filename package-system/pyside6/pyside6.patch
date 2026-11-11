@@ -38,3 +38,107 @@
                  FILE_PERMISSIONS
                  OWNER_EXECUTE OWNER_WRITE OWNER_READ
                  GROUP_EXECUTE GROUP_READ
+--- a/build_scripts/main.py
++++ b/build_scripts/main.py
+@@ -627,4 +627,7 @@
+             str(module_src_dir)
+         ]
+-
++
++        if sys.platform == 'win32' and self.debug:
++            cmake_cmd.append("-DPYTHON_EXTENSION_SUFFIX=_d")
++
+         # When cross-compiling we set Python_ROOT_DIR to tell
+--- a/sources/shiboken6/libshiboken/CMakeLists.txt
++++ b/sources/shiboken6/libshiboken/CMakeLists.txt
+@@ -233,6 +233,12 @@
+                             ARCHIVE DESTINATION "${LIB_INSTALL_DIR}"
+                             RUNTIME DESTINATION bin
+                             INCLUDES DESTINATION "include/shiboken6")
++if(MSVC)
++    install(FILES "$<TARGET_PDB_FILE:libshiboken>"
++            DESTINATION "bin"
++            CONFIGURATIONS Debug RelWithDebInfo)
++endif()
++
+ install(EXPORT Shiboken6Targets NAMESPACE Shiboken6::
+         DESTINATION ${LIB_INSTALL_DIR}/cmake/Shiboken6)
+
+--- a/sources/shiboken6/shibokenmodule/CMakeLists.txt
++++ b/sources/shiboken6/shibokenmodule/CMakeLists.txt
+@@ -55,6 +55,11 @@
+ qfp_strip_library("shibokenmodule")
+
+ install(TARGETS shibokenmodule DESTINATION ${PYTHON_SITE_PACKAGES}/shiboken6)
++if(MSVC)
++    install(FILES "$<TARGET_PDB_FILE:shibokenmodule>"
++            DESTINATION "${PYTHON_SITE_PACKAGES}/shiboken6"
++            CONFIGURATIONS Debug RelWithDebInfo)
++endif()
+
+ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/_config.py.in"
+                "${CMAKE_CURRENT_BINARY_DIR}/_config.py" @ONLY)
+--- a/sources/pyside6/libpyside/CMakeLists.txt
++++ b/sources/pyside6/libpyside/CMakeLists.txt
+@@ -212,6 +212,12 @@
+                         RUNTIME DESTINATION bin
+                         INCLUDES DESTINATION "include/PySide6")
+
++if(MSVC)
++    install(FILES "$<TARGET_PDB_FILE:pyside6>"
++            DESTINATION "bin"
++            CONFIGURATIONS Debug RelWithDebInfo)
++endif()
++
+ # wheel installation
+ set_target_properties(pyside6 PROPERTIES
+     VERSION ${PYSIDE_SOVERSION})
+--- a/sources/pyside6/cmake/Macros/PySideModules.cmake
++++ b/sources/pyside6/cmake/Macros/PySideModules.cmake
+@@ -430,3 +430,6 @@
+     append_size_optimization_flags(${module_NAME})
++    if(MSVC)
++        target_compile_options(${module_NAME} PRIVATE /bigobj)
++    endif()
+
+     target_compile_definitions(${module_NAME} PRIVATE -DQT_LEAN_HEADERS=1)
+@@ -510,6 +513,11 @@
+         set(install_destination "${PYTHON_SITE_PACKAGES}/PySide6")
+     endif()
+     install(TARGETS ${module_NAME} ${artifact_type} DESTINATION ${install_destination})
++    if(MSVC)
++        install(FILES "$<TARGET_PDB_FILE:${module_NAME}>"
++                DESTINATION "${install_destination}"
++                CONFIGURATIONS Debug RelWithDebInfo)
++    endif()
+
+
+
+--- a/sources/shiboken6_generator/generator/CMakeLists.txt
++++ b/sources/shiboken6_generator/generator/CMakeLists.txt
+@@ -62,6 +62,12 @@
+ install(TARGETS shiboken6
+         EXPORT "${package_name}Targets"
+         DESTINATION "bin")
++if(MSVC)
++    install(FILES "$<TARGET_PDB_FILE:shiboken6>"
++            DESTINATION "bin"
++            CONFIGURATIONS Debug RelWithDebInfo)
++endif()
++
+ install(EXPORT "${package_name}Targets"
+         NAMESPACE "Shiboken6::"
+         DESTINATION ${LIB_INSTALL_DIR}/cmake/${package_name})
+@@ -71,6 +77,12 @@
+     install(TARGETS shiboken6
+             EXPORT "${package_name}WheelTargets"
+             DESTINATION "shiboken6_generator")
++
++    if(MSVC)
++        install(FILES "$<TARGET_PDB_FILE:shiboken6>"
++                DESTINATION "shiboken6_generator"
++                CONFIGURATIONS Debug RelWithDebInfo)
++    endif()
+
+     install(EXPORT "${package_name}WheelTargets"
+             NAMESPACE "Shiboken6::"

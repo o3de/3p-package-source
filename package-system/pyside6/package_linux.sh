@@ -79,4 +79,14 @@ cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.15/site-packages/
 mkdir -p $PACKAGE_BASE/share
 cp -r $INSTALL_SOURCE/share/* $PACKAGE_BASE/share/
 
+for binary in "$PACKAGE_BASE/bin/shiboken6" \
+    "$PACKAGE_BASE/lib/libpyside6.abi3.so.6.12" \
+    "$PACKAGE_BASE/lib/libshiboken6.abi3.so.6.12" \
+    "$PACKAGE_BASE"/lib/python3.15/site-packages/{PySide6,shiboken6}/*.so; do
+    if ! readelf --wide --sections "$binary" | grep -E '[.](zdebug_info|debug_info)[[:space:]]' > /dev/null; then
+        echo "Missing debug information: $binary"
+        exit 1
+    fi
+done
+
 exit 0

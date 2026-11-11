@@ -3,7 +3,7 @@
     "src_package_sha1": "c3bbd6a3e9802219555a0ce75ab8b72a9b667b99",
     "src_package_strip_top_level": true,
     "package_name": "pyside6",
-    "package_version": "6.12.0-py3.15-rev1",
+    "package_version": "6.12.0-py3.15-rev2",
     "package_url": "https://code.qt.io/pyside/pyside-setup.git",
     "package_license": "custom",
     "package_license_file": "LICENSES/LGPL-3.0-only.txt",

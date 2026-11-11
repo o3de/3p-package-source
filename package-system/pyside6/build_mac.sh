@@ -43,6 +43,8 @@ $TEMP_FOLDER/testenv/bin/python3 setup.py install \
     --ignore-git \
     --parallel=8 \
     --build-type=all \
+    --relwithdebinfo \
+    --no-strip \
     --skip-docs \
     --log-level=verbose \
     --limited-api=yes \

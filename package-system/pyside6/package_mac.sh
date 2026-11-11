@@ -84,4 +84,15 @@ cp $TEMP_FOLDER/../setup.py $PACKAGE_BASE/lib/python3.15/site-packages/
 mkdir -p $PACKAGE_BASE/share
 cp -r $INSTALL_SOURCE/share/* $PACKAGE_BASE/share/
 
+for binary in "$PACKAGE_BASE/bin/shiboken6" \
+    "$PACKAGE_BASE/lib/libpyside6.abi3.6.12.dylib" \
+    "$PACKAGE_BASE/lib/libshiboken6.abi3.6.12.dylib" \
+    "$PACKAGE_BASE/shiboken6_generator/shiboken6" \
+    "$PACKAGE_BASE"/lib/python3.15/site-packages/{PySide6,shiboken6}/*.so; do
+    dsym="$PACKAGE_BASE/symbols/${binary#"$PACKAGE_BASE"/}.dSYM"
+    mkdir -p "$(dirname "$dsym")"
+    dsymutil --verify "$binary" -o "$dsym"
+    dwarfdump --debug-info --recurse-depth=0 "$dsym" | grep DW_TAG_compile_unit > /dev/null
+done
+
 exit 0
