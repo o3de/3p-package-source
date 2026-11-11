@@ -126,7 +126,7 @@ export LIBSQLITE3_LIBS="-L${SQLITE_BASE}/lib -lsqlite3 -lm -ldl -lz -lpthread"
  --enable-optimizations\
  --with-ensurepip=install\
  --enable-shared LDFLAGS='-Wl,-rpath=\$$ORIGIN:\$$ORIGIN/../lib:\$$ORIGIN/../.. -L../ffi_lib/lib -L../zstd_lib/lib'\
- CPPFLAGS='-I../ffi_lib/include -I../zstd_lib/include' CFLAGS='-I../ffi_lib/include -I../zstd_lib/include'
+ CPPFLAGS='-I../ffi_lib/include -I../zstd_lib/include' CFLAGS='-g -I../ffi_lib/include -I../zstd_lib/include'
 if [ $? -ne 0 ]
 then
     echo "'configure' failed for cpython at ${SRC_PATH}"

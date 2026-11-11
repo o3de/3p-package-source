@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # Copyright (c) Contributors to the Open 3D Engine Project.
 # For complete copyright and license terms please see the LICENSE at the root of this distribution.
@@ -181,6 +183,14 @@ fi
 FRAMEWORK_OUTPUT_FOLDER="$WORK_DIR/python_build/_root/Library/Frameworks"
 echo "Framework output folder: $FRAMEWORK_OUTPUT_FOLDER"
 
+# Keep dSYMs outside the framework while relocating and signing its Mach-O files.
+dsymutil --verify "$FRAMEWORK_OUTPUT_FOLDER/Python.framework/Versions/3.15/Resources/Python.app/Contents/MacOS/Python"
+while IFS= read -r -d '' dsym; do
+    destination="$WORK_DIR/symbols/${dsym#"$FRAMEWORK_OUTPUT_FOLDER"/}"
+    mkdir -p "$(dirname "$destination")"
+    mv "$dsym" "$destination"
+done < <(find "$FRAMEWORK_OUTPUT_FOLDER/Python.framework" -type d -name '*.dSYM' -prune -print0)
+
 cd "$RELOC_SRC_DIR"
 echo ""
 echo "---------------- Altering the produced framework folder to be relocatable ----------------"
@@ -213,6 +223,7 @@ echo "---------------- rsync package layout into $PACKAGE_OUTPUT_DIR -----------
 echo ""
 mkdir -p "$PACKAGE_OUTPUT_DIR"
 rsync -avu --delete "$FRAMEWORK_OUTPUT_FOLDER/" "$PACKAGE_OUTPUT_DIR"
+cp -R "$WORK_DIR/symbols" "$PACKAGE_OUTPUT_DIR/"
 
 echo ""
 echo "---------------- Copying Open3DEngine package metadata and license file ----------------"

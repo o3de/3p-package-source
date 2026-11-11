@@ -6,6 +6,16 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
 
+# ELF symbol checks also work when packaging for another architecture.
+for binary in "$TARGET_INSTALL_ROOT/bin/python3" \
+    "$TARGET_INSTALL_ROOT/lib/libpython3.15.so.1.0" \
+    "$TARGET_INSTALL_ROOT"/lib/python3.15/lib-dynload/*.so; do
+    if ! readelf --wide --sections "$binary" | grep -E '[.](zdebug_info|debug_info)[[:space:]]' > /dev/null; then
+        echo "Missing debug information: $binary"
+        exit 1
+    fi
+done
+
 # Only run tests for packages on the same architecture
 TARGET_ARCH=$1
 CURRENT_HOST_ARCH=$(uname -m)

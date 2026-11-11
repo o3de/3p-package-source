@@ -204,7 +204,7 @@ index 5112dd2..374e37c 100755
      print("Running configure...")
      print(" NOTE: --with-mimalloc=no pending resolution of weak linking issues")
 -    runCommand("%s -C --enable-framework --enable-universalsdk=/ "
-+    runCommand("%s -C --enable-framework "
++    runCommand("%s -C --enable-framework --with-dsymutil "
                 "--with-mimalloc=no "
                 "--with-system-libmpdec "
 -               "--with-universal-archs=%s "
@@ -237,6 +237,22 @@ index 5112dd2..374e37c 100755
          shellQuote(WORKDIR)[1:-1],
          shellQuote(WORKDIR)[1:-1]))
  
+@@ -1221,13 +1221,13 @@
+     print("Running " + make_cmd)
+     runCommand(make_cmd)
+
+-    make_cmd = "make install DESTDIR=%s %s"%(
++    make_cmd = "make install STRIPFLAG= DESTDIR=%s %s"%(
+         shellQuote(rootDir),
+         runshared_for_make)
+     print("Running " + make_cmd)
+     runCommand(make_cmd)
+
+-    make_cmd = "make frameworkinstallextras DESTDIR=%s %s"%(
++    make_cmd = "make frameworkinstallextras STRIPFLAG= DESTDIR=%s %s"%(
+         shellQuote(rootDir),
+         runshared_for_make)
+     print("Running " + make_cmd)
 @@ -1728,6 +1781,8 @@ def main():
      # Now build python itself
      buildPython()
@@ -246,3 +262,10 @@ index 5112dd2..374e37c 100755
      # And then build the documentation
      # Remove the Deployment Target from the shell
      # environment, it's no longer needed and
+--- a/Mac/Makefile.in
++++ b/Mac/Makefile.in
+@@ -174,0 +175 @@
++# Keep the object available for dsymutil during installation.
+@@ -176 +177 @@
+-	$(CC) $(LDFLAGS) -DPYTHONFRAMEWORK='"$(PYTHONFRAMEWORK)"' -o $@ \
++	$(CC) $(LDFLAGS) -save-temps=obj -DPYTHONFRAMEWORK='"$(PYTHONFRAMEWORK)"' -o $@ \

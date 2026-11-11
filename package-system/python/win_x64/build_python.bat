@@ -114,6 +114,13 @@ robocopy %ScriptDir% %outputdir% *.cmake PackageInfo.json %ROBOCOPY_OPTIONS%
 robocopy %ScriptDir%.. %outputdir% FindPython.cmake python-config-version.cmake %ROBOCOPY_OPTIONS%
 robocopy %python_src%\PCbuild\amd64 %outputdir%\python Python*.pdb %ROBOCOPY_OPTIONS%
 
+for %%F in ("%outputdir%\python\python*.exe" "%outputdir%\python\python*.dll" "%outputdir%\python\DLLs\*.pyd") do (
+  if not exist "%%~dpnF.pdb" (
+    echo Missing debug information: %%~fF
+    exit /b 1
+  )
+)
+
 cd /d %ScriptDir%
 
 echo clearing temp dir...
