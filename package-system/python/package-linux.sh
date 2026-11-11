@@ -12,9 +12,10 @@ cp -r temp/build/python/lib $TARGET_INSTALL_ROOT
 cp -r temp/build/python/share $TARGET_INSTALL_ROOT
 cp temp/build/python/LICENSE $TARGET_INSTALL_ROOT/
 cp temp/build/python/LICENSE.OPENSSL $TARGET_INSTALL_ROOT/
+cp temp/build/python/LICENSE.ZSTD $TARGET_INSTALL_ROOT/
 
 # Install additional cmake files
-cp linux_x64/python-config-version.cmake $TARGET_INSTALL_ROOT/../
+cp python-config-version.cmake $TARGET_INSTALL_ROOT/../
 cp linux_x64/python-config.cmake $TARGET_INSTALL_ROOT/../
 
 exit 0 

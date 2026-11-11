@@ -7,5 +7,5 @@
 #
 
 # force this into config mode, so that it uses the config files instead of module files.
-set(Python_DIR ${CMAKE_CURRENT_LIST_DIR})
-find_package(Python 3.10.13 REQUIRED CONFIG)
+set(Python_DIR "${CMAKE_CURRENT_LIST_DIR}")
+find_package(Python 3.15.2 REQUIRED CONFIG)
