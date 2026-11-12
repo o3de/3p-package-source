@@ -77,6 +77,7 @@ done
 QT_DEPENDENCY_MODULE_PATH="${TIFF_PACKAGE_ROOT};${ZLIB_PACKAGE_ROOT};${OPENSSL_PACKAGE_ROOT}"
 QT_PLATFORM_OPTS="-skip qtdeclarative \
     -skip qtactiveqt \
+    -no-feature-wayland-server \
     -no-icu \
     -feature-dbus \
     -no-feature-printsupport \

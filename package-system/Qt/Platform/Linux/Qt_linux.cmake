@@ -23,7 +23,7 @@ list(APPEND QT6_COMPONENTS
 )
 
 if(PAL_TRAIT_LINUX_WINDOW_MANAGER_WAYLAND)
-    list(APPEND QT6_COMPONENTS WaylandClient WaylandCompositor)
+    list(APPEND QT6_COMPONENTS WaylandClient)
 endif()
 
 function(ly_qt_configuration_mapping in_config out_config)
