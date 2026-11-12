@@ -37,6 +37,8 @@ set(QT6_COMPONENTS
     Svg
     SvgWidgets
     Test
+    UiPlugin
+    UiTools
     Widgets
     Xml
 )

@@ -7,7 +7,7 @@
     "src_package_sha1": "1c80692d233922156bcd54ac1ec30099d7245f49",
     "src_package_strip_top_level": true,
     "patch_file": "recursion-check.patch",
-    "package_version": "6.12.0-rev2",
+    "package_version": "6.12.0-rev3",
     "cmake_find_source": "FindQt.cmake",
     "cmake_find_target": "FindQt.cmake",
     "Platforms": {
@@ -39,7 +39,7 @@
         },
         "Linux": {
             "Linux": {
-                "package_version": "6.12.0-rev3",
+                "package_version": "6.12.0-rev4",
                 "depends_on_packages": [
                     ["OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", ""],
                     ["tiff-4.2.0.15-rev3-linux", "2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a", ""],
@@ -57,7 +57,7 @@
                 ]
             },
             "Linux-aarch64": {
-                "package_version": "6.12.0-rev3",
+                "package_version": "6.12.0-rev4",
                 "depends_on_packages": [
                     ["OpenSSL-1.1.1t-rev1-linux-aarch64", "f32721bec9c82d1bd7fb244d78d5dc4e2a47e7b808bb36027236ad377e241ea5", ""],
                     ["tiff-4.2.0.15-rev3-linux-aarch64", "429461014b21a530dcad597c2d91072ae39d937a04b7bbbf5c34491c41767f7f", ""],
