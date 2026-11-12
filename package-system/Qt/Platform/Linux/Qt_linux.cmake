@@ -20,8 +20,11 @@ set(QT_NO_PRIVATE_MODULE_WARNING ON)
 list(APPEND QT6_COMPONENTS
     DBus
     GuiPrivate
-    WaylandClient
 )
+
+if(PAL_TRAIT_LINUX_WINDOW_MANAGER_WAYLAND)
+    list(APPEND QT6_COMPONENTS WaylandClient)
+endif()
 
 function(ly_qt_configuration_mapping in_config out_config)
     set(${out_config} RELEASE PARENT_SCOPE)

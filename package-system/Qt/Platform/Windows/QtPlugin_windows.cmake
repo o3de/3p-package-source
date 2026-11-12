@@ -36,4 +36,3 @@ ly_add_target_files(TARGETS 3rdParty::Qt::Widgets::Plugins
     FILES ${QT_PATH}/plugins/styles/qmodernwindowsstyle$<$<CONFIG:debug>:d>.dll
     OUTPUT_SUBDIRECTORY styles
 )
-
