@@ -16,7 +16,7 @@ from setuptools.command.develop import develop
 from setuptools.command.build_py import build_py
 
 if sys.platform == 'win32':
-    # The library folder structure of windows omits the extra 'python3.10' folder level for the site-packages, so we have to
+    # The library folder structure of windows omits the extra 'python3.15' folder level for the site-packages, so we have to
     # adjust to where to read the project root based on this file
     PROJECT_ROOT = pathlib.Path(os.path.dirname(__file__)).parent.parent
 else:
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     setup(
         name="pyside6",
-        version="6.10.2",
+        version="6.12.0",
         description='Pyside6',
         long_description=long_description,
         packages=['PySide6', 'shiboken6'],

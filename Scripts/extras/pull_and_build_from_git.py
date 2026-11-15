@@ -680,9 +680,11 @@ class BuildInfo(object):
             if not patch_file_path.is_file():
                 raise BuildError(f"Invalid/missing patch file '{patch_file_path}' specified in the build config.")
 
-            if self.package_info.git_url:
+            # Git for Windows provides apply without a separate patch executable on PATH.
+            if self.package_info.git_url or platform.system() == 'Windows':
                 patch_cmd = ['git',
                              'apply',
+                             '--no-index',
                              "--ignore-whitespace",
                              str(patch_file_path.absolute())]
             elif self.package_info.src_package_url:

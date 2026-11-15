@@ -1,74 +1,144 @@
-diff --git a/build_scripts/build_info_collector.py b/build_scripts/build_info_collector.py
-index 0c8becf49..61f259387 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -8,4 +8,4 @@
+ # 2.2.0 is the last version that supports Python 3.10
+ numpy==2.2.0; python_version == '3.10'
+-numpy==2.4.6; python_version > '3.10'
++numpy==2.5.4; python_version > '3.10'
+ mypy>=1.15.0    # note: 3.13 with disable-gil is not compiled yet
 --- a/build_scripts/build_info_collector.py
 +++ b/build_scripts/build_info_collector.py
-@@ -202,6 +202,8 @@ class BuildInfoCollectorMixin:
-                 py_scripts_dir = py_prefix / "Scripts"
-             else:
-                 py_scripts_dir = py_prefix / "bin"
-+            if not Path(py_include_dir).exists():
-+                py_include_dir = py_prefix / "include" / f"python{py_version}"
-             self.py_scripts_dir = py_scripts_dir
-         else:
-             # We don't look for an interpreter when cross-compiling.
-diff --git a/build_scripts/options.py b/build_scripts/options.py
-index ba4039e99..3de5b36e7 100644
---- a/build_scripts/options.py
-+++ b/build_scripts/options.py
-@@ -486,6 +486,7 @@ class CommandMixin:
-                                            and not self.qtpaths and self.qt_target_path)):
-             use_cmake = True
+@@ -188,6 +188,9 @@
+             py_version = f"{_major}.{_minor}"
+             py_include_dir = get_config_var("INCLUDEPY")
+             py_libdir = get_config_var("LIBDIR")
++            if sys.platform != "win32":
++                py_include_dir = Path(sys.base_prefix) / "include" / f"python{py_version}"
++                py_libdir = Path(sys.base_prefix) / "lib"
+             # sysconfig.get_config_var('prefix') returned the
+             # virtual environment base directory, but
+             # sysconfig.get_config_var returns the system's prefix.
+--- a/build_scripts/platforms/windows_desktop.py
++++ b/build_scripts/platforms/windows_desktop.py
+@@ -382,6 +382,7 @@
+                     f"{plugins_target}/designer",
+                     _filter=["*.dll"],
+                     recursive=False,
++                    force=False,
+                     _vars=_vars)
  
-+        print(f"qtpaths_abs_path = {qtpaths_abs_path}")
-         QtInfo().setup(qtpaths_abs_path, self.cmake, qmake_abs_path,
-                        self.has_qmake_option,
-                        use_cmake=use_cmake,
-@@ -498,8 +499,8 @@ class CommandMixin:
-             except Exception as e:
-                 if not self.qt_target_path:
-                     log.error(
--                        "Could not find Qt. You can pass the --qt-target-path=<qt-dir> option "
--                        "as a hint where to find Qt.\n")
-+                        f"Could not find Qt. You can pass the --qt-target-path=<qt-dir> option "
-+                        f"as a hint where to find Qt. {e}\n")
-                 else:
-                     log.error("Could not find Qt via provided option "
-                               f"--qt-target-path={qt_target_path}\n")
-diff --git a/sources/pyside6/cmake/PySideHelpers.cmake b/sources/pyside6/cmake/PySideHelpers.cmake
-index 9891eab3f..b210c41ab 100644
---- a/sources/pyside6/cmake/PySideHelpers.cmake
-+++ b/sources/pyside6/cmake/PySideHelpers.cmake
-@@ -132,7 +132,7 @@ macro(collect_optional_modules)
-     endif()
-     list(APPEND ALL_OPTIONAL_MODULES WebChannel WebEngineCore WebEngineWidgets
-          WebEngineQuick WebSockets HttpServer)
--    find_package(Qt${QT_MAJOR_VERSION}WebEngineQuick)
-+    # find_package(Qt${QT_MAJOR_VERSION}WebEngineQuick)
-     # For Windows and Linux, QtWebView depends on QtWebEngine to render content.
-     # On Android and Apple platforms, QtWebView uses the native webview backend and
-     # does not require QtWebEngine.
-diff --git a/sources/pyside6/cmake/PySideSetup.cmake b/sources/pyside6/cmake/PySideSetup.cmake
-index 72d6a1ccf..af767d76c 100644
---- a/sources/pyside6/cmake/PySideSetup.cmake
-+++ b/sources/pyside6/cmake/PySideSetup.cmake
-@@ -215,7 +215,7 @@ endforeach()
- find_package(Qt6 COMPONENTS Qml)
- 
- # Whether to add libpysideremoteobjects
--find_package(Qt6 COMPONENTS RemoteObjects)
-+#find_package(Qt6 COMPONENTS RemoteObjects)
- 
- string(REGEX MATCHALL "[0-9]+" qt_version_helper "${Qt${QT_MAJOR_VERSION}Core_VERSION}")
- 
-diff --git a/sources/shiboken6/cmake/ShibokenHelpers.cmake b/sources/shiboken6/cmake/ShibokenHelpers.cmake
-index 0e993fadb..f32b4da8c 100644
---- a/sources/shiboken6/cmake/ShibokenHelpers.cmake
-+++ b/sources/shiboken6/cmake/ShibokenHelpers.cmake
-@@ -191,7 +191,6 @@ macro(setup_clang)
-         list(PREPEND CMAKE_PREFIX_PATH "$ENV{CLANG_INSTALL_DIR}")
-         list(PREPEND CMAKE_FIND_ROOT_PATH "$ENV{CLANG_INSTALL_DIR}")
-     endif()
+     if copy_translations:
+--- a/sources/pyside-tools/CMakeLists.txt
++++ b/sources/pyside-tools/CMakeLists.txt
+@@ -83,6 +83,7 @@
+     foreach(directory ${directories})
+         install(DIRECTORY "${directory}"
+                 DESTINATION bin
++                OPTIONAL
+                 FILE_PERMISSIONS
+                 OWNER_EXECUTE OWNER_WRITE OWNER_READ
+                 GROUP_EXECUTE GROUP_READ
+--- a/build_scripts/main.py
++++ b/build_scripts/main.py
+@@ -627,4 +627,7 @@
+             str(module_src_dir)
+         ]
 -
-     find_package(Clang CONFIG REQUIRED)
-     # Need to explicitly handle the version check, because the Clang package doesn't.
-     set(REQUIRED_LLVM "18.0")
++
++        if sys.platform == 'win32' and self.debug:
++            cmake_cmd.append("-DPYTHON_EXTENSION_SUFFIX=_d")
++
+         # When cross-compiling we set Python_ROOT_DIR to tell
+--- a/sources/shiboken6/libshiboken/CMakeLists.txt
++++ b/sources/shiboken6/libshiboken/CMakeLists.txt
+@@ -233,6 +233,12 @@
+                             ARCHIVE DESTINATION "${LIB_INSTALL_DIR}"
+                             RUNTIME DESTINATION bin
+                             INCLUDES DESTINATION "include/shiboken6")
++if(MSVC)
++    install(FILES "$<TARGET_PDB_FILE:libshiboken>"
++            DESTINATION "bin"
++            CONFIGURATIONS Debug RelWithDebInfo)
++endif()
++
+ install(EXPORT Shiboken6Targets NAMESPACE Shiboken6::
+         DESTINATION ${LIB_INSTALL_DIR}/cmake/Shiboken6)
+
+--- a/sources/shiboken6/shibokenmodule/CMakeLists.txt
++++ b/sources/shiboken6/shibokenmodule/CMakeLists.txt
+@@ -55,6 +55,11 @@
+ qfp_strip_library("shibokenmodule")
+
+ install(TARGETS shibokenmodule DESTINATION ${PYTHON_SITE_PACKAGES}/shiboken6)
++if(MSVC)
++    install(FILES "$<TARGET_PDB_FILE:shibokenmodule>"
++            DESTINATION "${PYTHON_SITE_PACKAGES}/shiboken6"
++            CONFIGURATIONS Debug RelWithDebInfo)
++endif()
+
+ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/_config.py.in"
+                "${CMAKE_CURRENT_BINARY_DIR}/_config.py" @ONLY)
+--- a/sources/pyside6/libpyside/CMakeLists.txt
++++ b/sources/pyside6/libpyside/CMakeLists.txt
+@@ -212,6 +212,12 @@
+                         RUNTIME DESTINATION bin
+                         INCLUDES DESTINATION "include/PySide6")
+
++if(MSVC)
++    install(FILES "$<TARGET_PDB_FILE:pyside6>"
++            DESTINATION "bin"
++            CONFIGURATIONS Debug RelWithDebInfo)
++endif()
++
+ # wheel installation
+ set_target_properties(pyside6 PROPERTIES
+     VERSION ${PYSIDE_SOVERSION})
+--- a/sources/pyside6/cmake/Macros/PySideModules.cmake
++++ b/sources/pyside6/cmake/Macros/PySideModules.cmake
+@@ -430,3 +430,6 @@
+     append_size_optimization_flags(${module_NAME})
++    if(MSVC)
++        target_compile_options(${module_NAME} PRIVATE /bigobj)
++    endif()
+
+     target_compile_definitions(${module_NAME} PRIVATE -DQT_LEAN_HEADERS=1)
+@@ -510,6 +513,11 @@
+         set(install_destination "${PYTHON_SITE_PACKAGES}/PySide6")
+     endif()
+     install(TARGETS ${module_NAME} ${artifact_type} DESTINATION ${install_destination})
++    if(MSVC)
++        install(FILES "$<TARGET_PDB_FILE:${module_NAME}>"
++                DESTINATION "${install_destination}"
++                CONFIGURATIONS Debug RelWithDebInfo)
++    endif()
+
+
+
+--- a/sources/shiboken6_generator/generator/CMakeLists.txt
++++ b/sources/shiboken6_generator/generator/CMakeLists.txt
+@@ -62,6 +62,12 @@
+ install(TARGETS shiboken6
+         EXPORT "${package_name}Targets"
+         DESTINATION "bin")
++if(MSVC)
++    install(FILES "$<TARGET_PDB_FILE:shiboken6>"
++            DESTINATION "bin"
++            CONFIGURATIONS Debug RelWithDebInfo)
++endif()
++
+ install(EXPORT "${package_name}Targets"
+         NAMESPACE "Shiboken6::"
+         DESTINATION ${LIB_INSTALL_DIR}/cmake/${package_name})
+@@ -71,6 +77,12 @@
+     install(TARGETS shiboken6
+             EXPORT "${package_name}WheelTargets"
+             DESTINATION "shiboken6_generator")
++
++    if(MSVC)
++        install(FILES "$<TARGET_PDB_FILE:shiboken6>"
++                DESTINATION "shiboken6_generator"
++                CONFIGURATIONS Debug RelWithDebInfo)
++    endif()
+
+     install(EXPORT "${package_name}WheelTargets"
+             NAMESPACE "Shiboken6::"

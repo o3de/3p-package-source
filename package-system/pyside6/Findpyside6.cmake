@@ -25,7 +25,7 @@ set(${MY_NAME}_INCLUDE_DIR ${PYSIDE_BASE_PATH}/include)
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     ly_pip_install_local_package_editable(${${MY_NAME}_LIB_DIR}/site-packages PySide6)
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
-    ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.10/site-packages PySide6)
+    ly_pip_install_local_package_editable(${PYSIDE_BASE_PATH}/lib/python3.15/site-packages PySide6)
 endif()
 
 if (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
@@ -47,7 +47,6 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtNetwork
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtOpenGL
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtOpenGLWidgets
-        ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSql
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSvg
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtSvgWidgets
         ${${MY_NAME}_INCLUDE_DIR}/PySide6/QtUiTools
@@ -58,8 +57,13 @@ ly_target_include_system_directories(TARGET ${TARGET_WITH_NAMESPACE}
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
         ${MY_NAME}_SHARE_DIR ${CMAKE_CURRENT_LIST_DIR}/pyside6/share
+        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/pyside6_d${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_BIN_DIR}/pyside6_d${CMAKE_SHARED_LIBRARY_SUFFIX}"
         IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/pyside6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
         IMPORTED_LOCATION "${${MY_NAME}_BIN_DIR}/pyside6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    )
+    ly_add_target_files(TARGETS ${TARGET_WITH_NAMESPACE} FILES
+        "${${MY_NAME}_BIN_DIR}/pyside6$<IF:$<CONFIG:Debug>,_d,.abi3>.pdb"
     )
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
     set_target_properties(${TARGET_WITH_NAMESPACE} PROPERTIES 
@@ -82,6 +86,14 @@ if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set(${MY_NAME}_TOOLS_DEPENDENCIES
         ${${MY_NAME}_BIN_DIR}/libclang.dll
     )
+elseif (PAL_PLATFORM_NAME STREQUAL "Mac")
+    set(${MY_NAME}_TOOLS_DEPENDENCIES
+        ${${MY_NAME}_LIB_DIR}/libclang.dylib
+    )
+elseif (PAL_PLATFORM_NAME STREQUAL "Linux")
+    set(${MY_NAME}_TOOLS_DEPENDENCIES
+        ${${MY_NAME}_LIB_DIR}/libclang.so.20.1
+    )
 endif()
 
 add_library(${MY_NAME}::Tools SHARED IMPORTED GLOBAL)
@@ -98,8 +110,14 @@ ly_target_include_system_directories(TARGET ${MY_NAME}::Tools
 
 if (PAL_PLATFORM_NAME STREQUAL "Windows")
     set_target_properties(${MY_NAME}::Tools PROPERTIES  
+        IMPORTED_IMPLIB_DEBUG "${${MY_NAME}_LIB_DIR}/shiboken6_d${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${${MY_NAME}_BIN_DIR}/shiboken6_d${CMAKE_SHARED_LIBRARY_SUFFIX}"
         IMPORTED_IMPLIB "${${MY_NAME}_LIB_DIR}/shiboken6.abi3${CMAKE_STATIC_LIBRARY_SUFFIX}"
         IMPORTED_LOCATION "${${MY_NAME}_BIN_DIR}/shiboken6.abi3${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    )
+    ly_add_target_files(TARGETS ${MY_NAME}::Tools FILES
+        "${${MY_NAME}_BIN_DIR}/shiboken6$<IF:$<CONFIG:Debug>,_d,.abi3>.pdb"
+        "${${MY_NAME}_BIN_DIR}/shiboken6.pdb"
     )
 elseif (PAL_PLATFORM_NAME STREQUAL "Linux" OR PAL_PLATFORM_NAME STREQUAL "Mac")
     set_target_properties(${MY_NAME}::Tools PROPERTIES  
