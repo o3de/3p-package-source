@@ -1,6 +1,0 @@
-{
-    "PackageName": "xxhash-0.7.4-rev1-multiplatform",
-    "URL": "https://github.com/Cyan4973/xxHash",
-    "License": "BSD-2-Clause",
-    "LicenseFile": "xxhash/include/xxhash/LICENSE.txt"
-}

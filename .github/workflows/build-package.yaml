@@ -31,7 +31,7 @@ jobs:
 
         declare -A PACKAGES_JSON
         declare -A DOCKERFILE
-        
+
         for FILE in $CHANGED_FILES; do
           if [[ $FILE == package_build_list_host_* ]]; then
             echo "Checking file $FILE"
@@ -43,17 +43,29 @@ jobs:
             DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} \
                   --no-ext-diff --unified=0 \
                   -a --no-prefix -- "$FILE")
-            DIFF=$(printf '%s\n' "$DIFF" | awk '/^[+][^+]/')
-            
+            # Ignore unchanged entries when only the trailing comma changes.
+            DIFF=$(printf '%s\n' "$DIFF" | awk '
+              { sub(/\r$/, "") }
+              /^-[^-]/ { removed[substr($0, 2)] = 1 }
+              /^[+][^+]/ { added[++count] = $0 }
+              END {
+                for (i = 1; i <= count; i++) {
+                  line = substr(added[i], 2)
+                  sub(/,$/, "", line)
+                  if (!(line in removed) && !((line ",") in removed))
+                    print added[i]
+                }
+              }')
+
             # Use an associative array to track which packages we've already processed
             declare -A PROCESSED_PACKAGES
-            
+
             # Then, iterate over the lines
             IFS=$'\n' # Process each line in the package build file
             for LINE in $DIFF; do
               unset IFS # Reset IFS to avoid word splitting
               PACKAGE=$(echo $LINE | cut -d'"' -f2)
-              
+
               # Skip if we've already processed this package
               if [[ -n "${PROCESSED_PACKAGES[$PACKAGE]}" ]]; then
                 continue
@@ -85,9 +97,9 @@ jobs:
                 PACKAGE_OS="windows-2022" # Default
                 echo "OS Image selected for $PACKAGE: $PACKAGE_OS (default)"
               fi
-              
+
               PACKAGES_JSON["$PACKAGE"]="{\"package\": \"$PACKAGE\", \"os\": \"$PACKAGE_OS\", \"dockerfile\": \"$DOCKER\"}"
-              
+
               # Mark as processed
               PROCESSED_PACKAGES[$PACKAGE]=1
             done
@@ -112,6 +124,7 @@ jobs:
         echo "matrix=$( echo "$JSON" )" >> $GITHUB_OUTPUT
 
   validate-changes:
+    if: needs.detect-changes.outputs.matrix != '{"include":[]}'
     name: Check changes for issues
     needs: detect-changes
     strategy:
@@ -143,6 +156,7 @@ jobs:
         options: -r
 
   build-on-specific-os:
+    if: needs.detect-changes.outputs.matrix != '{"include":[]}'
     name: Build on "${{ matrix.os }}" for "${{ matrix.package }}"
     needs: [detect-changes, validate-changes]
     strategy:
@@ -336,6 +350,7 @@ jobs:
         path: source/packages/*
 
   validate-packages:
+    if: needs.detect-changes.outputs.matrix != '{"include":[]}'
     name: Validating ${{ matrix.package }}
     needs: [detect-changes, build-on-specific-os]
     runs-on: 'ubuntu-latest'
