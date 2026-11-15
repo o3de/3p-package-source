@@ -20,8 +20,8 @@ endif()
 
 # Force-set QtCore's version here to ensure CMake detects Qt's existence and allows AUTOMOC to work
 set(Qt6Core_VERSION_MAJOR "6" CACHE STRING "Qt's major version" FORCE)
-set(Qt6Core_VERSION_MINOR "10" CACHE STRING "Qt's minor version" FORCE)
-set(Qt6Core_VERSION_PATCH "2" CACHE STRING "Qt's patch version" FORCE)
+set(Qt6Core_VERSION_MINOR "12" CACHE STRING "Qt's minor version" FORCE)
+set(Qt6Core_VERSION_PATCH "0" CACHE STRING "Qt's patch version" FORCE)
 mark_as_advanced(Qt6Core_VERSION_MAJOR)
 mark_as_advanced(Qt6Core_VERSION_MINOR)
 mark_as_advanced(Qt6Core_VERSION_PATCH)
@@ -37,6 +37,8 @@ set(QT6_COMPONENTS
     Svg
     SvgWidgets
     Test
+    UiPlugin
+    UiTools
     Widgets
     Xml
 )
@@ -98,7 +100,7 @@ foreach(component ${QT6_COMPONENTS})
         add_library(3rdParty::Qt::${component} ALIAS Qt6::${component})
         mark_as_advanced(Qt6${component}_DIR) # Hiding from GUI
 
-        # Qt only has debug and release, we map the configurations we use in o3de. We map all the configurations 
+        # Qt only has debug and release, we map the configurations we use in o3de. We map all the configurations
         # except debug to release
         foreach(conf IN LISTS CMAKE_CONFIGURATION_TYPES)
             string(TOUPPER ${conf} UCONF)

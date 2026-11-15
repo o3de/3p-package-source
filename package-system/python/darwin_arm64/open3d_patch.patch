@@ -12,24 +12,10 @@ index 64593a2..0162761 100644
  
  def ensure_pip(framework_path, version):
 diff --git a/locallibs/relocatablizer.py b/locallibs/relocatablizer.py
-index 6968564..4057558 100644
+index 6968564..222efce 100644
 --- a/locallibs/relocatablizer.py
 +++ b/locallibs/relocatablizer.py
-@@ -29,8 +29,11 @@ FILETOOL = "/usr/bin/file"
- 
- def run(cmd):
-     """Prints and executes cmd"""
--    print(" ".join(cmd))
--    subprocess.check_call(cmd)
-+    try:
-+        print(" ".join(cmd))
-+        subprocess.check_call(cmd)
-+    except Exception as e:
-+        print(f"Warning: '{cmd}' failed ('{e}'), but we will continue")
- 
- 
- def fix_modes(framework_dir):
-@@ -92,6 +95,19 @@ def fix_dep(some_file, old_install_name, new_install_name):
+@@ -92,6 +92,19 @@ def fix_dep(some_file, old_install_name, new_install_name):
      ]
      run(cmd)
  
@@ -82,3 +68,25 @@ index f3767a3..bb49acb 100755
  
      if framework_path:
          files_relocatablized = relocatablize(framework_path)
+@@ -94,13 +103,14 @@ def main():
+         if options.unsign:
+             fix_broken_signatures(files_relocatablized)
+         short_version = ".".join(options.python_version.split(".")[0:2])
+-        install_extras(
+-            framework_path,
+-            version=short_version,
+-            requirements_file=options.pip_requirements,
+-            install_wheel=options.install_wheel,
+-            upgrade_pip=options.upgrade_pip,
+-        )
++        if not options.use_existing_framework:
++            install_extras(
++                framework_path,
++                version=short_version,
++                requirements_file=options.pip_requirements,
++                install_wheel=options.install_wheel,
++                upgrade_pip=options.upgrade_pip,
++            )
+         if fix_other_things(framework_path, short_version):
+             print()
+             print("Done!")
