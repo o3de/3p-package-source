@@ -9,7 +9,7 @@
 ARG INPUT_ARCHITECTURE=amd64
 
 # The root to base the docker script base from
-ARG INPUT_IMAGE=ubuntu:20.04
+ARG INPUT_IMAGE=ubuntu:22.04
 
 # The build subfolder where the final artifacts are built in this container which will be used to copy the results out of
 ARG INPUT_BUILD_FOLDER=build
@@ -52,9 +52,10 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y autoconf \
                        libtool \
                        python3-dev \
                        python3 \
-                       tcl8.6-dev \
-                       tk8.6-dev \
+                       tcl-dev \
+                       tk-dev \
                        texinfo \
+                       uuid-dev \
                        curl
 
 # Prevent the copying of the src folder from being cached
