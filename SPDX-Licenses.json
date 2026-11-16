@@ -18,52 +18,10 @@
         "LicenseFile": "python/LICENSE.txt"
     },
     {
-        "PackageName": "assimp-5.0.1-rev12-windows",
-        "URL": "https://github.com/assimp/assimp",
-        "License": "BSD-3-Clause",
-        "LicenseFile": "assimp/LICENSE"
-    },
-    {
-        "PackageName": "astc-encoder-3.2-rev2-windows",
-        "URL": "https://github.com/ARM-software/astc-encoder",
-        "License": "Apache-2.0",
-        "LicenseFile": "astc-encoder/LICENSE.txt"
-    },
-    {
-        "PackageName": "AWSGameLiftServerSDK-3.4.1-rev1-windows",
-        "URL": "https://aws.amazon.com/documentation/gamelift/",
-        "License": "Apache-2.0",
-        "LicenseFile": "AWSGameLiftServerSDK/LICENSE_AMAZON_GAMELIFT_SDK.TXT"
-    },
-    {
-        "PackageName": "AWSNativeSDK-1.9.50-rev2-windows",
-        "URL": "https://github.com/aws/aws-sdk-cpp",
-        "License": "Apache-2.0",
-        "LicenseFile": "AWSNativeSDK/LICENSE"
-    },
-    {
-        "PackageName": "azslc-1.7.34-rev1-windows",
-        "URL": "https://github.com/o3de/o3de-azslc",
-        "License": "CUSTOM",
-        "LicenseFile": "azslc/LICENSE.txt"
-    },
-    {
         "PackageName": "Blast-v1.1.7_rc2-9-geb169fe-rev2-windows",
         "URL": "https://github.com/NVIDIAGameWorks/Blast",
         "License": "custom",
         "LicenseFile": "Blast/license.txt"
-    },
-    {
-        "PackageName": "cityhash-1.1-multiplatform",
-        "URL": "http://code.google.com/p/cityhash/",
-        "License": "MIT",
-        "LicenseFile": "cityhash/COPYING"
-    },
-    {
-        "PackageName": "civetweb-1.8-rev1-windows",
-        "URL": "https://github.com/civetweb/civetweb",
-        "License": "custom",
-        "LicenseFile": "civetweb/LICENSE.md"
     },
     {
         "PackageName": "Crashpad-0.8.0-rev2-windows",
@@ -96,18 +54,6 @@
         "LicenseFile": "freetype/FTL.TXT"
     },
     {
-        "PackageName": "googlebenchmark-1.7.0-rev1-windows",
-        "URL": "https://github.com/google/benchmark",
-        "License": "Apache-2.0",
-        "LicenseFile": "googlebenchmark/LICENSE"
-    },
-    {
-        "PackageName": "googletest-1.8.1-rev4-windows",
-        "URL": "https://github.com/google/googletest",
-        "License": "custom",
-        "LicenseFile": "googletest/LICENSE"
-    },
-    {
         "PackageName": "ISPCTexComp-36b80aa-rev1-windows",
         "URL": "https://github.com/GameTechDev/ISPCTextureCompressor",
         "License": "MIT",
@@ -118,66 +64,6 @@
         "URL": "http://www.libpng.org/",
         "License": "libpng-2.0",
         "LicenseFile": "libpng/LICENSE"
-    },
-    {
-        "PackageName": "libsamplerate-0.2.1-rev2-windows",
-        "URL": "http://libsndfile.github.io/libsamplerate/",
-        "License": "BSD-2-Clause",
-        "LicenseFile": "libsamplerate/COPYING"
-    },
-    {
-        "PackageName": "Lua-5.4.4-rev1-windows",
-        "URL": "https://github.com/lua/lua",
-        "License": "MIT",
-        "LicenseFile": "Lua/LICENSE.txt"
-    },
-    {
-        "PackageName": "Lua-5.4.4-rev1-linux",
-        "URL": "https://github.com/lua/lua",
-        "License": "MIT",
-        "LicenseFile": "Lua/LICENSE.txt"
-    },
-    {
-        "PackageName": "Lua-5.4.4-rev1-android",
-        "URL": "https://github.com/lua/lua",
-        "License": "MIT",
-        "LicenseFile": "Lua/LICENSE.txt"
-    },
-    {
-        "PackageName": "Lua-5.4.4-rev1-ios",
-        "URL": "https://github.com/lua/lua",
-        "License": "MIT",
-        "LicenseFile": "Lua/LICENSE.txt"
-    },
-    {
-        "PackageName": "Lua-5.4.4-rev1-mac",
-        "URL": "https://github.com/lua/lua",
-        "License": "MIT",
-        "LicenseFile": "Lua/LICENSE.txt"
-    },
-    {
-        "PackageName": "lz4-1.9.3-vcpkg-rev4-windows",
-        "URL": "https://github.com/lz4/lz4",
-        "License": "BSD-2-Clause",
-        "LicenseFile": "lz4/LICENSE"
-    },
-    {
-        "PackageName": "mcpp-2.7.2_az.2-rev1-windows",
-        "URL": "https://sourceforge.net/projects/mcpp/files/mcpp/V.2.7.2",
-        "License": "custom",
-        "LicenseFile": "mcpp/LICENSE"
-    },
-    {
-        "PackageName": "md5-2.0-multiplatform",
-        "URL": "https://www.fourmilab.ch/md5/",
-        "License": "Public domain",
-        "LicenseFile": "md5/rfc1321.txt"
-    },
-    {
-        "PackageName": "mikkelsen-1.0.0.4-windows",
-        "URL": "https://github.com/mmikk/MikkTSpace",
-        "License": "mikkelsen",
-        "LicenseFile": "LICENSE.txt"
     },
     {
         "PackageName": "NvCloth-v1.1.6-4-gd243404-pr58-rev1-windows",
@@ -210,40 +96,10 @@
         "LicenseFile": "LICENSE.md"
     },
     {
-        "PackageName": "OpenMesh-8.1-rev3-windows",
-        "URL": "https://www.graphics.rwth-aachen.de/software/openmesh/",
-        "License": "BSD-3-Clause",
-        "LicenseFile": "OpenMesh/LICENSE"
-    },
-    {
         "PackageName": "OpenSSL-1.1.1b-rev2-windows",
         "URL": "https://github.com/openssl/openssl",
         "License": "OpenSSL",
         "LicenseFile": "OpenSSL/LICENSE"
-    },
-    {
-        "PackageName": "PhysX-4.1.2.29882248-rev5-windows",
-        "URL": "https://github.com/NVIDIAGameWorks/PhysX",
-        "License": "BSD-3-Clause",
-        "LicenseFile": "PhysX/LICENSE.md"
-    },
-    {
-        "PackageName": "poly2tri-7f0487a-rev1-windows",
-        "URL": "https://github.com/jhasse/poly2tri",
-        "License": "BSD-3-Clause",
-        "LicenseFile": "poly2tri/LICENSE"
-    },
-    {
-        "PackageName": "pybind11-2.4.3-rev3-multiplatform",
-        "URL": "https://github.com/pybind/pybind11",
-        "License": "BSD-3-Clause",
-        "LicenseFile": "pybind11/LICENSE"
-    },
-    {
-        "PackageName": "pyside2-qt-5.15.1-rev2-windows",
-        "URL": "https://download.qt.io/official_releases/QtForPython/pyside2",
-        "License": "custom",
-        "LicenseFile": "pyside2/LICENSES.txt"
     },
     {
         "PackageName": "qt-5.15.2-rev4-windows",
@@ -252,34 +108,10 @@
         "LicenseFile": "qt/LICENSE"
     },
     {
-        "PackageName": "RapidJSON-1.1.0-rev1-multiplatform",
-        "URL": "https://rapidjson.org",
-        "License": "MIT",
-        "LicenseFile": "RapidJSON/license.txt"
-    },
-    {
-        "PackageName": "RapidXML-1.13-rev1-multiplatform",
-        "URL": "http://rapidxml.sourceforge.net/",
-        "License": "MIT",
-        "LicenseFile": "RapidXML/include/rapidxml/license.txt"
-    },
-    {
-        "PackageName": "SPIRVCross-2021.04.29-rev1-windows",
-        "URL": "https://github.com/aws-lumberyard/SPIRV-Cross",
-        "License": "Apache-2.0",
-        "LicenseFile": "SPIRVCross/LICENSE"
-    },
-    {
         "PackageName": "SQLite-3.37.2-rev1-windows",
         "URL": "https://www.sqlite.org",
         "License": "CUSTOM",
         "LicenseFile": "SQLite/copyright.txt"
-    },
-    {
-        "PackageName": "squish-ccr-deb557d-rev1-windows",
-        "URL": "http://sjbrown.co.uk/2006/01/19/dxt-compression-techniques/",
-        "License": "MIT",
-        "LicenseFile": "squish-ccr/LICENSE.txt"
     },
     {
         "PackageName": "tiff-4.2.0.15-rev3-windows",
@@ -288,21 +120,9 @@
         "LicenseFile": "tiff/COPYRIGHT"
     },
     {
-        "PackageName": "xxhash-0.7.4-rev1-multiplatform",
-        "URL": "https://github.com/Cyan4973/xxHash",
-        "License": "BSD 2-Clause",
-        "LicenseFile": "xxhash/include/xxhash/LICENSE.txt"
-    },
-    {
         "PackageName": "zlib-1.2.11-rev5-windows",
         "URL": "https://zlib.net",
         "License": "Zlib",
         "LicenseFile": "zlib/LICENSE"
-    },
-    {
-        "PackageName": "zstd-1.35-multiplatform",
-        "URL": "http://www.zstd.net/",
-        "License": "BSD",
-        "LicenseFile": "zstd/LICENSE"
     }
 ]

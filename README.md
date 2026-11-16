@@ -4,6 +4,8 @@ This is the repository that manages the rules and definitions for the pre-built 
 
 This repository contains the scripts, configurations, and custom tools that will package an O3DE 3rd Party package (refer to [Structure of a package](https://github.com/o3de/3p-package-scripts/blob/main/README.md#structure-of-a-package---authoring-side) for detailed information).
 
+Before retiring a package, check both engine consumers and the dependencies of the remaining package recipes. OpenImageIO/OpenColorIO still needs zlib, OpenEXR, TIFF, PNG, expat, and FreeType packages. Qt also needs TIFF and zlib, and Python needs SQLite and OpenSSL on Linux. These recipes remain necessary even where the engine builds its own copy from source.
+
 # Authoring a 3rd Party package
 When deciding how to bring in a 3rd Party library into O3DE, there are different factors you need to consider:
 
@@ -65,10 +67,10 @@ The script is typically invoked from a `build_from_source` entry in the package 
 4. Copies the built artifacts and headers to the output folder
 5. Generates a valid package image with PackageInfo.json and license file
 
-### Example: Lua Package
-The Lua package is a good reference implementation. It uses `pull_and_build_from_git.py` to:
-- Clone the Lua repository
-- Build Lua from source
+### Example: zlib Package
+The zlib package is a good reference implementation. It uses `pull_and_build_from_git.py` to:
+- Clone the zlib repository
+- Build zlib from source
 - Package the resulting binaries and headers
 - Create the package image ready for packing
 
