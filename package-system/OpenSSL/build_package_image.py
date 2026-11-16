@@ -47,7 +47,7 @@ def main():
     }
 
     revisionForPlatform = {
-        'android': 'rev2',
+        'android': 'rev3',
         'mac': 'rev1',
         'ios': 'rev1',
         'windows': 'rev1',

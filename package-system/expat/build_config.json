@@ -43,17 +43,6 @@
                 "test_expat_windows.cmd"
               ]
           },
-          "Android": {
-            "cmake_generate_args_release": [
-                "-G",
-                "Ninja",
-                "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake",
-                "-DCMAKE_BUILD_TYPE=Release"
-            ],
-            "custom_test_cmd" : [
-                "test_expat_android.cmd"
-              ]
-        },
         "Emscripten": {
           "cmake_generate_args": [
               "-G",

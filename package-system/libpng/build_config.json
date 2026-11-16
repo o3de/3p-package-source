@@ -43,24 +43,6 @@
                 "custom_test_cmd": [
                     "test_png_windows.cmd"
                 ]
-            },
-            "Android":{
-                "depends_on_packages" :[ 
-                    ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""]
-                ],
-                "cmake_generate_args_release": [
-                    "-G",
-                    "Ninja",
-                    "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake",
-                    "-DCMAKE_BUILD_TYPE=Release"
-                ],
-                "cmake_build_args_release" : [
-                    "--target",
-                    "png_static"
-                ],
-                "custom_test_cmd": [
-                    "test_png_android.cmd"
-                ]
             }
         },
         "Darwin": {
