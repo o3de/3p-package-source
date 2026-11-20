@@ -13,7 +13,13 @@ import subprocess
 from urllib.parse import urlparse
 
 
-TARGETS = ('android-arm', 'ios-arm', 'windows-x64', 'mac-arm', 'linux-arm', 'linux-x64')
+# SDK, deployment target, and LC_BUILD_VERSION platform.
+APPLE_TARGETS = {
+    'ios-arm': ('iphoneos', '14.0', 2),
+    'ios-simulator-arm': ('iphonesimulator', '15.0', 7),
+    'mac-arm': ('macosx', '11.0', 1),
+}
+TARGETS = ('android-arm', *APPLE_TARGETS, 'windows-x64', 'linux-arm', 'linux-x64')
 CONFIGS = ('debug', 'checked', 'profile', 'release')
 GPU_PLATFORMS = ('windows-x64', 'linux-arm', 'linux-x64')
 
@@ -28,12 +34,12 @@ def platform_args(target, source):
                 '-DCMAKE_C_COMPILER=clang-14', '-DCMAKE_CXX_COMPILER=clang++-14']
     if target == 'linux-x64':
         return ['-DCMAKE_C_COMPILER=clang-14', '-DCMAKE_CXX_COMPILER=clang++-14']
-    if target in ('mac-arm', 'ios-arm'):
-        arguments = ['-DCMAKE_OSX_ARCHITECTURES=arm64', '-DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO']
-        if target == 'ios-arm':
-            arguments += ['-DCMAKE_SYSTEM_NAME=iOS', '-DCMAKE_OSX_SYSROOT=iphoneos', '-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0']
-        else:
-            arguments += ['-DCMAKE_OSX_SYSROOT=macosx', '-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0']
+    if target in APPLE_TARGETS:
+        sdk, deployment_target, _ = APPLE_TARGETS[target]
+        arguments = ['-DCMAKE_OSX_ARCHITECTURES=arm64', '-DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO',
+                     '-DCMAKE_OSX_SYSROOT=' + sdk, '-DCMAKE_OSX_DEPLOYMENT_TARGET=' + deployment_target]
+        if sdk != 'macosx':
+            arguments.append('-DCMAKE_SYSTEM_NAME=iOS')
         return arguments
     return []
 
@@ -86,7 +92,7 @@ def build(target, temporary, destination):
         host = platform.system()
         packages = config['Platforms'][host][target]['additional_download_packages']
         prepare_cuda(temporary, target, packages)
-    generator = 'Xcode' if target in ('mac-arm', 'ios-arm') else 'Ninja'
+    generator = 'Xcode' if target in APPLE_TARGETS else 'Ninja'
     gpu = 'ON' if target in GPU_PLATFORMS else 'OFF'
     for config in CONFIGS:
         build_dir = (temporary / 'build' / config).resolve()
@@ -109,7 +115,7 @@ def build(target, temporary, destination):
 
 def test(target, temporary, package):
     source = (temporary / 'src/physx').resolve()
-    generator = 'Xcode' if target in ('mac-arm', 'ios-arm') else 'Ninja'
+    generator = 'Xcode' if target in APPLE_TARGETS else 'Ninja'
     machine = platform.machine().lower()
     native = ((target == 'windows-x64' and platform.system() == 'Windows' and machine in ('amd64', 'x86_64'))
               or (target == 'linux-x64' and platform.system() == 'Linux' and machine in ('amd64', 'x86_64'))
@@ -157,13 +163,14 @@ def inspect_binary(binary, target):
         machine = 62 if target == 'linux-x64' else 183
         valid = data[:6] == b'\x7fELF\x02\x01' and struct.unpack_from('<H', data, 18)[0] == machine
     else:
+        _, _, expected_platform = APPLE_TARGETS[target]
         valid = data[:4] == b'\xcf\xfa\xed\xfe' and struct.unpack_from('<I', data, 4)[0] == 0x100000C
         found_platform = False
         offset = 32
         for _ in range(struct.unpack_from('<I', data, 16)[0]):
             command, size = struct.unpack_from('<II', data, offset)
             if command == 0x32:
-                found_platform = struct.unpack_from('<I', data, offset + 8)[0] == (2 if target == 'ios-arm' else 1)
+                found_platform = struct.unpack_from('<I', data, offset + 8)[0] == expected_platform
             offset += size
         valid = valid and found_platform
     if not valid:

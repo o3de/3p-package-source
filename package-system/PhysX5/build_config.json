@@ -148,6 +148,7 @@
         },
         "Darwin": {
             "ios": "@ios-arm",
+            "ios-simulator-arm64": "@ios-simulator-arm",
             "Mac-arm64": "@mac-arm",
             "ios-arm": {
                 "custom_build_cmd": [
@@ -161,6 +162,21 @@
                     "build_package_image.py",
                     "--platform-name",
                     "ios-arm",
+                    "--test"
+                ]
+            },
+            "ios-simulator-arm": {
+                "custom_build_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "ios-simulator-arm"
+                ],
+                "custom_test_cmd": [
+                    "python",
+                    "build_package_image.py",
+                    "--platform-name",
+                    "ios-simulator-arm",
                     "--test"
                 ]
             },
