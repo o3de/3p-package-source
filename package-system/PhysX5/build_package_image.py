@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 # SDK, deployment target, and LC_BUILD_VERSION platform.
 APPLE_TARGETS = {
     'ios-arm': ('iphoneos', '14.0', 2),
+    'ios-simulator-arm': ('iphonesimulator', '15.0', 7),
     'mac-arm': ('macosx', '11.0', 1),
 }
 TARGETS = ('android-aarch64', *APPLE_TARGETS, 'windows-x64', 'linux-aarch64', 'linux-x64')
