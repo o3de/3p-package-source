@@ -213,7 +213,7 @@ jobs:
         path: scripts
 
     - name: Update python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
       with:
         python-version: '3.10'
         cache: 'pip'
@@ -239,7 +239,7 @@ jobs:
       if: ${{ !contains(matrix.package, 'qt-6') && !contains(matrix.package, 'pyside6') && runner.os == 'Windows' }} 
       uses: ilammy/msvc-dev-cmd@v1.13.0
       with:
-        toolset: 14.29
+        toolset: ${{ !startsWith(matrix.package, 'PhysX-5.') && '14.29' || '' }}
     - name: Install nasm on macos
       if: runner.os == 'macOS'
       run: |
@@ -317,6 +317,10 @@ jobs:
                                 libxrandr-dev libxinerama-dev libxi-dev \
                                 libxkbfile-dev patchelf libharfbuzz0b libsm6 libice6 \
                                 libwayland-cursor0 libwayland-egl1
+
+    - name: Install PhysX ARM cross-compiler
+      if: startsWith(matrix.package, 'PhysX-5.') && endsWith(matrix.package, '-linux-arm')
+      run: sudo apt-get install -y g++-aarch64-linux-gnu
 
     - name: Use sccache
       uses: hendrikmuhs/ccache-action@v1.2.10
