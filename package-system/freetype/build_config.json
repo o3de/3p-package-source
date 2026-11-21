@@ -44,19 +44,6 @@
             "custom_test_cmd" : [
                "test_Freetype_windows.cmd"
            ]
-         },
-         "Android":{
-            "depends_on_packages" :[ 
-               ["zlib-1.2.11-rev5-android", "73c9e88892c237a3fc6eafc04268ccd9d479e6d55f9df2ed58b236c8f9cf2cae", ""]
-            ],
-            "cmake_generate_args" : [
-               "-G",
-               "\"Ninja Multi-Config\"",
-               "-DCMAKE_TOOLCHAIN_FILE=../../../../Scripts/cmake/Platform/Android/Toolchain_android.cmake"
-            ],
-            "custom_test_cmd" : [
-               "test_Freetype_android.cmd"
-           ]
          }
       },
       "Darwin":{

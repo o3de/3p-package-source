@@ -25,14 +25,6 @@
                     "install_zlib_windows.cmd"
                 ]
             },
-            "Android":{
-                "custom_build_cmd" : [
-                    "build_zlib_android.cmd"
-                ],
-                "custom_install_cmd": [
-                    "install_zlib_android.cmd"
-                ]
-            },
             "Emscripten":{
                 "patch_file": "emscripten-alias-fix.patch",
                 "cmake_generate_args" : [

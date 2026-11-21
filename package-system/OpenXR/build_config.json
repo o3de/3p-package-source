@@ -41,6 +41,7 @@
            ]
          },
          "Android":{
+            "package_version": "1.1.41-rev3",
             "depends_on_packages" :[ 
             ],
             "cmake_generate_args" : [

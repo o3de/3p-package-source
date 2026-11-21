@@ -96,8 +96,6 @@ class NvClothBuilder(object):
         cmake_scripts_path = os.path.abspath(os.path.join(self.packageSystemDir, '../Scripts/cmake'))
         nvcloth_dir = self.workingDir / 'NvCloth'
         
-        ly_3rdparty_path = os.getenv('LY_3RDPARTY_PATH')
-
         folder_names = { 
             #system-name  cmake generation, cmake build
             'mac'       : ([
@@ -157,8 +155,6 @@ class NvClothBuilder(object):
                 '-DANDROID_ABI=arm64-v8a',
                 '-DANDROID_ARM_MODE=arm',
                 '-DANDROID_ARM_NEON=TRUE',
-                '-DANDROID_NATIVE_API_LEVEL=21',
-                f'-DLY_NDK_DIR={ly_3rdparty_path}/android-ndk/r21d',
                 '-DPACKAGE_PLATFORM=android',
                 '-DPX_STATIC_LIBRARIES=1',
                 f'-DPX_OUTPUT_DLL_DIR={nvcloth_dir}/bin/android-arm64-v8a-cmake',
@@ -254,10 +250,11 @@ def main():
         # Version v1.1.6-4-gd243404-pr58 describes commit 8e100cc,
         # which is 4 commits above 1.1.6 release (commit d243404),
         # plus pull request 58 applied on top.
+        revisionName = 'rev2' if args.platformName == 'android' else 'rev1'
         builder.writePackageInfoFile(
             packageRoot,
             settings={
-                'PackageName': f'NvCloth-v1.1.6-4-gd243404-pr58-rev1-{args.platformName}',
+                'PackageName': f'NvCloth-v1.1.6-4-gd243404-pr58-{revisionName}-{args.platformName}',
                 'URL': 'https://github.com/NVIDIAGameWorks/NvCloth.git',
                 'License': 'custom',
                 'LicenseFile': 'NvCloth/NvCloth/license.txt',
