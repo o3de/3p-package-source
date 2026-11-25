@@ -6,6 +6,11 @@
 #
 #
 
+ly_add_target_files(TARGETS 3rdParty::Qt::Network::Plugins
+    FILES ${QT_PATH}/plugins/tls/qopensslbackend$<$<CONFIG:debug>:d>.dll
+    OUTPUT_SUBDIRECTORY tls
+)
+
 ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     FILES ${QT_PATH}/plugins/iconengines/qsvgicon$<$<CONFIG:debug>:d>.dll
     OUTPUT_SUBDIRECTORY iconengines

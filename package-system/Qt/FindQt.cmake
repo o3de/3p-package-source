@@ -21,7 +21,7 @@ endif()
 # Force-set QtCore's version here to ensure CMake detects Qt's existence and allows AUTOMOC to work
 set(Qt6Core_VERSION_MAJOR "6" CACHE STRING "Qt's major version" FORCE)
 set(Qt6Core_VERSION_MINOR "12" CACHE STRING "Qt's minor version" FORCE)
-set(Qt6Core_VERSION_PATCH "0" CACHE STRING "Qt's patch version" FORCE)
+set(Qt6Core_VERSION_PATCH "1" CACHE STRING "Qt's patch version" FORCE)
 mark_as_advanced(Qt6Core_VERSION_MAJOR)
 mark_as_advanced(Qt6Core_VERSION_MINOR)
 mark_as_advanced(Qt6Core_VERSION_PATCH)
@@ -39,6 +39,7 @@ set(QT6_COMPONENTS
     Test
     UiPlugin
     UiTools
+    WebSockets
     Widgets
     Xml
 )

@@ -9,20 +9,11 @@
 
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 
-# Arg 1: The tiff package name
-TIFF_FOLDER_NAME=$1
-
-# Arg 2: The zlib package name
-ZLIB_FOLDER_NAME=$2
-
-# Arg 3: The openssl package name
-OPENSSL_FOLDER_NAME=$3
-
 # Determine the host architecture
 CURRENT_HOST_ARCH=$(uname -m)
 
-# Arg 4: The target architecture
-TARGET_ARCH=$4
+# Arg 1: The target architecture
+TARGET_ARCH=$1
 
 # If the host and target architecture does not match, we stop
 if [ "${CURRENT_HOST_ARCH}" != ${TARGET_ARCH} ]
@@ -60,21 +51,14 @@ sudo apt-get install -y libfontconfig1-dev \
     libxrender-dev
 
 BUILD_ROOT="${TEMP_FOLDER}/src"
-QTARRAY="qtbase,qtimageformats,qtsvg,qttools,qttranslations,qtwayland"
+QTARRAY="qtbase,qtimageformats,qtlanguageserver,qtsvg,qttools,qttranslations,qtwayland,qtwebsockets"
 
-TIFF_PACKAGE_ROOT="${TEMP_FOLDER}/${TIFF_FOLDER_NAME}"
-ZLIB_PACKAGE_ROOT="${TEMP_FOLDER}/${ZLIB_FOLDER_NAME}"
-OPENSSL_PACKAGE_ROOT="${TEMP_FOLDER}/${OPENSSL_FOLDER_NAME}"
-for DEPENDENCY_ROOT in "${TIFF_PACKAGE_ROOT}" "${ZLIB_PACKAGE_ROOT}" "${OPENSSL_PACKAGE_ROOT}"
-do
-    if [ ! -d "${DEPENDENCY_ROOT}" ]
-    then
-        echo "Required Qt dependency package not found: ${DEPENDENCY_ROOT}"
-        exit 1
-    fi
-done
+if [ ! -f "${DOWNLOADED_PACKAGE_FOLDERS}/FindOpenSSL.cmake" ]
+then
+    echo "Required OpenSSL package not found: ${DOWNLOADED_PACKAGE_FOLDERS}"
+    exit 1
+fi
 
-QT_DEPENDENCY_MODULE_PATH="${TIFF_PACKAGE_ROOT};${ZLIB_PACKAGE_ROOT};${OPENSSL_PACKAGE_ROOT}"
 QT_PLATFORM_OPTS="-skip qtdeclarative \
     -skip qtactiveqt \
     -no-feature-wayland-server \
@@ -82,8 +66,8 @@ QT_PLATFORM_OPTS="-skip qtdeclarative \
     -feature-dbus \
     -no-feature-printsupport \
     -no-feature-sql \
-    -system-tiff \
-    -system-zlib \
+    -qt-tiff \
+    -qt-zlib \
     -openssl-linked \
     -qt-libjpeg \
     -qt-webp \
@@ -101,10 +85,7 @@ QT_PLATFORM_OPTS="-skip qtdeclarative \
     -no-feature-qtdiag \
     -no-feature-qtplugininfo \
     -- \
-    -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--exclude-libs,libz.a \
-    -DCMAKE_MODULE_LINKER_FLAGS=-Wl,--exclude-libs,libz.a \
-    -DCMAKE_MODULE_PATH=${QT_DEPENDENCY_MODULE_PATH} \
-    -DOPENSSL_USE_STATIC_LIBS=TRUE \
+    -DCMAKE_MODULE_PATH=${DOWNLOADED_PACKAGE_FOLDERS} \
     -DCMAKE_INSTALL_MESSAGE=NEVER"
 BUILD_PATH="${TEMP_FOLDER}/build"
 

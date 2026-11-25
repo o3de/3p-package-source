@@ -10,7 +10,7 @@ REM
 
 REM Set these before running the script
 if not defined VCVARS_PATH set VCVARS_PATH="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-if not defined QTARRAY set QTARRAY=qtbase,qtimageformats,qtsvg,qttools,qttranslations
+if not defined QTARRAY set QTARRAY=qtbase,qtimageformats,qtlanguageserver,qtsvg,qttools,qttranslations,qtwebsockets
 
 REM TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 set QT_SOURCE_ROOT=%TEMP_FOLDER%\src
@@ -27,13 +27,12 @@ if %CHECKS_FAILED%==1 goto FAILURE
 echo Setting up VS2022
 call %VCVARS_PATH% amd64
 
-REM For OpenSSL support
-set OPENSSL_ROOT=%TEMP_FOLDER%\OpenSSL-1.1.1o-rev1-windows\OpenSSL
-set OPENSSL_INCLUDE=%OPENSSL_ROOT%\include
-set OPENSSL_LIB_DEBUG=%OPENSSL_ROOT%\debug\lib
-set OPENSSL_LIB_RELEASE=%OPENSSL_ROOT%\lib
-set INCLUDE=%OPENSSL_INCLUDE%;%INCLUDE%
-set LIB=%OPENSSL_LIB_DEBUG%;%OPENSSL_LIB_RELEASE%;%LIB%
+REM The OpenSSL package uses the same archive names for Debug and Release.
+set "OPENSSL_ROOT=%DOWNLOADED_PACKAGE_FOLDERS:\=/%/OpenSSL"
+if not exist "%OPENSSL_ROOT%/include/openssl/ssl.h" (
+    echo Required OpenSSL package not found: "%OPENSSL_ROOT%"
+    goto FAILURE
+)
 
 REM To prevent max path issues, we go as close as possible to disk root
 cd %TEMP_FOLDER%\..\..\..\..\..
@@ -59,6 +58,8 @@ set _OPTS=-prefix %TARGET_INSTALL_ROOT% ^
     -no-dbus ^
     -no-feature-printsupport ^
     -no-feature-sql ^
+    -qt-tiff ^
+    -qt-zlib ^
     -qt-webp ^
     -no-jasper ^
     -no-mng ^
@@ -75,6 +76,11 @@ set _OPTS=-prefix %TARGET_INSTALL_ROOT% ^
     -no-feature-qtplugininfo ^
     -- ^
     -Wno-dev ^
+    -DOPENSSL_INCLUDE_DIR="%OPENSSL_ROOT%/include" ^
+    -DLIB_EAY_DEBUG="%OPENSSL_ROOT%/debug/lib/libcrypto.lib" ^
+    -DSSL_EAY_DEBUG="%OPENSSL_ROOT%/debug/lib/libssl.lib" ^
+    -DLIB_EAY_RELEASE="%OPENSSL_ROOT%/lib/libcrypto.lib" ^
+    -DSSL_EAY_RELEASE="%OPENSSL_ROOT%/lib/libssl.lib" ^
     -DQT_USE_DEFAULT_CMAKE_OPTIMIZATION_FLAGS=ON ^
     -DCMAKE_C_FLAGS_DEBUG="/MDd /O2 /Zi" ^
     -DCMAKE_CXX_FLAGS_DEBUG="/MDd /O2 /Zi" ^

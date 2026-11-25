@@ -3,20 +3,18 @@
     "package_url": "https://www.qt.io/",
     "package_license": "LGPL-3.0",
     "package_license_file": "LICENSES/LGPL-3.0-only.txt",
-    "src_package_url": "https://download.qt.io/official_releases/qt/6.12/6.12.0/single/qt-everywhere-src-6.12.0.tar.xz",
-    "src_package_sha1": "1c80692d233922156bcd54ac1ec30099d7245f49",
+    "src_package_url": "https://download.qt.io/official_releases/qt/6.12/6.12.1/single/qt-everywhere-src-6.12.1.tar.xz",
+    "src_package_sha1": "b54cabfd36c67f95f4578f5fe24deb9d7a78ccd4",
     "src_package_strip_top_level": true,
     "patch_file": "recursion-check.patch",
-    "package_version": "6.12.0-rev3",
+    "package_version": "6.12.1-rev1",
     "cmake_find_source": "FindQt.cmake",
     "cmake_find_target": "FindQt.cmake",
     "Platforms": {
         "Windows": {
             "Windows": {
                 "depends_on_packages": [
-                    ["OpenSSL-1.1.1o-rev1-windows", "52b9d2bc5f3e0c6e405a0f290d1904bf545acc0c73d6a52351247d917c4a06d2", ""],
-                    ["tiff-4.2.0.15-rev3-windows", "c6000a906e6d2a0816b652e93dfbeab41c9ed73cdd5a613acd53e553d0510b60", ""],
-                    ["zlib-1.2.11-rev5-windows", "8847112429744eb11d92c44026fc5fc53caa4a06709382b5f13978f3c26c4cbd", ""]
+                    ["OpenSSL-3.6.3-rev1-windows", "3d6aa4117ed5f5366b9bc39988b474d648418b3c0a7a2aa2a2ae8ef85c994bc2", ""]
                 ],
                 "custom_build_cmd": [
                     "build-windows.bat"
@@ -29,6 +27,9 @@
         "Darwin": {
             "Mac-arm64": {
                 "cmake_find_source": "FindQt.cmake",
+                "depends_on_packages": [
+                    ["OpenSSL-3.6.3-rev1-mac-arm64", "eebdb8acf4baf483e327206e615c4ebff42af40581822712eda06d8048a8c38d", ""]
+                ],
                 "custom_build_cmd": [
                     "./build-darwin-arm64.sh"
                 ],
@@ -39,17 +40,11 @@
         },
         "Linux": {
             "Linux": {
-                "package_version": "6.12.0-rev4",
                 "depends_on_packages": [
-                    ["OpenSSL-1.1.1t-rev1-linux", "63aea898b7afe8faccd0c7261e62d2f8b7b870f678a4520d5be81e5815542b39", ""],
-                    ["tiff-4.2.0.15-rev3-linux", "2377f48b2ebc2d1628d9f65186c881544c92891312abe478a20d10b85877409a", ""],
-                    ["zlib-1.2.11-rev5-linux", "9be5ea85722fc27a8645a9c8a812669d107c68e6baa2ca0740872eaeb6a8b0fc", ""]
+                    ["OpenSSL-3.6.3-rev1-linux", "24fbf89977f7976ad0e5893877732fe069a5afcb9d5a2e7c75156b248475da5b", ""]
                 ],
                 "custom_build_cmd": [
                     "./build-linux.sh",
-                    "tiff-4.2.0.15-rev3-linux",
-                    "zlib-1.2.11-rev5-linux",
-                    "OpenSSL-1.1.1t-rev1-linux",
                     "x86_64"
                 ],
                 "custom_install_cmd": [
@@ -57,17 +52,11 @@
                 ]
             },
             "Linux-aarch64": {
-                "package_version": "6.12.0-rev4",
                 "depends_on_packages": [
-                    ["OpenSSL-1.1.1t-rev1-linux-aarch64", "f32721bec9c82d1bd7fb244d78d5dc4e2a47e7b808bb36027236ad377e241ea5", ""],
-                    ["tiff-4.2.0.15-rev3-linux-aarch64", "429461014b21a530dcad597c2d91072ae39d937a04b7bbbf5c34491c41767f7f", ""],
-                    ["zlib-1.2.11-rev5-linux-aarch64", "ce9d1ed2883d77ffc69c7982c078595c1f89ca55ec19d89fe7e6beb05f774775", ""]
+                    ["OpenSSL-3.6.3-rev1-linux-aarch64", "c6e360cd1aee6476849a72d96370c51a895ab53155e9fe7e456a0e77a62a6b2a", ""]
                 ],
                 "custom_build_cmd": [
                     "./build-linux.sh",
-                    "tiff-4.2.0.15-rev3-linux-aarch64",
-                    "zlib-1.2.11-rev5-linux-aarch64",
-                    "OpenSSL-1.1.1t-rev1-linux-aarch64",
                     "aarch64"
                 ],
                 "custom_install_cmd": [
