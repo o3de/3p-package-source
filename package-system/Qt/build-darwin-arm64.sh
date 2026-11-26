@@ -16,8 +16,12 @@ MAKE_FLAGS=-j32
 # TEMP_FOLDER and TARGET_INSTALL_ROOT get set from the pull_and_build_from_git.py script
 BUILD_PATH=$TEMP_FOLDER/build
 QT_SOURCE_ROOT=$TEMP_FOLDER/src
+if [[ ! -f "${DOWNLOADED_PACKAGE_FOLDERS}/FindOpenSSL.cmake" ]]; then
+    echo "Required OpenSSL package not found: ${DOWNLOADED_PACKAGE_FOLDERS}"
+    exit 1
+fi
 
-QTARRAY="qtbase,qtimageformats,qtsvg,qttranslations,qttools"
+QTARRAY="qtbase,qtimageformats,qtlanguageserver,qtsvg,qttools,qttranslations,qtwebsockets"
 [[ -d $BUILD_PATH ]] || mkdir $BUILD_PATH
 cd $BUILD_PATH
 
@@ -33,6 +37,7 @@ _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -opensource \
     -qt-tiff \
     -qt-zlib \
+    -openssl-linked \
     -qt-webp \
     -no-jasper \
     -no-mng \
@@ -54,6 +59,7 @@ _OPTS="-prefix ${TARGET_INSTALL_ROOT} \
     -framework \
     -confirm-license \
     -- \
+    -DCMAKE_MODULE_PATH=${DOWNLOADED_PACKAGE_FOLDERS} \
     -DCMAKE_INSTALL_MESSAGE=NEVER"
 
 echo Configuring Qt...

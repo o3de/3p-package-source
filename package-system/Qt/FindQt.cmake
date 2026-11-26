@@ -21,7 +21,7 @@ endif()
 # Force-set QtCore's version here to ensure CMake detects Qt's existence and allows AUTOMOC to work
 set(Qt6Core_VERSION_MAJOR "6" CACHE STRING "Qt's major version" FORCE)
 set(Qt6Core_VERSION_MINOR "12" CACHE STRING "Qt's minor version" FORCE)
-set(Qt6Core_VERSION_PATCH "0" CACHE STRING "Qt's patch version" FORCE)
+set(Qt6Core_VERSION_PATCH "1" CACHE STRING "Qt's patch version" FORCE)
 mark_as_advanced(Qt6Core_VERSION_MAJOR)
 mark_as_advanced(Qt6Core_VERSION_MINOR)
 mark_as_advanced(Qt6Core_VERSION_PATCH)
@@ -39,6 +39,7 @@ set(QT6_COMPONENTS
     Test
     UiPlugin
     UiTools
+    WebSockets
     Widgets
     Xml
 )
@@ -149,27 +150,27 @@ include(${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME}/QtPlugin_${PAL_P
 
 # MOC executable
 unset(QT_MOC_EXECUTABLE CACHE)
-find_program(QT_MOC_EXECUTABLE moc HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
+find_program(QT_MOC_EXECUTABLE moc PATHS "${QT_PATH}/bin" "${QT_PATH}/libexec" NO_DEFAULT_PATH REQUIRED)
 mark_as_advanced(QT_MOC_EXECUTABLE) # Hiding from GUI
 
 # UIC executable
 unset(QT_UIC_EXECUTABLE CACHE)
-find_program(QT_UIC_EXECUTABLE uic HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
+find_program(QT_UIC_EXECUTABLE uic PATHS "${QT_PATH}/bin" "${QT_PATH}/libexec" NO_DEFAULT_PATH REQUIRED)
 mark_as_advanced(QT_UIC_EXECUTABLE) # Hiding from GUI
 
 # RCC executable
 unset(AUTORCC_EXECUTABLE CACHE)
-find_program(AUTORCC_EXECUTABLE rcc HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
+find_program(AUTORCC_EXECUTABLE rcc PATHS "${QT_PATH}/bin" "${QT_PATH}/libexec" NO_DEFAULT_PATH REQUIRED)
 mark_as_advanced(AUTORCC_EXECUTABLE) # Hiding from GUI
 
 # LUPDATE executable
 unset(QT_LUPDATE_EXECUTABLE CACHE)
-find_program(QT_LUPDATE_EXECUTABLE lupdate HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
+find_program(QT_LUPDATE_EXECUTABLE lupdate PATHS "${QT_PATH}/bin" "${QT_PATH}/libexec" NO_DEFAULT_PATH REQUIRED)
 mark_as_advanced(QT_LUPDATE_EXECUTABLE) # Hiding from GUI
 
 # LRELEASE executable
 unset(QT_LRELEASE_EXECUTABLE CACHE)
-find_program(QT_LRELEASE_EXECUTABLE lrelease HINTS "${QT_PATH}/bin" "${QT_PATH}/libexec" REQUIRED)
+find_program(QT_LRELEASE_EXECUTABLE lrelease PATHS "${QT_PATH}/bin" "${QT_PATH}/libexec" NO_DEFAULT_PATH REQUIRED)
 mark_as_advanced(QT_LRELEASE_EXECUTABLE) # Hiding from GUI
 
 # We don't use AUTOUIC, AUTOMOC or AUTORCC from cmake

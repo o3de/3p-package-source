@@ -23,6 +23,11 @@ foreach(component ${QT6_COMPONENTS})
     endif()
 endforeach()
 
+ly_add_target_files(TARGETS 3rdParty::Qt::Network::Plugins
+    FILES ${QT_PATH}/plugins/tls/libqopensslbackend.so
+    OUTPUT_SUBDIRECTORY tls
+)
+
 ly_add_target_files(TARGETS 3rdParty::Qt::Gui::Plugins
     FILES ${QT_PATH}/plugins/iconengines/libqsvgicon.so
     OUTPUT_SUBDIRECTORY iconengines
